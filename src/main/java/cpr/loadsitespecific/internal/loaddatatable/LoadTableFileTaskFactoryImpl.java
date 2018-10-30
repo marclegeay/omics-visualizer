@@ -50,8 +50,11 @@ public class LoadTableFileTaskFactoryImpl extends AbstractTaskFactory implements
 
 	@Override
 	public TaskIterator createTaskIterator(final File file) {
+		/*
 		final CyTableReaderManager tableReaderMgr = serviceRegistrar.getService(CyTableReaderManager.class);
 		final CyTableReader reader = tableReaderMgr.getReader(file.toURI(), file.toURI().toString());
+		*/
+		final CyTableReader reader = new SiteSpecificReader();
 
 		return new TaskIterator(new CombineReaderAndMappingTask(reader, serviceRegistrar));
 	}

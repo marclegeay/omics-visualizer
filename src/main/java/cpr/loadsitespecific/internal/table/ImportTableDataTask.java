@@ -61,6 +61,7 @@ import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.ProvidesTitle;
 import org.cytoscape.work.TaskMonitor;
+import org.cytoscape.work.TaskMonitor.Level;
 import org.cytoscape.work.Tunable;
 import org.cytoscape.work.TunableValidator;
 import org.cytoscape.work.json.JSONResult;
@@ -415,6 +416,10 @@ public class ImportTableDataTask extends AbstractTask implements TunableValidato
 			if (name2RootMap.isEmpty())
 				return;
 		}
+		
+		/*
+		 * ML: Do something here!
+		 */
 
 		if (whereImportTable.getSelectedValue().matches(NETWORK_COLLECTION))
 			mapTableToDefaultAttrs(getDataTypeOptions());
@@ -502,6 +507,7 @@ public class ImportTableDataTask extends AbstractTask implements TunableValidato
 	}
 	
 	private void mapTableToLocalAttrs(final TableType tableType) {
+		logger.info("mapTableToLocalAttrs");
 		final List<CyNetwork> networks = new ArrayList<>();
 
 		if (targetNetworkList.getSelectedValues().isEmpty())
@@ -547,6 +553,7 @@ public class ImportTableDataTask extends AbstractTask implements TunableValidato
 	}
 
 	private void applyMapping(final CyTable targetTable, final boolean caseSensitive) {
+		logger.info("applyMapping");
 		ArrayList<CyColumn> columns = new ArrayList<>();
 		
 		if (byReader) {
@@ -668,6 +675,7 @@ public class ImportTableDataTask extends AbstractTask implements TunableValidato
 	}
 	
 	private void addTable(){
+		logger.info("addTable");
 		final CyTableManager tableMgr = serviceRegistrar.getService(CyTableManager.class);
 		
 		if (byReader) {
