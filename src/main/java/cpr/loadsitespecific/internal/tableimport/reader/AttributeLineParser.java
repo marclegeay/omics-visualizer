@@ -53,37 +53,46 @@ public class AttributeLineParser extends AbstractLineParser {
 	 * Import everything regardless associated nodes/edges exist or not.
 	 * @param parts entries in a line.
 	 */
-	public void parseAll(final CyTable table, final String[] parts) {
-		// Get key
-		final Object primaryKey ;
+	// Modification ML: In order to have several rows with the same ID, we use the rownumber as en id
+	public void parseAll(final CyTable table, final String[] parts, int rowid) {
+//		// Get key
+//		final Object primaryKey ;
+		final Object primaryKey = Integer.valueOf(rowid);
 		final int partsLen = parts.length;
-		final AttributeDataType typeKey = mapping.getDataTypes()[mapping.getKeyIndex()];
+//		final AttributeDataType typeKey = mapping.getDataTypes()[mapping.getKeyIndex()];
 		
-		switch (typeKey) {
-			case TYPE_BOOLEAN:
-				primaryKey = Boolean.valueOf(parts[mapping.getKeyIndex()].trim());
-				break;
-			case TYPE_INTEGER:
-				primaryKey = Integer.valueOf(parts[mapping.getKeyIndex()].trim());
-				break;
-			case TYPE_LONG:
-				primaryKey = Long.valueOf(parts[mapping.getKeyIndex()].trim());
-				break;
-			case TYPE_FLOATING:
-				primaryKey = Double.valueOf(parts[mapping.getKeyIndex()].trim());
-				break;
-			default:
-				primaryKey = parts[mapping.getKeyIndex()].trim();
-		}
+//		switch (typeKey) {
+//			case TYPE_BOOLEAN:
+//				primaryKey = Boolean.valueOf(parts[mapping.getKeyIndex()].trim());
+//				break;
+//			case TYPE_INTEGER:
+//				primaryKey = Integer.valueOf(parts[mapping.getKeyIndex()].trim());
+//				break;
+//			case TYPE_LONG:
+//				primaryKey = Long.valueOf(parts[mapping.getKeyIndex()].trim());
+//				break;
+//			case TYPE_FLOATING:
+//				primaryKey = Double.valueOf(parts[mapping.getKeyIndex()].trim());
+//				break;
+//			default:
+//				primaryKey = parts[mapping.getKeyIndex()].trim();
+//		}
 
 		if (partsLen == 1) {
-			table.getRow(parts[0]);
+			// Modification ML: to avoid empty lines :
+			if ((parts[0] != null) && (parts[0].length() > 0))
+				table.getRow(parts[0]);
 		} else {
 			final SourceColumnSemantic[] types = mapping.getTypes();
 			
+			// Modification ML: We can have several
 			for (int i = 0; i < partsLen; i++) {
-				if (i != mapping.getKeyIndex() && types[i] != SourceColumnSemantic.NONE) {
+//				if (i != mapping.getKeyIndex() && types[i] != SourceColumnSemantic.NONE) {
+				if (types[i] != SourceColumnSemantic.NONE) {
 					if (parts[i] == null)
+						continue;
+					// Modification ML: to avoid empty lines :
+					else if (parts[i].length() == 0)
 						continue;
 					else
 						mapAttribute(table, primaryKey, parts[i].trim(), i);

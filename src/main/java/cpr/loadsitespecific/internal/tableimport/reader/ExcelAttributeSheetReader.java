@@ -89,7 +89,8 @@ public class ExcelAttributeSheetReader implements TextTableReader {
 			cellsInOneRow = createElementStringArray(row);
 			try {
 				//if(importAll)
-					parser.parseAll(table, cellsInOneRow);
+					// Modification ML: In order to insert several rows with the same ID, we use the row number as an ID
+					parser.parseAll(table, cellsInOneRow, rowCount);
 				//else 
 				//	parser.parseEntry(table, cellsInOneRow);
 			} catch (Exception ex) {

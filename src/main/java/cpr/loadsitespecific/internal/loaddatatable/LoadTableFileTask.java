@@ -43,6 +43,8 @@ public class LoadTableFileTask extends AbstractLoadTableTask {
 
 	@Override
 	public void run(final TaskMonitor taskMonitor) throws Exception {
+		System.out.println("LoadTableFileTask::run");
 		loadTable(file.getName(), file.toURI(), true, taskMonitor);
+		System.out.println("LoadTableFileTask::run end of task ?");
 	}
 }

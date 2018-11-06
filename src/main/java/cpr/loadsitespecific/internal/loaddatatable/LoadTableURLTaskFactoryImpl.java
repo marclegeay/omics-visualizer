@@ -37,6 +37,8 @@ import org.cytoscape.task.read.LoadTableURLTaskFactory;
 import org.cytoscape.work.AbstractTaskFactory;
 import org.cytoscape.work.TaskIterator;
 
+import cpr.loadsitespecific.internal.task.LoadSiteSpecificTableReaderTask;
+
 
 public class LoadTableURLTaskFactoryImpl extends AbstractTaskFactory implements LoadTableURLTaskFactory {
 
@@ -48,6 +50,7 @@ public class LoadTableURLTaskFactoryImpl extends AbstractTaskFactory implements 
 
 	@Override
 	public TaskIterator createTaskIterator() {
+		System.out.println("LoadTableURLTaskFactoryImpl::createTaskIterator()");
 		return new TaskIterator(2, new LoadTableURLTask(serviceRegistrar));
 	}
 
@@ -61,8 +64,12 @@ public class LoadTableURLTaskFactoryImpl extends AbstractTaskFactory implements 
 			e.printStackTrace();
 		}
 
+		//*
 		final CyTableReaderManager tableReaderMgr = serviceRegistrar.getService(CyTableReaderManager.class);
 		final CyTableReader reader = tableReaderMgr.getReader(uri, uri.toString());
+		//*/
+		//final CyTableReader reader = new LoadSiteSpecificTableReaderTask(serviceRegistrar);
+		System.out.println("LoadTableURLTaskFactoryImpl::createTaskIterator("+uri+")");
 
 		return new TaskIterator(new CombineReaderAndMappingTask(reader, serviceRegistrar));
 	}

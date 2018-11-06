@@ -35,6 +35,10 @@ import org.cytoscape.task.read.LoadTableFileTaskFactory;
 import org.cytoscape.work.AbstractTaskFactory;
 import org.cytoscape.work.TaskIterator;
 
+import cpr.loadsitespecific.internal.api_io.read.CyTableDoubleIDReaderManager;
+import cpr.loadsitespecific.internal.io.read.CyTableDoubleIDReaderManagerImpl;
+import cpr.loadsitespecific.internal.task.LoadSiteSpecificTableReaderTask;
+
 
 public class LoadTableFileTaskFactoryImpl extends AbstractTaskFactory implements LoadTableFileTaskFactory {
 
@@ -45,16 +49,18 @@ public class LoadTableFileTaskFactoryImpl extends AbstractTaskFactory implements
 	}
 
 	public TaskIterator createTaskIterator() {
+		System.out.println("LoadTableFileTaskFactoryImpl::createTaskIterator()");
 		return new TaskIterator(2, new LoadTableFileTask(serviceRegistrar));
 	}
 
 	@Override
 	public TaskIterator createTaskIterator(final File file) {
-		/*
+		//*
 		final CyTableReaderManager tableReaderMgr = serviceRegistrar.getService(CyTableReaderManager.class);
 		final CyTableReader reader = tableReaderMgr.getReader(file.toURI(), file.toURI().toString());
-		*/
-		final CyTableReader reader = new SiteSpecificReader();
+		//*/
+		//final CyTableReader reader = new LoadSiteSpecificTableReaderTask(serviceRegistrar);
+		System.out.println("LoadTableFileTaskFactoryImpl::createTaskIterator("+file+")");
 
 		return new TaskIterator(new CombineReaderAndMappingTask(reader, serviceRegistrar));
 	}

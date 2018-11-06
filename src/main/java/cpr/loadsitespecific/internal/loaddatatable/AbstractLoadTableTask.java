@@ -38,6 +38,8 @@ import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.json.JSONResult;
 
+import cpr.loadsitespecific.internal.api_io.read.CyTableDoubleIDReaderManager;
+
 
 abstract class AbstractLoadTableTask extends AbstractTask {
 
@@ -50,9 +52,18 @@ abstract class AbstractLoadTableTask extends AbstractTask {
 	void loadTable(final String name, final URI uri, boolean combine, final TaskMonitor taskMonitor) throws Exception {
 		taskMonitor.setStatusMessage("Finding Table Data Reader...");
 
-		final CyTableReaderManager tableReaderMgr = serviceRegistrar.getService(CyTableReaderManager.class);
+		//test ML:
+		//final CyTableReaderManager tableReaderMgr = serviceRegistrar.getService(CyTableReaderManager.class);
+		final CyTableDoubleIDReaderManager tableReaderMgr = serviceRegistrar.getService(CyTableDoubleIDReaderManager.class);
 		final CyTableReader reader = tableReaderMgr.getReader(uri, uri.toString());
-
+		System.out.println("AbstractLoadTableTask::loadTable : reader = " + reader.toString());
+/*
+		final CyTableDoubleIDReaderManager tableReaderMgr2 = serviceRegistrar.getService(CyTableDoubleIDReaderManager.class);
+		final CyTableReader reader2 = tableReaderMgr2.getReader(uri, uri.toString());
+		System.out.println("AbstractLoadTableTask::loadTable : reader2 = " + reader2.toString());
+		//final CyTableReader reader = null;
+//*/
+		
 		if (reader == null)
 			throw new NullPointerException("Failed to find reader for specified file.");
 		
