@@ -34,7 +34,7 @@ import org.cytoscape.work.ProvidesTitle;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.TunableValidator;
 
-import cpr.loadsitespecific.internal.table.ImportTableDataTask;
+import cpr.loadsitespecific.internal.table.ImportDoubleIDTableDataTask;
 
 public class CombineReaderAndMappingTask extends AbstractTask implements TunableValidator {
 
@@ -42,7 +42,7 @@ public class CombineReaderAndMappingTask extends AbstractTask implements Tunable
 	public String getTitle() {		return "Import Columns From Table";	}
 
 	@ContainsTunables
-	public ImportTableDataTask importTableDataTask;
+	public ImportDoubleIDTableDataTask importTableDataTask;
 	
 	@ContainsTunables
 	public CyTableReader tableReader;
@@ -50,7 +50,7 @@ public class CombineReaderAndMappingTask extends AbstractTask implements Tunable
 	
 	public CombineReaderAndMappingTask(final CyTableReader tableReader, final CyServiceRegistrar serviceRegistrar) {
 		this.tableReader = tableReader;
-		this.importTableDataTask = new ImportTableDataTask(tableReader, serviceRegistrar);
+		this.importTableDataTask = new ImportDoubleIDTableDataTask(tableReader, serviceRegistrar);
 	}
 
 	@Override

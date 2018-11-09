@@ -36,7 +36,9 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.io.read.CyTableReader;
+import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.service.util.CyServiceRegistrar;
@@ -48,6 +50,7 @@ import cpr.loadsitespecific.internal.tableimport.reader.TextTableReader;
 import cpr.loadsitespecific.internal.tableimport.util.AttributeDataType;
 import cpr.loadsitespecific.internal.tableimport.util.SourceColumnSemantic;
 import cpr.loadsitespecific.internal.tableimport.util.TypeUtil;
+
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.work.AbstractTask;
@@ -176,6 +179,17 @@ public class ImportAttributeDoubleIDTableReaderTask extends AbstractTask impleme
 //		final AttributeDataType dataType = readerAMP.getDataTypes()[readerAMP.getKeyIndex()];
 //		final Class<?> keyType;
 		final Class<?> keyType = Integer.class;
+		
+		// ML: we store the mapping primary key in the Network table.
+		final String mappingPrimaryKey = readerAMP.getAttributeNames()[readerAMP.getKeyIndex()];
+		CyNetwork network = this.serviceRegistrar.getService(CyApplicationManager.class).getCurrentNetwork();
+		if(network != null) {
+			CyTable netTable = network.getDefaultNetworkTable();
+			if(netTable.getColumn("mapping primary key attribute") == null) {
+				netTable.createColumn("mapping primary key attribute", String.class, false);
+			}
+			netTable.getRow(network.getSUID()).set("mapping primary key attribute", mappingPrimaryKey);
+		}
 		
 //		switch (dataType) {
 //			case TYPE_INTEGER:

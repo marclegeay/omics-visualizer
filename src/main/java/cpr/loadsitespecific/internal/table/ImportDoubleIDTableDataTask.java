@@ -70,7 +70,7 @@ import org.cytoscape.work.util.ListSingleSelection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ImportTableDataTask extends AbstractTask implements TunableValidator, ObservableTask {
+public class ImportDoubleIDTableDataTask extends AbstractTask implements TunableValidator, ObservableTask {
 	
 	enum TableType {
 		NODE_ATTR("Node Table Columns", CyNode.class),
@@ -276,14 +276,14 @@ public class ImportTableDataTask extends AbstractTask implements TunableValidato
 	@ProvidesTitle
 	public String getTitle() {		return "Import Data";	}
 
-	public ImportTableDataTask(final CyTableReader reader, final CyServiceRegistrar serviceRegistrar) {
+	public ImportDoubleIDTableDataTask(final CyTableReader reader, final CyServiceRegistrar serviceRegistrar) {
 		this.reader = reader;
 		this.serviceRegistrar = serviceRegistrar;
 		this.byReader = true;
 		init();
 	}
 
-	public ImportTableDataTask(final CyTable globalTable, final CyServiceRegistrar serviceRegistrar) {
+	public ImportDoubleIDTableDataTask(final CyTable globalTable, final CyServiceRegistrar serviceRegistrar) {
 		this.byReader = false;
 		this.serviceRegistrar = serviceRegistrar;
 		this.globalTable = globalTable;
@@ -417,16 +417,14 @@ public class ImportTableDataTask extends AbstractTask implements TunableValidato
 				return;
 		}
 		
-		/*
-		 * ML: Do something here!
-		 */
-
-		if (whereImportTable.getSelectedValue().matches(NETWORK_COLLECTION))
-			mapTableToDefaultAttrs(getDataTypeOptions());
-		if (whereImportTable.getSelectedValue().matches(NETWORK_SELECTION))
-			mapTableToLocalAttrs(getDataTypeOptions());
-		if (whereImportTable.getSelectedValue().matches(UNASSIGNED_TABLE))
-			addTable();
+		// ML : In order to load DoubleID tables, we always add a new table
+		addTable();
+//		if (whereImportTable.getSelectedValue().matches(NETWORK_COLLECTION))
+//			mapTableToDefaultAttrs(getDataTypeOptions());
+//		if (whereImportTable.getSelectedValue().matches(NETWORK_SELECTION))
+//			mapTableToLocalAttrs(getDataTypeOptions());
+//		if (whereImportTable.getSelectedValue().matches(UNASSIGNED_TABLE))
+//			addTable();
 	}
 	
 	private void updateKeyColumnForMapping() {
