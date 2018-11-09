@@ -10,7 +10,7 @@ import java.util.Properties;
 import org.cytoscape.io.util.StreamUtil;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.service.util.CyServiceRegistrar;
-import cpr.loadsitespecific.internal.tableimport.tunable.AttributeMappingParametersHandlerFactory;
+import cpr.loadsitespecific.internal.tableimport.tunable.AttributeDoubleIDMappingParametersHandlerFactory;
 import cpr.loadsitespecific.internal.tableimport.util.ImportType;
 
 import cpr.loadsitespecific.internal.tableimport.io.WildCardCyFileFilter;
@@ -22,17 +22,13 @@ import org.osgi.framework.BundleContext;
 import cpr.loadsitespecific.internal.api_io.read.CyTableDoubleIDReaderManager;
 import cpr.loadsitespecific.internal.api_io.read.InputStreamTaskFactory;
 import cpr.loadsitespecific.internal.io.read.CyTableDoubleIDReaderManagerImpl;
-import cpr.loadsitespecific.internal.loaddatatable.LoadTableFileTaskFactoryImpl;
-import cpr.loadsitespecific.internal.tableimport.task.ImportAttributeTableReaderFactory;
+import cpr.loadsitespecific.internal.loaddatatable.LoadDoubleIDTableFileTaskFactoryImpl;
+import cpr.loadsitespecific.internal.tableimport.task.ImportAttributeDoubleIDTableReaderFactory;
 
 public class CyActivator extends AbstractCyActivator {
 
 	@Override
 	public void start(BundleContext context) throws Exception {
-		System.out.println("=== DEBUG MESSAGES ===");
-		System.out.println("LAUNCHING LoadSiteSpecific App");
-		System.out.println("=== CyActivator.java ===");
-		
 		final CyServiceRegistrar serviceRegistrar = getService(context, CyServiceRegistrar.class);
 		final StreamUtil streamUtil = getService(context, StreamUtil.class);
 		
@@ -52,7 +48,7 @@ public class CyActivator extends AbstractCyActivator {
 					TABLE,
 					streamUtil
 			);
-			ImportAttributeTableReaderFactory factory = new ImportAttributeTableReaderFactory(filter, serviceRegistrar);
+			ImportAttributeDoubleIDTableReaderFactory factory = new ImportAttributeDoubleIDTableReaderFactory(filter, serviceRegistrar);
 			Properties props = new Properties();
 			props.setProperty("readerDescription", "Attribute Table file reader");
 			props.setProperty("readerId", "attributeTableReader");
@@ -72,7 +68,7 @@ public class CyActivator extends AbstractCyActivator {
 					"pdf", "jpg", "jpeg", "gif", "png", "svg", "tiff", "ttf", "mp3", "mp4", "mpg", "mpeg",
 					"exe", "dmg", "iso", "cys");
 
-			ImportAttributeTableReaderFactory factory = new ImportAttributeTableReaderFactory(filter, serviceRegistrar);
+			ImportAttributeDoubleIDTableReaderFactory factory = new ImportAttributeDoubleIDTableReaderFactory(filter, serviceRegistrar);
 			Properties props = new Properties();
 			props.setProperty("readerDescription", "Attribute Table file reader");
 			props.setProperty("readerId", "attributeTableReader_txt");
@@ -80,13 +76,13 @@ public class CyActivator extends AbstractCyActivator {
 		}
 		// Code from table-import-impl CyActivator
 		{
-			AttributeMappingParametersHandlerFactory factory =
-					new AttributeMappingParametersHandlerFactory(ImportType.TABLE_IMPORT, serviceRegistrar);
+			AttributeDoubleIDMappingParametersHandlerFactory factory =
+					new AttributeDoubleIDMappingParametersHandlerFactory(ImportType.TABLE_IMPORT, serviceRegistrar);
 			registerService(context, factory, GUITunableHandlerFactory.class);
 		}
 		// Code from core-task-impl CyActivator
 		{
-			LoadTableFileTaskFactoryImpl factory = new LoadTableFileTaskFactoryImpl(serviceRegistrar);
+			LoadDoubleIDTableFileTaskFactoryImpl factory = new LoadDoubleIDTableFileTaskFactoryImpl(serviceRegistrar);
 			
 			Properties props = new Properties();
 			props.setProperty(PREFERRED_MENU, "File.Import"); // File.Import.Table

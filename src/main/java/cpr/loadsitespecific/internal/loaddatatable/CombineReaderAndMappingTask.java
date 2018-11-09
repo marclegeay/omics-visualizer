@@ -49,7 +49,6 @@ public class CombineReaderAndMappingTask extends AbstractTask implements Tunable
 
 	
 	public CombineReaderAndMappingTask(final CyTableReader tableReader, final CyServiceRegistrar serviceRegistrar) {
-		System.out.println("CombineReaderAndMappingTask("+tableReader+", "+serviceRegistrar+")");
 		this.tableReader = tableReader;
 		this.importTableDataTask = new ImportTableDataTask(tableReader, serviceRegistrar);
 	}
@@ -70,7 +69,6 @@ public class CombineReaderAndMappingTask extends AbstractTask implements Tunable
 
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
-		System.out.println("CombineReaderAndMappingTask::run - "+tableReader.getClass().toString());
 		tableReader.run(taskMonitor);
 		importTableDataTask.run(taskMonitor);
 	}

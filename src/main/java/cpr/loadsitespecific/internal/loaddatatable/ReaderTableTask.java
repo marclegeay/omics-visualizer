@@ -61,7 +61,6 @@ public class ReaderTableTask extends AbstractTask implements TunableValidator {
 
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
-		System.out.println("ReaderTableTask::run");
 		tableReader.run(taskMonitor);
 	}
 }

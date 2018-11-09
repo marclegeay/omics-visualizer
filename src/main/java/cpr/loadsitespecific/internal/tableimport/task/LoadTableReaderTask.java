@@ -42,8 +42,8 @@ import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.service.util.CyServiceRegistrar;
 import cpr.loadsitespecific.internal.tableimport.reader.AttributeMappingParameters;
-import cpr.loadsitespecific.internal.tableimport.reader.DefaultAttributeTableReader;
-import cpr.loadsitespecific.internal.tableimport.reader.ExcelAttributeSheetReader;
+import cpr.loadsitespecific.internal.tableimport.reader.DefaultAttributeDoubleIDTableReader;
+import cpr.loadsitespecific.internal.tableimport.reader.ExcelAttributeDoubleIDSheetReader;
 import cpr.loadsitespecific.internal.tableimport.reader.SupportedFileType;
 import cpr.loadsitespecific.internal.tableimport.reader.TextDelimiter;
 import cpr.loadsitespecific.internal.tableimport.reader.TextTableReader;
@@ -317,11 +317,11 @@ public class LoadTableReaderTask extends AbstractTask implements CyTableReader, 
 			final Sheet sheet = workbook.getSheet(sourceName);
 			
 			if (sheet != null) {
-				reader = new ExcelAttributeSheetReader(sheet, amp, serviceRegistrar);
+				reader = new ExcelAttributeDoubleIDSheetReader(sheet, amp, serviceRegistrar);
 				loadAnnotation(tm);
 			}
 		} else {
-			reader = new DefaultAttributeTableReader(null, amp, this.isEnd, serviceRegistrar); 
+			reader = new DefaultAttributeDoubleIDTableReader(null, amp, this.isEnd, serviceRegistrar); 
 			loadAnnotation(tm);
 		}
 	}

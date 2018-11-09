@@ -229,7 +229,6 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 			final InputStreamTaskFactory factory,
 			final CyServiceRegistrar serviceRegistrar
 	) throws JAXBException, IOException {
-		System.out.println("LoadSiteSpecific.tableimport.ui/ImportTablePanel::ImportTablePanel(...)");
 		this.factory = factory;
 		this.serviceRegistrar = serviceRegistrar;
 		this.fileType = fileType;
@@ -753,7 +752,6 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 	
 	protected PreviewTablePanel getPreviewPanel() {
 		if (previewPanel == null) {
-			System.out.println("table-import-impl.ui/ImportTablePanel::getPreviewPanel() [previewPanel=null]");
 			if (importType == ONTOLOGY_IMPORT) {
 				getCommentLineTextField().setText("!");
 				getImportAllCheckBox().setEnabled(false);

@@ -180,7 +180,6 @@ public class PreviewTablePanel extends JPanel {
 	 * Creates a new PreviewTablePanel object.
 	 */
 	public PreviewTablePanel(final ImportType importType, final IconManager iconManager) {
-		System.out.println("PreviewTablePanel(2)");
 		this.importType = importType;
 		this.iconManager = iconManager;
 
