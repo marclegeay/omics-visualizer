@@ -10,6 +10,9 @@ import java.util.Properties;
 import org.cytoscape.io.util.StreamUtil;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.service.util.CyServiceRegistrar;
+import org.cytoscape.work.TaskFactory;
+import org.cytoscape.work.swing.GUITunableHandlerFactory;
+import org.osgi.framework.BundleContext;
 
 import dk.ku.cpr.OmicsVisualizer.internal.api_io.read.CyTableDoubleIDReaderManager;
 import dk.ku.cpr.OmicsVisualizer.internal.api_io.read.InputStreamTaskFactory;
@@ -19,11 +22,6 @@ import dk.ku.cpr.OmicsVisualizer.internal.tableimport.io.WildCardCyFileFilter;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.task.ImportAttributeDoubleIDTableReaderFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.tunable.AttributeDoubleIDMappingParametersHandlerFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.ImportType;
-
-import org.cytoscape.task.read.LoadTableFileTaskFactory;
-import org.cytoscape.work.TaskFactory;
-import org.cytoscape.work.swing.GUITunableHandlerFactory;
-import org.osgi.framework.BundleContext;
 
 public class CyActivator extends AbstractCyActivator {
 
@@ -85,9 +83,10 @@ public class CyActivator extends AbstractCyActivator {
 			LoadDoubleIDTableFileTaskFactoryImpl factory = new LoadDoubleIDTableFileTaskFactoryImpl(serviceRegistrar);
 			
 			Properties props = new Properties();
-			props.setProperty(PREFERRED_MENU, "File.Import"); // File.Import.Table
+//			props.setProperty(PREFERRED_MENU, "File.Import"); // File.Import.Table
+			props.setProperty(PREFERRED_MENU, "Apps.Omics Visualizer");
 			props.setProperty(MENU_GRAVITY, "5.2");
-			props.setProperty(TITLE, "Site Specific Table from File...");
+			props.setProperty(TITLE, "Load a File...");
 			registerService(context, factory, TaskFactory.class, props);
 			//registerService(context, factory, LoadTableFileTaskFactory.class, props);
 		}

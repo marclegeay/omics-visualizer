@@ -203,30 +203,30 @@ public class ImportAttributeDoubleIDTableReaderTask extends AbstractTask impleme
 		cyTables = new CyTable[] { table };
 		tm.setProgress(0.3);
 		
-		// TODO ML : This is temporary, it should be moved to a "upper" function
-		// ML: we store the mapping primary key in the Network table.
-		final String mappingPrimaryKey = readerAMP.getAttributeNames()[readerAMP.getKeyIndex()];
-		CyNetwork network = this.serviceRegistrar.getService(CyApplicationManager.class).getCurrentNetwork();
-		if(network != null) {
-			CyTable netTable = network.getDefaultNetworkTable();
-			
-			if(netTable.getColumn(SiteSpecificShared.MAPPING_CUSTOM_NODE_COL) == null) {
-				netTable.createColumn(SiteSpecificShared.MAPPING_CUSTOM_NODE_COL, String.class, false);
-			}
-			netTable.getRow(network.getSUID()).set(SiteSpecificShared.MAPPING_CUSTOM_NODE_COL, mappingPrimaryKey);
-			
-			if(netTable.getColumn(SiteSpecificShared.MAPPING_NODE_CUSTOM_COL) == null) {
-				netTable.createColumn(SiteSpecificShared.MAPPING_NODE_CUSTOM_COL, String.class, false);
-			}
-			// TODO ML : Find the mappingPrimaryKey Node -> Key
-			netTable.getRow(network.getSUID()).set(SiteSpecificShared.MAPPING_NODE_CUSTOM_COL, mappingPrimaryKey);
-
-			
-			if(netTable.getColumn(SiteSpecificShared.CUSTOM_SUID_COL) == null) {
-				netTable.createColumn(SiteSpecificShared.CUSTOM_SUID_COL, Long.class, false);
-			}
-			netTable.getRow(network.getSUID()).set(SiteSpecificShared.CUSTOM_SUID_COL, table.getSUID());
-		}
+//		// TODO ML : This is temporary, it should be moved to a "upper" function
+//		// ML: we store the mapping primary key in the Network table.
+//		final String mappingPrimaryKey = readerAMP.getAttributeNames()[readerAMP.getKeyIndex()];
+//		CyNetwork network = this.serviceRegistrar.getService(CyApplicationManager.class).getCurrentNetwork();
+//		if(network != null) {
+//			CyTable netTable = network.getDefaultNetworkTable();
+//			
+//			if(netTable.getColumn(SiteSpecificShared.MAPPING_CUSTOM_NODE_COL) == null) {
+//				netTable.createColumn(SiteSpecificShared.MAPPING_CUSTOM_NODE_COL, String.class, false);
+//			}
+//			netTable.getRow(network.getSUID()).set(SiteSpecificShared.MAPPING_CUSTOM_NODE_COL, mappingPrimaryKey);
+//			
+//			if(netTable.getColumn(SiteSpecificShared.MAPPING_NODE_CUSTOM_COL) == null) {
+//				netTable.createColumn(SiteSpecificShared.MAPPING_NODE_CUSTOM_COL, String.class, false);
+//			}
+//			// TODO ML : Find the mappingPrimaryKey Node -> Key
+//			netTable.getRow(network.getSUID()).set(SiteSpecificShared.MAPPING_NODE_CUSTOM_COL, mappingPrimaryKey);
+//
+//			
+//			if(netTable.getColumn(SiteSpecificShared.CUSTOM_SUID_COL) == null) {
+//				netTable.createColumn(SiteSpecificShared.CUSTOM_SUID_COL, Long.class, false);
+//			}
+//			netTable.getRow(network.getSUID()).set(SiteSpecificShared.CUSTOM_SUID_COL, table.getSUID());
+//		}
 		
 		try {
 			this.reader.readTable(table);

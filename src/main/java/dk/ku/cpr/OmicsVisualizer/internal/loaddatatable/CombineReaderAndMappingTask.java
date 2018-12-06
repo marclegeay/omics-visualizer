@@ -36,10 +36,10 @@ import org.cytoscape.work.TunableValidator;
 
 import dk.ku.cpr.OmicsVisualizer.internal.table.ImportDoubleIDTableDataTask;
 
-public class CombineReaderAndMappingTask extends AbstractTask implements TunableValidator {
+public class CombineReaderAndMappingTask extends AbstractTask implements TunableValidator{
 
 	@ProvidesTitle
-	public String getTitle() {		return "Import Columns From Table";	}
+	public String getTitle() {		return "Import File";	}
 
 	@ContainsTunables
 	public ImportDoubleIDTableDataTask importTableDataTask;
@@ -53,6 +53,7 @@ public class CombineReaderAndMappingTask extends AbstractTask implements Tunable
 		this.importTableDataTask = new ImportDoubleIDTableDataTask(tableReader, serviceRegistrar);
 	}
 
+	
 	@Override
 	public ValidationState getValidationState(Appendable errMsg) {
 		if (tableReader instanceof TunableValidator) {

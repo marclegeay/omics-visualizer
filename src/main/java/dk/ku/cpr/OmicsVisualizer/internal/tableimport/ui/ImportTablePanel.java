@@ -1306,43 +1306,53 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 		layout.setAutoCreateContainerGaps(true);
 		layout.setAutoCreateGaps(true);
 		
-		/*
-		 * Case 1: Simple Attribute Import
-		 */
-		if (importType == TABLE_IMPORT) {
-			layout.setHorizontalGroup(layout.createParallelGroup(LEADING)
-					.addComponent(getBasicPanel(), DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
-					.addComponent(getPreviewPanel(), DEFAULT_SIZE, 680, Short.MAX_VALUE)
-					.addComponent(getAdvancedButton())
-			);
-			layout.setVerticalGroup(layout.createSequentialGroup()
-					.addComponent(getBasicPanel(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
-					.addComponent(getPreviewPanel(), DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
-					.addComponent(getAdvancedButton())
-			);
-		} else if (importType == ONTOLOGY_IMPORT) {
-			layout.setHorizontalGroup(layout.createParallelGroup(LEADING)
-					.addComponent(getBasicPanel(), DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
-					.addComponent(getPreviewPanel(), DEFAULT_SIZE, 680, Short.MAX_VALUE)
-					.addComponent(getAdvancedButton())
-			);
-			layout.setVerticalGroup(layout.createSequentialGroup()
-					.addComponent(getBasicPanel(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
-					.addComponent(getPreviewPanel(), DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
-					.addComponent(getAdvancedButton())
-			);
-		} else if (importType == NETWORK_IMPORT) {
-			layout.setHorizontalGroup(layout.createParallelGroup(LEADING)
-					.addComponent(getBasicPanel(), DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
-					.addComponent(getPreviewPanel(), DEFAULT_SIZE, 680, Short.MAX_VALUE)
-					.addComponent(getAdvancedButton())
-			);
-			layout.setVerticalGroup(layout.createSequentialGroup()
-					.addComponent(getBasicPanel(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
-					.addComponent(getPreviewPanel(), DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
-					.addComponent(getAdvancedButton())
-			);
-		}
+//		/*
+//		 * Case 1: Simple Attribute Import
+//		 */
+//		if (importType == TABLE_IMPORT) {
+//			layout.setHorizontalGroup(layout.createParallelGroup(LEADING)
+//					.addComponent(getBasicPanel(), DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+//					.addComponent(getPreviewPanel(), DEFAULT_SIZE, 680, Short.MAX_VALUE)
+//					.addComponent(getAdvancedButton())
+//			);
+//			layout.setVerticalGroup(layout.createSequentialGroup()
+//					.addComponent(getBasicPanel(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+//					.addComponent(getPreviewPanel(), DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+//					.addComponent(getAdvancedButton())
+//			);
+//		} else if (importType == ONTOLOGY_IMPORT) {
+//			layout.setHorizontalGroup(layout.createParallelGroup(LEADING)
+//					.addComponent(getBasicPanel(), DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+//					.addComponent(getPreviewPanel(), DEFAULT_SIZE, 680, Short.MAX_VALUE)
+//					.addComponent(getAdvancedButton())
+//			);
+//			layout.setVerticalGroup(layout.createSequentialGroup()
+//					.addComponent(getBasicPanel(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+//					.addComponent(getPreviewPanel(), DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+//					.addComponent(getAdvancedButton())
+//			);
+//		} else if (importType == NETWORK_IMPORT) {
+//			layout.setHorizontalGroup(layout.createParallelGroup(LEADING)
+//					.addComponent(getBasicPanel(), DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+//					.addComponent(getPreviewPanel(), DEFAULT_SIZE, 680, Short.MAX_VALUE)
+//					.addComponent(getAdvancedButton())
+//			);
+//			layout.setVerticalGroup(layout.createSequentialGroup()
+//					.addComponent(getBasicPanel(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+//					.addComponent(getPreviewPanel(), DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+//					.addComponent(getAdvancedButton())
+//			);
+//		}
+		layout.setHorizontalGroup(layout.createParallelGroup(LEADING)
+//				.addComponent(getBasicPanel(), DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+				.addComponent(getPreviewPanel(), DEFAULT_SIZE, 680, Short.MAX_VALUE)
+				.addComponent(getAdvancedButton())
+		);
+		layout.setVerticalGroup(layout.createSequentialGroup()
+//				.addComponent(getBasicPanel(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+				.addComponent(getPreviewPanel(), DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+				.addComponent(getAdvancedButton())
+		);
 	}
 
 	private boolean isFirstRowNames() {
