@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -64,6 +65,7 @@ import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.events.RowSetRecord;
 import org.cytoscape.model.events.RowsSetEvent;
 import org.cytoscape.model.events.RowsSetListener;
+import org.cytoscape.property.CyProperty;
 import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.util.swing.IconManager;
 import org.cytoscape.view.model.CyNetworkView;
@@ -142,16 +144,18 @@ implements CytoPanelComponent2, ListSelectionListener, ActionListener, RowsSetLi
 		return i;
 	}
 
+	@SuppressWarnings("unchecked")
 	private CyTable getTable() {
 		CyTableManager tblMgr = this.serviceRegistrar.getService(CyTableManager.class);
-		CyNetwork network = this.getCurrentNetwork();
-		CyTable netTable = network.getDefaultNetworkTable();
+		
+		CyProperty<Properties> props = this.serviceRegistrar.getService(CyProperty.class, "(cyPropertyName="+OmicsVisualizerShared.CYPROPERTY_NAME+")");
+		Long tableSUID = Long.valueOf(props.getProperties().getProperty(OmicsVisualizerShared.PROPERTIES_TABLE_SUID));
 
-		return tblMgr.getTable(netTable.getRow(network.getSUID()).get(OmicsVisualizerShared.CUSTOM_SUID_COL, Long.class));
+		return tblMgr.getTable(tableSUID);
 	}
 
 	public String getIdentifier() {
-		return "cpr.loadsitespecific.SiteSpecificCytoPanel";
+		return OmicsVisualizerShared.CYTOPANEL_NAME;
 	}
 
 	public Component getComponent() {
@@ -163,7 +167,7 @@ implements CytoPanelComponent2, ListSelectionListener, ActionListener, RowsSetLi
 	}
 
 	public String getTitle() {
-		return "Site Specific Table";
+		return "Omics Visualizer Table";
 	}
 
 	public Icon getIcon() {
@@ -282,13 +286,6 @@ implements CytoPanelComponent2, ListSelectionListener, ActionListener, RowsSetLi
 	}
 
 	public void initPanel() {
-		CyNetwork network = this.getCurrentNetwork();
-		if (network == null)
-			return;
-		initPanel(network);
-	}
-
-	public void initPanel(CyNetwork network) {
 		this.removeAll();
 
 		CyTable table = this.getTable();
@@ -406,26 +403,31 @@ implements CytoPanelComponent2, ListSelectionListener, ActionListener, RowsSetLi
 		Collection<CyColumn> cols = cyTable.getColumns();
 
 		// We do not display the Custom column ID name
-		String[] colNames = new String[cols.size()-1];
+		String[] colNames = new String[cols.size()]; //-1];
 		Iterator<CyColumn> it = cols.iterator();
 		int i=0;
+		int custom_col_id=0;
 		while(it.hasNext()) {
 			CyColumn col = it.next();
-			if(!col.getName().equals(OmicsVisualizerShared.MAPPING_CUSTOM_COLID_NAME)) {
-				colNames[i++] = col.getName();
+			colNames[i] = col.getName();
+			// We do not want to display our custom_col_id
+			if(col.getName().equals(OmicsVisualizerShared.MAPPING_CUSTOM_COLID_NAME)) {
+				custom_col_id = i;
 			}
+			i++;
 		}
 
 		tableModel = new OmicsVisualizerTableModel(cyTable, colNames);
 		JTable jTable = new JTable(tableModel);
-		//		TableColumnModel tcm = jTable.getColumnModel();
-		//		tcm.removeColumn(tcm.getColumn(EnrichmentTerm.nodeSUIDColumn));
+		// We remove the custom_col_id from the model because we do not want it to be displayed:
+		TableColumnModel tcm = jTable.getColumnModel();
+		tcm.removeColumn(tcm.getColumn(custom_col_id));
 		//		tcm.getColumn(EnrichmentTerm.fdrColumn).setCellRenderer(new DecimalFormatRenderer());
-		// jTable.setDefaultEditor(Object.class, null);
-		// jTable.setPreferredScrollableViewportSize(jTable.getPreferredSize());
-		jTable.setFillsViewportHeight(true);
-		jTable.setAutoCreateRowSorter(true);
-		jTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		//jTable.setDefaultEditor(Object.class, null);
+		//jTable.setPreferredScrollableViewportSize(jTable.getPreferredSize());
+		//jTable.setFillsViewportHeight(true);
+		//jTable.setAutoCreateRowSorter(true);
+		jTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		jTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		jTable.getSelectionModel().addListSelectionListener(this);
 		jTable.getModel().addTableModelListener(this);

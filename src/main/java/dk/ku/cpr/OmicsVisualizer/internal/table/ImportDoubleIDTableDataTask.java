@@ -62,6 +62,9 @@ import org.cytoscape.model.events.RowsSetListener;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.model.subnetwork.CySubNetwork;
+import org.cytoscape.property.CyProperty;
+import org.cytoscape.property.CyProperty.SavePolicy;
+import org.cytoscape.property.SimpleCyProperty;
 import org.cytoscape.service.util.CyServiceRegistrar;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OmicsVisualizerShared;
@@ -313,7 +316,7 @@ public class ImportDoubleIDTableDataTask extends AbstractTask implements Tunable
 		this.mappedTables = new ArrayList<>();
 		
 		// Add ML: By default we name our Table "Omics Visualizer Table"
-		newTableName = "Omics Visualizer Table"; // TODO Handle several table (so several different names)
+		newTableName = ""; // TODO Handle several table (so several different names)
 
 		final CyNetworkManager netMgr = serviceRegistrar.getService(CyNetworkManager.class);
 		
@@ -453,10 +456,6 @@ public class ImportDoubleIDTableDataTask extends AbstractTask implements Tunable
 //			mapTableToLocalAttrs(getDataTypeOptions());
 //		if (whereImportTable.getSelectedValue().matches(UNASSIGNED_TABLE))
 //			addTable();
-		ShowOmicsVisualizerPanelTaskFactory factory = new ShowOmicsVisualizerPanelTaskFactory(this.serviceRegistrar);
-		SynchronousTaskManager<?> taskM = this.serviceRegistrar.getService(SynchronousTaskManager.class);
-		TaskIterator ti = factory.createTaskIterator();
-		taskM.execute(ti);
 	}
 	
 //	private void updateKeyColumnForMapping() {
@@ -707,12 +706,23 @@ public class ImportDoubleIDTableDataTask extends AbstractTask implements Tunable
 		
 		if (byReader) {
 			if (this.reader != null && this.reader.getTables() != null) {
+				// The properties we want to save (the SUID of the CyTable)
+				Properties OmicsVisualizerProps = new Properties();
+				
 				for (CyTable table : reader.getTables()) {
 					if (!newTableName.isEmpty())
 						table.setTitle(newTableName);
 					
 					tableMgr.addTable(table);
+					OmicsVisualizerProps.setProperty(OmicsVisualizerShared.PROPERTIES_TABLE_SUID, table.getSUID().toString());
 				}
+				
+				// Now we store those Properties into the Session File
+				// We use the SimpleCyProperty class to do so
+				CyProperty<Properties> cyPropService = new SimpleCyProperty<Properties>(OmicsVisualizerShared.CYPROPERTY_NAME, OmicsVisualizerProps, Properties.class, SavePolicy.SESSION_FILE);
+				Properties cyPropServiceProps = new Properties(); // The SimpleCyProperty service must be registered with a name, so we have Properties for this service also
+				cyPropServiceProps.setProperty("cyPropertyName", cyPropService.getName());
+				this.serviceRegistrar.registerAllServices(cyPropService, cyPropServiceProps);
 			} else{
 				if (reader == null)
 					logger.warn("reader is null." );

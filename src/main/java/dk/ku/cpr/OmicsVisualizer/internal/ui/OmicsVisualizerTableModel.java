@@ -45,4 +45,9 @@ public class OmicsVisualizerTableModel extends AbstractTableModel {
 		return this.cyTable.getRow(this.rowKeys[rowIndex]).getRaw(this.columnNames[columnIndex]);
 	}
 
+	@Override
+	public String getColumnName(int col) {
+		return this.columnNames[col];
+	}
+
 }

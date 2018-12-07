@@ -52,10 +52,13 @@ import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.TextTableReader;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.AttributeDataType;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.TypeUtil;
+import dk.ku.cpr.OmicsVisualizer.internal.ui.ShowOmicsVisualizerPanelTaskFactory;
 
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.work.AbstractTask;
+import org.cytoscape.work.SynchronousTaskManager;
+import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.Tunable;
 import org.cytoscape.work.TunableValidator;
@@ -197,7 +200,7 @@ public class ImportAttributeDoubleIDTableReaderTask extends AbstractTask impleme
 
 		final CyTable table =
 				serviceRegistrar.getService(CyTableFactory.class).createTable(
-						"AttrTable " + inputName.substring(inputName.lastIndexOf('/') + 1) + " " + Integer.toString(numImports++),
+						"Omics Visualizer Table " + Integer.toString(numImports++),
 			             primaryKey, keyType, false, true);
 		
 		cyTables = new CyTable[] { table };
