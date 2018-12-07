@@ -4,18 +4,18 @@ import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.work.AbstractTaskFactory;
 import org.cytoscape.work.TaskIterator;
 
-public class ShowSiteSpecificPanelTaskFactory extends AbstractTaskFactory {
+public class ShowOmicsVisualizerPanelTaskFactory extends AbstractTaskFactory {
 	
 	private CyServiceRegistrar serviceRegistrar;
 	
-	public ShowSiteSpecificPanelTaskFactory(CyServiceRegistrar serviceRegistrar) {
+	public ShowOmicsVisualizerPanelTaskFactory(CyServiceRegistrar serviceRegistrar) {
 		super();
 		this.serviceRegistrar=serviceRegistrar;
 	}
 
 	@Override
 	public TaskIterator createTaskIterator() {
-		return new TaskIterator(new ShowSiteSpecificPanelTask(this.serviceRegistrar));
+		return new TaskIterator(new ShowOmicsVisualizerPanelTask(this.serviceRegistrar));
 	}
 
 }

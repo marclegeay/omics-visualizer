@@ -1,6 +1,6 @@
 package dk.ku.cpr.OmicsVisualizer.internal.model;
 
-public class SiteSpecificShared {
+public class OmicsVisualizerShared {
 	
 	public static final String CYTOPANEL_NAME = "cpr.loadsitespecific.customPanel";
 	
@@ -11,6 +11,6 @@ public class SiteSpecificShared {
 	public static final String CUSTOM_SUID_COL = "custom_suid";
 	
 	// We forbid the class to have instances
-	private SiteSpecificShared() {
+	private OmicsVisualizerShared() {
 	}
 }

@@ -13,13 +13,13 @@ import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.TaskMonitor;
 
-import dk.ku.cpr.OmicsVisualizer.internal.model.SiteSpecificShared;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OmicsVisualizerShared;
 
-public class ShowSiteSpecificPanelTask extends AbstractTask {
+public class ShowOmicsVisualizerPanelTask extends AbstractTask {
 	
 	private CyServiceRegistrar serviceRegistrar;
 	
-	public ShowSiteSpecificPanelTask(CyServiceRegistrar serviceRegistrar) {
+	public ShowOmicsVisualizerPanelTask(CyServiceRegistrar serviceRegistrar) {
 		super();
 		this.serviceRegistrar=serviceRegistrar;
 	}
@@ -29,8 +29,8 @@ public class ShowSiteSpecificPanelTask extends AbstractTask {
 		CySwingApplication swingApplication = this.serviceRegistrar.getService(CySwingApplication.class);
 		CytoPanel cytoPanel = swingApplication.getCytoPanel(CytoPanelName.SOUTH);
 
-		if (cytoPanel.indexOfComponent(SiteSpecificShared.CYTOPANEL_NAME) < 0) {
-			CytoPanelComponent2 panel = new SiteSpecificCytoPanel(this.serviceRegistrar);
+		if (cytoPanel.indexOfComponent(OmicsVisualizerShared.CYTOPANEL_NAME) < 0) {
+			CytoPanelComponent2 panel = new OmicsVisualizerCytoPanel(this.serviceRegistrar);
 
 			// Register it
 			this.serviceRegistrar.registerService(panel, CytoPanelComponent.class, new Properties());
@@ -40,11 +40,11 @@ public class ShowSiteSpecificPanelTask extends AbstractTask {
 				cytoPanel.setState(CytoPanelState.DOCK);
 
 			cytoPanel.setSelectedIndex(
-					cytoPanel.indexOfComponent(SiteSpecificShared.CYTOPANEL_NAME));
+					cytoPanel.indexOfComponent(OmicsVisualizerShared.CYTOPANEL_NAME));
 
 		} else {
-			SiteSpecificCytoPanel panel = (SiteSpecificCytoPanel) cytoPanel.getComponentAt(
-					cytoPanel.indexOfComponent(SiteSpecificShared.CYTOPANEL_NAME));
+			OmicsVisualizerCytoPanel panel = (OmicsVisualizerCytoPanel) cytoPanel.getComponentAt(
+					cytoPanel.indexOfComponent(OmicsVisualizerShared.CYTOPANEL_NAME));
 			panel.initPanel();
 		}
 	}

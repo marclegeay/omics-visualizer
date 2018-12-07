@@ -43,7 +43,7 @@ import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.service.util.CyServiceRegistrar;
 
-import dk.ku.cpr.OmicsVisualizer.internal.model.SiteSpecificShared;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OmicsVisualizerShared;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.AttributeMappingParameters;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.DefaultAttributeDoubleIDTableReader;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.ExcelAttributeDoubleIDSheetReader;
@@ -177,7 +177,7 @@ public class ImportAttributeDoubleIDTableReaderTask extends AbstractTask impleme
 		final TextTableReader reader = this.reader;
 		final AttributeMappingParameters readerAMP = (AttributeMappingParameters) reader.getMappingParameter();
 //		final String primaryKey = readerAMP.getAttributeNames()[readerAMP.getKeyIndex()];
-		final String primaryKey = SiteSpecificShared.MAPPING_CUSTOM_COLID_NAME;
+		final String primaryKey = OmicsVisualizerShared.MAPPING_CUSTOM_COLID_NAME;
 //		final AttributeDataType dataType = readerAMP.getDataTypes()[readerAMP.getKeyIndex()];
 //		final Class<?> keyType;
 		final Class<?> keyType = Integer.class;
@@ -198,7 +198,7 @@ public class ImportAttributeDoubleIDTableReaderTask extends AbstractTask impleme
 		final CyTable table =
 				serviceRegistrar.getService(CyTableFactory.class).createTable(
 						"AttrTable " + inputName.substring(inputName.lastIndexOf('/') + 1) + " " + Integer.toString(numImports++),
-			             primaryKey, keyType, true, true);
+			             primaryKey, keyType, false, true);
 		
 		cyTables = new CyTable[] { table };
 		tm.setProgress(0.3);

@@ -64,9 +64,9 @@ import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 import org.cytoscape.service.util.CyServiceRegistrar;
 
-import dk.ku.cpr.OmicsVisualizer.internal.model.SiteSpecificShared;
-import dk.ku.cpr.OmicsVisualizer.internal.ui.ShowSiteSpecificPanelTaskFactory;
-import dk.ku.cpr.OmicsVisualizer.internal.ui.SiteSpecificCytoPanel;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OmicsVisualizerShared;
+import dk.ku.cpr.OmicsVisualizer.internal.ui.ShowOmicsVisualizerPanelTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.ui.OmicsVisualizerCytoPanel;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 
 import org.cytoscape.util.json.CyJSONUtil;
@@ -453,7 +453,7 @@ public class ImportDoubleIDTableDataTask extends AbstractTask implements Tunable
 //			mapTableToLocalAttrs(getDataTypeOptions());
 //		if (whereImportTable.getSelectedValue().matches(UNASSIGNED_TABLE))
 //			addTable();
-		ShowSiteSpecificPanelTaskFactory factory = new ShowSiteSpecificPanelTaskFactory(this.serviceRegistrar);
+		ShowOmicsVisualizerPanelTaskFactory factory = new ShowOmicsVisualizerPanelTaskFactory(this.serviceRegistrar);
 		SynchronousTaskManager<?> taskM = this.serviceRegistrar.getService(SynchronousTaskManager.class);
 		TaskIterator ti = factory.createTaskIterator();
 		taskM.execute(ti);

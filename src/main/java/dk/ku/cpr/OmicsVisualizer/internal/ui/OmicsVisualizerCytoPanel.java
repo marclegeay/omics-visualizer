@@ -72,9 +72,9 @@ import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskManager;
 
-import dk.ku.cpr.OmicsVisualizer.internal.model.SiteSpecificShared;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OmicsVisualizerShared;
 
-public class SiteSpecificCytoPanel extends JPanel
+public class OmicsVisualizerCytoPanel extends JPanel
 implements CytoPanelComponent2, ListSelectionListener, ActionListener, RowsSetListener, TableModelListener {
 
 	private static final long serialVersionUID = 1L;
@@ -98,7 +98,7 @@ implements CytoPanelComponent2, ListSelectionListener, ActionListener, RowsSetLi
 	JLabel labelPPIEnrichment;
 	JMenuItem menuItemReset; 
 	JPopupMenu popupMenu;
-	SiteSpecificTableModel tableModel;
+	OmicsVisualizerTableModel tableModel;
 	final Font iconFont;
 
 	final String colEnrichmentTerms = "enrichmentTerms";
@@ -112,7 +112,7 @@ implements CytoPanelComponent2, ListSelectionListener, ActionListener, RowsSetLi
 	final String butAnalyzedNodesName = "Select all analyzed nodes";
 	final String butExportTableDescr = "Export enrichment table";
 
-	public SiteSpecificCytoPanel(CyServiceRegistrar serviceRegistrar) {
+	public OmicsVisualizerCytoPanel(CyServiceRegistrar serviceRegistrar) {
 		this.setLayout(new BorderLayout());
 		this.serviceRegistrar=serviceRegistrar;
 		IconManager iconManager = this.serviceRegistrar.getService(IconManager.class);
@@ -127,7 +127,7 @@ implements CytoPanelComponent2, ListSelectionListener, ActionListener, RowsSetLi
 	private Object getMappingKey() {
 		CyNetwork network = this.getCurrentNetwork();
 		CyTable netTable = network.getDefaultNetworkTable();
-		return netTable.getRow(network.getSUID()).getRaw(SiteSpecificShared.MAPPING_CUSTOM_NODE_COL);
+		return netTable.getRow(network.getSUID()).getRaw(OmicsVisualizerShared.MAPPING_CUSTOM_NODE_COL);
 	}
 
 	private int getMappingKeyIndex() {
@@ -147,7 +147,7 @@ implements CytoPanelComponent2, ListSelectionListener, ActionListener, RowsSetLi
 		CyNetwork network = this.getCurrentNetwork();
 		CyTable netTable = network.getDefaultNetworkTable();
 
-		return tblMgr.getTable(netTable.getRow(network.getSUID()).get(SiteSpecificShared.CUSTOM_SUID_COL, Long.class));
+		return tblMgr.getTable(netTable.getRow(network.getSUID()).get(OmicsVisualizerShared.CUSTOM_SUID_COL, Long.class));
 	}
 
 	public String getIdentifier() {
@@ -171,7 +171,7 @@ implements CytoPanelComponent2, ListSelectionListener, ActionListener, RowsSetLi
 		return null;
 	}
 
-	public SiteSpecificTableModel getTableModel() { return tableModel; }
+	public OmicsVisualizerTableModel getTableModel() { return tableModel; }
 
 	// table selection handler
 	public void valueChanged(ListSelectionEvent e) {
@@ -411,12 +411,12 @@ implements CytoPanelComponent2, ListSelectionListener, ActionListener, RowsSetLi
 		int i=0;
 		while(it.hasNext()) {
 			CyColumn col = it.next();
-			if(!col.getName().equals(SiteSpecificShared.MAPPING_CUSTOM_COLID_NAME)) {
+			if(!col.getName().equals(OmicsVisualizerShared.MAPPING_CUSTOM_COLID_NAME)) {
 				colNames[i++] = col.getName();
 			}
 		}
 
-		tableModel = new SiteSpecificTableModel(cyTable, colNames);
+		tableModel = new OmicsVisualizerTableModel(cyTable, colNames);
 		JTable jTable = new JTable(tableModel);
 		//		TableColumnModel tcm = jTable.getColumnModel();
 		//		tcm.removeColumn(tcm.getColumn(EnrichmentTerm.nodeSUIDColumn));

@@ -7,7 +7,7 @@ import javax.swing.table.AbstractTableModel;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 
-public class SiteSpecificTableModel extends AbstractTableModel {
+public class OmicsVisualizerTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -15,7 +15,7 @@ public class SiteSpecificTableModel extends AbstractTableModel {
 	private String[] columnNames;
 	private Object[] rowKeys;
 
-	public SiteSpecificTableModel(CyTable cyTable, String[] columnNames) {
+	public OmicsVisualizerTableModel(CyTable cyTable, String[] columnNames) {
 		super();
 		
 		this.cyTable=cyTable;
