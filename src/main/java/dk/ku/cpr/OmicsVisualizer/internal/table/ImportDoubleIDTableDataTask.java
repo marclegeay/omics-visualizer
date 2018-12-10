@@ -276,12 +276,12 @@ public class ImportDoubleIDTableDataTask extends AbstractTask implements Tunable
 //	
 //	/* --- [ UNASSIGNED_TABLE ]-------------------------------------------------------------------------------------- */
 //	
-//	@Tunable(
-//			description = "New Table Name:",
+	@Tunable(
+			description = "New Table Name:",
 //			groups = { "Target Table Data", "Set New Table Name" },
-//			gravity = 5.0,
-//			xorKey = UNASSIGNED_TABLE, longDescription="The title of the new table", exampleStringValue = "Supplemental Info"
-//	)
+			gravity = 5.0,
+			xorKey = UNASSIGNED_TABLE, longDescription="The title of the new table", exampleStringValue = "Supplemental Info"
+	)
 	public String newTableName;
 	
 //	@Tunable(
@@ -315,8 +315,8 @@ public class ImportDoubleIDTableDataTask extends AbstractTask implements Tunable
 		this.source2targetColumnMap = new HashMap<>();
 		this.mappedTables = new ArrayList<>();
 		
-		// Add ML: By default we name our Table "Omics Visualizer Table"
-		newTableName = ""; // TODO Handle several table (so several different names)
+//		// Add ML: By default we name our Table "Omics Visualizer Table"
+//		newTableName = ""; // TODO Handle several table (so several different names)
 
 		final CyNetworkManager netMgr = serviceRegistrar.getService(CyNetworkManager.class);
 		

@@ -122,7 +122,6 @@ import org.cytoscape.model.CyTable;
 import org.cytoscape.service.util.CyServiceRegistrar;
 
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.AttributeMappingParameters;
-import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.NetworkTableMappingParameters;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.SupportedFileType;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.TextDelimiter;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.TextTableReader.ObjectType;
@@ -1344,12 +1343,12 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 //			);
 //		}
 		layout.setHorizontalGroup(layout.createParallelGroup(LEADING)
-//				.addComponent(getBasicPanel(), DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+				.addComponent(getBasicPanel(), DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
 				.addComponent(getPreviewPanel(), DEFAULT_SIZE, 680, Short.MAX_VALUE)
 				.addComponent(getAdvancedButton())
 		);
 		layout.setVerticalGroup(layout.createSequentialGroup()
-//				.addComponent(getBasicPanel(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+				.addComponent(getBasicPanel(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
 				.addComponent(getPreviewPanel(), DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
 				.addComponent(getAdvancedButton())
 		);
@@ -1430,47 +1429,6 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 		}
 		
 		return true;
-	}
-
-	public NetworkTableMappingParameters getNetworkTableMappingParameters() throws Exception {
-		final String sourceName = getPreviewPanel().getSourceName();
-		final String[] attrNames = getPreviewPanel().getAttributeNames();
-		final SourceColumnSemantic[] types = getPreviewPanel().getTypes();
-		
-		if (!isAttributeNamesValid(attrNames, types))
-			return null;
-
-		final SourceColumnSemantic[] typesCopy = Arrays.copyOf(types, types.length);
-		
-		final AttributeDataType[] dataTypes = getPreviewPanel().getDataTypes();
-		final AttributeDataType[] dataTypesCopy = Arrays.copyOf(dataTypes, dataTypes.length);
-		
-		final String[] listDelimiters = getPreviewPanel().getListDelimiters();
-		final String[] listDelimitersCopy = Arrays.copyOf(listDelimiters, listDelimiters.length);
-
-		final String[] namespaces = getPreviewPanel().getNamespaces();
-		final String[] namespacesCopy = Arrays.copyOf(namespaces, namespaces.length);
-		
-		int startLineNumber = getStartLineNumber();
-
-		String commentChar = null;
-		
-		if (!getCommentLinePrefix().isEmpty())
-			commentChar = getCommentLinePrefix();
-		
-		final int sourceColumnIndex = getPreviewPanel().getColumnIndex(SOURCE);
-		final int targetColumnIndex = getPreviewPanel().getColumnIndex(TARGET);
-		final int interactionColumnIndex = getPreviewPanel().getColumnIndex(INTERACTION);
-
-		final String defaultInteraction = defaultInteractionTextField.getText();
-
-		// Build mapping parameter object.
-		final List<String> del = checkDelimiter();
-		NetworkTableMappingParameters mapping = new NetworkTableMappingParameters(sourceName, del, listDelimitersCopy,
-				attrNames, dataTypesCopy, typesCopy, namespacesCopy, sourceColumnIndex, targetColumnIndex,
-				interactionColumnIndex, defaultInteraction, startLineNumber, commentChar);
-
-		return mapping;
 	}
 	
 	private boolean isSpreadsheetFile() {

@@ -36,12 +36,16 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.io.read.CyTableReader;
-import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.service.util.CyServiceRegistrar;
+import org.cytoscape.view.model.CyNetworkView;
+import org.cytoscape.view.vizmap.VisualStyle;
+import org.cytoscape.work.AbstractTask;
+import org.cytoscape.work.TaskMonitor;
+import org.cytoscape.work.Tunable;
+import org.cytoscape.work.TunableValidator;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OmicsVisualizerShared;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.AttributeMappingParameters;
@@ -52,16 +56,6 @@ import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.TextTableReader;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.AttributeDataType;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.TypeUtil;
-import dk.ku.cpr.OmicsVisualizer.internal.ui.ShowOmicsVisualizerPanelTaskFactory;
-
-import org.cytoscape.view.model.CyNetworkView;
-import org.cytoscape.view.vizmap.VisualStyle;
-import org.cytoscape.work.AbstractTask;
-import org.cytoscape.work.SynchronousTaskManager;
-import org.cytoscape.work.TaskIterator;
-import org.cytoscape.work.TaskMonitor;
-import org.cytoscape.work.Tunable;
-import org.cytoscape.work.TunableValidator;
 
 
 public class ImportAttributeDoubleIDTableReaderTask extends AbstractTask implements CyTableReader, TunableValidator {
