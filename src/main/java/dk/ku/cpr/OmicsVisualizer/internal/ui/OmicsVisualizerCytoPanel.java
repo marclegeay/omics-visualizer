@@ -282,7 +282,7 @@ implements CytoPanelComponent2, ListSelectionListener, ActionListener, RowsSetLi
 				resetColor(table.getSelectedRow());
 			}
 		}
-		 */
+		// */
 	}
 
 	public void initPanel() {
@@ -426,7 +426,7 @@ implements CytoPanelComponent2, ListSelectionListener, ActionListener, RowsSetLi
 		//jTable.setDefaultEditor(Object.class, null);
 		//jTable.setPreferredScrollableViewportSize(jTable.getPreferredSize());
 		//jTable.setFillsViewportHeight(true);
-		//jTable.setAutoCreateRowSorter(true);
+		jTable.setAutoCreateRowSorter(true);
 		jTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		jTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		jTable.getSelectionModel().addListSelectionListener(this);
