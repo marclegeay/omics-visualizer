@@ -94,5 +94,4 @@ public class CyActivator extends AbstractCyActivator {
 			//registerService(context, factory, LoadTableFileTaskFactory.class, props);
 		}
 	}
-
 }

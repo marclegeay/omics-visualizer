@@ -45,7 +45,7 @@ public class ShowOmicsVisualizerPanelTask extends AbstractTask {
 		} else {
 			OmicsVisualizerCytoPanel panel = (OmicsVisualizerCytoPanel) cytoPanel.getComponentAt(
 					cytoPanel.indexOfComponent(OmicsVisualizerShared.CYTOPANEL_NAME));
-			panel.initPanel();
+			panel.initPanel(null);
 		}
 	}
 
