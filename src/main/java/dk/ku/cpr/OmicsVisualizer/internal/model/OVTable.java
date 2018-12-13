@@ -58,7 +58,7 @@ public class OVTable {
 		
 		Set<String> visibleCols = new HashSet<String>();
 		
-		if(this.getTableProperty(this.cyTable, OVShared.MAPPING_CUSTOM_COLID_NAME, "") != "") {
+		if(this.getTableProperty(this.cyTable, OVShared.OVTABLE_COLID_NAME, "") != "") {
 			// We load the columns from the Properties
 			// Cytoscape store CyTable with columns sorted alphabetically, so we stored the order of each columns in Properties
 			Iterator<CyColumn> it = cols.iterator();
@@ -78,7 +78,7 @@ public class OVTable {
 				}
 
 				// We do not want to display our custom_col_id
-				if(col.getName().equals(OVShared.MAPPING_CUSTOM_COLID_NAME)) {
+				if(col.getName().equals(OVShared.OVTABLE_COLID_NAME)) {
 					custom_col_id = i;
 				}
 			}
@@ -90,7 +90,7 @@ public class OVTable {
 				CyColumn col = it.next();
 				colNames.set(i, col.getName());
 				// We do not want to display our custom_col_id
-				if(col.getName().equals(OVShared.MAPPING_CUSTOM_COLID_NAME)) {
+				if(col.getName().equals(OVShared.OVTABLE_COLID_NAME)) {
 					custom_col_id = i;
 				} else {
 					visibleCols.add(col.getName());
@@ -146,7 +146,7 @@ public class OVTable {
 		Collection<CyColumn> cols = new ArrayList<CyColumn>();
 		
 		for(String colName : this.getColNames()) {
-			if(!colName.equals(OVShared.MAPPING_CUSTOM_COLID_NAME)) {
+			if(!colName.equals(OVShared.OVTABLE_COLID_NAME)) {
 				cols.add(this.cyTable.getColumn(colName));
 			}
 		}
@@ -209,9 +209,6 @@ public class OVTable {
 		return this.getTableCyProperty(table.getTitle()).getProperties().getProperty(propName, propDefaultValue);
 	}
 	public void setTableProperty(String tableTitle, String propName, String propValue) {
-//		System.out.println(suid + " " + propName + " " + propValue);
-//		System.out.println(this.getTableCyProperty(suid));
-//		System.out.println(this.getTableCyProperty(suid).getProperties());
 		this.getTableCyProperty(tableTitle).getProperties().put(propName, propValue);
 	}
 	public void setTableProperty(CyTable table, String propName, String propValue) {

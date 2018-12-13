@@ -90,7 +90,7 @@ ColumnNameChangedListener {
 		Set<String> list = new HashSet<String>();
 		
 		for(String col : this.columnNames) {
-			if(!col.equals(OVShared.MAPPING_CUSTOM_COLID_NAME) && this.isColumnVisible(col)) {
+			if(!col.equals(OVShared.OVTABLE_COLID_NAME) && this.isColumnVisible(col)) {
 				list.add(col);
 			}
 		}

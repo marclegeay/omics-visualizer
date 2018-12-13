@@ -174,7 +174,7 @@ public class ImportAttributeDoubleIDTableReaderTask extends AbstractTask impleme
 		final TextTableReader reader = this.reader;
 		final AttributeMappingParameters readerAMP = (AttributeMappingParameters) reader.getMappingParameter();
 //		final String primaryKey = readerAMP.getAttributeNames()[readerAMP.getKeyIndex()];
-		final String primaryKey = OVShared.MAPPING_CUSTOM_COLID_NAME;
+		final String primaryKey = OVShared.OVTABLE_COLID_NAME;
 //		final AttributeDataType dataType = readerAMP.getDataTypes()[readerAMP.getKeyIndex()];
 //		final Class<?> keyType;
 		final Class<?> keyType = Integer.class;
