@@ -129,8 +129,9 @@ public class AttributeDoubleIDLineParser extends AbstractLineParser {
 
 	private void setAttribute(final CyTable tbl, final AttributeDataType type, final Object key,
 			final String attrName, final String attrValue) {
-		if (tbl.getColumn(attrName) == null)
+		if (tbl.getColumn(attrName) == null) {
 			tbl.createColumn(attrName, type.getType(), false);
+		}
 
 		final Object value = parse(attrValue, type, null);
 		final CyRow row = tbl.getRow(key);

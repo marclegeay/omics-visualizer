@@ -43,24 +43,25 @@ import org.cytoscape.work.TunableSetter;
 import org.cytoscape.work.util.ListMultipleSelection;
 import org.cytoscape.work.util.ListSingleSelection;
 
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.table.ImportDoubleIDTableDataTask.TableType;
 
 public class ImportDoubleIDTableDataTaskFactoryImpl extends AbstractTableTaskFactory implements ImportDataTableTaskFactory {
 	
-	private final CyServiceRegistrar serviceRegistrar;
+	private final OVManager ovManager;
 	
-	public ImportDoubleIDTableDataTaskFactoryImpl(final CyServiceRegistrar serviceRegistrar) {
-		this.serviceRegistrar = serviceRegistrar;
+	public ImportDoubleIDTableDataTaskFactoryImpl(final OVManager ovManager) {
+		this.ovManager = ovManager;
 	}
 
 	@Override
 	public TaskIterator createTaskIterator(final CyTable table) {
-		return new TaskIterator(new ImportDoubleIDTableDataTask(table, serviceRegistrar));
+		return new TaskIterator(new ImportDoubleIDTableDataTask(table, ovManager));
 	}
 
 	@Override
 	public TaskIterator createTaskIterator(final CyTableReader reader) {
-		return new TaskIterator(new ImportDoubleIDTableDataTask(reader, serviceRegistrar));
+		return new TaskIterator(new ImportDoubleIDTableDataTask(reader, ovManager));
 	}
 
 	@Override
@@ -131,7 +132,7 @@ public class ImportDoubleIDTableDataTaskFactoryImpl extends AbstractTableTaskFac
 
 		m.put("WhereImportTable", chooser);
 
-		final TunableSetter tunableSetter = serviceRegistrar.getService(TunableSetter.class);
+		final TunableSetter tunableSetter = ovManager.getService(TunableSetter.class);
 		
 		return tunableSetter.createTaskIterator(createTaskIterator(globalTable), m);
 

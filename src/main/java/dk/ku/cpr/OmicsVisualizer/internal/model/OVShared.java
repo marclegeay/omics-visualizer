@@ -1,8 +1,8 @@
 package dk.ku.cpr.OmicsVisualizer.internal.model;
 
-import java.util.ArrayList;
+import org.cytoscape.model.CyTable;
 
-public class OmicsVisualizerShared {
+public class OVShared {
 	
 	public static final String CYTOPANEL_NAME = "dk.ku.cpr.OmicsVisualizer.customPanel";
 	
@@ -16,6 +16,10 @@ public class OmicsVisualizerShared {
 	public static final String PROPERTIES_TABLE_SUID = "dk.ku.cpr.OmicsVisualizer.TableSUID";
 	
 	// We forbid the class to have instances
-	private OmicsVisualizerShared() {
+	private OVShared() {
+	}
+	
+	public static boolean isOVTable(CyTable table) {
+		return !table.isPublic() && (table.getColumn(MAPPING_CUSTOM_COLID_NAME) != null);
 	}
 }

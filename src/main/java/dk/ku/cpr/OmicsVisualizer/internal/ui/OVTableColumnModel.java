@@ -10,7 +10,7 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
 
 @SuppressWarnings("serial")
-public class OmicsVisualizerTableColumnModel extends DefaultTableColumnModel {
+public class OVTableColumnModel extends DefaultTableColumnModel {
 	
 	/**
 	 * Array of TableColumn objects in this model. Holds all column objects,
@@ -22,7 +22,7 @@ public class OmicsVisualizerTableColumnModel extends DefaultTableColumnModel {
 	/**
 	 * Creates an extended table column model.
 	 */
-	public OmicsVisualizerTableColumnModel() {
+	public OVTableColumnModel() {
 		
 	}
 
@@ -171,11 +171,6 @@ public class OmicsVisualizerTableColumnModel extends DefaultTableColumnModel {
 			allTableColumns.removeElementAt(allColumnsIndex);
 		}
 		super.removeColumn(column);
-		for (int columnIndex = 0; columnIndex < allTableColumns.size(); ++columnIndex) {
-			TableColumn column2 = (TableColumn) allTableColumns.elementAt(columnIndex);
-
-		}
-
 	}
 
 	/**
@@ -218,7 +213,7 @@ public class OmicsVisualizerTableColumnModel extends DefaultTableColumnModel {
 	 * @see #getColumns
 	 */
 	public int getColumnCount(boolean onlyVisible) {
-		Vector columns = (onlyVisible ? tableColumns : allTableColumns);
+		Vector<TableColumn> columns = (onlyVisible ? tableColumns : allTableColumns);
 		return columns.size();
 	}
 
@@ -230,8 +225,8 @@ public class OmicsVisualizerTableColumnModel extends DefaultTableColumnModel {
 	 *            enumeration.
 	 * @return an <code>Enumeration</code> of the columns in the model
 	 */
-	public Enumeration getColumns(boolean onlyVisible) {
-		Vector columns = (onlyVisible ? tableColumns : allTableColumns);
+	public Enumeration<TableColumn> getColumns(boolean onlyVisible) {
+		Vector<TableColumn> columns = (onlyVisible ? tableColumns : allTableColumns);
 
 		return columns.elements();
 	}
@@ -259,7 +254,7 @@ public class OmicsVisualizerTableColumnModel extends DefaultTableColumnModel {
 			throw new IllegalArgumentException("Identifier is null");
 		}
 
-		Vector columns = (onlyVisible ? tableColumns : allTableColumns);
+		Vector<TableColumn> columns = (onlyVisible ? tableColumns : allTableColumns);
 		int noColumns = columns.size();
 		TableColumn column;
 

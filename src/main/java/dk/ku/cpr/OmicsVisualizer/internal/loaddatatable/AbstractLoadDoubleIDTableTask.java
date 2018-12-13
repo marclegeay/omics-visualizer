@@ -39,14 +39,15 @@ import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.json.JSONResult;
 
 import dk.ku.cpr.OmicsVisualizer.internal.api_io.read.CyTableDoubleIDReaderManager;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 
 
 abstract class AbstractLoadDoubleIDTableTask extends AbstractTask {
 
-	private final CyServiceRegistrar serviceRegistrar;
+	private final OVManager ovManager;
 	
-	public AbstractLoadDoubleIDTableTask(final CyServiceRegistrar serviceRegistrar) {
-		this.serviceRegistrar = serviceRegistrar;
+	public AbstractLoadDoubleIDTableTask(final OVManager ovManager) {
+		this.ovManager = ovManager;
 	}
 
 	void loadTable(final String name, final URI uri, boolean combine, final TaskMonitor taskMonitor) throws Exception {
@@ -54,7 +55,7 @@ abstract class AbstractLoadDoubleIDTableTask extends AbstractTask {
 
 		//test ML:
 		//final CyTableReaderManager tableReaderMgr = serviceRegistrar.getService(CyTableReaderManager.class);
-		final CyTableDoubleIDReaderManager tableReaderMgr = serviceRegistrar.getService(CyTableDoubleIDReaderManager.class);
+		final CyTableDoubleIDReaderManager tableReaderMgr = ovManager.getServiceRegistrar().getService(CyTableDoubleIDReaderManager.class);
 		final CyTableReader reader = tableReaderMgr.getReader(uri, uri.toString());
 		
 		if (reader == null)
@@ -62,12 +63,12 @@ abstract class AbstractLoadDoubleIDTableTask extends AbstractTask {
 		
 		if (combine) {
 			taskMonitor.setStatusMessage("Importing Data Table...");
-			insertTasksAfterCurrentTask(new CombineReaderAndMappingTask(reader, serviceRegistrar));
+			insertTasksAfterCurrentTask(new CombineReaderAndMappingTask(reader, ovManager));
 		} else {
 			taskMonitor.setStatusMessage("Loading Data Table...");
 			insertTasksAfterCurrentTask(
-					new ReaderTableTask(reader, serviceRegistrar),
-					new AddImportedTableTask(reader, serviceRegistrar)
+					new ReaderTableTask(reader, ovManager.getServiceRegistrar()),
+					new AddImportedTableTask(reader, ovManager.getServiceRegistrar())
 			);
 		}
 	}

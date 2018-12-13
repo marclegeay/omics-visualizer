@@ -47,7 +47,7 @@ import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.Tunable;
 import org.cytoscape.work.TunableValidator;
 
-import dk.ku.cpr.OmicsVisualizer.internal.model.OmicsVisualizerShared;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.AttributeMappingParameters;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.DefaultAttributeDoubleIDTableReader;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.ExcelAttributeDoubleIDSheetReader;
@@ -174,7 +174,7 @@ public class ImportAttributeDoubleIDTableReaderTask extends AbstractTask impleme
 		final TextTableReader reader = this.reader;
 		final AttributeMappingParameters readerAMP = (AttributeMappingParameters) reader.getMappingParameter();
 //		final String primaryKey = readerAMP.getAttributeNames()[readerAMP.getKeyIndex()];
-		final String primaryKey = OmicsVisualizerShared.MAPPING_CUSTOM_COLID_NAME;
+		final String primaryKey = OVShared.MAPPING_CUSTOM_COLID_NAME;
 //		final AttributeDataType dataType = readerAMP.getDataTypes()[readerAMP.getKeyIndex()];
 //		final Class<?> keyType;
 		final Class<?> keyType = Integer.class;

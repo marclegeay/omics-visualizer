@@ -58,18 +58,18 @@ import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableManager;
+import org.cytoscape.model.SavePolicy;
 import org.cytoscape.model.events.RowsSetListener;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.model.subnetwork.CySubNetwork;
-import org.cytoscape.property.CyProperty;
-import org.cytoscape.property.CyProperty.SavePolicy;
 import org.cytoscape.property.SimpleCyProperty;
 import org.cytoscape.service.util.CyServiceRegistrar;
 
-import dk.ku.cpr.OmicsVisualizer.internal.model.OmicsVisualizerShared;
-import dk.ku.cpr.OmicsVisualizer.internal.ui.ShowOmicsVisualizerPanelTaskFactory;
-import dk.ku.cpr.OmicsVisualizer.internal.ui.OmicsVisualizerCytoPanel;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
+import dk.ku.cpr.OmicsVisualizer.internal.ui.ShowOVPanelTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 
 import org.cytoscape.util.json.CyJSONUtil;
@@ -121,7 +121,7 @@ public class ImportDoubleIDTableDataTask extends AbstractTask implements Tunable
 	public static final String UNASSIGNED_TABLE = "To an unassigned table";
 	
 	private CyTableReader reader;
-	private final CyServiceRegistrar serviceRegistrar;
+	private final OVManager ovManager;
 	
 	private CyTable globalTable;
 	private boolean byReader;
@@ -294,16 +294,16 @@ public class ImportDoubleIDTableDataTask extends AbstractTask implements Tunable
 	@ProvidesTitle
 	public String getTitle() {		return "Import Data";	}
 
-	public ImportDoubleIDTableDataTask(final CyTableReader reader, final CyServiceRegistrar serviceRegistrar) {
+	public ImportDoubleIDTableDataTask(final CyTableReader reader, final OVManager ovManager) {
 		this.reader = reader;
-		this.serviceRegistrar = serviceRegistrar;
+		this.ovManager = ovManager;
 		this.byReader = true;
 		init();
 	}
 
-	public ImportDoubleIDTableDataTask(final CyTable globalTable, final CyServiceRegistrar serviceRegistrar) {
+	public ImportDoubleIDTableDataTask(final CyTable globalTable, final OVManager ovManager) {
 		this.byReader = false;
-		this.serviceRegistrar = serviceRegistrar;
+		this.ovManager = ovManager;
 		this.globalTable = globalTable;
 
 		init();
@@ -318,7 +318,7 @@ public class ImportDoubleIDTableDataTask extends AbstractTask implements Tunable
 //		// Add ML: By default we name our Table "Omics Visualizer Table"
 //		newTableName = ""; // TODO Handle several table (so several different names)
 
-		final CyNetworkManager netMgr = serviceRegistrar.getService(CyNetworkManager.class);
+		final CyNetworkManager netMgr = ovManager.getService(CyNetworkManager.class);
 		
 //		if (netMgr.getNetworkSet().size() > 0) {
 //			whereImportTable = new ListSingleSelection<>(NETWORK_COLLECTION, NETWORK_SELECTION, UNASSIGNED_TABLE);
@@ -701,40 +701,18 @@ public class ImportDoubleIDTableDataTask extends AbstractTask implements Tunable
 //		}
 //	}
 	
-	@SuppressWarnings("unchecked")
 	private void addTable(){
-		final CyTableManager tableMgr = serviceRegistrar.getService(CyTableManager.class);
+		final CyTableManager tableMgr = ovManager.getService(CyTableManager.class);
 		
 		if (byReader) {
 			if (this.reader != null && this.reader.getTables() != null) {
-				String tableIDs = "";
-				
-				CyProperty<Properties> cyPropService = null;
-				try { // If the service is not registered yet, it throws an Exception
-					cyPropService = this.serviceRegistrar.getService(CyProperty.class, "(cyPropertyName="+OmicsVisualizerShared.CYPROPERTY_NAME+")");
-					if(cyPropService != null) {
-						tableIDs = cyPropService.getProperties().getProperty(OmicsVisualizerShared.PROPERTIES_TABLE_SUID);
-					}
-				} catch(Exception e ) {
-					// Now we store those Properties into the Session File
-					// We use the SimpleCyProperty class to do so
-					cyPropService = new SimpleCyProperty<Properties>(OmicsVisualizerShared.CYPROPERTY_NAME, new Properties(), Properties.class, SavePolicy.SESSION_FILE);
-					Properties cyPropServiceProps = new Properties(); // The SimpleCyProperty service must be registered with a name, so we have Properties for this service also
-					cyPropServiceProps.setProperty("cyPropertyName", cyPropService.getName());
-					this.serviceRegistrar.registerAllServices(cyPropService, cyPropServiceProps);
-				}
-				
 				for (CyTable table : reader.getTables()) {
 					if (!newTableName.isEmpty())
 						table.setTitle(newTableName);
 					
 					tableMgr.addTable(table);
-					tableIDs += table.getSUID().toString()+";";
+					ovManager.addOVTable(table);
 				}
-				// The properties we want to save (the SUID of the CyTable)
-				Properties OmicsVisualizerProps = cyPropService.getProperties();
-				OmicsVisualizerProps.setProperty(OmicsVisualizerShared.PROPERTIES_TABLE_SUID, tableIDs);
-				//System.out.println("Property " + OmicsVisualizerShared.PROPERTIES_TABLE_SUID + " registered with value: " + tableIDs);
 			} else{
 				if (reader == null)
 					logger.warn("reader is null." );
@@ -772,7 +750,7 @@ public class ImportDoubleIDTableDataTask extends AbstractTask implements Tunable
 			return str;
 		}
 		if (requestedType.equals(JSONResult.class)) {
-			CyJSONUtil cyJSONUtil = serviceRegistrar.getService(CyJSONUtil.class);
+			CyJSONUtil cyJSONUtil = ovManager.getService(CyJSONUtil.class);
 			JSONResult res = () -> {		
 				if (mappedTables.isEmpty()) return "{}";
 				return "{\"mappedTables\":"+cyJSONUtil.cyIdentifiablesToJson(mappedTables)+"}";
@@ -848,7 +826,7 @@ public class ImportDoubleIDTableDataTask extends AbstractTask implements Tunable
 //		if (!whereImportTable.getSelectedValue().matches(UNASSIGNED_TABLE) || newTableName.isEmpty())
 //			return ValidationState.OK;
 
-		final CyTableManager tableMgr = serviceRegistrar.getService(CyTableManager.class);
+		final CyTableManager tableMgr = ovManager.getService(CyTableManager.class);
 
 		for (CyTable table : tableMgr.getGlobalTables()) {
 			try {

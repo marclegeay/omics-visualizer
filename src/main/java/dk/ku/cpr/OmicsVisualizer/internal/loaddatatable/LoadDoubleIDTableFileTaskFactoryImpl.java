@@ -36,27 +36,28 @@ import org.cytoscape.work.AbstractTaskFactory;
 import org.cytoscape.work.TaskIterator;
 
 import dk.ku.cpr.OmicsVisualizer.internal.api_io.read.CyTableDoubleIDReaderManager;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 
 
 public class LoadDoubleIDTableFileTaskFactoryImpl extends AbstractTaskFactory implements LoadTableFileTaskFactory {
 
-	private final CyServiceRegistrar serviceRegistrar;
+	private final OVManager ovManager;
 
-	public LoadDoubleIDTableFileTaskFactoryImpl(final CyServiceRegistrar serviceRegistrar) {
-		this.serviceRegistrar = serviceRegistrar;
+	public LoadDoubleIDTableFileTaskFactoryImpl(final OVManager ovManager) {
+		this.ovManager = ovManager;
 	}
 
 	public TaskIterator createTaskIterator() {
-		return new TaskIterator(2, new LoadDoubleIDTableFileTask(serviceRegistrar));
+		return new TaskIterator(2, new LoadDoubleIDTableFileTask(ovManager));
 	}
 
 	@Override
 	public TaskIterator createTaskIterator(final File file) {
 		//*
-		final CyTableDoubleIDReaderManager tableReaderMgr = serviceRegistrar.getService(CyTableDoubleIDReaderManager.class);
+		final CyTableDoubleIDReaderManager tableReaderMgr = ovManager.getServiceRegistrar().getService(CyTableDoubleIDReaderManager.class);
 		final CyTableReader reader = tableReaderMgr.getReader(file.toURI(), file.toURI().toString());
 		//*/
 
-		return new TaskIterator(new CombineReaderAndMappingTask(reader, serviceRegistrar));
+		return new TaskIterator(new CombineReaderAndMappingTask(reader, ovManager));
 	}
 }

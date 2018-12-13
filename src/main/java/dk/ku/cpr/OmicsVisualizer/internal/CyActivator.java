@@ -10,6 +10,8 @@ import java.util.Properties;
 import org.cytoscape.io.util.StreamUtil;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.service.util.CyServiceRegistrar;
+import org.cytoscape.session.events.SessionAboutToBeSavedListener;
+import org.cytoscape.session.events.SessionLoadedListener;
 import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.swing.GUITunableHandlerFactory;
 import org.osgi.framework.BundleContext;
@@ -18,6 +20,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.api_io.read.CyTableDoubleIDReaderManag
 import dk.ku.cpr.OmicsVisualizer.internal.api_io.read.InputStreamTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.io.read.CyTableDoubleIDReaderManagerImpl;
 import dk.ku.cpr.OmicsVisualizer.internal.loaddatatable.LoadDoubleIDTableFileTaskFactoryImpl;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.io.WildCardCyFileFilter;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.task.ImportAttributeDoubleIDTableReaderFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.tunable.AttributeDoubleIDMappingParametersHandlerFactory;
@@ -32,6 +35,10 @@ public class CyActivator extends AbstractCyActivator {
 		
 		final CyServiceRegistrar serviceRegistrar = getService(context, CyServiceRegistrar.class);
 		final StreamUtil streamUtil = getService(context, StreamUtil.class);
+		
+		OVManager ovManager = new OVManager(serviceRegistrar);
+		registerService(context, ovManager, SessionLoadedListener.class);
+		registerService(context, ovManager, SessionAboutToBeSavedListener.class);
 		
 		// Code from io-impl CyActivator
 		{
@@ -83,7 +90,7 @@ public class CyActivator extends AbstractCyActivator {
 		}
 		// Code from core-task-impl CyActivator
 		{
-			LoadDoubleIDTableFileTaskFactoryImpl factory = new LoadDoubleIDTableFileTaskFactoryImpl(serviceRegistrar);
+			LoadDoubleIDTableFileTaskFactoryImpl factory = new LoadDoubleIDTableFileTaskFactoryImpl(ovManager);
 			
 			Properties props = new Properties();
 //			props.setProperty(PREFERRED_MENU, "File.Import"); // File.Import.Table

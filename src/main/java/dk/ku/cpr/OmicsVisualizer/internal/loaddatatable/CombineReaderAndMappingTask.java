@@ -36,8 +36,9 @@ import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.TunableValidator;
 
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.table.ImportDoubleIDTableDataTask;
-import dk.ku.cpr.OmicsVisualizer.internal.ui.ShowOmicsVisualizerPanelTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.ui.ShowOVPanelTaskFactory;
 
 public class CombineReaderAndMappingTask extends AbstractTask implements TunableValidator{
 
@@ -50,13 +51,13 @@ public class CombineReaderAndMappingTask extends AbstractTask implements Tunable
 	@ContainsTunables
 	public CyTableReader tableReader;
 	
-	private CyServiceRegistrar serviceRegistrar;
+	private OVManager ovManager;
 
 	
-	public CombineReaderAndMappingTask(final CyTableReader tableReader, final CyServiceRegistrar serviceRegistrar) {
+	public CombineReaderAndMappingTask(final CyTableReader tableReader, final OVManager ovManager) {
 		this.tableReader = tableReader;
-		this.importTableDataTask = new ImportDoubleIDTableDataTask(tableReader, serviceRegistrar);
-		this.serviceRegistrar = serviceRegistrar;
+		this.importTableDataTask = new ImportDoubleIDTableDataTask(tableReader, ovManager);
+		this.ovManager = ovManager;
 	}
 
 	
@@ -79,10 +80,6 @@ public class CombineReaderAndMappingTask extends AbstractTask implements Tunable
 		tableReader.run(taskMonitor);
 		importTableDataTask.run(taskMonitor);
 
-
-		ShowOmicsVisualizerPanelTaskFactory factory = new ShowOmicsVisualizerPanelTaskFactory(this.serviceRegistrar);
-		SynchronousTaskManager<?> taskM = this.serviceRegistrar.getService(SynchronousTaskManager.class);
-		TaskIterator ti = factory.createTaskIterator();
-		taskM.execute(ti);
+		ovManager.showPanel();
 	}
 }

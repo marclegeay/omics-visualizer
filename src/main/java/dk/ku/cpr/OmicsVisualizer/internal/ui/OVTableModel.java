@@ -1,15 +1,12 @@
 package dk.ku.cpr.OmicsVisualizer.internal.ui;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableColumnModel;
 
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
@@ -20,9 +17,9 @@ import org.cytoscape.model.events.ColumnDeletedListener;
 import org.cytoscape.model.events.ColumnNameChangedEvent;
 import org.cytoscape.model.events.ColumnNameChangedListener;
 
-import dk.ku.cpr.OmicsVisualizer.internal.model.OmicsVisualizerShared;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 
-public class OmicsVisualizerTableModel extends AbstractTableModel implements ColumnCreatedListener, ColumnDeletedListener,
+public class OVTableModel extends AbstractTableModel implements ColumnCreatedListener, ColumnDeletedListener,
 ColumnNameChangedListener {
 
 	private static final long serialVersionUID = 1L;
@@ -32,11 +29,11 @@ ColumnNameChangedListener {
 	private Map<String, Boolean> visibleColumn;
 	private Object[] rowKeys;
 
-	public OmicsVisualizerTableModel(CyTable cyTable, String[] columnNames) {
+	public OVTableModel(CyTable cyTable, List<String> columnNames) {
 		super();
 		
 		this.cyTable=cyTable;
-		this.columnNames=Arrays.asList(columnNames);
+		this.columnNames=columnNames;
 		
 		this.visibleColumn = new HashMap<String, Boolean>();
 		for(String col : columnNames) {
@@ -93,7 +90,7 @@ ColumnNameChangedListener {
 		Set<String> list = new HashSet<String>();
 		
 		for(String col : this.columnNames) {
-			if(!col.equals(OmicsVisualizerShared.MAPPING_CUSTOM_COLID_NAME) && this.isColumnVisible(col)) {
+			if(!col.equals(OVShared.MAPPING_CUSTOM_COLID_NAME) && this.isColumnVisible(col)) {
 				list.add(col);
 			}
 		}

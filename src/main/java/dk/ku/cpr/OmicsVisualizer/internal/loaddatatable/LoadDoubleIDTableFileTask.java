@@ -31,14 +31,16 @@ import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.Tunable;
 
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
+
 
 public class LoadDoubleIDTableFileTask extends AbstractLoadDoubleIDTableTask {
 	
 	@Tunable(description = "Data Table file:", params = "fileCategory=table;input=true")
 	public File file;
 
-	public LoadDoubleIDTableFileTask(final CyServiceRegistrar serviceRegistrar) {
-		super(serviceRegistrar);
+	public LoadDoubleIDTableFileTask(final OVManager ovManager) {
+		super(ovManager);
 	}
 
 	@Override

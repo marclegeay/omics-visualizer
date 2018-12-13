@@ -1,0 +1,492 @@
+package dk.ku.cpr.OmicsVisualizer.internal.ui;
+
+import static javax.swing.GroupLayout.DEFAULT_SIZE;
+import static javax.swing.GroupLayout.PREFERRED_SIZE;
+import static org.cytoscape.util.swing.IconManager.ICON_COLUMNS;
+import static org.cytoscape.util.swing.IconManager.ICON_TABLE;
+import static org.cytoscape.util.swing.IconManager.ICON_TIMES_CIRCLE;
+import static org.cytoscape.util.swing.LookAndFeelUtil.isAquaLAF;
+
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.AbstractButton;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.GroupLayout.ParallelGroup;
+import javax.swing.GroupLayout.SequentialGroup;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JToolBar;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.SwingUtilities;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
+
+import org.cytoscape.application.swing.CyColumnPresentationManager;
+import org.cytoscape.application.swing.CyColumnSelector;
+import org.cytoscape.application.swing.CytoPanelComponent;
+import org.cytoscape.application.swing.CytoPanelComponent2;
+import org.cytoscape.application.swing.CytoPanelName;
+import org.cytoscape.model.events.RowsSetListener;
+import org.cytoscape.task.destroy.DeleteTableTaskFactory;
+import org.cytoscape.util.swing.IconManager;
+import org.cytoscape.work.swing.DialogTaskManager;
+
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
+
+public class OVCytoPanel extends JPanel
+implements CytoPanelComponent2, ActionListener,
+PopupMenuListener {
+
+	private static final long serialVersionUID = 1L;
+
+	OVManager ovManager;
+
+	JTable mainTable;
+	JPanel topPanel;
+	JPanel mainPanel;
+	JScrollPane scrollPane;
+	boolean clearSelection = false;
+	// JComboBox<String> boxTables;
+	List<String> availableTables;
+	// boolean createBoxTables = true;
+	JButton butSettings; 
+	JButton butDrawCharts; 
+	JButton butResetCharts;
+	JButton butAnalyzedNodes;
+	JButton butExportTable;
+	JButton butFilter;
+	JLabel labelPPIEnrichment;
+	JMenuItem menuItemReset; 
+	JPopupMenu popupMenu;
+	OVTableModel mainTableModel;
+	final Font iconFont;
+	
+	private IconManager iconManager;
+
+	private GlobalTableChooser tableChooser;
+	
+	private JButton selectButton;
+	private JButton deleteTableButton;
+	
+	private JPopupMenu columnSelectorPopupMenu;
+	private CyColumnSelector columnSelector;
+	
+	private JPanel toolBarPanel;
+	private SequentialGroup hToolBarGroup;
+	private ParallelGroup vToolBarGroup;
+	
+	private OVTable displayedTable;
+	
+	private final  float ICON_FONT_SIZE = 22.0f;
+
+	public OVCytoPanel(OVManager ovManager) {
+		this.setLayout(new BorderLayout());
+		this.ovManager=ovManager;
+		this.ovManager.setOVCytoPanel(this);
+		
+		iconManager = this.ovManager.getServiceRegistrar().getService(IconManager.class);
+		iconFont = iconManager.getIconFont(ICON_FONT_SIZE);
+		
+		tableChooser = new GlobalTableChooser();
+		tableChooser.addActionListener(this);
+		final Dimension d = new Dimension(400, tableChooser.getPreferredSize().height);
+		tableChooser.setMaximumSize(d);
+		tableChooser.setMinimumSize(d);
+		tableChooser.setPreferredSize(d);
+		tableChooser.setSize(d);
+		
+		GlobalTableComboBoxModel tcModel = (GlobalTableComboBoxModel)tableChooser.getModel();
+		for(OVTable table : ovManager.getOVTables()) {
+			tcModel.addAndSetSelectedItem(table);
+		}
+		
+		initPanel(null);
+	}
+	
+	public void reload() {
+		tableChooser = new GlobalTableChooser();
+		tableChooser.addActionListener(this);
+		final Dimension d = new Dimension(400, tableChooser.getPreferredSize().height);
+		tableChooser.setMaximumSize(d);
+		tableChooser.setMinimumSize(d);
+		tableChooser.setPreferredSize(d);
+		tableChooser.setSize(d);
+		
+		GlobalTableComboBoxModel tcModel = (GlobalTableComboBoxModel)tableChooser.getModel();
+		for(OVTable table : ovManager.getOVTables()) {
+			tcModel.addAndSetSelectedItem(table);
+		}
+		
+		initPanel(null);
+	}
+
+	private OVTable getLastAddedTable() {
+		List<OVTable> ovTables = this.ovManager.getOVTables();
+		
+		if(ovTables.size() == 0)
+			return null;
+		
+		return ovTables.get(ovTables.size()-1);
+	}
+
+	public String getIdentifier() {
+		return OVShared.CYTOPANEL_NAME;
+	}
+
+	public Component getComponent() {
+		return this;
+	}
+
+	public CytoPanelName getCytoPanelName() {
+		return CytoPanelName.SOUTH;
+	}
+
+	public String getTitle() {
+		return "Omics Visualizer Table";
+	}
+	
+	public Icon getIcon() {
+		return null;
+	}
+
+	public OVTableModel getTableModel() { return mainTableModel; }
+	
+	public void addToolBarComponent(final JComponent component, final ComponentPlacement placement) {
+		if (placement != null)
+			hToolBarGroup.addPreferredGap(placement);
+		
+		hToolBarGroup.addComponent(component);
+		vToolBarGroup.addComponent(component, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE);
+	}
+
+	protected void styleButton(final AbstractButton btn, final Font font) {
+		btn.setFont(font);
+		btn.setBorder(null);
+		btn.setContentAreaFilled(false);
+		btn.setBorderPainted(false);
+		
+		int w = 32, h = 32;
+		
+		if (tableChooser != null)
+			h = Math.max(h, tableChooser.getPreferredSize().height);
+		
+		btn.setMinimumSize(new Dimension(w, h));
+		btn.setPreferredSize(new Dimension(w, h));
+	}
+	
+	private JPopupMenu getColumnSelectorPopupMenu() {
+		if (columnSelectorPopupMenu == null) {
+			columnSelectorPopupMenu = new JPopupMenu();
+			columnSelectorPopupMenu.add(getColumnSelector());
+			columnSelectorPopupMenu.addPopupMenuListener(this);
+			columnSelectorPopupMenu.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					if (SwingUtilities.isRightMouseButton(e)) {
+						columnSelectorPopupMenu.setVisible(false);
+					}
+				}
+			});
+		}
+
+		return columnSelectorPopupMenu;
+	}
+	
+	private CyColumnSelector getColumnSelector() {
+		if (columnSelector == null) {
+			IconManager iconManager = ovManager.getService(IconManager.class);
+			CyColumnPresentationManager presentationManager = ovManager.getService(CyColumnPresentationManager.class);
+			columnSelector = new CyColumnSelector(iconManager, presentationManager);
+		}
+		
+		return columnSelector;
+	}
+
+	public void initPanel(OVTable ovTable) {
+		this.removeAll();
+
+		if(ovTable==null) {
+			ovTable = this.getLastAddedTable();
+		}
+		this.displayedTable = ovTable;
+		
+		JTable currentTable=ovTable.getJTable();
+
+		JToolBar toolBar = new JToolBar();
+		toolBar.setFloatable(false);
+		toolBar.setOrientation(JToolBar.HORIZONTAL);
+		toolBar.setOpaque(!isAquaLAF());
+
+		final GroupLayout layout = new GroupLayout(toolBar);
+		toolBar.setLayout(layout);
+		hToolBarGroup = layout.createSequentialGroup();
+		vToolBarGroup = layout.createParallelGroup(Alignment.CENTER, false);
+		
+		// Layout information.
+		layout.setHorizontalGroup(layout.createParallelGroup(Alignment.LEADING).addGroup(hToolBarGroup));
+		layout.setVerticalGroup(vToolBarGroup);
+		
+		if (selectButton == null) {
+			selectButton = new JButton(ICON_COLUMNS);
+			selectButton.setToolTipText("Show Columns");
+			styleButton(selectButton, iconFont);
+
+			selectButton.addActionListener(e -> {
+				if (this.mainTableModel != null) {
+					getColumnSelector().update(this.displayedTable.getColumnsInOrder(),
+							this.displayedTable.getVisibleColumns());
+					getColumnSelectorPopupMenu().pack();
+					getColumnSelectorPopupMenu().show(selectButton, 0, selectButton.getHeight());
+				}
+			});
+		}
+		if (deleteTableButton == null) {
+			deleteTableButton = new JButton(ICON_TABLE + "" + ICON_TIMES_CIRCLE);
+			deleteTableButton.setToolTipText("Delete Table...");
+			styleButton(deleteTableButton, iconManager.getIconFont(ICON_FONT_SIZE / 2.0f));
+			
+			// Create pop-up window for deletion
+			deleteTableButton.addActionListener(e -> removeTable());
+		}
+		
+		addToolBarComponent(selectButton, ComponentPlacement.RELATED);
+		addToolBarComponent(deleteTableButton, ComponentPlacement.RELATED);
+		
+		toolBarPanel = new JPanel();
+		toolBarPanel.setLayout(new BorderLayout());
+		toolBarPanel.add(toolBar, BorderLayout.CENTER);
+		
+		if (tableChooser != null) {
+			hToolBarGroup.addGap(0, 20, Short.MAX_VALUE);
+			addToolBarComponent(tableChooser, ComponentPlacement.UNRELATED);
+		}
+		
+		// System.out.println("show table: " + showTable);
+		scrollPane = new JScrollPane(currentTable);
+		
+		this.setLayout(new BorderLayout());
+		this.add(scrollPane, BorderLayout.CENTER);
+		this.add(toolBarPanel, BorderLayout.NORTH);
+		
+		final GlobalTableComboBoxModel comboBoxModel = (GlobalTableComboBoxModel) tableChooser.getModel();
+		comboBoxModel.addAndSetSelectedItem(ovTable);
+		
+		this.mainTable = currentTable;
+		this.mainTableModel = (OVTableModel)this.mainTable.getModel();
+
+		this.revalidate();
+		this.repaint();
+	}
+	
+	private void removeTable() {
+			final OVTable table = this.displayedTable;
+
+			String title = "Please confirm this action";
+			String msg = "Are you sure you want to delete this table?";
+			int confirmValue = JOptionPane.showConfirmDialog(this, msg, title, JOptionPane.YES_NO_OPTION,
+					JOptionPane.QUESTION_MESSAGE);
+
+			// if user selects yes delete the table
+			if (confirmValue == JOptionPane.OK_OPTION) {
+				final DialogTaskManager taskMgr = ovManager.getService(DialogTaskManager.class);
+				final DeleteTableTaskFactory deleteTableTaskFactory =
+						ovManager.getService(DeleteTableTaskFactory.class);
+				
+				taskMgr.execute(deleteTableTaskFactory.createTaskIterator(table.getCyTable()));
+				removeTable(table);
+			}
+		}
+	
+	private void removeTable(OVTable ovTable) {
+		this.ovManager.removeOVTable(ovTable);
+		
+		final GlobalTableComboBoxModel comboBoxModel = (GlobalTableComboBoxModel) tableChooser.getModel();
+		comboBoxModel.removeItem(ovTable);
+		
+		if(this.ovManager.getOVTables().size() == 0) {
+			// No more Omics Visualizer tables, we unregister the panel
+			this.ovManager.unregisterService(this, CytoPanelComponent.class);
+//			this.ovManager.unregisterService(this, RowsSetListener.class);
+		} else {
+			initPanel(null);
+		}
+	}
+
+	@Override
+	public void actionPerformed(final ActionEvent e) {
+		final OVTable table = (OVTable) tableChooser.getSelectedItem();
+		
+		if (table == displayedTable || table == null)
+			return;
+
+//		serviceRegistrar.getService(CyApplicationManager.class).setCurrentTable(table);
+//		showSelectedTable();
+		initPanel(table);
+	}
+
+	// Code from cytoscape/table-browser-impl view/GlobalTableBrowser.java
+	@SuppressWarnings("serial")
+	private class GlobalTableChooser extends JComboBox<OVTable> {
+
+		private final Map<OVTable, String> tableToStringMap;
+		
+		GlobalTableChooser() {
+			tableToStringMap = new HashMap<>();
+			setModel(new GlobalTableComboBoxModel(tableToStringMap));
+			setRenderer(new TableChooserCellRenderer(tableToStringMap));
+		}
+	}
+
+	// Code from cytoscape/table-browser-impl view/GlobalTableBrowser.java
+	@SuppressWarnings("serial")
+	private class GlobalTableComboBoxModel extends DefaultComboBoxModel<OVTable> {
+
+		private final Comparator<OVTable> tableComparator;
+		private final Map<OVTable, String> tableToStringMap;
+		private final List<OVTable> tables;
+
+		GlobalTableComboBoxModel(final Map<OVTable, String> tableToStringMap) {
+			this.tableToStringMap = tableToStringMap;
+			tables = new ArrayList<>();
+			tableComparator = new Comparator<OVTable>() {
+				@Override
+				public int compare(final OVTable table1, final OVTable table2) {
+					return table1.getTitle().compareTo(table2.getTitle());
+				}
+			};
+		}
+
+		private void updateTableToStringMap() {
+			tableToStringMap.clear();
+			
+			for (final OVTable table : tables)
+				tableToStringMap.put(table, table.getTitle());
+		}
+
+		@Override
+		public int getSize() {
+			return tables.size();
+		}
+
+		@Override
+		public OVTable getElementAt(int index) {
+			return tables.get(index);
+		}
+
+		void addAndSetSelectedItem(final OVTable newTable) {
+			if (!tables.contains(newTable)) {
+				tables.add(newTable);
+				Collections.sort(tables, tableComparator);
+				updateTableToStringMap();
+				fireContentsChanged(this, 0, tables.size() - 1);
+			}
+
+			// This is necessary to avoid deadlock!
+			ViewUtil.invokeOnEDT(() -> {
+				setSelectedItem(newTable);
+			});
+		}
+
+		void removeItem(final OVTable deletedTable) {
+			if (tables.contains(deletedTable)) {
+				tables.remove(deletedTable);
+				
+				if (tables.size() > 0) {
+					Collections.sort(tables, tableComparator);
+					setSelectedItem(tables.get(0));
+				} else {
+					setSelectedItem(null);
+				}
+			}
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	private class TableChooserCellRenderer extends DefaultListCellRenderer {
+		
+		private final Map<OVTable, String> tableToStringMap;
+		
+		TableChooserCellRenderer(final Map<OVTable, String> tableToStringMap) {
+			this.tableToStringMap = tableToStringMap;
+		}
+
+		@Override
+		public Component getListCellRendererComponent(final JList<?> list, final Object value,
+				final int index, final boolean isSelected, final boolean cellHasFocus) {
+			super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			
+			if (isSelected) {
+				setBackground(list.getSelectionBackground());
+				setForeground(list.getSelectionForeground());
+			} else {
+				setBackground(list.getBackground());
+				setForeground(list.getForeground());
+			}
+			
+			if (value instanceof OVTable == false) {
+				setText("-- No Table --");
+				return this;
+			}
+			
+			final OVTable table = (OVTable) value;
+			String label = tableToStringMap.get(table);
+			
+			if (label == null)
+				label = table == null ? "-- No Table --" : table.getTitle();
+			
+			setText(label);
+
+			return this;
+		}
+	}
+
+	@Override
+	public void popupMenuCanceled(PopupMenuEvent e) {
+		// Do nothing
+	}
+	
+	@Override
+	public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+		// Update actual table
+		try {
+			final Set<String> visibleAttributes = getColumnSelector().getSelectedColumnNames();
+			displayedTable.setVisibleColumns(visibleAttributes);
+//			updateEnableState();
+		} catch (Exception ex) {
+		}
+	}
+
+	@Override
+	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+		// Do nothing
+	}
+}
