@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.cytoscape.application.swing.CytoPanelComponent;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.property.CyProperty;
@@ -142,7 +143,11 @@ public class OVManager implements SessionLoadedListener, SessionAboutToBeSavedLi
 		this.ovTables=new ArrayList<OVTable>();
 		
 		initOVTables();
-		this.ovCytoPanel.reload();
+		if(this.ovTables.size() > 0) {
+			this.ovCytoPanel.reload();
+		} else {
+			this.unregisterService(this.ovCytoPanel, CytoPanelComponent.class);
+		}
 	}
 
 	@Override
