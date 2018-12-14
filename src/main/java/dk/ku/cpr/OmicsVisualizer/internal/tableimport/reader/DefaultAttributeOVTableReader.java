@@ -42,7 +42,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import au.com.bytecode.opencsv.CSVReader;
-import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.URLUtil;
 
 /**
  * Basic text table reader for attributes.<br>
@@ -102,8 +101,8 @@ public class DefaultAttributeOVTableReader implements TextTableReader {
 		try {
 			BufferedReader bufRd = null;
 
-			if (is == null)
-				is = URLUtil.getInputStream(source);				
+//			if (is == null)
+//				is = URLUtil.getInputStream(source);				
 			
 			try {
 				// This data is shared by both the OpenCSV and the old method of reading files.

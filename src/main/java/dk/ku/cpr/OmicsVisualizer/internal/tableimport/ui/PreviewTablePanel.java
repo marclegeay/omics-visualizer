@@ -118,7 +118,6 @@ import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.FileType;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.ImportType;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.TypeUtil;
-import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.URLUtil;
 
 import org.cytoscape.util.swing.ColumnResizer;
 import org.cytoscape.util.swing.IconManager;
@@ -524,57 +523,57 @@ public class PreviewTablePanel extends JPanel {
 		ColumnResizer.adjustColumnPreferredWidths(getPreviewTable());
 	}
 
-	protected boolean isCytoscapeAttributeFile(final URL sourceURL) throws IOException {
-		InputStream is = null;
-		boolean testResult = true;
-
-		try {
-			BufferedReader bufRd = null;
-			is = URLUtil.getInputStream(sourceURL);
-			
-			try {
-				String line = null;
-				int i = 0;
-				bufRd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8").newDecoder()));
-				
-				// Test first two lines to check the file type.
-				while ((line = bufRd.readLine()) != null) {
-					if (i == 0) {
-						String[] elements = line.split(" +");
-
-						if (elements.length == 1) {
-							// True so far.
-						} else {
-							elements = line.split("[(]");
-
-							if ((elements.length == 2) && elements[1].startsWith("class=")) {
-								// true so far.
-							} else {
-								testResult = false;
-
-								break;
-							}
-						}
-					} else if (i == 1) {
-						String[] elements = line.split(" += +");
-
-						if (elements.length != 2)
-							testResult = false;
-					} else if (i >= 2) {
-						break;
-					}
-
-					i++;
-				}
-			} finally {
-				if (bufRd != null) bufRd.close();
-			}
-		} finally {
-			if (is != null) is.close();
-		}
-
-		return testResult;
-	}
+//	protected boolean isCytoscapeAttributeFile(final URL sourceURL) throws IOException {
+//		InputStream is = null;
+//		boolean testResult = true;
+//
+//		try {
+//			BufferedReader bufRd = null;
+//			is = URLUtil.getInputStream(sourceURL);
+//			
+//			try {
+//				String line = null;
+//				int i = 0;
+//				bufRd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8").newDecoder()));
+//				
+//				// Test first two lines to check the file type.
+//				while ((line = bufRd.readLine()) != null) {
+//					if (i == 0) {
+//						String[] elements = line.split(" +");
+//
+//						if (elements.length == 1) {
+//							// True so far.
+//						} else {
+//							elements = line.split("[(]");
+//
+//							if ((elements.length == 2) && elements[1].startsWith("class=")) {
+//								// true so far.
+//							} else {
+//								testResult = false;
+//
+//								break;
+//							}
+//						}
+//					} else if (i == 1) {
+//						String[] elements = line.split(" += +");
+//
+//						if (elements.length != 2)
+//							testResult = false;
+//					} else if (i >= 2) {
+//						break;
+//					}
+//
+//					i++;
+//				}
+//			} finally {
+//				if (bufRd != null) bufRd.close();
+//			}
+//		} finally {
+//			if (is != null) is.close();
+//		}
+//
+//		return testResult;
+//	}
 
 	public int checkKeyMatch(final int targetColumn) {
 		int matched = 0;

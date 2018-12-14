@@ -131,7 +131,6 @@ import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.FileType;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.ImportType;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.TypeUtil;
-import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.URLUtil;
 
 import org.cytoscape.util.swing.ColumnResizer;
 import org.cytoscape.util.swing.IconManager;
