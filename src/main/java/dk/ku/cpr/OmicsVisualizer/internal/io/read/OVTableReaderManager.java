@@ -1,4 +1,4 @@
-package dk.ku.cpr.OmicsVisualizer.internal.api_io.read;
+package dk.ku.cpr.OmicsVisualizer.internal.io.read;
 
 /*
  * #%L
@@ -37,7 +37,7 @@ import org.cytoscape.io.read.CyTableReader;
  * use and then returns an instance of the correct {@link org.cytoscape.io.read.CyTableReader} 
  * for the input.
  */
-public interface CyTableDoubleIDReaderManager {
+public interface OVTableReaderManager {
 
 	/**
 	 * Given a URI this method will attempt to find a InputStreamReaderFactory

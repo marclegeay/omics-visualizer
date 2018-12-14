@@ -13,7 +13,7 @@ import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSe
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.ATTR;
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.EDGE_ATTR;
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.INTERACTION;
-import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.KEY;
+//import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.KEY;
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.NONE;
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.ONTOLOGY;
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.SOURCE;
@@ -45,26 +45,28 @@ public final class TypeUtil {
 	public static final String DEFAULT_INTERACTION = "interacts with";
 	
 	private static final List<SourceColumnSemantic> TABLE_IMPORT_TYPES = Arrays.asList(
-			NONE, KEY, ATTR
+			NONE, //KEY,
+			ATTR
 	);
 	private static final List<SourceColumnSemantic> NETWORK_IMPORT_TYPES = Arrays.asList(
 			NONE, SOURCE, INTERACTION, TARGET, EDGE_ATTR, SOURCE_ATTR, TARGET_ATTR
 	);
 	private static final List<SourceColumnSemantic> ONTOLOGY_IMPORT_TYPES = Arrays.asList(
-			NONE, KEY, ALIAS, ONTOLOGY, TAXON, ATTR
+			NONE, //KEY,
+			ALIAS, ONTOLOGY, TAXON, ATTR
 	);
 	
 	private static final List<String> NAMESPACES = Arrays.asList(
 			CyNetwork.LOCAL_ATTRS, CyNetwork.DEFAULT_ATTRS
 	);
 	
-	private static final String[] PREF_KEY_NAMES = new String[] {
-		"shared name", "name", "identifier", "id", "key", "names", "identifiers", "ids", "keys",
-		"node", "node id", "node key", "edge", "edge id", "edge key",
-		"nodes", "node ids", "node keys", "edges", "edge ids", "edge keys",
-		"gene", "gene id", "gene name", "protein",
-		"genes", "gene ids", "gene names", "proteins"
-	};
+//	private static final String[] PREF_KEY_NAMES = new String[] {
+//		"shared name", "name", "identifier", "id", "key", "names", "identifiers", "ids", "keys",
+//		"node", "node id", "node key", "edge", "edge id", "edge key",
+//		"nodes", "node ids", "node keys", "edges", "edge ids", "edge keys",
+//		"gene", "gene id", "gene name", "protein",
+//		"genes", "gene ids", "gene names", "proteins"
+//	};
 	private static final String[] PREF_SOURCE_NAMES = new String[] {
 		"source", "source node", "source name", "source id", "source identifier",
 		"node 1", "node a", "identifier 1", "identifier a", "id 1", "id a",
@@ -132,7 +134,7 @@ public final class TypeUtil {
 		boolean srcFound = ignoredTypes != null && ignoredTypes.contains(SOURCE);
 		boolean tgtFound = ignoredTypes != null && ignoredTypes.contains(TARGET);
 		boolean interactFound = ignoredTypes != null && ignoredTypes.contains(INTERACTION);
-		boolean keyFound = ignoredTypes != null && ignoredTypes.contains(KEY);
+//		boolean keyFound = ignoredTypes != null && ignoredTypes.contains(KEY);
 		boolean goFound = ignoredTypes != null && ignoredTypes.contains(ONTOLOGY);
 		boolean taxFound = ignoredTypes != null && ignoredTypes.contains(TAXON);
 
@@ -162,10 +164,11 @@ public final class TypeUtil {
 					if (srcFound && tgtFound && interactFound)
 						break MAIN_LOOP;
 				} else if (importType == ONTOLOGY_IMPORT) {
-					if (!keyFound && matches(name, PREF_KEY_NAMES, exact) && canBeKey(model, i, dataType)) {
-						keyFound = true;
-						types[i] = KEY;
-					} else if (!goFound && matches(name, PREF_ONTOLOGY_NAMES, exact) && isValid(ONTOLOGY, dataType)) {
+//					if (!keyFound && matches(name, PREF_KEY_NAMES, exact) && canBeKey(model, i, dataType)) {
+//						keyFound = true;
+//						types[i] = KEY;
+//					} else
+					if (!goFound && matches(name, PREF_ONTOLOGY_NAMES, exact) && isValid(ONTOLOGY, dataType)) {
 						goFound = true;
 						types[i] = ONTOLOGY;
 					} else if (!taxFound && matches(name, PREF_TAXON_NAMES, exact) && isValid(TAXON, dataType)) {
@@ -173,27 +176,30 @@ public final class TypeUtil {
 						types[i] = TAXON;
 					}
 					
-					if (keyFound && goFound && taxFound)
+					if (//keyFound && 
+							goFound && taxFound)
 						break MAIN_LOOP;
-				} else if (!keyFound) {
-					if (canBeKey(model, i, dataType)) {
-						keyFound = true;
-						types[i] = KEY;
-						break MAIN_LOOP;
-					}
 				}
+//				else if (!keyFound) {
+//					if (canBeKey(model, i, dataType)) {
+//						keyFound = true;
+//						types[i] = KEY;
+//						break MAIN_LOOP;
+//					}
+//				}
 			}
 		}
 		
-		if (importType == TABLE_IMPORT && !keyFound) {
-			// Just use the first String or Integer column as key then...
-			for (int i = 0; i < types.length; i++) {
-				if (dataTypes[i] == TYPE_STRING || dataTypes[i] == TYPE_INTEGER || dataTypes[i] == TYPE_LONG) {
-					types[i] = KEY;
-					break;
-				}
-			}
-		} else if (importType == NETWORK_IMPORT) {
+//		if (importType == TABLE_IMPORT && !keyFound) {
+//			// Just use the first String or Integer column as key then...
+//			for (int i = 0; i < types.length; i++) {
+//				if (dataTypes[i] == TYPE_STRING || dataTypes[i] == TYPE_INTEGER || dataTypes[i] == TYPE_LONG) {
+//					types[i] = KEY;
+//					break;
+//				}
+//			}
+//		} else
+		if (importType == NETWORK_IMPORT) {
 			// Try to find good candidates for source/target node attributes
 			for (int i = 0; i < types.length; i++) {
 				if (types[i] == EDGE_ATTR) {
@@ -552,7 +558,8 @@ public final class TypeUtil {
 	}
 	
 	public static boolean isValid(final SourceColumnSemantic type, final AttributeDataType dataType) {
-		if (type == KEY || type == SOURCE || type == TARGET)
+		if (//type == KEY || 
+				type == SOURCE || type == TARGET)
 			return dataType == TYPE_INTEGER || dataType == TYPE_LONG || dataType == TYPE_STRING;
 		
 		if (type == INTERACTION || type == ONTOLOGY || type == TAXON)
@@ -565,7 +572,8 @@ public final class TypeUtil {
 		if (type == NONE)
 			return false;
 		
-		if (type == KEY || type == SOURCE || type == TARGET)
+		if (//type == KEY || 
+				type == SOURCE || type == TARGET)
 			return namespace == CyNetwork.LOCAL_ATTRS;
 		
 		if (type == INTERACTION || type == ONTOLOGY || type == TAXON)

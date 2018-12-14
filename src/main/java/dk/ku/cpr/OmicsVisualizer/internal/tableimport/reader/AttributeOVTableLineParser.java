@@ -40,12 +40,12 @@ import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic;
 /**
  * Take a line of data, analyze it, and map to CyAttributes.
  */
-public class AttributeDoubleIDLineParser extends AbstractLineParser {
+public class AttributeOVTableLineParser extends AbstractLineParser {
 	
 	private final AttributeMappingParameters mapping;
 	private final Map<String, Object> invalid = new HashMap<>();
 
-	public AttributeDoubleIDLineParser(final AttributeMappingParameters mapping, final CyServiceRegistrar serviceRegistrar) {
+	public AttributeOVTableLineParser(final AttributeMappingParameters mapping, final CyServiceRegistrar serviceRegistrar) {
 		super(serviceRegistrar);
 		this.mapping = mapping;
 	}

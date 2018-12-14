@@ -17,10 +17,9 @@ import org.apache.log4j.Logger;
 import org.cytoscape.application.CyUserLog;
 import org.cytoscape.io.CyFileFilter;
 import org.cytoscape.io.DataCategory;
+import org.cytoscape.io.read.InputStreamTaskFactory;
 import org.cytoscape.io.util.StreamUtil;
 import org.cytoscape.work.Task;
-
-import dk.ku.cpr.OmicsVisualizer.internal.api_io.read.InputStreamTaskFactory;
 
 /*
  * #%L

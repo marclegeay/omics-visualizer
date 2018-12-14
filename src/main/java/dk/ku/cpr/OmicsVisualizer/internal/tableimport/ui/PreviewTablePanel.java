@@ -9,7 +9,7 @@ import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.ImportType.NET
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.ImportType.TABLE_IMPORT;
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.ALIAS;
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.ATTR;
-import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.KEY;
+//import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.KEY;
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.NONE;
 
 /*
@@ -1310,7 +1310,9 @@ public class PreviewTablePanel extends JPanel {
 			setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
 			
 			setFont(getFont().deriveFont(LookAndFeelUtil.getSmallFontSize()));
-			setFont(getFont().deriveFont(getColumnIndex(KEY) == column ? Font.BOLD : Font.PLAIN));
+			// Modification ML:
+			//setFont(getFont().deriveFont(getColumnIndex(KEY) == column ? Font.BOLD : Font.PLAIN));
+			setFont(getFont().deriveFont(Font.PLAIN));
 			
 			setText(value == null ? "" : value.toString());
 

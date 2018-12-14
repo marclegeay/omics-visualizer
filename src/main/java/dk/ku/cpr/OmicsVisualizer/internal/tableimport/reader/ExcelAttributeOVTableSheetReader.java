@@ -48,11 +48,11 @@ import org.slf4j.LoggerFactory;
  * This reader takes one sheet at a time.
  * </p>
  */
-public class ExcelAttributeDoubleIDSheetReader implements TextTableReader {
+public class ExcelAttributeOVTableSheetReader implements TextTableReader {
 	
 	private final Sheet sheet;
 	private final AttributeMappingParameters mapping;
-	private final AttributeDoubleIDLineParser parser;
+	private final AttributeOVTableLineParser parser;
 	private final DataFormatter formatter;
 	private final FormulaEvaluator evaluator;
 	private final int startLineNumber;
@@ -61,7 +61,7 @@ public class ExcelAttributeDoubleIDSheetReader implements TextTableReader {
 	private static final Logger logger = LoggerFactory.getLogger(CyUserLog.NAME);
 	
 	
-	public ExcelAttributeDoubleIDSheetReader(
+	public ExcelAttributeOVTableSheetReader(
 			final Sheet sheet,
 			final AttributeMappingParameters mapping,
 			final CyServiceRegistrar serviceRegistrar
@@ -69,7 +69,7 @@ public class ExcelAttributeDoubleIDSheetReader implements TextTableReader {
 		this.sheet = sheet;
 		this.mapping = mapping;
 		this.startLineNumber = mapping.getStartLineNumber();
-		this.parser = new AttributeDoubleIDLineParser(mapping, serviceRegistrar);
+		this.parser = new AttributeOVTableLineParser(mapping, serviceRegistrar);
 		this.evaluator = sheet.getWorkbook().getCreationHelper().createFormulaEvaluator();
 		this.formatter = new DataFormatter();
 	}

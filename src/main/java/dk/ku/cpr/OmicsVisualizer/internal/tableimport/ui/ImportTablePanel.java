@@ -38,7 +38,7 @@ import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.ImportType.ONT
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.ImportType.TABLE_IMPORT;
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.ATTR;
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.INTERACTION;
-import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.KEY;
+//import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.KEY;
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.NONE;
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.ONTOLOGY;
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.SOURCE;
@@ -320,16 +320,17 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 				index = ((IndexedPropertyChangeEvent)evt).getIndex();
 			}
 			
-			// Update UI based on the primary key selection
-			if (type == KEY && index >= 0 && importType != NETWORK_IMPORT) {
-				getPreviewPanel().repaint();
-	
-				final JTable table = getPreviewPanel().getPreviewTable();
-	
-				// Update table view
-				ColumnResizer.adjustColumnPreferredWidths(table);
-				table.repaint();
-			}
+			// Modification ML:
+//			// Update UI based on the primary key selection
+//			if (type == KEY && index >= 0 && importType != NETWORK_IMPORT) {
+//				getPreviewPanel().repaint();
+//	
+//				final JTable table = getPreviewPanel().getPreviewTable();
+//	
+//				// Update table view
+//				ColumnResizer.adjustColumnPreferredWidths(table);
+//				table.repaint();
+//			}
 		}
 	}
 
@@ -1401,7 +1402,9 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 
 		// Build mapping parameter object.
 		final List<String> del = checkDelimiter();
-		final int keyInFile = getPreviewPanel().getColumnIndex(KEY);
+		// Modification ML:
+		//final int keyInFile = getPreviewPanel().getColumnIndex(KEY);
+		final int keyInFile=0;
 		
 		final AttributeMappingParameters mapping = new AttributeMappingParameters(sourceName, del, listDelimitersCopy,
 				keyInFile, attrNames, dataTypesCopy, typesCopy, namespacesCopy, startLineNumber, commentChar);

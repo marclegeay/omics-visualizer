@@ -7,6 +7,7 @@ import static org.cytoscape.work.ServiceProperties.TITLE;
 
 import java.util.Properties;
 
+import org.cytoscape.io.read.InputStreamTaskFactory;
 import org.cytoscape.io.util.StreamUtil;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.service.util.CyServiceRegistrar;
@@ -16,13 +17,12 @@ import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.swing.GUITunableHandlerFactory;
 import org.osgi.framework.BundleContext;
 
-import dk.ku.cpr.OmicsVisualizer.internal.api_io.read.CyTableDoubleIDReaderManager;
-import dk.ku.cpr.OmicsVisualizer.internal.api_io.read.InputStreamTaskFactory;
-import dk.ku.cpr.OmicsVisualizer.internal.io.read.CyTableDoubleIDReaderManagerImpl;
-import dk.ku.cpr.OmicsVisualizer.internal.loaddatatable.LoadDoubleIDTableFileTaskFactoryImpl;
+import dk.ku.cpr.OmicsVisualizer.internal.io.read.OVTableReaderManagerImpl;
+import dk.ku.cpr.OmicsVisualizer.internal.io.read.OVTableReaderManager;
+import dk.ku.cpr.OmicsVisualizer.internal.loaddatatable.LoadOVTableFileTaskFactoryImpl;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.io.WildCardCyFileFilter;
-import dk.ku.cpr.OmicsVisualizer.internal.tableimport.task.ImportAttributeDoubleIDTableReaderFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.tableimport.task.ImportAttributeOVTableReaderFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.tunable.AttributeDoubleIDMappingParametersHandlerFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.ImportType;
 
@@ -42,8 +42,8 @@ public class CyActivator extends AbstractCyActivator {
 		
 		// Code from io-impl CyActivator
 		{
-			CyTableDoubleIDReaderManagerImpl tableReaderManager = new CyTableDoubleIDReaderManagerImpl(streamUtil);
-			registerService(context, tableReaderManager, CyTableDoubleIDReaderManager.class);
+			OVTableReaderManagerImpl tableReaderManager = new OVTableReaderManagerImpl(streamUtil);
+			registerService(context, tableReaderManager, OVTableReaderManager.class);
 			registerServiceListener(context, tableReaderManager::addInputStreamTaskFactory, tableReaderManager::removeInputStreamTaskFactory, InputStreamTaskFactory.class);
 		}
 		// Code from table-import-impl CyActivator
@@ -56,7 +56,7 @@ public class CyActivator extends AbstractCyActivator {
 					TABLE,
 					streamUtil
 			);
-			ImportAttributeDoubleIDTableReaderFactory factory = new ImportAttributeDoubleIDTableReaderFactory(filter, serviceRegistrar);
+			ImportAttributeOVTableReaderFactory factory = new ImportAttributeOVTableReaderFactory(filter, serviceRegistrar);
 			Properties props = new Properties();
 			props.setProperty("readerDescription", "Attribute Table file reader");
 			props.setProperty("readerId", "attributeTableReader");
@@ -76,7 +76,7 @@ public class CyActivator extends AbstractCyActivator {
 					"pdf", "jpg", "jpeg", "gif", "png", "svg", "tiff", "ttf", "mp3", "mp4", "mpg", "mpeg",
 					"exe", "dmg", "iso", "cys");
 
-			ImportAttributeDoubleIDTableReaderFactory factory = new ImportAttributeDoubleIDTableReaderFactory(filter, serviceRegistrar);
+			ImportAttributeOVTableReaderFactory factory = new ImportAttributeOVTableReaderFactory(filter, serviceRegistrar);
 			Properties props = new Properties();
 			props.setProperty("readerDescription", "Attribute Table file reader");
 			props.setProperty("readerId", "attributeTableReader_txt");
@@ -90,7 +90,7 @@ public class CyActivator extends AbstractCyActivator {
 		}
 		// Code from core-task-impl CyActivator
 		{
-			LoadDoubleIDTableFileTaskFactoryImpl factory = new LoadDoubleIDTableFileTaskFactoryImpl(ovManager);
+			LoadOVTableFileTaskFactoryImpl factory = new LoadOVTableFileTaskFactoryImpl(ovManager);
 			
 			Properties props = new Properties();
 //			props.setProperty(PREFERRED_MENU, "File.Import"); // File.Import.Table

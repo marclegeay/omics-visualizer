@@ -44,24 +44,24 @@ import org.cytoscape.work.util.ListMultipleSelection;
 import org.cytoscape.work.util.ListSingleSelection;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
-import dk.ku.cpr.OmicsVisualizer.internal.table.ImportDoubleIDTableDataTask.TableType;
+import dk.ku.cpr.OmicsVisualizer.internal.table.ImportOVTableDataTask.TableType;
 
-public class ImportDoubleIDTableDataTaskFactoryImpl extends AbstractTableTaskFactory implements ImportDataTableTaskFactory {
+public class ImportOVTableDataTaskFactoryImpl extends AbstractTableTaskFactory implements ImportDataTableTaskFactory {
 	
 	private final OVManager ovManager;
 	
-	public ImportDoubleIDTableDataTaskFactoryImpl(final OVManager ovManager) {
+	public ImportOVTableDataTaskFactoryImpl(final OVManager ovManager) {
 		this.ovManager = ovManager;
 	}
 
 	@Override
 	public TaskIterator createTaskIterator(final CyTable table) {
-		return new TaskIterator(new ImportDoubleIDTableDataTask(table, ovManager));
+		return new TaskIterator(new ImportOVTableDataTask(table, ovManager));
 	}
 
 	@Override
 	public TaskIterator createTaskIterator(final CyTableReader reader) {
-		return new TaskIterator(new ImportDoubleIDTableDataTask(reader, ovManager));
+		return new TaskIterator(new ImportOVTableDataTask(reader, ovManager));
 	}
 
 	@Override
@@ -74,8 +74,8 @@ public class ImportDoubleIDTableDataTaskFactoryImpl extends AbstractTableTaskFac
 			final CyColumn targetJoinColumn,
 			final Class<? extends CyIdentifiable> type
 	) {
-		ListSingleSelection<String> chooser = new ListSingleSelection<String>(ImportDoubleIDTableDataTask.NETWORK_COLLECTION,
-				ImportDoubleIDTableDataTask.NETWORK_SELECTION, ImportDoubleIDTableDataTask.UNASSIGNED_TABLE);
+		ListSingleSelection<String> chooser = new ListSingleSelection<String>(ImportOVTableDataTask.NETWORK_COLLECTION,
+				ImportOVTableDataTask.NETWORK_SELECTION, ImportOVTableDataTask.UNASSIGNED_TABLE);
 
 		final Map<String, Object> m = new HashMap<>();
 
@@ -117,17 +117,17 @@ public class ImportDoubleIDTableDataTaskFactoryImpl extends AbstractTableTaskFac
 
 			if (selectedNetworksOnly) {
 				m.put("DataTypeTargetForNetworkList", tableTypes);
-				chooser.setSelectedValue(ImportDoubleIDTableDataTask.NETWORK_SELECTION);
+				chooser.setSelectedValue(ImportOVTableDataTask.NETWORK_SELECTION);
 			} else {
 				m.put("DataTypeTargetForNetworkCollection", tableTypes);
-				chooser.setSelectedValue(ImportDoubleIDTableDataTask.NETWORK_COLLECTION);
+				chooser.setSelectedValue(ImportOVTableDataTask.NETWORK_COLLECTION);
 			}
 
 			m.put("TargetNetworkList", networksListTunable);
 			m.put("KeyColumnForMapping", columnNamesList);
 			m.put("TargetNetworkCollection", rootNetworkList);
 		} else {
-			chooser.setSelectedValue(ImportDoubleIDTableDataTask.UNASSIGNED_TABLE);
+			chooser.setSelectedValue(ImportOVTableDataTask.UNASSIGNED_TABLE);
 		}
 
 		m.put("WhereImportTable", chooser);

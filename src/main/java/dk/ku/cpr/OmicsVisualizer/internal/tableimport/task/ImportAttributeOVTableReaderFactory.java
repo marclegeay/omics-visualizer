@@ -32,12 +32,12 @@ import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.work.TaskIterator;
 
 
-public class ImportAttributeDoubleIDTableReaderFactory extends AbstractTableReaderFactory {
+public class ImportAttributeOVTableReaderFactory extends AbstractTableReaderFactory {
 	
 	/**
 	 * Creates a new ImportAttributeTableReaderFactory object.
 	 */
-	public ImportAttributeDoubleIDTableReaderFactory(final CyFileFilter filter, final CyServiceRegistrar serviceRegistrar) {
+	public ImportAttributeOVTableReaderFactory(final CyFileFilter filter, final CyServiceRegistrar serviceRegistrar) {
 		super(filter, serviceRegistrar);
 	}
 
@@ -46,6 +46,6 @@ public class ImportAttributeDoubleIDTableReaderFactory extends AbstractTableRead
 		int lastIndex = inputName.lastIndexOf('.');
 		String fileFormat = lastIndex == -1 ? "" : inputName.substring(lastIndex);
 		
-		return new TaskIterator(new ImportAttributeDoubleIDTableReaderTask(inputStream, fileFormat, inputName, serviceRegistrar));
+		return new TaskIterator(new ImportAttributeOVTableReaderTask(inputStream, fileFormat, inputName, serviceRegistrar));
 	}
 }

@@ -38,24 +38,22 @@ import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.json.JSONResult;
 
-import dk.ku.cpr.OmicsVisualizer.internal.api_io.read.CyTableDoubleIDReaderManager;
+import dk.ku.cpr.OmicsVisualizer.internal.io.read.OVTableReaderManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 
 
-abstract class AbstractLoadDoubleIDTableTask extends AbstractTask {
+abstract class AbstractLoadOVTableTask extends AbstractTask {
 
 	private final OVManager ovManager;
 	
-	public AbstractLoadDoubleIDTableTask(final OVManager ovManager) {
+	public AbstractLoadOVTableTask(final OVManager ovManager) {
 		this.ovManager = ovManager;
 	}
 
 	void loadTable(final String name, final URI uri, boolean combine, final TaskMonitor taskMonitor) throws Exception {
 		taskMonitor.setStatusMessage("Finding Table Data Reader...");
 
-		//test ML:
-		//final CyTableReaderManager tableReaderMgr = serviceRegistrar.getService(CyTableReaderManager.class);
-		final CyTableDoubleIDReaderManager tableReaderMgr = ovManager.getServiceRegistrar().getService(CyTableDoubleIDReaderManager.class);
+		final OVTableReaderManager tableReaderMgr = ovManager.getServiceRegistrar().getService(OVTableReaderManager.class);
 		final CyTableReader reader = tableReaderMgr.getReader(uri, uri.toString());
 		
 		if (reader == null)

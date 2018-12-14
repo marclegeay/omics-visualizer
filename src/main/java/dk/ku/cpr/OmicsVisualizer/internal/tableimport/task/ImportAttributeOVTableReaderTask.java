@@ -49,8 +49,8 @@ import org.cytoscape.work.TunableValidator;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.AttributeMappingParameters;
-import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.DefaultAttributeDoubleIDTableReader;
-import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.ExcelAttributeDoubleIDSheetReader;
+import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.DefaultAttributeOVTableReader;
+import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.ExcelAttributeOVTableSheetReader;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.SupportedFileType;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.TextTableReader;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.AttributeDataType;
@@ -58,7 +58,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.TypeUtil;
 
 
-public class ImportAttributeDoubleIDTableReaderTask extends AbstractTask implements CyTableReader, TunableValidator {
+public class ImportAttributeOVTableReaderTask extends AbstractTask implements CyTableReader, TunableValidator {
 	
 	private  InputStream is;
 	private final String fileType;
@@ -76,7 +76,7 @@ public class ImportAttributeDoubleIDTableReaderTask extends AbstractTask impleme
 	
 	private final CyServiceRegistrar serviceRegistrar;
 
-	public ImportAttributeDoubleIDTableReaderTask(
+	public ImportAttributeOVTableReaderTask(
 			final InputStream is,
 			final String fileType,
 			final String inputName,
@@ -149,12 +149,12 @@ public class ImportAttributeDoubleIDTableReaderTask extends AbstractTask impleme
 			final Sheet sheet = workbook.getSheet(networkName);
 			
 			if (sheet != null) {
-				reader = new ExcelAttributeDoubleIDSheetReader(sheet, amp, serviceRegistrar);
+				reader = new ExcelAttributeOVTableSheetReader(sheet, amp, serviceRegistrar);
 				loadAnnotation(tm);
 			}
 		} else {
 			try {
-				reader = new DefaultAttributeDoubleIDTableReader(null, amp, this.is, serviceRegistrar); 
+				reader = new DefaultAttributeOVTableReader(null, amp, this.is, serviceRegistrar); 
 				loadAnnotation(tm);
 			} catch (Exception ioe) {
 				tm.showMessage(TaskMonitor.Level.ERROR, "Unable to read table: "+ioe.getMessage());
@@ -171,8 +171,8 @@ public class ImportAttributeDoubleIDTableReaderTask extends AbstractTask impleme
 	private void loadAnnotation(TaskMonitor tm) {
 		tm.setProgress(0.0);
 		
-		final TextTableReader reader = this.reader;
-		final AttributeMappingParameters readerAMP = (AttributeMappingParameters) reader.getMappingParameter();
+//		final TextTableReader reader = this.reader;
+//		final AttributeMappingParameters readerAMP = (AttributeMappingParameters) reader.getMappingParameter();
 //		final String primaryKey = readerAMP.getAttributeNames()[readerAMP.getKeyIndex()];
 		final String primaryKey = OVShared.OVTABLE_COLID_NAME;
 //		final AttributeDataType dataType = readerAMP.getDataTypes()[readerAMP.getKeyIndex()];
@@ -200,31 +200,6 @@ public class ImportAttributeDoubleIDTableReaderTask extends AbstractTask impleme
 		cyTables = new CyTable[] { table };
 		tm.setProgress(0.3);
 		
-//		// TODO ML : This is temporary, it should be moved to a "upper" function
-//		// ML: we store the mapping primary key in the Network table.
-//		final String mappingPrimaryKey = readerAMP.getAttributeNames()[readerAMP.getKeyIndex()];
-//		CyNetwork network = this.serviceRegistrar.getService(CyApplicationManager.class).getCurrentNetwork();
-//		if(network != null) {
-//			CyTable netTable = network.getDefaultNetworkTable();
-//			
-//			if(netTable.getColumn(SiteSpecificShared.MAPPING_CUSTOM_NODE_COL) == null) {
-//				netTable.createColumn(SiteSpecificShared.MAPPING_CUSTOM_NODE_COL, String.class, false);
-//			}
-//			netTable.getRow(network.getSUID()).set(SiteSpecificShared.MAPPING_CUSTOM_NODE_COL, mappingPrimaryKey);
-//			
-//			if(netTable.getColumn(SiteSpecificShared.MAPPING_NODE_CUSTOM_COL) == null) {
-//				netTable.createColumn(SiteSpecificShared.MAPPING_NODE_CUSTOM_COL, String.class, false);
-//			}
-//			// TODO ML : Find the mappingPrimaryKey Node -> Key
-//			netTable.getRow(network.getSUID()).set(SiteSpecificShared.MAPPING_NODE_CUSTOM_COL, mappingPrimaryKey);
-//
-//			
-//			if(netTable.getColumn(SiteSpecificShared.CUSTOM_SUID_COL) == null) {
-//				netTable.createColumn(SiteSpecificShared.CUSTOM_SUID_COL, Long.class, false);
-//			}
-//			netTable.getRow(network.getSUID()).set(SiteSpecificShared.CUSTOM_SUID_COL, table.getSUID());
-//		}
-		
 		try {
 			this.reader.readTable(table);
 		} catch (IOException e) {
@@ -237,29 +212,29 @@ public class ImportAttributeDoubleIDTableReaderTask extends AbstractTask impleme
 
 	@Override
 	public ValidationState getValidationState(Appendable errMsg) {
-		if (amp.getKeyIndex() == -1) {
-			try {
-				errMsg.append("The primary key column needs to be selected.");
-			} catch (IOException e) {
-				e.printStackTrace();
-				return ValidationState.INVALID;
-			}
-			
-			return ValidationState.INVALID;
-		}
+//		if (amp.getKeyIndex() == -1) {
+//			try {
+//				errMsg.append("The primary key column needs to be selected.");
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//				return ValidationState.INVALID;
+//			}
+//			
+//			return ValidationState.INVALID;
+//		}
 		
-		final AttributeDataType keyDataType = amp.getDataTypes()[amp.getKeyIndex()];
-		
-		if (!TypeUtil.isValid(SourceColumnSemantic.KEY, keyDataType)) {
-			try {
-				errMsg.append("The primary key column must be an Integer, Long or String.");
-			} catch (IOException e) {
-				e.printStackTrace();
-				return ValidationState.INVALID;
-			}
-			
-			return ValidationState.INVALID;
-		}
+//		final AttributeDataType keyDataType = amp.getDataTypes()[amp.getKeyIndex()];
+//		
+//		if (!TypeUtil.isValid(SourceColumnSemantic.KEY, keyDataType)) {
+//			try {
+//				errMsg.append("The primary key column must be an Integer, Long or String.");
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//				return ValidationState.INVALID;
+//			}
+//			
+//			return ValidationState.INVALID;
+//		}
 		
 		if (amp.getSelectedColumnCount() < 2){
 			try {

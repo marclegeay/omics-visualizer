@@ -34,12 +34,12 @@ import org.cytoscape.work.Tunable;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 
 
-public class LoadDoubleIDTableFileTask extends AbstractLoadDoubleIDTableTask {
+public class LoadOVTableFileTask extends AbstractLoadOVTableTask {
 	
 	@Tunable(description = "Data Table file:", params = "fileCategory=table;input=true")
 	public File file;
 
-	public LoadDoubleIDTableFileTask(final OVManager ovManager) {
+	public LoadOVTableFileTask(final OVManager ovManager) {
 		super(ovManager);
 	}
 

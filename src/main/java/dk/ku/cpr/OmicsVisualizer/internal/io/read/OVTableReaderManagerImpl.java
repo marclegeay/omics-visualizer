@@ -1,8 +1,8 @@
-package dk.ku.cpr.OmicsVisualizer.internal.api_io.read;
+package dk.ku.cpr.OmicsVisualizer.internal.io.read;
 
 /*
  * #%L
- * Cytoscape IO API (io-api)
+ * Cytoscape IO Impl (io-impl)
  * $Id:$
  * $HeadURL:$
  * %%
@@ -24,34 +24,16 @@ package dk.ku.cpr.OmicsVisualizer.internal.api_io.read;
  * #L%
  */
 
-import java.io.InputStream;
 
-import org.cytoscape.io.CyFileFilter;
+import org.cytoscape.io.DataCategory;
+import org.cytoscape.io.read.CyTableReader;
+import org.cytoscape.io.read.InputStreamTaskFactory;
+import org.cytoscape.io.util.StreamUtil;
 
-/**
- * TODO: Missing documentation
- */
-public abstract class AbstractInputStreamTaskFactory implements InputStreamTaskFactory {
-	
-	private CyFileFilter fileFilter;
+public class OVTableReaderManagerImpl extends GenericReaderManager<InputStreamTaskFactory, CyTableReader> implements
+		OVTableReaderManager {
 
-	public AbstractInputStreamTaskFactory(final CyFileFilter fileFilter) {
-		this.fileFilter = fileFilter;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isReady(InputStream is, String inputName) {
-		return true;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public CyFileFilter getFileFilter() {
-		return fileFilter;
+	public OVTableReaderManagerImpl(final StreamUtil streamUtil) {
+		super(DataCategory.TABLE, streamUtil);
 	}
 }

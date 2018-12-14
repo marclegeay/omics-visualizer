@@ -26,9 +26,8 @@ package dk.ku.cpr.OmicsVisualizer.internal.tableimport.task;
 
 
 import org.cytoscape.io.CyFileFilter;
+import org.cytoscape.io.read.AbstractInputStreamTaskFactory;
 import org.cytoscape.service.util.CyServiceRegistrar;
-
-import dk.ku.cpr.OmicsVisualizer.internal.api_io.read.AbstractInputStreamTaskFactory;
 
 public abstract class AbstractTableReaderFactory extends AbstractInputStreamTaskFactory {
 

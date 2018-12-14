@@ -53,13 +53,13 @@ import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.URLUtil;
  *
  * @author kono
  */
-public class DefaultAttributeDoubleIDTableReader implements TextTableReader {
+public class DefaultAttributeOVTableReader implements TextTableReader {
 	
 	private static final Logger logger = LoggerFactory.getLogger(CyUserLog.NAME);
 	
 	private final URL source;
 	private AttributeMappingParameters mapping;
-	private final AttributeDoubleIDLineParser parser;
+	private final AttributeOVTableLineParser parser;
 	
 	/** Number of mapped attributes. */
 	private int globalCounter;
@@ -70,21 +70,21 @@ public class DefaultAttributeDoubleIDTableReader implements TextTableReader {
 	
 	private InputStream is;
 	
-	public DefaultAttributeDoubleIDTableReader(final URL source, AttributeMappingParameters mapping,
+	public DefaultAttributeOVTableReader(final URL source, AttributeMappingParameters mapping,
             final int startLineNumber, final String commentChar, final CyServiceRegistrar serviceRegistrar) {
 		this.source = source;
 		this.mapping = mapping;
 		this.startLineNumber = startLineNumber;
-		this.parser = new AttributeDoubleIDLineParser(mapping, serviceRegistrar);
+		this.parser = new AttributeOVTableLineParser(mapping, serviceRegistrar);
 		this.commentChar = commentChar;
 	}
 
-	public DefaultAttributeDoubleIDTableReader(final URL source, AttributeMappingParameters mapping, InputStream is,
+	public DefaultAttributeOVTableReader(final URL source, AttributeMappingParameters mapping, InputStream is,
 			final CyServiceRegistrar serviceRegistrar) {
 		this.source = source;
 		this.mapping = mapping;
 		this.startLineNumber = mapping.getStartLineNumber();
-		this.parser = new AttributeDoubleIDLineParser(mapping, serviceRegistrar);
+		this.parser = new AttributeOVTableLineParser(mapping, serviceRegistrar);
 		this.commentChar = mapping.getCommentChar();
 		this.is = is;
 	}
@@ -121,8 +121,8 @@ public class DefaultAttributeDoubleIDTableReader implements TextTableReader {
 					String [] rowData; //Note that rowData is roughly equivalent to "parts" in the old code.
 					
 					while ((rowData = reader.readNext()) != null) {
-						// If key dos not exists, ignore the line.
-						if (lineCount >= startLineNumber && rowData.length >= mapping.getKeyIndex() + 1) {
+//						// If key dos not exists, ignore the line.
+//						if (lineCount >= startLineNumber && rowData.length >= mapping.getKeyIndex() + 1) {
 							try {
 								parser.parseAll(table, rowData, lineCount);
 							} catch (Exception ex) {
@@ -130,7 +130,7 @@ public class DefaultAttributeDoubleIDTableReader implements TextTableReader {
 							}
 							
 							globalCounter++;
-						}
+//						}
 						
 						lineCount++;
 					}
@@ -151,8 +151,8 @@ public class DefaultAttributeDoubleIDTableReader implements TextTableReader {
 						} else if ((lineCount >= startLineNumber) && (line.trim().length() > 0)) {
 							parts = line.split(delimiter);
 							
-							// If key does not exists, ignore the line.
-							if (parts.length >= mapping.getKeyIndex() + 1) {
+//							// If key does not exists, ignore the line.
+//							if (parts.length >= mapping.getKeyIndex() + 1) {
 								try {
 									parser.parseAll(table, parts, lineCount);
 								} catch (Exception ex) {
@@ -160,7 +160,7 @@ public class DefaultAttributeDoubleIDTableReader implements TextTableReader {
 								}
 								
 								globalCounter++;
-							}
+//							}
 						}
 
 						lineCount++;

@@ -37,7 +37,7 @@ import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.TunableValidator;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
-import dk.ku.cpr.OmicsVisualizer.internal.table.ImportDoubleIDTableDataTask;
+import dk.ku.cpr.OmicsVisualizer.internal.table.ImportOVTableDataTask;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.ShowOVPanelTaskFactory;
 
 public class CombineReaderAndMappingTask extends AbstractTask implements TunableValidator{
@@ -46,7 +46,7 @@ public class CombineReaderAndMappingTask extends AbstractTask implements Tunable
 	public String getTitle() {		return "Import File";	}
 
 	@ContainsTunables
-	public ImportDoubleIDTableDataTask importTableDataTask;
+	public ImportOVTableDataTask importTableDataTask;
 	
 	@ContainsTunables
 	public CyTableReader tableReader;
@@ -56,7 +56,7 @@ public class CombineReaderAndMappingTask extends AbstractTask implements Tunable
 	
 	public CombineReaderAndMappingTask(final CyTableReader tableReader, final OVManager ovManager) {
 		this.tableReader = tableReader;
-		this.importTableDataTask = new ImportDoubleIDTableDataTask(tableReader, ovManager);
+		this.importTableDataTask = new ImportOVTableDataTask(tableReader, ovManager);
 		this.ovManager = ovManager;
 	}
 

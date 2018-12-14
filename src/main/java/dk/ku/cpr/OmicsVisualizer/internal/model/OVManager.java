@@ -138,7 +138,6 @@ public class OVManager implements SessionLoadedListener, SessionAboutToBeSavedLi
 
 	@Override
 	public void handleEvent(SessionLoadedEvent e) {
-		System.out.println("Omics Visualizer : Session Loadeded");
 		this.serviceProperties=null;
 		this.ovTables=new ArrayList<OVTable>();
 		

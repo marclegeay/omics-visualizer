@@ -88,7 +88,7 @@ import org.cytoscape.work.util.ListSingleSelection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ImportDoubleIDTableDataTask extends AbstractTask implements TunableValidator, ObservableTask {
+public class ImportOVTableDataTask extends AbstractTask implements TunableValidator, ObservableTask {
 	
 	enum TableType {
 		NODE_ATTR("Node Table Columns", CyNode.class),
@@ -294,14 +294,14 @@ public class ImportDoubleIDTableDataTask extends AbstractTask implements Tunable
 	@ProvidesTitle
 	public String getTitle() {		return "Import Data";	}
 
-	public ImportDoubleIDTableDataTask(final CyTableReader reader, final OVManager ovManager) {
+	public ImportOVTableDataTask(final CyTableReader reader, final OVManager ovManager) {
 		this.reader = reader;
 		this.ovManager = ovManager;
 		this.byReader = true;
 		init();
 	}
 
-	public ImportDoubleIDTableDataTask(final CyTable globalTable, final OVManager ovManager) {
+	public ImportOVTableDataTask(final CyTable globalTable, final OVManager ovManager) {
 		this.byReader = false;
 		this.ovManager = ovManager;
 		this.globalTable = globalTable;

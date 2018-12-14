@@ -39,12 +39,12 @@ import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.TypeUtil;
  */
 public class AttributeMappingParameters extends AbstractMappingParameters {
 
-	private final int keyIndex;
+//	private final int keyIndex;
 	
 	public AttributeMappingParameters(InputStream is, String fileType) {
 		super(is, fileType);
 
-		this.keyIndex = -1;
+//		this.keyIndex = -1;
 	}
 	
 	public AttributeMappingParameters(
@@ -84,7 +84,7 @@ public class AttributeMappingParameters extends AbstractMappingParameters {
 		if (attrNames.length < keyIndex)
 			throw new IOException("Key is out of range.");
 		
-		this.keyIndex = keyIndex;
+//		this.keyIndex = keyIndex;
 		
 		/*
 		 * If not specified, import everything as String attributes.
@@ -115,7 +115,7 @@ public class AttributeMappingParameters extends AbstractMappingParameters {
 			this.namespaces = namespaces;
 	}
 	
-	public int getKeyIndex() {
-		return keyIndex;
-	}
+//	public int getKeyIndex() {
+//		return keyIndex;
+//	}
 }
