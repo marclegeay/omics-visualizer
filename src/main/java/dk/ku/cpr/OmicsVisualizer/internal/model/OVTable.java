@@ -34,9 +34,9 @@ public class OVTable {
 		this.ovManager=ovManager;
 		this.cyTable=cyTable;
 		this.jTable=null;
-		this.getJTable();
 		this.cyProperty=null;
 		
+		this.createJTable();
 		this.save();
 	}
 	
@@ -45,10 +45,14 @@ public class OVTable {
 	}
 	
 	public JTable getJTable() {
-		if(this.jTable != null) {
-			return this.jTable;
+		if(this.jTable == null) {
+			this.createJTable();
 		}
+		
+		return this.jTable;
+	}
 
+	private void createJTable() {
 		List<String> colNames = new ArrayList<String>();
 		Collection<CyColumn> cols = this.cyTable.getColumns();
 		for(@SuppressWarnings("unused") CyColumn c : cols) {
@@ -120,7 +124,6 @@ public class OVTable {
 //		jTable.getColumnModel().addColumnModelListener(this);
 		
 		this.jTable = jTable;
-		return this.jTable;
 	}
 	
 	public List<String> getColNames() {

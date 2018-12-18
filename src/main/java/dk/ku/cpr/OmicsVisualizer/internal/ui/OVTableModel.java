@@ -10,17 +10,10 @@ import javax.swing.table.AbstractTableModel;
 
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
-import org.cytoscape.model.events.ColumnCreatedEvent;
-import org.cytoscape.model.events.ColumnCreatedListener;
-import org.cytoscape.model.events.ColumnDeletedEvent;
-import org.cytoscape.model.events.ColumnDeletedListener;
-import org.cytoscape.model.events.ColumnNameChangedEvent;
-import org.cytoscape.model.events.ColumnNameChangedListener;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 
-public class OVTableModel extends AbstractTableModel implements ColumnCreatedListener, ColumnDeletedListener,
-ColumnNameChangedListener {
+public class OVTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -103,25 +96,5 @@ ColumnNameChangedListener {
 			Boolean visible = visibleCols.contains(col);
 			this.visibleColumn.put(col, visible);
 		}
-	}
-
-	@Override
-	public void handleEvent(ColumnNameChangedEvent e) {
-		// TODO Auto-generated method stub
-		System.out.println("CNCE");
-	}
-
-	@Override
-	public void handleEvent(ColumnDeletedEvent e) {
-		// TODO Auto-generated method stub
-		System.out.println("CDE");
-		
-	}
-
-	@Override
-	public void handleEvent(ColumnCreatedEvent e) {
-		// TODO Auto-generated method stub
-		System.out.println("CCE");
-		
 	}
 }
