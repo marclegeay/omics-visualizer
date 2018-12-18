@@ -92,7 +92,7 @@ public class OVManager implements SessionLoadedListener, SessionAboutToBeSavedLi
 			} catch(Exception e ) {
 				// Now we store those Properties into the Session File
 				// We use the SimpleCyProperty class to do so
-				this.serviceProperties = new SimpleCyProperty<Properties>(OVShared.CYPROPERTY_NAME, new Properties(), Properties.class, SavePolicy.SESSION_FILE);
+				this.serviceProperties = new SimpleCyProperty<Properties>(OVShared.CYPROPERTY_NAME, new Properties(), Properties.class, SavePolicy.SESSION_FILE_AND_CONFIG_DIR);
 				Properties cyPropServiceProps = new Properties(); // The SimpleCyProperty service must be registered with a name, so we have Properties for this service also
 				cyPropServiceProps.setProperty("cyPropertyName", this.serviceProperties.getName());
 				this.serviceRegistrar.registerAllServices(this.serviceProperties, cyPropServiceProps);

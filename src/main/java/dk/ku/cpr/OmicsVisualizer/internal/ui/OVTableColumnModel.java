@@ -1,13 +1,17 @@
 package dk.ku.cpr.OmicsVisualizer.internal.ui;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.IllegalFormatException;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
+
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 
 @SuppressWarnings("serial")
 public class OVTableColumnModel extends DefaultTableColumnModel {
@@ -18,12 +22,15 @@ public class OVTableColumnModel extends DefaultTableColumnModel {
 	 */
 	protected Vector<TableColumn> allTableColumns = new Vector<TableColumn>();
 	protected Map<String, String> columnFormatMap = new LinkedHashMap<>();
+	
+	private OVTable ovTable;
 
 	/**
 	 * Creates an extended table column model.
+	 * @param ovTable 
 	 */
-	public OVTableColumnModel() {
-		
+	public OVTableColumnModel(OVTable ovTable) {
+		this.ovTable=ovTable;
 	}
 
 	/**
@@ -166,10 +173,10 @@ public class OVTableColumnModel extends DefaultTableColumnModel {
 	 * @see #addColumn
 	 */
 	public void removeColumn(TableColumn column) {
-		int allColumnsIndex = allTableColumns.indexOf(column);
-		if (allColumnsIndex != -1) {
-			allTableColumns.removeElementAt(allColumnsIndex);
-		}
+//		int allColumnsIndex = allTableColumns.indexOf(column);
+//		if (allColumnsIndex != -1) {
+//			allTableColumns.removeElementAt(allColumnsIndex);
+//		}
 		super.removeColumn(column);
 	}
 
@@ -202,6 +209,8 @@ public class OVTableColumnModel extends DefaultTableColumnModel {
 		}
 
 		super.moveColumn(oldIndex, newIndex);
+		
+		this.ovTable.save();
 	}
 
 	/**
@@ -229,6 +238,17 @@ public class OVTableColumnModel extends DefaultTableColumnModel {
 		Vector<TableColumn> columns = (onlyVisible ? tableColumns : allTableColumns);
 
 		return columns.elements();
+	}
+	
+	public List<String> getColumnNames(boolean onlyVisible) {
+		ArrayList<String> colNames = new ArrayList<String>();
+		
+		for(Enumeration<TableColumn> tc = this.getColumns(onlyVisible); tc.hasMoreElements();) {
+			// The header of the columns are String (the name of the col)
+			colNames.add((String)tc.nextElement().getHeaderValue());
+		}
+		
+		return colNames;
 	}
 
 	/**

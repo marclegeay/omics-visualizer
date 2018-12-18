@@ -13,6 +13,7 @@ import javax.swing.table.TableColumn;
 
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyTable;
+import org.cytoscape.property.AbstractConfigDirPropsReader;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.property.SimpleCyProperty;
 import org.cytoscape.property.CyProperty.SavePolicy;
@@ -62,7 +63,7 @@ public class OVTable {
 		
 		Set<String> visibleCols = new HashSet<String>();
 		
-		if(this.getTableProperty(this.cyTable, OVShared.OVTABLE_COLID_NAME, "") != "") {
+		if(this.getTableProperty(OVShared.OVTABLE_COLID_NAME, "") != "") {
 			// We load the columns from the Properties
 			// Cytoscape store CyTable with columns sorted alphabetically, so we stored the order of each columns in Properties
 			Iterator<CyColumn> it = cols.iterator();
@@ -70,7 +71,7 @@ public class OVTable {
 			while(it.hasNext()) {
 				CyColumn col = it.next();
 				
-				propValue = this.getTableProperty(this.cyTable, col.getName());
+				propValue = this.getTableProperty(col.getName());
 				String propValues[] = propValue.split(",");
 				
 				int i = Integer.parseInt(propValues[0]);
@@ -103,9 +104,9 @@ public class OVTable {
 			}
 		}
 
-		tableModel = new OVTableModel(cyTable, colNames);
+		tableModel = new OVTableModel(this, colNames);
 		JTable jTable = new JTable(tableModel);
-		tableColumnModel = new OVTableColumnModel();
+		tableColumnModel = new OVTableColumnModel(this);
 		
 		for (int i1 = 0; i1 < tableModel.getColumnCount(); i1++) {
 			TableColumn tableColumn = new TableColumn(i1);
@@ -127,7 +128,7 @@ public class OVTable {
 	}
 	
 	public List<String> getColNames() {
-		return this.tableModel.getAllColumnNames();
+		return this.tableColumnModel.getColumnNames(false);
 	}
 	
 	public Collection<CyColumn> getColumns() {
@@ -148,7 +149,7 @@ public class OVTable {
 	public Collection<CyColumn> getColumnsInOrder() {
 		Collection<CyColumn> cols = new ArrayList<CyColumn>();
 		
-		for(String colName : this.getColNames()) {
+		for(String colName : this.tableColumnModel.getColumnNames(false)) {
 			if(!colName.equals(OVShared.OVTABLE_COLID_NAME)) {
 				cols.add(this.cyTable.getColumn(colName));
 			}
@@ -163,13 +164,12 @@ public class OVTable {
 			TableColumn column = tableColumnModel.getColumnByModelIndex(col);
 			tableColumnModel.setColumnVisible(column, visibleAttributes.contains(name));
 		}
-		tableModel.setVisibleColumnNames(visibleAttributes);
 		
 		this.save();
 	}
 	
 	public Collection<String> getVisibleColumns() {
-		return this.tableModel.getVisibleColumnNames();
+		return this.tableColumnModel.getColumnNames(true);
 	}
 	
 	public String getTitle() {
@@ -183,21 +183,21 @@ public class OVTable {
 		
 		for(String col : cols) {
 			String savedValue = index.toString()+","+visibleCols.contains(col);
-			this.setTableProperty(this.cyTable, col, savedValue);
+			this.setTableProperty(col, savedValue);
 			index += 1;
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
-	public CyProperty<Properties> getTableCyProperty(String tableTitle) {
-		String propName = OVShared.CYPROPERTY_NAME+"-"+tableTitle;
+	public CyProperty<Properties> getTableCyProperty() {
+		String propName = OVShared.CYPROPERTY_NAME+"-"+this.cyTable.getTitle();
 		
 		try { // If the service is not registered yet, it throws an Exception
 			this.cyProperty = this.ovManager.getService(CyProperty.class, "(cyPropertyName="+propName+")");
 		} catch(Exception e ) {
 			// Now we store those Properties into the Session File
 			// We use the SimpleCyProperty class to do so
-			this.cyProperty = new SimpleCyProperty<Properties>(propName, new Properties(), Properties.class, SavePolicy.SESSION_FILE);
+			this.cyProperty = new SimpleCyProperty<Properties>(propName, new Properties(), Properties.class, SavePolicy.SESSION_FILE_AND_CONFIG_DIR);
 			Properties cyPropServiceProps = new Properties(); // The SimpleCyProperty service must be registered with a name, so we have Properties for this service also
 			cyPropServiceProps.setProperty("cyPropertyName", this.cyProperty.getName());
 			this.ovManager.registerAllServices(this.cyProperty, cyPropServiceProps);
@@ -205,17 +205,14 @@ public class OVTable {
 		
 		return this.cyProperty;
 	}
-	public String getTableProperty(CyTable table, String propName) {
-		return this.getTableCyProperty(table.getTitle()).getProperties().getProperty(propName);
+	public String getTableProperty(String propName) {
+		return this.getTableCyProperty().getProperties().getProperty(propName);
 	}
-	public String getTableProperty(CyTable table, String propName, String propDefaultValue) {
-		return this.getTableCyProperty(table.getTitle()).getProperties().getProperty(propName, propDefaultValue);
+	public String getTableProperty(String propName, String propDefaultValue) {
+		return this.getTableCyProperty().getProperties().getProperty(propName, propDefaultValue);
 	}
-	public void setTableProperty(String tableTitle, String propName, String propValue) {
-		this.getTableCyProperty(tableTitle).getProperties().put(propName, propValue);
-	}
-	public void setTableProperty(CyTable table, String propName, String propValue) {
-		this.setTableProperty(table.getTitle(), propName, propValue);
+	public void setTableProperty(String propName, String propValue) {
+		this.getTableCyProperty().getProperties().put(propName, propValue);
 	}
 	
 	public void deleteProperties() {

@@ -12,26 +12,22 @@ import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 
 public class OVTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 	
 	private CyTable cyTable;
+	// We need the column names to access the data
 	private List<String> columnNames;
-	private Map<String, Boolean> visibleColumn;
 	private Object[] rowKeys;
 
-	public OVTableModel(CyTable cyTable, List<String> columnNames) {
+	public OVTableModel(OVTable ovTable, List<String> columnNames) {
 		super();
 		
-		this.cyTable=cyTable;
+		this.cyTable=ovTable.getCyTable();
 		this.columnNames=columnNames;
-		
-		this.visibleColumn = new HashMap<String, Boolean>();
-		for(String col : columnNames) {
-			this.visibleColumn.put(col, true);
-		}
 		
 		String colKey = this.cyTable.getPrimaryKey().getName();
 		List<CyRow> rows = this.cyTable.getAllRows();
@@ -62,12 +58,6 @@ public class OVTableModel extends AbstractTableModel {
 		return this.columnNames.get(col);
 	}
 	
-	public boolean isColumnVisible(String colName) {
-		Boolean val =  this.visibleColumn.get(colName);
-		
-		return ((val==null) ? false : val.booleanValue());
-	}
-	
 	public List<String> getAllColumnNames() {
 		return this.columnNames;
 	}
@@ -77,24 +67,5 @@ public class OVTableModel extends AbstractTableModel {
 			return this.columnNames.indexOf(name);
 		
 		return -1;
-	}
-	
-	public Set<String> getVisibleColumnNames() {
-		Set<String> list = new HashSet<String>();
-		
-		for(String col : this.columnNames) {
-			if(!col.equals(OVShared.OVTABLE_COLID_NAME) && this.isColumnVisible(col)) {
-				list.add(col);
-			}
-		}
-		
-		return list;
-	}
-	
-	public void setVisibleColumnNames(Set<String> visibleCols) {
-		for(String col : this.columnNames) {
-			Boolean visible = visibleCols.contains(col);
-			this.visibleColumn.put(col, visible);
-		}
 	}
 }
