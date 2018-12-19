@@ -6,6 +6,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.cytoscape.application.swing.CytoPanelComponent;
+import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.property.CyProperty;
@@ -32,12 +33,18 @@ public class OVManager implements SessionLoadedListener, SessionAboutToBeSavedLi
 	private ShowOVPanelTaskFactory showPanelFactory;
 	private OVCytoPanel ovCytoPanel;
 	
+	private CyNetworkManager netManager;
+	private CyTableManager tableManager;
+	
 	public OVManager(CyServiceRegistrar serviceRegistrar) {
 		this.serviceRegistrar=serviceRegistrar;
 		this.serviceProperties=null;
 		this.showPanelFactory=new ShowOVPanelTaskFactory(this);
 		this.ovCytoPanel=null;
 		this.ovTables=new ArrayList<OVTable>();
+		
+		this.netManager = this.getService(CyNetworkManager.class);
+		this.tableManager = this.getService(CyTableManager.class);
 		
 		initOVTables();
 	}
@@ -110,6 +117,14 @@ public class OVManager implements SessionLoadedListener, SessionAboutToBeSavedLi
 	}
 	public void setProperty(String propName, String propValue) {
 		this.getServiceCyProperty().getProperties().setProperty(propName, propValue);
+	}
+	
+	public CyNetworkManager getNetworkManager() {
+		return this.netManager;
+	}
+	
+	public CyTableManager getTableManager() {
+		return this.tableManager;
 	}
 	
 	public void addOVTable(OVTable table) {

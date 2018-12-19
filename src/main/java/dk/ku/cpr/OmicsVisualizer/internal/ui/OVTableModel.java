@@ -1,17 +1,12 @@
 package dk.ku.cpr.OmicsVisualizer.internal.ui;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.swing.table.AbstractTableModel;
 
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 
-import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 
 public class OVTableModel extends AbstractTableModel {
@@ -36,6 +31,10 @@ public class OVTableModel extends AbstractTableModel {
 		for(CyRow r : rows) {
 			this.rowKeys[i++] = r.getRaw(colKey);
 		}
+	}
+	
+	public void addColumnName(String colName) {
+		this.columnNames.add(colName);
 	}
 
 	@Override

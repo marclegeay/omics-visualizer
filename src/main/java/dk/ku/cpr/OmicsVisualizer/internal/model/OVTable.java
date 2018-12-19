@@ -12,8 +12,8 @@ import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
 import org.cytoscape.model.CyColumn;
+import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyTable;
-import org.cytoscape.property.AbstractConfigDirPropsReader;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.property.SimpleCyProperty;
 import org.cytoscape.property.CyProperty.SavePolicy;
@@ -29,6 +29,12 @@ public class OVTable {
 	private OVTableModel tableModel;
 	private OVTableColumnModel tableColumnModel;
 	
+	private CyNetwork linkedNetwork;
+	/** Name of the column from the OVTable that links to the CyNetwork */
+	private String mappingColOVTable;
+	/** Name of the column from the Network that links to the OVTable */
+	private String mappingColCyNetwork;
+	
 	private CyProperty<Properties> cyProperty;
 	
 	public OVTable(OVManager ovManager, CyTable cyTable) {
@@ -37,7 +43,12 @@ public class OVTable {
 		this.jTable=null;
 		this.cyProperty=null;
 		
+		this.linkedNetwork=null;
+		this.mappingColOVTable="";
+		this.mappingColCyNetwork="";
+		
 		this.createJTable();
+		this.load();
 		this.save();
 	}
 	
@@ -52,6 +63,33 @@ public class OVTable {
 		
 		return this.jTable;
 	}
+	
+	public CyNetwork getLinkedNetwork() {
+		return this.linkedNetwork;
+	}
+	public String getLinkedNetworkName() {
+		return (this.linkedNetwork == null ? "" : this.linkedNetwork.toString());
+	}
+	
+	public String getMappingColOVTable() {
+		return this.mappingColOVTable;
+	}
+	
+	public String getMappingColCyNetwork() {
+		return this.mappingColCyNetwork;
+	}
+	
+	public void connect(String netName, String mappingColNetwork, String mappingColOVTable) {
+		for(CyNetwork net : this.ovManager.getNetworkManager().getNetworkSet()) {
+			if(net.toString().equals(netName)) {
+				this.linkedNetwork = net;
+			}
+		}
+		this.mappingColCyNetwork=mappingColNetwork;
+		this.mappingColOVTable=mappingColOVTable;
+		
+		//TODO
+	}
 
 	private void createJTable() {
 		List<String> colNames = new ArrayList<String>();
@@ -59,7 +97,6 @@ public class OVTable {
 		for(@SuppressWarnings("unused") CyColumn c : cols) {
 			colNames.add("");
 		}
-		int custom_col_id=0;
 		
 		Set<String> visibleCols = new HashSet<String>();
 		
@@ -81,11 +118,6 @@ public class OVTable {
 				if(visible) {
 					visibleCols.add(col.getName());
 				}
-
-				// We do not want to display our custom_col_id
-				if(col.getName().equals(OVShared.OVTABLE_COLID_NAME)) {
-					custom_col_id = i;
-				}
 			}
 		} else {
 			// We do not display the Custom column ID name
@@ -94,12 +126,12 @@ public class OVTable {
 			while(it.hasNext()) {
 				CyColumn col = it.next();
 				colNames.set(i, col.getName());
-				// We do not want to display our custom_col_id
-				if(col.getName().equals(OVShared.OVTABLE_COLID_NAME)) {
-					custom_col_id = i;
-				} else {
+				
+				// We do not want to display our special OVTable columns
+				if(!OVShared.isOVCol(col.getName())) {
 					visibleCols.add(col.getName());
 				}
+				
 				i++;
 			}
 		}
@@ -108,15 +140,12 @@ public class OVTable {
 		JTable jTable = new JTable(tableModel);
 		tableColumnModel = new OVTableColumnModel(this);
 		
-		for (int i1 = 0; i1 < tableModel.getColumnCount(); i1++) {
-			TableColumn tableColumn = new TableColumn(i1);
-			tableColumn.setHeaderValue(tableModel.getColumnName(i1));
+		for (int i = 0; i < tableModel.getColumnCount(); i++) {
+			TableColumn tableColumn = new TableColumn(i);
+			tableColumn.setHeaderValue(tableModel.getColumnName(i));
 			tableColumnModel.addColumn(tableColumn);
 		}
 		jTable.setColumnModel(tableColumnModel);
-
-		// We remove the custom_col_id from the model because we do not want it to be displayed:
-		tableColumnModel.removeColumn(tableColumnModel.getColumn(custom_col_id));
 		
 		this.setVisibleColumns(visibleCols);
 
@@ -172,6 +201,17 @@ public class OVTable {
 		return this.tableColumnModel.getColumnNames(true);
 	}
 	
+	public void addColumn(String colName, Class<?> type) {
+		this.cyTable.createColumn(colName, type, false);
+		
+		this.tableModel.addColumnName(colName);
+		
+		int modelIndex = this.tableColumnModel.getColumnCount();
+		TableColumn tableColumn = new TableColumn(modelIndex);
+		tableColumn.setHeaderValue(this.tableModel.getColumnName(modelIndex));
+		tableColumnModel.addColumn(tableColumn);
+	}
+	
 	public String getTitle() {
 		return this.cyTable.getTitle();
 	}
@@ -185,6 +225,23 @@ public class OVTable {
 			String savedValue = index.toString()+","+visibleCols.contains(col);
 			this.setTableProperty(col, savedValue);
 			index += 1;
+		}
+		
+		if(this.linkedNetwork != null) {
+			this.setTableProperty(OVShared.PROPERTY_LINKED_NETWORK, this.linkedNetwork.getSUID().toString());
+			this.setTableProperty(OVShared.PROPERTY_MAPPING_CY_OV, this.mappingColCyNetwork);
+			this.setTableProperty(OVShared.PROPERTY_MAPPING_OV_CY, this.mappingColOVTable);
+		}
+	}
+	
+	public void load() {
+		String sNetSUID = this.getTableProperty(OVShared.PROPERTY_LINKED_NETWORK, ""); 
+		if(!sNetSUID.equals("")) {
+			long netSUID = Long.parseLong(sNetSUID);
+			
+			this.linkedNetwork = this.ovManager.getNetworkManager().getNetwork(netSUID);
+			this.mappingColCyNetwork = this.getTableProperty(OVShared.PROPERTY_MAPPING_CY_OV);
+			this.mappingColOVTable = this.getTableProperty(OVShared.PROPERTY_MAPPING_OV_CY);
 		}
 	}
 	

@@ -5,6 +5,7 @@ import static javax.swing.GroupLayout.PREFERRED_SIZE;
 import static org.cytoscape.util.swing.IconManager.ICON_COLUMNS;
 import static org.cytoscape.util.swing.IconManager.ICON_TABLE;
 import static org.cytoscape.util.swing.IconManager.ICON_TIMES_CIRCLE;
+import static org.cytoscape.util.swing.IconManager.ICON_LINK;
 import static org.cytoscape.util.swing.LookAndFeelUtil.isAquaLAF;
 
 import java.awt.BorderLayout;
@@ -34,9 +35,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -67,27 +66,12 @@ PopupMenuListener {
 
 	private static final long serialVersionUID = 1L;
 
-	OVManager ovManager;
+	private OVManager ovManager;
 
-	JTable mainTable;
-	JPanel topPanel;
-	JPanel mainPanel;
-	JScrollPane scrollPane;
-	boolean clearSelection = false;
-	// JComboBox<String> boxTables;
-	List<String> availableTables;
-	// boolean createBoxTables = true;
-	JButton butSettings; 
-	JButton butDrawCharts; 
-	JButton butResetCharts;
-	JButton butAnalyzedNodes;
-	JButton butExportTable;
-	JButton butFilter;
-	JLabel labelPPIEnrichment;
-	JMenuItem menuItemReset; 
-	JPopupMenu popupMenu;
-	OVTableModel mainTableModel;
-	final Font iconFont;
+	private JTable mainTable;
+	private JScrollPane scrollPane;
+	private OVTableModel mainTableModel;
+	private final Font iconFont;
 	
 	private IconManager iconManager;
 
@@ -95,9 +79,12 @@ PopupMenuListener {
 	
 	private JButton selectButton;
 	private JButton deleteTableButton;
+	private JButton connectButton;
 	
 	private JPopupMenu columnSelectorPopupMenu;
 	private CyColumnSelector columnSelector;
+	
+	private OVConnectWindow connectWindow;
 	
 	private JPanel toolBarPanel;
 	private SequentialGroup hToolBarGroup;
@@ -229,6 +216,14 @@ PopupMenuListener {
 		
 		return columnSelector;
 	}
+	
+	private OVConnectWindow getConnectWindow() {
+		if(this.connectWindow == null) {
+			this.connectWindow = new OVConnectWindow(this.getTopLevelAncestor(), this.ovManager);
+		}
+		
+		return this.connectWindow;
+	}
 
 	public void initPanel(OVTable ovTable) {
 		this.removeAll();
@@ -276,9 +271,22 @@ PopupMenuListener {
 			// Create pop-up window for deletion
 			deleteTableButton.addActionListener(e -> removeTable());
 		}
+		if (connectButton == null ) {
+			connectButton = new JButton(ICON_LINK);
+			connectButton.setToolTipText("Connect the table to a network...");
+			styleButton(connectButton, iconFont);
+			
+			connectButton.addActionListener(e -> {
+				if(this.displayedTable != null) {
+					this.getConnectWindow().update(this.displayedTable);
+					this.getConnectWindow().setVisible(true);
+				}
+			});
+		}
 		
 		addToolBarComponent(selectButton, ComponentPlacement.RELATED);
 		addToolBarComponent(deleteTableButton, ComponentPlacement.RELATED);
+		addToolBarComponent(connectButton, ComponentPlacement.RELATED);
 		
 		toolBarPanel = new JPanel();
 		toolBarPanel.setLayout(new BorderLayout());
@@ -477,9 +485,11 @@ PopupMenuListener {
 	public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
 		// Update actual table
 		try {
-			final Set<String> visibleAttributes = getColumnSelector().getSelectedColumnNames();
-			displayedTable.setVisibleColumns(visibleAttributes);
+			if(e.getSource()==this.columnSelectorPopupMenu) {
+				final Set<String> visibleAttributes = getColumnSelector().getSelectedColumnNames();
+				displayedTable.setVisibleColumns(visibleAttributes);
 //			updateEnableState();
+			}
 		} catch (Exception ex) {
 		}
 	}
