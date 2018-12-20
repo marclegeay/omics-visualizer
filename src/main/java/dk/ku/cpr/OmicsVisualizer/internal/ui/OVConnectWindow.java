@@ -91,7 +91,7 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 		}
 		
 		this.selectNetwork.setSelectedItem(this.ovTable.getLinkedNetworkName());
-		this.selectColNetwork.setSelectedItem(this.ovTable.getMappingColCyNetwork());
+		this.selectColNetwork.setSelectedItem(this.ovTable.getMappingColCyto());
 		this.selectColTable.setSelectedItem(this.ovTable.getMappingColOVTable());
 		
 		this.pack();
