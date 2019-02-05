@@ -17,6 +17,8 @@ public class OVShared {
 	public static final String PROPERTY_MAPPING_OV_CY = OV_PREFIX+"OV_to_CyNetwork";
 	public static final String PROPERTY_MAPPING_CY_OV = OV_PREFIX+"CyNetwork_to_OV";
 	
+	public static final String CYNETWORK_OVCOL = "Connected OVTables";
+	
 	// We forbid the class to have instances
 	private OVShared() {
 	}

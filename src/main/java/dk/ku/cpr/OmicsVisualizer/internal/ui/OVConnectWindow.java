@@ -23,6 +23,8 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 public class OVConnectWindow extends JFrame implements ActionListener {
 	private static final long serialVersionUID = -5328093228061621675L;
 	
+	private static final String NO_NETWORK = "--- NONE ---";
+	
 	private Container ancestor;
 	private OVManager ovManager;
 	private OVTable ovTable;
@@ -85,10 +87,17 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 			}
 		}
 		
+		// JComboBox has only one action "changed" :
+		// if the user change the values it triggers the action (OK)
+		// if we add or remove an item, it triggers the action (not wanted)
+		// So we remove the listener before modifying the JComboBox, and put it back after
+		this.selectNetwork.removeActionListener(this);
 		this.selectNetwork.removeAllItems();
+		this.selectNetwork.addItem(OVConnectWindow.NO_NETWORK);
 		for(CyNetwork cyNet : this.netManager.getNetworkSet()) {
 			this.selectNetwork.addItem(cyNet.toString()); // toString displays the name of the CyNetwork
 		}
+		this.selectNetwork.addActionListener(this);
 		
 		this.selectNetwork.setSelectedItem(this.ovTable.getLinkedNetworkName());
 		this.selectColNetwork.setSelectedItem(this.ovTable.getMappingColCyto());
@@ -102,6 +111,17 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == this.selectNetwork) {
 			String netName = (String) this.selectNetwork.getSelectedItem();
+
+			System.out.println("[OV] "+netName);
+			if(netName == null || netName.equals(OVConnectWindow.NO_NETWORK)) {
+				this.selectColNetwork.setEnabled(false);
+				this.selectColTable.setEnabled(false);
+				return;
+			} else {
+				this.selectColNetwork.setEnabled(true);
+				this.selectColTable.setEnabled(true);
+			}
+			
 			CyNetwork net=null;
 			for(CyNetwork cyNet : this.netManager.getNetworkSet()) {
 				if(cyNet.toString().equals(netName)) {
@@ -116,11 +136,17 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 				}
 			}
 		} else if(e.getSource() == this.closeButton) {
-			this.ovTable.connect(
-						(String) this.selectNetwork.getSelectedItem(),
-						(String) this.selectColNetwork.getSelectedItem(),
-						(String) this.selectColTable.getSelectedItem()
-					);
+			String netName = (String) this.selectNetwork.getSelectedItem();
+			
+			if(netName == null || netName.equals(OVConnectWindow.NO_NETWORK)) {
+				this.ovTable.disconnect();
+			} else {
+				this.ovTable.connect(
+							(String) this.selectNetwork.getSelectedItem(),
+							(String) this.selectColNetwork.getSelectedItem(),
+							(String) this.selectColTable.getSelectedItem()
+						);
+			}
 			this.setVisible(false);
 		}
 	}
