@@ -3,9 +3,9 @@ package dk.ku.cpr.OmicsVisualizer.internal.ui;
 import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 import static org.cytoscape.util.swing.IconManager.ICON_COLUMNS;
+import static org.cytoscape.util.swing.IconManager.ICON_LINK;
 import static org.cytoscape.util.swing.IconManager.ICON_TABLE;
 import static org.cytoscape.util.swing.IconManager.ICON_TIMES_CIRCLE;
-import static org.cytoscape.util.swing.IconManager.ICON_LINK;
 import static org.cytoscape.util.swing.LookAndFeelUtil.isAquaLAF;
 
 import java.awt.BorderLayout;
@@ -47,11 +47,13 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CyColumnPresentationManager;
 import org.cytoscape.application.swing.CyColumnSelector;
 import org.cytoscape.application.swing.CytoPanelComponent;
 import org.cytoscape.application.swing.CytoPanelComponent2;
 import org.cytoscape.application.swing.CytoPanelName;
+import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.task.destroy.DeleteTableTaskFactory;
 import org.cytoscape.util.swing.IconManager;
 import org.cytoscape.work.swing.DialogTaskManager;
@@ -80,11 +82,13 @@ PopupMenuListener {
 	private JButton selectButton;
 	private JButton deleteTableButton;
 	private JButton connectButton;
+	private JButton styleButton;
 	
 	private JPopupMenu columnSelectorPopupMenu;
 	private CyColumnSelector columnSelector;
 	
 	private OVConnectWindow connectWindow;
+	private OVStyleWindow styleWindow;
 	
 	private JPanel toolBarPanel;
 	private SequentialGroup hToolBarGroup;
@@ -219,10 +223,18 @@ PopupMenuListener {
 	
 	private OVConnectWindow getConnectWindow() {
 		if(this.connectWindow == null) {
-			this.connectWindow = new OVConnectWindow(this.getTopLevelAncestor(), this.ovManager);
+			this.connectWindow = new OVConnectWindow(this, this.ovManager);
 		}
 		
 		return this.connectWindow;
+	}
+	
+	private OVStyleWindow getStyleWindow() {
+		if(this.styleWindow == null) {
+			this.styleWindow = new OVStyleWindow(this, this.ovManager);
+		}
+		
+		return this.styleWindow;
 	}
 
 	public void initPanel(OVTable ovTable) {
@@ -283,10 +295,35 @@ PopupMenuListener {
 				}
 			});
 		}
+		if (styleButton == null ) {
+			styleButton = new JButton(IconManager.ICON_PAINT_BRUSH);
+			styleButton.setToolTipText("Apply style to the connected network...");
+			styleButton(styleButton, iconFont);
+			
+			styleButton.addActionListener(e -> {
+				if(this.displayedTable != null && this.displayedTable.isConnected()) {
+//					resetCharts();
+					
+					AvailableCommands availableCommands = (AvailableCommands) this.ovManager.getService(AvailableCommands.class);
+					if (!availableCommands.getNamespaces().contains("enhancedGraphics")) {
+						JOptionPane.showMessageDialog(null,
+								"You need to install enhancedGraphics from the App Manager or Cytoscape App Store.",
+								"Dependency error", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+
+					this.ovManager.getService(CyApplicationManager.class).setCurrentNetwork(this.displayedTable.getLinkedNetwork());
+					this.getStyleWindow().setTable(this.displayedTable);
+					this.getStyleWindow().setVisible(true);
+				}
+			});
+		}
+		styleButton.setEnabled(this.displayedTable != null && this.displayedTable.isConnected());
 		
 		addToolBarComponent(selectButton, ComponentPlacement.RELATED);
 		addToolBarComponent(deleteTableButton, ComponentPlacement.RELATED);
 		addToolBarComponent(connectButton, ComponentPlacement.RELATED);
+		addToolBarComponent(styleButton, ComponentPlacement.RELATED);
 		
 		toolBarPanel = new JPanel();
 		toolBarPanel.setLayout(new BorderLayout());
@@ -313,6 +350,10 @@ PopupMenuListener {
 		this.revalidate();
 		this.repaint();
 	}
+
+	public void update() {
+		this.initPanel(this.displayedTable);
+	}
 	
 	private void removeTable() {
 			final OVTable table = this.displayedTable;
@@ -324,6 +365,8 @@ PopupMenuListener {
 
 			// if user selects yes delete the table
 			if (confirmValue == JOptionPane.OK_OPTION) {
+				table.disconnect();
+				
 				final DialogTaskManager taskMgr = ovManager.getService(DialogTaskManager.class);
 				final DeleteTableTaskFactory deleteTableTaskFactory =
 						ovManager.getService(DeleteTableTaskFactory.class);

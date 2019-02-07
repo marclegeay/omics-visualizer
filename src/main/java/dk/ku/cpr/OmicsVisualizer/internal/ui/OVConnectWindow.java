@@ -1,7 +1,6 @@
 package dk.ku.cpr.OmicsVisualizer.internal.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,7 +24,7 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 	
 	private static final String NO_NETWORK = "--- NONE ---";
 	
-	private Container ancestor;
+	private OVCytoPanel cytoPanel;
 	private OVManager ovManager;
 	private OVTable ovTable;
 	
@@ -37,10 +36,10 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 	private JComboBox<String> selectColNetwork;
 	private JComboBox<String> selectColTable;
 	
-	public OVConnectWindow(Container ancestor, OVManager ovManager) {
+	public OVConnectWindow(OVCytoPanel cytoPanel, OVManager ovManager) {
 		super();
 		
-		this.ancestor=ancestor;
+		this.cytoPanel=cytoPanel;
 		this.ovManager=ovManager;
 		
 		this.netManager = this.ovManager.getNetworkManager();
@@ -104,7 +103,7 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 		this.selectColTable.setSelectedItem(this.ovTable.getMappingColOVTable());
 		
 		this.pack();
-		this.setLocationRelativeTo(this.ancestor);
+		this.setLocationRelativeTo(this.cytoPanel.getTopLevelAncestor());
 	}
 
 	@Override
@@ -112,7 +111,6 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 		if(e.getSource() == this.selectNetwork) {
 			String netName = (String) this.selectNetwork.getSelectedItem();
 
-			System.out.println("[OV] "+netName);
 			if(netName == null || netName.equals(OVConnectWindow.NO_NETWORK)) {
 				this.selectColNetwork.setEnabled(false);
 				this.selectColTable.setEnabled(false);
@@ -148,6 +146,7 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 						);
 			}
 			this.setVisible(false);
+			this.cytoPanel.update();
 		}
 	}
 }
