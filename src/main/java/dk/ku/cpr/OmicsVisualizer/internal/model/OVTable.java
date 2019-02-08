@@ -174,25 +174,27 @@ public class OVTable {
 	}
 	
 	public void disconnect() {
-		// We erase the link in the Network table
-		CyTable networkTable = this.linkedNetwork.getDefaultNetworkTable();
-		if(networkTable.getColumn(OVShared.CYNETWORKTABLE_OVCOL) != null) {
-			networkTable.getRow(this.linkedNetwork.getSUID()).set(OVShared.CYNETWORKTABLE_OVCOL, "");
+		if(isConnected()) {
+			// We erase the link in the Network table
+			CyTable networkTable = this.linkedNetwork.getDefaultNetworkTable();
+			if(networkTable.getColumn(OVShared.CYNETWORKTABLE_OVCOL) != null) {
+				networkTable.getRow(this.linkedNetwork.getSUID()).set(OVShared.CYNETWORKTABLE_OVCOL, "");
+			}
+	
+			// We delete the style columns in the node table
+			CyTable nodeTable = this.linkedNetwork.getDefaultNodeTable();
+			if(nodeTable.getColumn(OVShared.CYNODETABLE_STYLECOL) != null) {
+				nodeTable.deleteColumn(OVShared.CYNODETABLE_STYLECOL);
+			}
+			if(nodeTable.getColumn(OVShared.CYNODETABLE_STYLECOL_VALUES) != null) {
+				nodeTable.deleteColumn(OVShared.CYNODETABLE_STYLECOL_VALUES);
+			}
+			
+			// We "forget" everything
+			this.linkedNetwork=null;
+			this.mappingColCyto="";
+			this.mappingColOVTable="";
 		}
-
-		// We delete the style columns in the node table
-		CyTable nodeTable = this.linkedNetwork.getDefaultNodeTable();
-		if(nodeTable.getColumn(OVShared.CYNODETABLE_STYLECOL) != null) {
-			nodeTable.deleteColumn(OVShared.CYNODETABLE_STYLECOL);
-		}
-		if(nodeTable.getColumn(OVShared.CYNODETABLE_STYLECOL_VALUES) != null) {
-			nodeTable.deleteColumn(OVShared.CYNODETABLE_STYLECOL_VALUES);
-		}
-		
-		// We "forget" everything
-		this.linkedNetwork=null;
-		this.mappingColCyto="";
-		this.mappingColOVTable="";
 	}
 
 	private void createJTable() {

@@ -6,9 +6,12 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.cytoscape.application.swing.CytoPanelComponent;
+import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableManager;
+import org.cytoscape.model.events.NetworkAboutToBeDestroyedEvent;
+import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.property.CyProperty.SavePolicy;
 import org.cytoscape.property.SimpleCyProperty;
@@ -20,10 +23,13 @@ import org.cytoscape.session.events.SessionLoadedListener;
 import org.cytoscape.work.SynchronousTaskManager;
 import org.cytoscape.work.TaskIterator;
 
+import dk.ku.cpr.OmicsVisualizer.internal.tableimport.task.ShowOVPanelTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
-import dk.ku.cpr.OmicsVisualizer.internal.ui.ShowOVPanelTaskFactory;
 
-public class OVManager implements SessionLoadedListener, SessionAboutToBeSavedListener {
+public class OVManager
+	implements SessionLoadedListener,
+		SessionAboutToBeSavedListener,
+		NetworkAboutToBeDestroyedListener {
 	
 	private CyServiceRegistrar serviceRegistrar;
 	private CyProperty<Properties> serviceProperties;
@@ -168,6 +174,20 @@ public class OVManager implements SessionLoadedListener, SessionAboutToBeSavedLi
 	public void handleEvent(SessionAboutToBeSavedEvent e) {
 		for(OVTable table : this.ovTables) {
 			table.save();
+		}
+	}
+
+	@Override
+	public void handleEvent(NetworkAboutToBeDestroyedEvent e) {
+		CyNetwork net = e.getNetwork();
+		
+		if(e!= null) {
+			for(OVTable table : this.ovTables) {
+				if(table.isConnected() && table.getLinkedNetwork().equals(net)) {
+					table.disconnect();
+				}
+			}
+			this.ovCytoPanel.update();
 		}
 	}
 

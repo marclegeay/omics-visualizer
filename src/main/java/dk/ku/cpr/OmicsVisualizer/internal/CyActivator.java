@@ -9,6 +9,7 @@ import java.util.Properties;
 
 import org.cytoscape.io.read.InputStreamTaskFactory;
 import org.cytoscape.io.util.StreamUtil;
+import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.session.events.SessionAboutToBeSavedListener;
@@ -39,6 +40,7 @@ public class CyActivator extends AbstractCyActivator {
 		OVManager ovManager = new OVManager(serviceRegistrar);
 		registerService(context, ovManager, SessionLoadedListener.class);
 		registerService(context, ovManager, SessionAboutToBeSavedListener.class);
+		registerService(context, ovManager, NetworkAboutToBeDestroyedListener.class);
 		
 		// Code from io-impl CyActivator
 		{

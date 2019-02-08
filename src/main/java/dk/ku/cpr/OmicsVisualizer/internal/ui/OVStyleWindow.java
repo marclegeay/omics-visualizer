@@ -17,7 +17,9 @@ import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.view.model.CyNetworkView;
-import org.cytoscape.view.presentation.property.BasicVisualLexicon;
+import org.cytoscape.view.model.VisualLexicon;
+import org.cytoscape.view.model.VisualProperty;
+import org.cytoscape.view.presentation.RenderingEngineManager;
 import org.cytoscape.view.vizmap.VisualMappingFunctionFactory;
 import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.cytoscape.view.vizmap.mappings.PassthroughMapping;
@@ -86,20 +88,22 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 	}
 	
 	public void setTable(OVTable table) {
-		this.table=table;
-
-		this.selectChartValues.removeAllItems();
-		this.selectChartLabels.removeAllItems();
-
-		this.selectChartLabels.addItem(OVStyleWindow.NO_LABEL);
-		for(String colName : this.table.getColNames()) {
-			if(!OVShared.isOVCol(colName)) {
-				Class<?> colType = table.getColType(colName);
-				// Only Numeric column can be used as values
-				if(colType == Integer.class || colType == Long.class || colType == Double.class) {
-					this.selectChartValues.addItem(colName);
+		if(!table.equals(this.table)) {
+			this.table=table;
+	
+			this.selectChartValues.removeAllItems();
+			this.selectChartLabels.removeAllItems();
+	
+			this.selectChartLabels.addItem(OVStyleWindow.NO_LABEL);
+			for(String colName : this.table.getColNames()) {
+				if(!OVShared.isOVCol(colName)) {
+					Class<?> colType = table.getColType(colName);
+					// Only Numeric column can be used as values
+					if(colType == Integer.class || colType == Long.class || colType == Double.class) {
+						this.selectChartValues.addItem(colName);
+					}
+					this.selectChartLabels.addItem(colName);
 				}
-				this.selectChartLabels.addItem(colName);
 			}
 		}
 		
@@ -135,7 +139,20 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 				ArrayList<Object> nodeValues = new ArrayList<>();
 				String nodeLabels = "";
 				for(CyRow tableRow : this.table.getLinkedRows(nodeTable.getRow(node.getSUID()))) {
-					nodeValues.add(tableRow.get(chartValues, chartValuesType));
+					Object val = tableRow.get(chartValues, chartValuesType);
+					if(val != null) {
+						nodeValues.add(tableRow.get(chartValues, chartValuesType));
+					} else {
+						if(chartValuesType == Integer.class) {
+							nodeValues.add(new Integer(0));
+						} else if(chartValuesType == Long.class) {
+							nodeValues.add(new Long(0));
+						} else if(chartValuesType == Double.class) {
+							nodeValues.add(new Double(0.0));
+						} else {
+							nodeValues.add("");
+						}
+					}
 					if(!chartLabels.equals(OVStyleWindow.NO_LABEL)) {
 						nodeLabels += tableRow.get(chartLabels, chartLabelsType);
 						nodeLabels += ",";
@@ -160,12 +177,11 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 			CyNetworkView netView = this.ovManager.getService(CyApplicationManager.class).getCurrentNetworkView();
 			if(netView != null) {
 				VisualMappingFunctionFactory passthroughFactory = this.ovManager.getService(VisualMappingFunctionFactory.class, "(mapping.type=passthrough)");
-//				VisualLexicon lex = this.ovManager.getService(RenderingEngineManager.class).getDefaultVisualLexicon();
+				VisualLexicon lex = this.ovManager.getService(RenderingEngineManager.class).getDefaultVisualLexicon();
 			// Set up the passthrough mapping for the label
 //				if (show) {
-//				VisualProperty<?> customGraphics = lex.lookup(CyNode.class, "NODE_CUSTOMGRAPHICS_1");
-//				PassthroughMapping<?,?> pMapping = (PassthroughMapping<?,?>) passthroughFactory.createVisualMappingFunction(OVShared.CYNODETABLE_STYLECOL, String.class, customGraphics);
-				PassthroughMapping<?,?> pMapping = (PassthroughMapping<?,?>) passthroughFactory.createVisualMappingFunction(OVShared.CYNODETABLE_STYLECOL, String.class, BasicVisualLexicon.NODE);
+				VisualProperty<?> customGraphics = lex.lookup(CyNode.class, "NODE_CUSTOMGRAPHICS_1");
+				PassthroughMapping<?,?> pMapping = (PassthroughMapping<?,?>) passthroughFactory.createVisualMappingFunction(OVShared.CYNODETABLE_STYLECOL, String.class, customGraphics);
 				vmm.getVisualStyle(netView).addVisualMappingFunction(pMapping);
 //				} else {
 //					stringStyle
