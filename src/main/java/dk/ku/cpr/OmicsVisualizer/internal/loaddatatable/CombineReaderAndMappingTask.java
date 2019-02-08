@@ -38,7 +38,7 @@ import org.cytoscape.work.TunableValidator;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.table.ImportOVTableDataTask;
-import dk.ku.cpr.OmicsVisualizer.internal.ui.ShowOVPanelTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.tableimport.task.ShowOVPanelTaskFactory;
 
 public class CombineReaderAndMappingTask extends AbstractTask implements TunableValidator{
 

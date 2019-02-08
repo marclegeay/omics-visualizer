@@ -725,11 +725,15 @@ public class PreviewTablePanel extends JPanel {
 		maxColumn = 0;
 		data = new Vector<>();
 		
-		if (delimiters != null && delimiters.contains(TextDelimiter.COMMA.getDelimiter()) && delimiters.size() == 1) {
+		// Modification ML: We use CSVReader for every CSV type
+//		if (delimiters != null && delimiters.contains(TextDelimiter.COMMA.getDelimiter()) && delimiters.size() == 1) {
+		if(delimiters.size() == 1) {
 			// Only if there is exactly one delimiter and that delimiter is a
 			// comma should you read the file using OpenCSV
 			// New method... Using OpenCSV
-			final CSVReader reader = new CSVReader(bufRd);
+			// Modification ML:
+//			final CSVReader reader = new CSVReader(bufRd);
+			final CSVReader reader = new CSVReader(bufRd, delimiters.get(0).charAt(0));
 			String[] rowData; // Note that rowData is roughly equivalent to "parts" in the old code.
 			
 			while ((rowData = reader.readNext()) != null) {

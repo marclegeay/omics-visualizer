@@ -5,8 +5,11 @@ import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.AttributeDataT
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.AttributeDataType.TYPE_INTEGER_LIST;
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.AttributeDataType.TYPE_LONG_LIST;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.cytoscape.equations.Equation;
 import org.cytoscape.equations.EquationCompiler;
@@ -33,7 +36,18 @@ public abstract class AbstractLineParser {
 					case TYPE_BOOLEAN:  return Boolean.valueOf(s.trim());
 					case TYPE_INTEGER:  return Integer.valueOf(s.trim());
 					case TYPE_LONG:     return Long.valueOf(s.trim());
-					case TYPE_FLOATING: return Double.valueOf(s.trim());
+					case TYPE_FLOATING: 
+						// Modification ML: French decimals (with a comma)
+						try {
+							return Double.valueOf(s.trim());
+						} catch(NumberFormatException nfe) {
+							try {
+								NumberFormat nf = NumberFormat.getInstance(Locale.FRANCE);
+								return nf.parse(s.trim());
+							} catch (ParseException pe) {
+								value = createInvalidNumberEquation(s.trim(), type);
+							}
+						}
 					case TYPE_STRING:   return s.trim();
 	
 					case TYPE_BOOLEAN_LIST:
@@ -71,9 +85,21 @@ public abstract class AbstractLineParser {
 					list.add(Integer.valueOf(listItem.trim()));
 				else if (type == TYPE_LONG_LIST)
 					list.add(Long.valueOf(listItem.trim()));
-				else if (type == TYPE_FLOATING_LIST)
-					list.add(new Double(listItem.trim()));
-				else // TYPE_STRING or unknown
+				else if (type == TYPE_FLOATING_LIST) {
+					// Modification ML: Taking into account comma as decimal separator
+					try {
+						Double d = new Double(listItem.trim());
+						list.add(d);
+					} catch(NumberFormatException nfe) {
+						try {
+							NumberFormat nf = NumberFormat.getInstance(Locale.FRANCE);
+							Double d = (Double) nf.parse(listItem.trim());
+							list.add(d);
+						} catch(ParseException pe) {
+							return createInvalidListEquation(s, listItem.trim(), type);
+						}
+					}
+				} else // TYPE_STRING or unknown
 					list.add(listItem.trim());				
 			} catch (NumberFormatException e) {
 				return createInvalidListEquation(s, listItem.trim(), type);

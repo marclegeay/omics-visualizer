@@ -22,11 +22,14 @@ import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSe
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.TARGET_ATTR;
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.TAXON;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -279,8 +282,10 @@ public final class TypeUtil {
 						}
 					} else if (dt == TYPE_FLOATING) {
 						// Make sure the other rows are also doubles (no need to check for other numeric types)...
-						if (!isDouble(val))
+						if (!isDouble(val)) {
 							dt = TYPE_STRING;
+							System.out.println("[OV] col:" + col + " row:" + row + " val:" + val);
+						}
 					}
 				}
 			}
@@ -526,7 +531,13 @@ public final class TypeUtil {
 			try {
 				Double.parseDouble(val);
 			} catch (NumberFormatException e) {
-				return false;
+				// Modification ML: If the parsing failed, we try to parse it the french way (with a comma as decimal separator)
+				try {
+					NumberFormat nf = NumberFormat.getInstance(Locale.FRANCE);
+					nf.parse(val);
+				} catch(ParseException pe) {
+					return false;
+				}
 			}
 			
 			// Also check if it ends with 'f' or 'd' (if so, it should be a String!)

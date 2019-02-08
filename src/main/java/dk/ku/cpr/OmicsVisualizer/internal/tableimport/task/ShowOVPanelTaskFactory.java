@@ -1,4 +1,4 @@
-package dk.ku.cpr.OmicsVisualizer.internal.ui;
+package dk.ku.cpr.OmicsVisualizer.internal.tableimport.task;
 
 import org.cytoscape.work.AbstractTaskFactory;
 import org.cytoscape.work.TaskIterator;

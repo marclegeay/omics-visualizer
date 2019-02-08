@@ -68,7 +68,7 @@ import org.cytoscape.service.util.CyServiceRegistrar;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
-import dk.ku.cpr.OmicsVisualizer.internal.ui.ShowOVPanelTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.tableimport.task.ShowOVPanelTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 

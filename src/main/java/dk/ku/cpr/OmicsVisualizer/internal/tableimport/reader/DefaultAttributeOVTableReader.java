@@ -114,14 +114,18 @@ public class DefaultAttributeOVTableReader implements TextTableReader {
 				final String delimiter = mapping.getDelimiterRegEx();
 
 				//If the delimiter contains a comma, treat the file as a CSV file.
-				if (delimiter.contains(TextDelimiter.COMMA.getDelimiter()) && mapping.getDelimiters().size() == 1) {
+				//Modification ML: We use CSVReader for other than COMMA
+//				if (delimiter.contains(TextDelimiter.COMMA.getDelimiter()) && mapping.getDelimiters().size() == 1) {
+				if(mapping.getDelimiters().size()==1) {
 					//Use OpenCSV.. New method...
-					CSVReader reader = new CSVReader(bufRd);
+//					CSVReader reader = new CSVReader(bufRd);
+					CSVReader reader = new CSVReader(bufRd, mapping.getDelimiters().get(0).charAt(0));
 					String [] rowData; //Note that rowData is roughly equivalent to "parts" in the old code.
 					
 					while ((rowData = reader.readNext()) != null) {
 //						// If key dos not exists, ignore the line.
 //						if (lineCount >= startLineNumber && rowData.length >= mapping.getKeyIndex() + 1) {
+						if(lineCount >= startLineNumber) {
 							try {
 								parser.parseAll(table, rowData, lineCount);
 							} catch (Exception ex) {
@@ -129,7 +133,7 @@ public class DefaultAttributeOVTableReader implements TextTableReader {
 							}
 							
 							globalCounter++;
-//						}
+						}
 						
 						lineCount++;
 					}
@@ -155,7 +159,7 @@ public class DefaultAttributeOVTableReader implements TextTableReader {
 								try {
 									parser.parseAll(table, parts, lineCount);
 								} catch (Exception ex) {
-									logger.warn("Couldn't parse row: "+ lineCount);
+									logger.warn("Couldn't parse row: "+ lineCount + " " + ex.toString());
 								}
 								
 								globalCounter++;
