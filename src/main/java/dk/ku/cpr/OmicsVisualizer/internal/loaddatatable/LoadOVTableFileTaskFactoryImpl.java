@@ -29,8 +29,6 @@ package dk.ku.cpr.OmicsVisualizer.internal.loaddatatable;
 import java.io.File;
 
 import org.cytoscape.io.read.CyTableReader;
-import org.cytoscape.io.read.CyTableReaderManager;
-import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.task.read.LoadTableFileTaskFactory;
 import org.cytoscape.work.AbstractTaskFactory;
 import org.cytoscape.work.TaskIterator;

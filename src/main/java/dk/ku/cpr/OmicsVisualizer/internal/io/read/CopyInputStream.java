@@ -38,12 +38,12 @@ public class CopyInputStream {
 	 */
 	public static InputStream copyKBytes(InputStream is, int kb ) throws IOException {
 		ByteArrayOutputStream copy = new ByteArrayOutputStream();
-		int read = 0;
+//		int read = 0;
 		int chunk = 0;
 		byte[] data = new byte[1024];
 		
 		while((-1 != (chunk = is.read(data))) && ( kb-- > 0 ) ) {
-			read += data.length;
+//			read += data.length;
 			copy.write(data, 0, chunk);
 		}
 	

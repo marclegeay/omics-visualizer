@@ -27,7 +27,6 @@ package dk.ku.cpr.OmicsVisualizer.internal.loaddatatable;
 
 import java.io.File;
 
-import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.Tunable;
 

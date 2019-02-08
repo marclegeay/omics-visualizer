@@ -53,9 +53,6 @@ import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.DefaultAttributeOVT
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.ExcelAttributeOVTableSheetReader;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.SupportedFileType;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.TextTableReader;
-import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.AttributeDataType;
-import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic;
-import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.TypeUtil;
 
 
 public class ImportAttributeOVTableReaderTask extends AbstractTask implements CyTableReader, TunableValidator {
@@ -64,7 +61,7 @@ public class ImportAttributeOVTableReaderTask extends AbstractTask implements Cy
 	private final String fileType;
 	protected CyNetworkView[] cyNetworkViews;
 	protected VisualStyle[] visualstyles;
-	private final String inputName;
+//	private final String inputName;
 
 	private CyTable[] cyTables;
 	private static int numImports;
@@ -83,7 +80,7 @@ public class ImportAttributeOVTableReaderTask extends AbstractTask implements Cy
 			final CyServiceRegistrar serviceRegistrar
 	) {
 		this.fileType = fileType;
-		this.inputName = inputName;
+//		this.inputName = inputName;
 		this.is = is;
 		this.serviceRegistrar = serviceRegistrar;
 		

@@ -35,7 +35,6 @@ import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
-import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.task.AbstractTableTaskFactory;
 import org.cytoscape.task.edit.ImportDataTableTaskFactory;
 import org.cytoscape.work.TaskIterator;

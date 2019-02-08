@@ -36,18 +36,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
-import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.CyUserLog;
-import org.cytoscape.application.NetworkViewRenderer;
-import org.cytoscape.application.swing.CySwingApplication;
-import org.cytoscape.application.swing.CytoPanel;
-import org.cytoscape.application.swing.CytoPanelComponent;
-import org.cytoscape.application.swing.CytoPanelComponent2;
-import org.cytoscape.application.swing.CytoPanelName;
-import org.cytoscape.application.swing.CytoPanelState;
 import org.cytoscape.io.read.CyTableReader;
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyEdge;
@@ -55,38 +46,22 @@ import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyNode;
-import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableManager;
-import org.cytoscape.model.SavePolicy;
-import org.cytoscape.model.events.RowsSetListener;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
-import org.cytoscape.model.subnetwork.CyRootNetworkManager;
-import org.cytoscape.model.subnetwork.CySubNetwork;
-import org.cytoscape.property.SimpleCyProperty;
-import org.cytoscape.service.util.CyServiceRegistrar;
-
-import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
-import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
-import dk.ku.cpr.OmicsVisualizer.internal.tableimport.task.ShowOVPanelTaskFactory;
-import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
-import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
-
 import org.cytoscape.util.json.CyJSONUtil;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.ProvidesTitle;
-import org.cytoscape.work.SynchronousTaskManager;
-import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
-import org.cytoscape.work.TaskMonitor.Level;
 import org.cytoscape.work.Tunable;
 import org.cytoscape.work.TunableValidator;
 import org.cytoscape.work.json.JSONResult;
-import org.cytoscape.work.util.ListMultipleSelection;
 import org.cytoscape.work.util.ListSingleSelection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 
 public class ImportOVTableDataTask extends AbstractTask implements TunableValidator, ObservableTask {
 	
@@ -114,7 +89,7 @@ public class ImportOVTableDataTask extends AbstractTask implements TunableValida
 	};
 
 	private static final Logger logger = LoggerFactory.getLogger(CyUserLog.NAME);
-	private static final String NO_NETWORKS = "No Networks Found";
+//	private static final String NO_NETWORKS = "No Networks Found";
 	
 	public static final String NETWORK_COLLECTION = "To a Network Collection";
 	public static final String NETWORK_SELECTION = "To selected networks only";
@@ -125,10 +100,10 @@ public class ImportOVTableDataTask extends AbstractTask implements TunableValida
 	
 	private CyTable globalTable;
 	private boolean byReader;
-	private Map<String, CyNetwork> name2NetworkMap;
-	private Map<String, CyRootNetwork> name2RootMap;
-	private Map<String, String> source2targetColumnMap;
-	private boolean networksPresent;
+//	private Map<String, CyNetwork> name2NetworkMap;
+//	private Map<String, CyRootNetwork> name2RootMap;
+//	private Map<String, String> source2targetColumnMap;
+//	private boolean networksPresent;
 	private List<CyTable> mappedTables;
 	
 	
@@ -310,15 +285,15 @@ public class ImportOVTableDataTask extends AbstractTask implements TunableValida
 	}
 	
 	private final void init() {
-		this.name2NetworkMap = new HashMap<>();
-		this.name2RootMap = new HashMap<>();
-		this.source2targetColumnMap = new HashMap<>();
+//		this.name2NetworkMap = new HashMap<>();
+//		this.name2RootMap = new HashMap<>();
+//		this.source2targetColumnMap = new HashMap<>();
 		this.mappedTables = new ArrayList<>();
 		
 //		// Add ML: By default we name our Table "Omics Visualizer Table"
 //		newTableName = ""; // TODO Handle several table (so several different names)
 
-		final CyNetworkManager netMgr = ovManager.getService(CyNetworkManager.class);
+//		final CyNetworkManager netMgr = ovManager.getService(CyNetworkManager.class);
 		
 //		if (netMgr.getNetworkSet().size() > 0) {
 //			whereImportTable = new ListSingleSelection<>(NETWORK_COLLECTION, NETWORK_SELECTION, UNASSIGNED_TABLE);
@@ -489,51 +464,51 @@ public class ImportOVTableDataTask extends AbstractTask implements TunableValida
 //			keyColumnForMappingNetworkList = tempList;
 //	}
 	
-	private ListSingleSelection<String> getColumns(final Collection<? extends CyNetwork> networkList,
-			final TableType tableType, final String namespace) {
-		Set<ColumnDescriptor> colDescSet = null;
-		
-		// Get set of columns with same name and type that are common to all networks
-		for (CyNetwork network : networkList) {
-			final CyTable table = getTable(network, tableType, namespace);
-			final Set<ColumnDescriptor> subSet = new HashSet<>();
-			
-			for (CyColumn col : table.getColumns()) {
-				if (isMappableColumn(col))
-					subSet.add(new ColumnDescriptor(col.getName(), col.getType()));
-			}
-			
-			if (colDescSet == null)
-				colDescSet = subSet; // First network? Just save the mappable columns...
-			else
-				colDescSet.retainAll(subSet); // From now on just keep the common columns...
-		}
-		
-		final List<String> columnNames = new ArrayList<>();
-		
-		if (colDescSet != null) {
-			for (ColumnDescriptor cd : colDescSet)
-				columnNames.add(cd.name);
-			
-			sort(columnNames);
-		}
-		
-		final ListSingleSelection<String> columns = new ListSingleSelection<>(columnNames);
-		
-		if (columns.getPossibleValues().contains(CyRootNetwork.SHARED_NAME))
-			columns.setSelectedValue(CyRootNetwork.SHARED_NAME);
-		
-		return columns;
-	}
+//	private ListSingleSelection<String> getColumns(final Collection<? extends CyNetwork> networkList,
+//			final TableType tableType, final String namespace) {
+//		Set<ColumnDescriptor> colDescSet = null;
+//		
+//		// Get set of columns with same name and type that are common to all networks
+//		for (CyNetwork network : networkList) {
+//			final CyTable table = getTable(network, tableType, namespace);
+//			final Set<ColumnDescriptor> subSet = new HashSet<>();
+//			
+//			for (CyColumn col : table.getColumns()) {
+//				if (isMappableColumn(col))
+//					subSet.add(new ColumnDescriptor(col.getName(), col.getType()));
+//			}
+//			
+//			if (colDescSet == null)
+//				colDescSet = subSet; // First network? Just save the mappable columns...
+//			else
+//				colDescSet.retainAll(subSet); // From now on just keep the common columns...
+//		}
+//		
+//		final List<String> columnNames = new ArrayList<>();
+//		
+//		if (colDescSet != null) {
+//			for (ColumnDescriptor cd : colDescSet)
+//				columnNames.add(cd.name);
+//			
+//			sort(columnNames);
+//		}
+//		
+//		final ListSingleSelection<String> columns = new ListSingleSelection<>(columnNames);
+//		
+//		if (columns.getPossibleValues().contains(CyRootNetwork.SHARED_NAME))
+//			columns.setSelectedValue(CyRootNetwork.SHARED_NAME);
+//		
+//		return columns;
+//	}
 
-	private boolean isMappableColumn(final CyColumn col) {
-		final String name = col.getName();
-		final Class<?> type = col.getType();
-		
-		return (type == Integer.class || type == Long.class || type == String.class) && 
-				!name.equals(CyNetwork.SUID) && 
-				!name.endsWith(".SUID");
-	}
+//	private boolean isMappableColumn(final CyColumn col) {
+//		final String name = col.getName();
+//		final Class<?> type = col.getType();
+//		
+//		return (type == Integer.class || type == Long.class || type == String.class) && 
+//				!name.equals(CyNetwork.SUID) && 
+//				!name.endsWith(".SUID");
+//	}
 	
 //	private void mapTableToLocalAttrs(final TableType tableType) {
 //		final List<CyNetwork> networks = new ArrayList<>();
@@ -566,19 +541,19 @@ public class ImportOVTableDataTask extends AbstractTask implements TunableValida
 //		}
 //	}
 
-	private CyTable getTable(CyNetwork network, TableType tableType, String namespace) {
-		if (tableType == TableType.NODE_ATTR)
-			return network.getTable(CyNode.class, namespace);
-		if (tableType == TableType.EDGE_ATTR)
-			return network.getTable(CyEdge.class, namespace);
-		if (tableType == TableType.NETWORK_ATTR)
-			return network.getTable(CyNetwork.class, namespace);
-
-		logger.warn("The selected table type is not valid. \nTable needs to be one of these types: "
-				+ TableType.NODE_ATTR + ", " + TableType.EDGE_ATTR + ", " + TableType.NETWORK_ATTR + ".");
-		
-		return null;
-	}
+//	private CyTable getTable(CyNetwork network, TableType tableType, String namespace) {
+//		if (tableType == TableType.NODE_ATTR)
+//			return network.getTable(CyNode.class, namespace);
+//		if (tableType == TableType.EDGE_ATTR)
+//			return network.getTable(CyEdge.class, namespace);
+//		if (tableType == TableType.NETWORK_ATTR)
+//			return network.getTable(CyNetwork.class, namespace);
+//
+//		logger.warn("The selected table type is not valid. \nTable needs to be one of these types: "
+//				+ TableType.NODE_ATTR + ", " + TableType.EDGE_ATTR + ", " + TableType.NETWORK_ATTR + ".");
+//		
+//		return null;
+//	}
 
 //	private void applyMapping(final CyTable targetTable, final boolean caseSensitive) {
 //		ArrayList<CyColumn> columns = new ArrayList<>();
@@ -845,61 +820,61 @@ public class ImportOVTableDataTask extends AbstractTask implements TunableValida
 		return ValidationState.OK;
 	}
 	
-	private void sort(final List<String> names) {
-		final Collator collator = Collator.getInstance(Locale.getDefault());
-		
-		Collections.sort(names, new Comparator<String>() {
-			@Override
-			public int compare(String s1, String s2) {
-				if (s1 == null || s2 == null) {
-					if (s2 != null) return -1;
-					if (s1 != null) return 1;
-					return 0;
-				}
-				return collator.compare(s1, s2);
-			}
-		});
-	}
+//	private void sort(final List<String> names) {
+//		final Collator collator = Collator.getInstance(Locale.getDefault());
+//		
+//		Collections.sort(names, new Comparator<String>() {
+//			@Override
+//			public int compare(String s1, String s2) {
+//				if (s1 == null || s2 == null) {
+//					if (s2 != null) return -1;
+//					if (s1 != null) return 1;
+//					return 0;
+//				}
+//				return collator.compare(s1, s2);
+//			}
+//		});
+//	}
 	
-	private static class ColumnDescriptor {
-		
-		private final String name;
-		private final Class<?> type;
-		
-		ColumnDescriptor(final String name, final Class<?> type) {
-			this.name = name;
-			this.type = type;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 7;
-			result = prime * result + ((name == null) ? 0 : name.hashCode());
-			result = prime * result + ((type == null || type.getCanonicalName() == null) ? 0 : type.getCanonicalName().hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) return true;
-			if (obj == null) return false;
-			if (!(obj instanceof ColumnDescriptor)) return false;
-			
-			ColumnDescriptor other = (ColumnDescriptor) obj;
-			
-			if (name == null) {
-				if (other.name != null) return false;
-			} else if (!name.equals(other.name)) {
-				return false;
-			}
-			if (type == null) {
-				if (other.type != null) return false;
-			} else if (type != other.type) {
-				return false;
-			}
-			
-			return true;
-		}
-	}
+//	private static class ColumnDescriptor {
+//		
+//		private final String name;
+//		private final Class<?> type;
+//		
+//		ColumnDescriptor(final String name, final Class<?> type) {
+//			this.name = name;
+//			this.type = type;
+//		}
+//
+//		@Override
+//		public int hashCode() {
+//			final int prime = 31;
+//			int result = 7;
+//			result = prime * result + ((name == null) ? 0 : name.hashCode());
+//			result = prime * result + ((type == null || type.getCanonicalName() == null) ? 0 : type.getCanonicalName().hashCode());
+//			return result;
+//		}
+//
+//		@Override
+//		public boolean equals(Object obj) {
+//			if (this == obj) return true;
+//			if (obj == null) return false;
+//			if (!(obj instanceof ColumnDescriptor)) return false;
+//			
+//			ColumnDescriptor other = (ColumnDescriptor) obj;
+//			
+//			if (name == null) {
+//				if (other.name != null) return false;
+//			} else if (!name.equals(other.name)) {
+//				return false;
+//			}
+//			if (type == null) {
+//				if (other.type != null) return false;
+//			} else if (type != other.type) {
+//				return false;
+//			}
+//			
+//			return true;
+//		}
+//	}
 }

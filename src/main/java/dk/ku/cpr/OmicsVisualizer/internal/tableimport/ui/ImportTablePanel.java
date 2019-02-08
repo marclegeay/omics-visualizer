@@ -1,5 +1,18 @@
 package dk.ku.cpr.OmicsVisualizer.internal.tableimport.ui;
 
+import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.TextTableReader.ObjectType.EDGE;
+import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.TextTableReader.ObjectType.NETWORK;
+import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.TextTableReader.ObjectType.NODE;
+import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.ImportType.NETWORK_IMPORT;
+import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.ImportType.ONTOLOGY_IMPORT;
+import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.ImportType.TABLE_IMPORT;
+import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.ATTR;
+import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.INTERACTION;
+//import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.KEY;
+import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.NONE;
+import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.SOURCE_ATTR;
+import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.TARGET_ATTR;
+
 /*
  * #%L
  * Cytoscape Table Import Impl (table-import-impl)
@@ -30,21 +43,6 @@ import static javax.swing.GroupLayout.Alignment.BASELINE;
 import static javax.swing.GroupLayout.Alignment.CENTER;
 import static javax.swing.GroupLayout.Alignment.LEADING;
 import static javax.swing.GroupLayout.Alignment.TRAILING;
-import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.TextTableReader.ObjectType.EDGE;
-import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.TextTableReader.ObjectType.NETWORK;
-import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.TextTableReader.ObjectType.NODE;
-import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.ImportType.NETWORK_IMPORT;
-import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.ImportType.ONTOLOGY_IMPORT;
-import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.ImportType.TABLE_IMPORT;
-import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.ATTR;
-import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.INTERACTION;
-//import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.KEY;
-import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.NONE;
-import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.ONTOLOGY;
-import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.SOURCE;
-import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.SOURCE_ATTR;
-import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.TARGET;
-import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.TARGET_ATTR;
 
 import java.awt.Component;
 import java.awt.Dialog.ModalityType;
@@ -65,7 +63,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -120,6 +117,11 @@ import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.service.util.CyServiceRegistrar;
+import org.cytoscape.util.swing.ColumnResizer;
+import org.cytoscape.util.swing.IconManager;
+import org.cytoscape.util.swing.LookAndFeelUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.AttributeMappingParameters;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.reader.SupportedFileType;
@@ -131,12 +133,6 @@ import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.FileType;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.ImportType;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.TypeUtil;
-
-import org.cytoscape.util.swing.ColumnResizer;
-import org.cytoscape.util.swing.IconManager;
-import org.cytoscape.util.swing.LookAndFeelUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Main panel for Table Import.

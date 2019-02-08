@@ -27,18 +27,14 @@ package dk.ku.cpr.OmicsVisualizer.internal.loaddatatable;
 import static org.cytoscape.work.TunableValidator.ValidationState.OK;
 
 import org.cytoscape.io.read.CyTableReader;
-import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.ContainsTunables;
 import org.cytoscape.work.ProvidesTitle;
-import org.cytoscape.work.SynchronousTaskManager;
-import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.TunableValidator;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.table.ImportOVTableDataTask;
-import dk.ku.cpr.OmicsVisualizer.internal.tableimport.task.ShowOVPanelTaskFactory;
 
 public class CombineReaderAndMappingTask extends AbstractTask implements TunableValidator{
 

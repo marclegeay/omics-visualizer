@@ -56,7 +56,7 @@ public class DefaultAttributeOVTableReader implements TextTableReader {
 	
 	private static final Logger logger = LoggerFactory.getLogger(CyUserLog.NAME);
 	
-	private final URL source;
+//	private final URL source;
 	private AttributeMappingParameters mapping;
 	private final AttributeOVTableLineParser parser;
 	
@@ -71,7 +71,7 @@ public class DefaultAttributeOVTableReader implements TextTableReader {
 	
 	public DefaultAttributeOVTableReader(final URL source, AttributeMappingParameters mapping,
             final int startLineNumber, final String commentChar, final CyServiceRegistrar serviceRegistrar) {
-		this.source = source;
+//		this.source = source;
 		this.mapping = mapping;
 		this.startLineNumber = startLineNumber;
 		this.parser = new AttributeOVTableLineParser(mapping, serviceRegistrar);
@@ -80,7 +80,7 @@ public class DefaultAttributeOVTableReader implements TextTableReader {
 
 	public DefaultAttributeOVTableReader(final URL source, AttributeMappingParameters mapping, InputStream is,
 			final CyServiceRegistrar serviceRegistrar) {
-		this.source = source;
+//		this.source = source;
 		this.mapping = mapping;
 		this.startLineNumber = mapping.getStartLineNumber();
 		this.parser = new AttributeOVTableLineParser(mapping, serviceRegistrar);

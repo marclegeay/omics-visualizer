@@ -8,7 +8,6 @@ import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.AttributeDataT
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.AttributeDataType.TYPE_STRING_LIST;
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.ImportType.NETWORK_IMPORT;
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.ImportType.ONTOLOGY_IMPORT;
-import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.ImportType.TABLE_IMPORT;
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.ALIAS;
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.ATTR;
 import static dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.SourceColumnSemantic.EDGE_ATTR;
@@ -284,7 +283,6 @@ public final class TypeUtil {
 						// Make sure the other rows are also doubles (no need to check for other numeric types)...
 						if (!isDouble(val)) {
 							dt = TYPE_STRING;
-							System.out.println("[OV] col:" + col + " row:" + row + " val:" + val);
 						}
 					}
 				}

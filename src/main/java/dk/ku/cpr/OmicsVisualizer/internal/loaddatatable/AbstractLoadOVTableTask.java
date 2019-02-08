@@ -31,9 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.cytoscape.io.read.CyTableReader;
-import org.cytoscape.io.read.CyTableReaderManager;
 import org.cytoscape.model.CyTable;
-import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.json.JSONResult;
@@ -71,7 +69,7 @@ abstract class AbstractLoadOVTableTask extends AbstractTask {
 		}
 	}
 	public List<Class<?>> getResultClasses() {	return Arrays.asList(CyTable.class, String.class, JSONResult.class);	}
-	public Object getResults(Class requestedType) {
+	public Object getResults(Class<?> requestedType) {
 		if (requestedType.equals(CyTable.class)) 		return "";
 		if (requestedType.equals(String.class)) 		return "";
 		if (requestedType.equals(JSONResult.class)) {
