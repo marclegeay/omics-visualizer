@@ -1,20 +1,27 @@
 package dk.ku.cpr.OmicsVisualizer.internal.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkManager;
 
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
@@ -22,104 +29,174 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 public class OVConnectWindow extends JFrame implements ActionListener {
 	private static final long serialVersionUID = -5328093228061621675L;
 	
-	private static final String NO_NETWORK = "--- NONE ---";
-	
+	private static final String CHOOSE ="--- Choose ---";
+	private static final String STRING_NETWORK = "--- Get a STRING Network ---";
+
 	private OVCytoPanel cytoPanel;
 	private OVManager ovManager;
 	private OVTable ovTable;
-	
+
 	private CyNetworkManager netManager;
-	
-	private JButton closeButton;
-	
+
 	private JComboBox<String> selectNetwork;
 	private JComboBox<String> selectColNetwork;
 	private JComboBox<String> selectColTable;
-	
+	private JButton connectButton;
+
+	private JButton closeButton;
+
 	public OVConnectWindow(OVCytoPanel cytoPanel, OVManager ovManager) {
 		super();
-		
+
 		this.cytoPanel=cytoPanel;
 		this.ovManager=ovManager;
-		
+
 		this.netManager = this.ovManager.getNetworkManager();
-		
-		JPanel mainPanel = new JPanel();
-		mainPanel.setLayout(new GridLayout(3, 2));
 
-		this.selectNetwork = new JComboBox<String>();
+		this.selectNetwork = new JComboBox<>();
 		this.selectNetwork.addActionListener(this);
-		mainPanel.add(new JLabel("Select Network:"));
-		mainPanel.add(this.selectNetwork);
 
-		this.selectColNetwork = new JComboBox<String>();
+		this.selectColNetwork = new JComboBox<>();
 		this.selectColNetwork.addActionListener(this);
-		mainPanel.add(new JLabel("Select key column from Network:"));
-		mainPanel.add(this.selectColNetwork);
+		this.selectColNetwork.setEnabled(false);
 
-		this.selectColTable = new JComboBox<String>();
+		this.selectColTable = new JComboBox<>();
 		this.selectColTable.addActionListener(this);
-		mainPanel.add(new JLabel("Select key column from Table:"));
-		mainPanel.add(this.selectColTable);
-		
-		JPanel buttonPanel = new JPanel();
-		closeButton = new JButton("Connect");
-		closeButton.addActionListener(this);
-		buttonPanel.add(closeButton);
-		
-		this.setLayout(new BorderLayout());
-		
-		mainPanel.setBackground(this.getBackground());
-		buttonPanel.setBackground(this.getBackground());
-		
-		this.add(mainPanel, BorderLayout.CENTER);
-		this.add(buttonPanel, BorderLayout.SOUTH);
+		this.selectColTable.setEnabled(false);
+
+		this.connectButton = new JButton("Connect");
+		this.connectButton.addActionListener(this);
+
+		this.closeButton = new JButton("Close");
+		this.closeButton.addActionListener(this);
+		this.connectButton.setEnabled(false);
+
+		this.setResizable(false);
 	}
-	
+
 	public void update(OVTable ovTable) {
 		this.ovTable=ovTable;
+		this.setTitle("Connect " + ovTable.getTitle());
 		
-		this.selectColTable.removeAllItems();
-		for(String col : this.ovTable.getColNames()) {
-			if(!OVShared.isOVCol(col)) {
-				this.selectColTable.addItem(col);
-			}
-		}
-		
-		// JComboBox has only one action "changed" :
-		// if the user change the values it triggers the action (OK)
-		// if we add or remove an item, it triggers the action (not wanted)
-		// So we remove the listener before modifying the JComboBox, and put it back after
+		this.setPreferredSize(null); // We want to recompute the size each time
+
+		// We don't want to trigger event when we make the list of networks
 		this.selectNetwork.removeActionListener(this);
 		this.selectNetwork.removeAllItems();
-		this.selectNetwork.addItem(OVConnectWindow.NO_NETWORK);
-		for(CyNetwork cyNet : this.netManager.getNetworkSet()) {
-			this.selectNetwork.addItem(cyNet.toString()); // toString displays the name of the CyNetwork
+		this.selectNetwork.addItem(CHOOSE);
+		this.selectNetwork.addItem(STRING_NETWORK);
+		for(CyNetwork net : this.netManager.getNetworkSet()) {
+			this.selectNetwork.addItem(net.toString());
 		}
+		// Now that the list is complete, we can re-add the event listener
 		this.selectNetwork.addActionListener(this);
+
+		this.selectColNetwork.removeAllItems();
+
+		this.selectColTable.removeAllItems();
+		for(String colName : this.ovTable.getColNames()) {
+			if(!OVShared.isOVCol(colName)) {
+				this.selectColTable.addItem(colName);
+			}
+		}
+
+		JPanel mainPanel = new JPanel();
+		mainPanel.setLayout(new BorderLayout());
+		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+		JPanel addNetworkPanel = new JPanel();
+		addNetworkPanel.setLayout(new BorderLayout());
+
+		JPanel addPanel = new JPanel();
+		addPanel.setLayout(new GridLayout(3, 2));
+
+		addPanel.add(new JLabel("Select Network:"));
+		addPanel.add(this.selectNetwork);
+
+		addPanel.add(new JLabel("Select key column from Network:"));
+		addPanel.add(this.selectColNetwork);
+
+		addPanel.add(new JLabel("Select key column from Table:"));
+		addPanel.add(this.selectColTable);
+
+		JPanel addButtonPanel = new JPanel();
+		addButtonPanel.setLayout(new FlowLayout());
+		addButtonPanel.add(this.connectButton);
+
+		JLabel addLabel = new JLabel("Add a new connection");
+		Font fontLabel = new Font("Title Font", addLabel.getFont().getStyle(), (int) (addLabel.getFont().getSize()*1.3));
+		addLabel.setFont(fontLabel);
 		
-		this.selectNetwork.setSelectedItem(this.ovTable.getLinkedNetworkName());
-		this.selectColNetwork.setSelectedItem(this.ovTable.getMappingColCyto());
-		this.selectColTable.setSelectedItem(this.ovTable.getMappingColOVTable());
+		addNetworkPanel.add(addLabel, BorderLayout.NORTH);
+		addNetworkPanel.add(addPanel, BorderLayout.CENTER);
+		addNetworkPanel.add(addButtonPanel, BorderLayout.SOUTH);
+
+		JPanel listNetworkPanel = new JPanel();
+		listNetworkPanel.setLayout(new BorderLayout());
+		JLabel linkLabel = new JLabel("Connected Networks:");
+		linkLabel.setFont(fontLabel);
+		listNetworkPanel.add(linkLabel, BorderLayout.NORTH);
+
+		int nbCons = this.ovTable.getConnections().size();
+		if(nbCons == 0) {
+			listNetworkPanel.add(new JLabel("None"), BorderLayout.CENTER);
+		} else {
+			JPanel listPanel = new JPanel();
+			listPanel.setLayout(new GridLayout(nbCons, 1));
+			for(OVConnection con : this.ovTable.getConnections()) {
+				OVConnectPanel conPanel = new OVConnectPanel(this, con);
+
+				listPanel.add(conPanel);
+			}
+			JScrollPane scrollList = new JScrollPane(listPanel);
+			scrollList.setBorder(null);
+
+			listNetworkPanel.add(scrollList, BorderLayout.CENTER);
+		}
 		
-		this.pack();
-		this.setLocationRelativeTo(this.cytoPanel.getTopLevelAncestor());
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new FlowLayout());
+		buttonPanel.add(this.closeButton);
+
+		mainPanel.add(addNetworkPanel, BorderLayout.NORTH);
+		mainPanel.add(listNetworkPanel, BorderLayout.CENTER);
+		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+		this.setContentPane(mainPanel);
+
+		this.pack(); // We pack so that getWidth and getHeight are computed
+		// Then we set the size limits ...
+		int prefWidth = this.getWidth()+30; // +30 so that the vertical slide can fit
+		int prefHeight = (int) (this.cytoPanel.getTopLevelAncestor().getHeight() * 0.8); // at most 80% of the Cytoscape window
+		int curHeight = this.getHeight();
+		prefHeight = (prefHeight < curHeight ? prefHeight : curHeight);
+		this.setPreferredSize(new Dimension(prefWidth, prefHeight));
+
+		this.pack(); // We recompute the size with the new preferences
+		this.setLocationRelativeTo(this.cytoPanel.getTopLevelAncestor()); // We center the Frame according to the Cytoscape window
+	}
+	
+	public void setStringNetwork(String netName, String tableColName) {
+		this.selectNetwork.setSelectedItem(netName);
+		
+		this.selectColNetwork.setSelectedItem("display name");
+		this.selectColTable.setSelectedItem(tableColName);
+		
+		this.setVisible(true);
+		this.toFront();
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == this.selectNetwork) {
 			String netName = (String) this.selectNetwork.getSelectedItem();
-
-			if(netName == null || netName.equals(OVConnectWindow.NO_NETWORK)) {
-				this.selectColNetwork.setEnabled(false);
-				this.selectColTable.setEnabled(false);
-				return;
-			} else {
-				this.selectColNetwork.setEnabled(true);
-				this.selectColTable.setEnabled(true);
-			}
 			
+			if(netName.equals(STRING_NETWORK)) {
+				OVRetrieveStringNetworkWindow retrieveString = new OVRetrieveStringNetworkWindow(this.ovManager, this, this.ovTable);
+				retrieveString.setVisible(true);
+				return;
+			}
+
 			CyNetwork net=null;
 			for(CyNetwork cyNet : this.netManager.getNetworkSet()) {
 				if(cyNet.toString().equals(netName)) {
@@ -127,26 +204,60 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 				}
 			}
 			
-			if(net!= null) {
+			OVConnection ovCon = this.ovManager.getConnection(net);
+			if(ovCon != null) {
+				JOptionPane.showMessageDialog(null,
+						"This network is already connected to \""+ovCon.getOVTable().getTitle()+"\".",
+						"Warning",
+						JOptionPane.WARNING_MESSAGE);
+			}
+
+			if(net == null) {
+				this.selectColNetwork.setEnabled(false);
+				this.selectColTable.setEnabled(false);
+				this.connectButton.setEnabled(false);
+			} else {
 				this.selectColNetwork.removeAllItems();
 				for(CyColumn col : net.getDefaultNodeTable().getColumns()) {
 					this.selectColNetwork.addItem(col.getName());
 				}
+
+				this.selectColNetwork.setEnabled(true);
+				this.selectColTable.setEnabled(true);
+				this.connectButton.setEnabled(true);
 			}
-		} else if(e.getSource() == this.closeButton) {
+		} else if (e.getSource() == this.connectButton && this.connectButton.isEnabled()) {
 			String netName = (String) this.selectNetwork.getSelectedItem();
 			
-			if(netName == null || netName.equals(OVConnectWindow.NO_NETWORK)) {
-				this.ovTable.disconnect();
-			} else {
+			int response = JOptionPane.OK_OPTION;
+			OVConnection ovCon = this.ovManager.getConnection(netName);
+			if(ovCon != null) {
+				response = JOptionPane.showConfirmDialog(null,
+						"This network is already connected to \""+ovCon.getOVTable().getTitle()+"\". You will disconnect this table if you continue.",
+						"Disconnection warning",
+						JOptionPane.OK_CANCEL_OPTION);
+				
+				if(response == JOptionPane.OK_OPTION) {
+					ovCon.disconnect();
+				}
+			}
+			
+			if(response != JOptionPane.OK_OPTION) {
+				return;
+			}
+
+			if(netName != null) {
 				this.ovTable.connect(
-							(String) this.selectNetwork.getSelectedItem(),
-							(String) this.selectColNetwork.getSelectedItem(),
-							(String) this.selectColTable.getSelectedItem()
+						(String) this.selectNetwork.getSelectedItem(),
+						(String) this.selectColNetwork.getSelectedItem(),
+						(String) this.selectColTable.getSelectedItem()
 						);
 			}
-			this.setVisible(false);
+
+			this.update(this.ovTable);
 			this.cytoPanel.update();
+		} else if(e.getSource() == this.closeButton) {
+			this.setVisible(false);
 		}
 	}
 }

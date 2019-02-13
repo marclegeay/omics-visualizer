@@ -2,11 +2,9 @@ package dk.ku.cpr.OmicsVisualizer.internal.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -15,11 +13,10 @@ import javax.swing.table.TableColumn;
 
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyNetwork;
-import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.property.CyProperty;
-import org.cytoscape.property.SimpleCyProperty;
 import org.cytoscape.property.CyProperty.SavePolicy;
+import org.cytoscape.property.SimpleCyProperty;
 
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVTableColumnModel;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVTableModel;
@@ -32,15 +29,6 @@ public class OVTable {
 	private OVTableModel tableModel;
 	private OVTableColumnModel tableColumnModel;
 	
-	private CyNetwork linkedNetwork;
-	/** Name of the column from the OVTable that links to the Cytoscape Network */
-	private String mappingColOVTable;
-	/** Name of the column from the Cytoscape Network that links to the OVTable */
-	private String mappingColCyto;
-	
-	/** Map that associates the list of table rows with the network node */
-	private Map<CyRow, List<CyRow>> node2table;
-	
 	private CyProperty<Properties> cyProperty;
 	
 	public OVTable(OVManager ovManager, CyTable cyTable) {
@@ -48,12 +36,6 @@ public class OVTable {
 		this.cyTable=cyTable;
 		this.jTable=null;
 		this.cyProperty=null;
-		
-		this.linkedNetwork=null;
-		this.mappingColOVTable="";
-		this.mappingColCyto="";
-		
-		this.node2table=new HashMap<>();
 		
 		this.createJTable();
 		this.load();
@@ -72,33 +54,28 @@ public class OVTable {
 		return this.jTable;
 	}
 	
-	public CyNetwork getLinkedNetwork() {
-		return this.linkedNetwork;
-	}
-	public String getLinkedNetworkName() {
-		return (this.linkedNetwork == null ? "" : this.linkedNetwork.toString());
+	public List<OVConnection> getConnections() {
+		return this.ovManager.getConnections(this);
 	}
 	
-	public String getMappingColOVTable() {
-		return this.mappingColOVTable;
-	}
-	
-	public String getMappingColCyto() {
-		return this.mappingColCyto;
+	public OVConnection getConnection(CyNetwork network) {
+		for(OVConnection con : this.getConnections()) {
+			if(con.getNetwork() == network) {
+				return con;
+			}
+		}
+		return null;
 	}
 	
 	public boolean isConnected() {
-		return this.linkedNetwork!=null;
+		return this.getConnections().size()>0;
 	}
 	
-	private Object getKey(CyRow row, CyColumn keyCol) {
-		if(keyCol.getListElementType() == null) { // this is not a List element
-			return row.get(keyCol.getName(), keyCol.getType());
-		} else { // this is a list
-			return row.getList(keyCol.getName(), keyCol.getListElementType());
-		}
+	public boolean isConnectedTo(CyNetwork net) {
+		return this.getConnection(net) != null;
 	}
 	
+	/*
 	private void addLink(CyRow networkNode, CyRow tableRow) {
 		if(!this.node2table.containsKey(networkNode)) {
 			this.node2table.put(networkNode, new ArrayList<>());
@@ -111,89 +88,41 @@ public class OVTable {
 	public List<CyRow> getLinkedRows(CyRow networkNode) {
 		return this.node2table.get(networkNode);
 	}
+	*/
 	
 	public void connect(String netName, String mappingColCyto, String mappingColOVTable) {
-		CyNetwork oldLinkedNetwork = this.linkedNetwork;
-		String oldColCyto = this.mappingColCyto;
-		String oldColOVTable = this.mappingColOVTable;
+		CyNetwork linkedNetwork=null;
 		
 		for(CyNetwork net : this.ovManager.getNetworkManager().getNetworkSet()) {
 			if(net.toString().equals(netName)) {
-				this.linkedNetwork = net;
+				linkedNetwork = net;
 			}
 		}
-		this.mappingColCyto=mappingColCyto;
-		this.mappingColOVTable=mappingColOVTable;
 		
-		if(oldLinkedNetwork == null
-				|| !oldLinkedNetwork.equals(this.linkedNetwork)
-				|| !oldColCyto.equals(this.mappingColCyto)
-				|| !oldColOVTable.equals(this.mappingColOVTable)) {
-			// Something has changed, we delete all previous records and we save the new ones
-			
-			// FIRST STEP:
-			// Make the link in the OVTable
-			//
-			this.node2table = new HashMap<>();
-			this.cyTable.deleteColumn(OVShared.OVTABLE_COL_NODE_SUID);
-			
-			this.cyTable.createColumn(OVShared.OVTABLE_COL_NODE_SUID, Long.class, false);
-			
-			
-			CyTable nodeTable = this.linkedNetwork.getDefaultNodeTable();
-			CyColumn keyCytoCol = nodeTable.getColumn(this.mappingColCyto);
-			CyColumn keyOVCol = this.cyTable.getColumn(this.mappingColOVTable);
-			
-			if(keyCytoCol == null || keyOVCol == null) {
-				return; // TODO message?
+		if(linkedNetwork == null) {
+			return;
+		}
+		
+		OVConnection con = this.getConnection(linkedNetwork);
+		
+		if(con == null || con.update(mappingColCyto, mappingColOVTable)) {
+			if(con == null) { // Connection to a new network
+				con = new OVConnection(this.ovManager, this, linkedNetwork, mappingColCyto, mappingColOVTable);
 			}
-			
-			for(CyRow netRow : nodeTable.getAllRows()) {
-				Object netKey = getKey(netRow, keyCytoCol);
-				
-				for(CyRow tableRow : this.cyTable.getAllRows()) {
-					Object tableKey = getKey(tableRow, keyOVCol);
-					
-					if(netKey.equals(tableKey)) {
-						System.out.println("[OV] key match "+netKey+" ("+netRow.get("SUID", Long.class)+")");
-						tableRow.set(OVShared.OVTABLE_COL_NODE_SUID, netRow.get("SUID", Long.class));
-						this.addLink(netRow, tableRow);
-					}
-				}
-			}
-			
-			// SECOND STEP:
-			// Make the link in the network table
-			//
-			CyTable networkTable = this.linkedNetwork.getDefaultNetworkTable();
-			if(networkTable.getColumn(OVShared.CYNETWORKTABLE_OVCOL) == null) {
-				networkTable.createColumn(OVShared.CYNETWORKTABLE_OVCOL, String.class, false);
-			}
-			networkTable.getRow(this.linkedNetwork.getSUID()).set(OVShared.CYNETWORKTABLE_OVCOL, this.getTitle()+","+this.getMappingColCyto()+","+this.getMappingColOVTable());
 		}
 	}
 	
-	public void disconnect() {
-		if(isConnected()) {
-			// We erase the link in the Network table
-			CyTable networkTable = this.linkedNetwork.getDefaultNetworkTable();
-			if(networkTable.getColumn(OVShared.CYNETWORKTABLE_OVCOL) != null) {
-				networkTable.getRow(this.linkedNetwork.getSUID()).set(OVShared.CYNETWORKTABLE_OVCOL, "");
-			}
+	public void disconnectAll() {
+		for(OVConnection con : this.getConnections()) {
+			con.disconnect();
+		}
+	}
 	
-			// We delete the style columns in the node table
-			CyTable nodeTable = this.linkedNetwork.getDefaultNodeTable();
-			if(nodeTable.getColumn(OVShared.CYNODETABLE_STYLECOL) != null) {
-				nodeTable.deleteColumn(OVShared.CYNODETABLE_STYLECOL);
-			}
-			if(nodeTable.getColumn(OVShared.CYNODETABLE_STYLECOL_VALUES) != null) {
-				nodeTable.deleteColumn(OVShared.CYNODETABLE_STYLECOL_VALUES);
-			}
-			
-			// We "forget" everything
-			this.linkedNetwork=null;
-			this.mappingColCyto="";
-			this.mappingColOVTable="";
+	public void disconnect(CyNetwork network) {
+		OVConnection con = this.getConnection(network);
+		
+		if(con != null) {
+			con.disconnect();
 		}
 	}
 
@@ -355,17 +284,39 @@ public class OVTable {
 			index += 1;
 		}
 		
-		if(this.linkedNetwork != null) {
-			this.setTableProperty(OVShared.PROPERTY_LINKED_NETWORK, this.linkedNetwork.toString());
-			this.setTableProperty(OVShared.PROPERTY_MAPPING_CY_OV, this.mappingColCyto);
-			this.setTableProperty(OVShared.PROPERTY_MAPPING_OV_CY, this.mappingColOVTable);
+		if(this.isConnected()) {
+			String linkedNames="";
+			String mappingsCyOV="";
+			String mappingsOVCy="";
+			
+			for(OVConnection con : this.getConnections()) {
+				linkedNames += "," + con.getNetwork().toString();
+				mappingsCyOV += "," + con.getMappingColCyto();
+				mappingsOVCy += "," + con.getMappingColOVTable();
+			}
+			
+			// We get rid of the first comma
+			linkedNames = linkedNames.substring(1);
+			mappingsCyOV = mappingsCyOV.substring(1);
+			mappingsOVCy = mappingsOVCy.substring(1);
+
+			this.setTableProperty(OVShared.PROPERTY_LINKED_NETWORK, linkedNames);
+			this.setTableProperty(OVShared.PROPERTY_MAPPING_CY_OV, mappingsCyOV);
+			this.setTableProperty(OVShared.PROPERTY_MAPPING_OV_CY, mappingsOVCy);
 		}
 	}
 	
 	public void load() {
 		String linkedName = this.getTableProperty(OVShared.PROPERTY_LINKED_NETWORK, "");
-		if(!linkedName.equals("")) {
-			this.connect(linkedName, this.getTableProperty(OVShared.PROPERTY_MAPPING_CY_OV), this.getTableProperty(OVShared.PROPERTY_MAPPING_OV_CY));
+		String mappingCyOV = this.getTableProperty(OVShared.PROPERTY_MAPPING_CY_OV, "");
+		String mappingOVCy = this.getTableProperty(OVShared.PROPERTY_MAPPING_OV_CY, "");
+		
+		String linkedNames[] = linkedName.split(",");
+		String mappingsCyOV[] = mappingCyOV.split(",");
+		String mappingsOVCy[] = mappingOVCy.split(",");
+		
+		for(int i=0; i<linkedNames.length; ++i) {
+			this.connect(linkedNames[i], mappingsCyOV[i], mappingsOVCy[i]);
 		}
 	}
 	

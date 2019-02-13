@@ -47,13 +47,14 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CyColumnPresentationManager;
 import org.cytoscape.application.swing.CyColumnSelector;
 import org.cytoscape.application.swing.CytoPanelComponent;
 import org.cytoscape.application.swing.CytoPanelComponent2;
 import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.command.AvailableCommands;
+import org.cytoscape.model.events.RowsSetEvent;
+import org.cytoscape.model.events.RowsSetListener;
 import org.cytoscape.task.destroy.DeleteTableTaskFactory;
 import org.cytoscape.util.swing.IconManager;
 import org.cytoscape.work.swing.DialogTaskManager;
@@ -61,10 +62,13 @@ import org.cytoscape.work.swing.DialogTaskManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
+import dk.ku.cpr.OmicsVisualizer.internal.utils.ViewUtil;
 
 public class OVCytoPanel extends JPanel
-implements CytoPanelComponent2, ActionListener,
-PopupMenuListener {
+	implements CytoPanelComponent2,
+		ActionListener,
+		PopupMenuListener,
+		RowsSetListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -285,7 +289,7 @@ PopupMenuListener {
 		}
 		if (connectButton == null ) {
 			connectButton = new JButton(ICON_LINK);
-			connectButton.setToolTipText("Connect the table to a network...");
+			connectButton.setToolTipText("Manage table connections...");
 			styleButton(connectButton, iconFont);
 			
 			connectButton.addActionListener(e -> {
@@ -297,7 +301,7 @@ PopupMenuListener {
 		}
 		if (styleButton == null ) {
 			styleButton = new JButton(IconManager.ICON_PAINT_BRUSH);
-			styleButton.setToolTipText("Apply style to the connected network...");
+			styleButton.setToolTipText("Apply style to the connected networks...");
 			styleButton(styleButton, iconFont);
 			
 			styleButton.addActionListener(e -> {
@@ -312,7 +316,6 @@ PopupMenuListener {
 						return;
 					}
 
-					this.ovManager.getService(CyApplicationManager.class).setCurrentNetwork(this.displayedTable.getLinkedNetwork());
 					this.getStyleWindow().setTable(this.displayedTable);
 					this.getStyleWindow().setVisible(true);
 				}
@@ -365,7 +368,7 @@ PopupMenuListener {
 
 			// if user selects yes delete the table
 			if (confirmValue == JOptionPane.OK_OPTION) {
-				table.disconnect();
+				table.disconnectAll();
 				
 				final DialogTaskManager taskMgr = ovManager.getService(DialogTaskManager.class);
 				final DeleteTableTaskFactory deleteTableTaskFactory =
@@ -540,5 +543,11 @@ PopupMenuListener {
 	@Override
 	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
 		// Do nothing
+	}
+
+	@Override
+	public void handleEvent(RowsSetEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 }

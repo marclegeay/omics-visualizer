@@ -1,4 +1,4 @@
-package dk.ku.cpr.OmicsVisualizer.internal.ui;
+package dk.ku.cpr.OmicsVisualizer.internal.utils;
 
 import javax.swing.SwingUtilities;
 

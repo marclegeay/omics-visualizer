@@ -20,8 +20,10 @@ import org.cytoscape.session.events.SessionAboutToBeSavedEvent;
 import org.cytoscape.session.events.SessionAboutToBeSavedListener;
 import org.cytoscape.session.events.SessionLoadedEvent;
 import org.cytoscape.session.events.SessionLoadedListener;
+import org.cytoscape.work.AbstractTaskManager;
 import org.cytoscape.work.SynchronousTaskManager;
 import org.cytoscape.work.TaskIterator;
+import org.cytoscape.work.TaskManager;
 
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.task.ShowOVPanelTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
@@ -35,6 +37,7 @@ public class OVManager
 	private CyProperty<Properties> serviceProperties;
 	
 	private List<OVTable> ovTables;
+	private List<OVConnection> ovCons;
 	
 	private ShowOVPanelTaskFactory showPanelFactory;
 	private OVCytoPanel ovCytoPanel;
@@ -48,6 +51,7 @@ public class OVManager
 		this.showPanelFactory=new ShowOVPanelTaskFactory(this);
 		this.ovCytoPanel=null;
 		this.ovTables=new ArrayList<OVTable>();
+		this.ovCons=new ArrayList<>();
 		
 		this.netManager = this.getService(CyNetworkManager.class);
 		this.tableManager = this.getService(CyTableManager.class);
@@ -67,6 +71,70 @@ public class OVManager
 		if(this.ovTables.size() > 0) {
 			this.showPanel();
 		}
+	}
+	
+	/**
+	 * Get the connection for a given CyNetwork
+	 * @param network
+	 * @return <code>null</code> if the network is connected to no OVTable, the OVConnection otherwise
+	 */
+	public OVConnection getConnection(CyNetwork network) {
+		if(network == null) {
+			return null;
+		}
+		
+		for(OVConnection ovCon : this.ovCons) {
+			if(network.equals(ovCon.getNetwork())) {
+				return ovCon;
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Get the connection for a given CyNetwork
+	 * @param network
+	 * @return <code>null</code> if the network is connected to no OVTable, the OVConnection otherwise
+	 */
+	public OVConnection getConnection(String networkName) {
+		for(OVConnection ovCon : this.ovCons) {
+			if(networkName.equals(ovCon.getNetwork().toString())) {
+				return ovCon;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Get the connections for a given OVTable
+	 * @param table
+	 * @return the list of OVConnection (can be empty)
+	 */
+	public List<OVConnection> getConnections(OVTable table) {
+		List<OVConnection> list = new ArrayList<>();
+		for(OVConnection ovCon : this.ovCons) {
+			if(table.equals(ovCon.getOVTable())) {
+				list.add(ovCon);
+			}
+		}
+		return list;
+	}
+	
+	/**
+	 * This method should only be used by the constructor of OVConnection !
+	 * @param ovCon
+	 */
+	public void addConnection(OVConnection ovCon) {
+		this.ovCons.add(ovCon);
+	}
+	
+	/**
+	 * This method should only be used by the disconnect() method of OVConnection !
+	 * @param ovCon
+	 */
+	public void removeConnection(OVConnection ovCon) {
+		this.ovCons.remove(ovCon);
 	}
 	
 	public CyServiceRegistrar getServiceRegistrar() {
@@ -152,8 +220,19 @@ public class OVManager
 	}
 	
 	public void showPanel() {
+//		SynchronousTaskManager<?> taskM = this.serviceRegistrar.getService(SynchronousTaskManager.class);
+//		TaskIterator ti = this.showPanelFactory.createTaskIterator();
+//		taskM.execute(ti);
+		this.executeSynchronousTask(this.showPanelFactory.createTaskIterator());
+	}
+	
+	public void executeSynchronousTask(TaskIterator ti) {
 		SynchronousTaskManager<?> taskM = this.serviceRegistrar.getService(SynchronousTaskManager.class);
-		TaskIterator ti = this.showPanelFactory.createTaskIterator();
+		taskM.execute(ti);
+	}
+	
+	public void executeTask(TaskIterator ti) {
+		TaskManager<?, ?> taskM = this.serviceRegistrar.getService(TaskManager.class);
 		taskM.execute(ti);
 	}
 
@@ -183,8 +262,8 @@ public class OVManager
 		
 		if(e!= null) {
 			for(OVTable table : this.ovTables) {
-				if(table.isConnected() && table.getLinkedNetwork().equals(net)) {
-					table.disconnect();
+				if(table.isConnected() && table.isConnectedTo(net)) {
+					table.disconnect(net);
 				}
 			}
 			this.ovCytoPanel.update();

@@ -1,0 +1,172 @@
+package dk.ku.cpr.OmicsVisualizer.internal.ui;
+
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import org.cytoscape.command.CommandExecutorTaskFactory;
+import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyRow;
+import org.cytoscape.work.FinishStatus;
+import org.cytoscape.work.ObservableTask;
+import org.cytoscape.work.TaskIterator;
+import org.cytoscape.work.TaskObserver;
+
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
+import dk.ku.cpr.OmicsVisualizer.internal.task.StringCommandTaskFactory;
+
+public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserver, ActionListener {
+	private static final long serialVersionUID = 8015437684470645491L;
+
+	private OVManager ovManager;
+	private OVConnectWindow ovConnectWindow;
+	private OVTable ovTable;
+
+	private JComboBox<OVSpecies> selectSpecies;
+	private JComboBox<String> selectQuery;
+
+	private JButton retrieveButton;
+
+	public OVRetrieveStringNetworkWindow(OVManager ovManager, OVConnectWindow ovConnectWindow, OVTable ovTable) {
+		super("Retrieve a STRING Network");
+		this.ovManager=ovManager;
+		this.ovConnectWindow=ovConnectWindow;
+		this.ovTable=ovTable;
+
+		this.selectSpecies = new JComboBox<>();
+
+		this.selectQuery = new JComboBox<>();
+		for(String colName : this.ovTable.getColNames()) {
+			if(!OVShared.isOVCol(colName)) {
+				this.selectQuery.addItem(colName);
+			}
+		}
+
+		this.retrieveButton = new JButton("Retrieve the network");
+		this.retrieveButton.addActionListener(this);
+
+		CommandExecutorTaskFactory commandExecutorTaskFactory = this.ovManager.getService(CommandExecutorTaskFactory.class);
+		StringCommandTaskFactory factory = new StringCommandTaskFactory(commandExecutorTaskFactory, OVShared.STRING_CMD_LIST_SPECIES, null, this);
+		TaskIterator ti = factory.createTaskIterator();
+		this.ovManager.executeSynchronousTask(ti);
+
+		this.init();
+	}
+
+	public void init() {
+		JPanel mainPanel = new JPanel();
+		mainPanel.setLayout(new BorderLayout());
+
+		JPanel selectPanel = new JPanel();
+		selectPanel.setLayout(new GridLayout(2, 2));
+
+		selectPanel.add(new JLabel("Species:"));
+		selectPanel.add(this.selectSpecies);
+
+		selectPanel.add(new JLabel("Protein names column:"));
+		selectPanel.add(this.selectQuery);
+
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new FlowLayout());
+		buttonPanel.add(this.retrieveButton);
+
+		mainPanel.add(selectPanel, BorderLayout.CENTER);
+		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+		this.setContentPane(mainPanel);
+
+		this.pack();
+		this.setLocationRelativeTo(ovConnectWindow);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void taskFinished(ObservableTask task) {
+		if(task.getClass().getSimpleName().equals("GetSpeciesTask")) {
+			List<Map<String,String>> res = task.getResults(List.class);
+
+			for(Map<String,String> r : res) {
+				OVSpecies species = new OVSpecies(r);
+				this.selectSpecies.addItem(species);
+				
+				//We select Human as default
+				if(species.abbreviatedName.equals("Homo sapiens")) {
+					this.selectSpecies.setSelectedItem(species);
+				}
+			}
+		} else if(task.getClass().getSimpleName().equals("ProteinQueryTask")) {
+			this.ovConnectWindow.update(this.ovTable);
+			CyNetwork net = task.getResults(CyNetwork.class);
+			this.ovConnectWindow.setStringNetwork(net.toString(), (String)this.selectQuery.getSelectedItem());
+		}
+	}
+
+	@Override
+	public void allFinished(FinishStatus finishStatus) {
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if(e.getSource() == this.retrieveButton) {
+			// We identify the query column
+			String queryCol = (String) this.selectQuery.getSelectedItem();
+			Class<?> colType = this.ovTable.getColType(queryCol);
+			
+			// We retrieve the list for the query
+			Set<String> queryTerms = new HashSet<>();
+			for(CyRow row : this.ovTable.getCyTable().getAllRows()) {
+				queryTerms.add(row.get(queryCol, colType).toString());
+			}
+			
+			// We set the arguments for the STRING command
+			Map<String, Object> args = new HashMap<>();
+			args.put("query", String.join(",", queryTerms));
+			args.put("taxonID", ((OVSpecies) this.selectSpecies.getSelectedItem()).getTaxonID());
+			
+			// We call the STRING command
+			CommandExecutorTaskFactory commandExecutorTaskFactory = this.ovManager.getService(CommandExecutorTaskFactory.class);
+			StringCommandTaskFactory factory = new StringCommandTaskFactory(commandExecutorTaskFactory, OVShared.STRING_CMD_PROTEIN_QUERY, args, this);
+			TaskIterator ti = factory.createTaskIterator();
+			this.ovManager.executeTask(ti);
+			
+			// The task is executed in background, we don't want the window to be displayed
+			this.setVisible(false);
+		}
+	}
+
+	private class OVSpecies {
+		private Integer taxonID;
+		private String abbreviatedName;
+		private String scientificName;
+
+		public OVSpecies(Map<String,String> data) {
+			super();
+			this.taxonID = Integer.valueOf(data.get("taxonomyId"));
+			this.abbreviatedName = data.get("abbreviatedName");
+			this.scientificName =  data.get("scientificName");
+		}
+
+		public Integer getTaxonID() {
+			return this.taxonID;
+		}
+
+		public String toString() {
+			return this.abbreviatedName + " [" + this.scientificName + "]";
+		}
+	}
+}

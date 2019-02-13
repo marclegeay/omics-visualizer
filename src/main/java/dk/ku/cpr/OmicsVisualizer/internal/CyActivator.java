@@ -18,8 +18,8 @@ import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.swing.GUITunableHandlerFactory;
 import org.osgi.framework.BundleContext;
 
-import dk.ku.cpr.OmicsVisualizer.internal.io.read.OVTableReaderManagerImpl;
 import dk.ku.cpr.OmicsVisualizer.internal.io.read.OVTableReaderManager;
+import dk.ku.cpr.OmicsVisualizer.internal.io.read.OVTableReaderManagerImpl;
 import dk.ku.cpr.OmicsVisualizer.internal.loaddatatable.LoadOVTableFileTaskFactoryImpl;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.io.WildCardCyFileFilter;
@@ -31,8 +31,8 @@ public class CyActivator extends AbstractCyActivator {
 
 	@Override
 	public void start(BundleContext context) throws Exception {
-		System.out.println("\n\n\n\n");
-		System.out.println("Starting Omics Visualizer App !");
+		System.out.println("\n\n");
+		System.out.println("[OV] Starting Omics Visualizer App !");
 		
 		final CyServiceRegistrar serviceRegistrar = getService(context, CyServiceRegistrar.class);
 		final StreamUtil streamUtil = getService(context, StreamUtil.class);
@@ -95,10 +95,11 @@ public class CyActivator extends AbstractCyActivator {
 			LoadOVTableFileTaskFactoryImpl factory = new LoadOVTableFileTaskFactoryImpl(ovManager);
 			
 			Properties props = new Properties();
-//			props.setProperty(PREFERRED_MENU, "File.Import"); // File.Import.Table
-			props.setProperty(PREFERRED_MENU, "Apps.Omics Visualizer");
+			props.setProperty(PREFERRED_MENU, "File.Import"); // File.Import.Table
+//			props.setProperty(PREFERRED_MENU, "Apps.Omics Visualizer");
 			props.setProperty(MENU_GRAVITY, "5.2");
-			props.setProperty(TITLE, "Load a File...");
+			props.setProperty(TITLE, "OVTable from File...");
+//			props.setProperty(TITLE, "Load a File...");
 			registerService(context, factory, TaskFactory.class, props);
 			//registerService(context, factory, LoadTableFileTaskFactory.class, props);
 		}
