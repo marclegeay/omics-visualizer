@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -108,16 +109,19 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 		addNetworkPanel.setLayout(new BorderLayout());
 
 		JPanel addPanel = new JPanel();
-		addPanel.setLayout(new GridLayout(3, 2));
+		addPanel.setLayout(new GridBagLayout());
+		
+		MyGridBagConstraints c = new MyGridBagConstraints();
+		c.expandHorizontal();
 
-		addPanel.add(new JLabel("Select Network:"));
-		addPanel.add(this.selectNetwork);
+		addPanel.add(new JLabel("Select Network:"), c);
+		addPanel.add(this.selectNetwork, c.nextCol());
 
-		addPanel.add(new JLabel("Select key column from Network:"));
-		addPanel.add(this.selectColNetwork);
+		addPanel.add(new JLabel("Select key column from Network:"), c.nextRow());
+		addPanel.add(this.selectColNetwork, c.nextCol());
 
-		addPanel.add(new JLabel("Select key column from Table:"));
-		addPanel.add(this.selectColTable);
+		addPanel.add(new JLabel("Select key column from Table:"), c.nextRow());
+		addPanel.add(this.selectColTable, c.nextCol());
 
 		JPanel addButtonPanel = new JPanel();
 		addButtonPanel.setLayout(new FlowLayout());

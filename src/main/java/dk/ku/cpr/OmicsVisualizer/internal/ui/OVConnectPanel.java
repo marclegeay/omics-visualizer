@@ -2,7 +2,7 @@ package dk.ku.cpr.OmicsVisualizer.internal.ui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -45,17 +45,20 @@ public class OVConnectPanel extends JPanel implements ActionListener {
 		this.mainPanel.setLayout(new BorderLayout());
 		
 		JPanel selectPanel = new JPanel();
-		selectPanel.setLayout(new GridLayout(2,2));
+		selectPanel.setLayout(new GridBagLayout());
+		
+		MyGridBagConstraints c = new MyGridBagConstraints();
+		c.expandHorizontal();
 	
 		this.selectColNetwork = new JComboBox<String>();
 		this.selectColNetwork.addActionListener(this);
-		selectPanel.add(new JLabel("Select key column from Network:"));
-		selectPanel.add(this.selectColNetwork);
+		selectPanel.add(new JLabel("Select key column from Network:"), c);
+		selectPanel.add(this.selectColNetwork, c.nextCol());
 
 		this.selectColTable = new JComboBox<String>();
 		this.selectColTable.addActionListener(this);
-		selectPanel.add(new JLabel("Select key column from Table:"));
-		selectPanel.add(this.selectColTable);
+		selectPanel.add(new JLabel("Select key column from Table:"), c.nextRow());
+		selectPanel.add(this.selectColTable, c.nextCol());
 		
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());

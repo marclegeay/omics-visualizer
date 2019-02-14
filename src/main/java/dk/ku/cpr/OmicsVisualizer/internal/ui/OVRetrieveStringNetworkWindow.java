@@ -2,7 +2,7 @@ package dk.ku.cpr.OmicsVisualizer.internal.ui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.cytoscape.command.CommandExecutorTaskFactory;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.work.FinishStatus;
@@ -41,6 +41,8 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 	private JComboBox<String> selectQuery;
 
 	private JButton retrieveButton;
+	
+	private CyNetwork retrievedNetwork;
 
 	public OVRetrieveStringNetworkWindow(OVManager ovManager, OVConnectWindow ovConnectWindow, OVTable ovTable) {
 		super("Retrieve a STRING Network");
@@ -60,8 +62,7 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 		this.retrieveButton = new JButton("Retrieve the network");
 		this.retrieveButton.addActionListener(this);
 
-		CommandExecutorTaskFactory commandExecutorTaskFactory = this.ovManager.getService(CommandExecutorTaskFactory.class);
-		StringCommandTaskFactory factory = new StringCommandTaskFactory(commandExecutorTaskFactory, OVShared.STRING_CMD_LIST_SPECIES, null, this);
+		StringCommandTaskFactory factory = new StringCommandTaskFactory(this.ovManager, OVShared.STRING_CMD_LIST_SPECIES, null, this);
 		TaskIterator ti = factory.createTaskIterator();
 		this.ovManager.executeSynchronousTask(ti);
 
@@ -71,15 +72,18 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 	public void init() {
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());
+		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		JPanel selectPanel = new JPanel();
-		selectPanel.setLayout(new GridLayout(2, 2));
+		selectPanel.setLayout(new GridBagLayout());
+		MyGridBagConstraints c = new MyGridBagConstraints();
+		c.expandHorizontal();
 
-		selectPanel.add(new JLabel("Species:"));
-		selectPanel.add(this.selectSpecies);
+		selectPanel.add(new JLabel("Species:"), c);
+		selectPanel.add(this.selectSpecies, c.nextCol());
 
-		selectPanel.add(new JLabel("Protein names column:"));
-		selectPanel.add(this.selectQuery);
+		selectPanel.add(new JLabel("Protein names column:"), c.nextRow());
+		selectPanel.add(this.selectQuery, c.nextCol());
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
@@ -92,6 +96,7 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 
 		this.pack();
 		this.setLocationRelativeTo(ovConnectWindow);
+		this.setResizable(false);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -110,14 +115,19 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 				}
 			}
 		} else if(task.getClass().getSimpleName().equals("ProteinQueryTask")) {
-			this.ovConnectWindow.update(this.ovTable);
-			CyNetwork net = task.getResults(CyNetwork.class);
-			this.ovConnectWindow.setStringNetwork(net.toString(), (String)this.selectQuery.getSelectedItem());
+			this.retrievedNetwork = task.getResults(CyNetwork.class);
 		}
 	}
 
 	@Override
 	public void allFinished(FinishStatus finishStatus) {
+		try { // We try to wait that the TaskMonitor window closes
+			Thread.sleep(1500);
+		} catch(Exception e) {
+			// Do nothing
+		}
+		this.ovConnectWindow.update(this.ovTable);
+		this.ovConnectWindow.setStringNetwork(this.retrievedNetwork.toString(), (String)this.selectQuery.getSelectedItem());
 	}
 
 	@Override
@@ -134,15 +144,16 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 			}
 			
 			// We set the arguments for the STRING command
+			String query = String.join(",", queryTerms);
+			Integer taxonID = ((OVSpecies) this.selectSpecies.getSelectedItem()).getTaxonID();
 			Map<String, Object> args = new HashMap<>();
-			args.put("query", String.join(",", queryTerms));
-			args.put("taxonID", ((OVSpecies) this.selectSpecies.getSelectedItem()).getTaxonID());
+			args.put("query", query);
+			args.put("taxonID", taxonID);
 			
 			// We call the STRING command
-			CommandExecutorTaskFactory commandExecutorTaskFactory = this.ovManager.getService(CommandExecutorTaskFactory.class);
-			StringCommandTaskFactory factory = new StringCommandTaskFactory(commandExecutorTaskFactory, OVShared.STRING_CMD_PROTEIN_QUERY, args, this);
+			StringCommandTaskFactory factory = new StringCommandTaskFactory(this.ovManager, OVShared.STRING_CMD_PROTEIN_QUERY, args, this);
 			TaskIterator ti = factory.createTaskIterator();
-			this.ovManager.executeTask(ti);
+			this.ovManager.executeTask(ti, this);
 			
 			// The task is executed in background, we don't want the window to be displayed
 			this.setVisible(false);

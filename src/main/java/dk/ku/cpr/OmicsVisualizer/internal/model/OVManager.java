@@ -20,10 +20,10 @@ import org.cytoscape.session.events.SessionAboutToBeSavedEvent;
 import org.cytoscape.session.events.SessionAboutToBeSavedListener;
 import org.cytoscape.session.events.SessionLoadedEvent;
 import org.cytoscape.session.events.SessionLoadedListener;
-import org.cytoscape.work.AbstractTaskManager;
 import org.cytoscape.work.SynchronousTaskManager;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskManager;
+import org.cytoscape.work.TaskObserver;
 
 import dk.ku.cpr.OmicsVisualizer.internal.tableimport.task.ShowOVPanelTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
@@ -230,10 +230,13 @@ public class OVManager
 		SynchronousTaskManager<?> taskM = this.serviceRegistrar.getService(SynchronousTaskManager.class);
 		taskM.execute(ti);
 	}
-	
-	public void executeTask(TaskIterator ti) {
+
+	public void executeTask(TaskIterator ti, TaskObserver to) {
 		TaskManager<?, ?> taskM = this.serviceRegistrar.getService(TaskManager.class);
-		taskM.execute(ti);
+		taskM.execute(ti, to);
+	}
+	public void executeTask(TaskIterator ti) {
+		this.executeTask(ti, null);
 	}
 
 	@Override

@@ -8,21 +8,26 @@ import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.TaskObserver;
 
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 
 public class StringCommandTask extends AbstractTask {
 	
-	private final CommandExecutorTaskFactory commandExecutorTaskFactory;
+	private final OVManager ovManager;
 	private final String command;
 	private final Map<String, Object> args;
 	private final TaskObserver taskObserver;
 
-	public StringCommandTask(CommandExecutorTaskFactory commandExecutorTaskFactory, String command, Map<String, Object> args, TaskObserver taskObserver) {
+	public StringCommandTask(OVManager ovManager, String command, Map<String, Object> args, TaskObserver taskObserver) {
 		super();
-		this.commandExecutorTaskFactory = commandExecutorTaskFactory;
+		this.ovManager = ovManager;
 		this.command = command;
 		this.args=args;
 		this.taskObserver=taskObserver;
+	}
+	
+	public String toString() {
+		return "STRING \""+this.command+"\" command";
 	}
 
 	@Override
@@ -35,7 +40,8 @@ public class StringCommandTask extends AbstractTask {
 		}
 		taskMonitor.setTitle(title);
 		
-		TaskIterator task = commandExecutorTaskFactory.createTaskIterator("string", command, args, this.taskObserver);
+		CommandExecutorTaskFactory commandExecutorTaskFactory = this.ovManager.getService(CommandExecutorTaskFactory.class);
+		TaskIterator task = commandExecutorTaskFactory.createTaskIterator("string", this.command, this.args, this.taskObserver);
 		insertTasksAfterCurrentTask(task);
 	}
 }
