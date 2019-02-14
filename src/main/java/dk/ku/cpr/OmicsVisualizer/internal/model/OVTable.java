@@ -283,40 +283,23 @@ public class OVTable {
 			this.setTableProperty(col, savedValue);
 			index += 1;
 		}
-		
-		if(this.isConnected()) {
-			String linkedNames="";
-			String mappingsCyOV="";
-			String mappingsOVCy="";
-			
-			for(OVConnection con : this.getConnections()) {
-				linkedNames += "," + con.getNetwork().toString();
-				mappingsCyOV += "," + con.getMappingColCyto();
-				mappingsOVCy += "," + con.getMappingColOVTable();
-			}
-			
-			// We get rid of the first comma
-			linkedNames = linkedNames.substring(1);
-			mappingsCyOV = mappingsCyOV.substring(1);
-			mappingsOVCy = mappingsOVCy.substring(1);
-
-			this.setTableProperty(OVShared.PROPERTY_LINKED_NETWORK, linkedNames);
-			this.setTableProperty(OVShared.PROPERTY_MAPPING_CY_OV, mappingsCyOV);
-			this.setTableProperty(OVShared.PROPERTY_MAPPING_OV_CY, mappingsOVCy);
-		}
 	}
 	
 	public void load() {
-		String linkedName = this.getTableProperty(OVShared.PROPERTY_LINKED_NETWORK, "");
-		String mappingCyOV = this.getTableProperty(OVShared.PROPERTY_MAPPING_CY_OV, "");
-		String mappingOVCy = this.getTableProperty(OVShared.PROPERTY_MAPPING_OV_CY, "");
-		
-		String linkedNames[] = linkedName.split(",");
-		String mappingsCyOV[] = mappingCyOV.split(",");
-		String mappingsOVCy[] = mappingOVCy.split(",");
-		
-		for(int i=0; i<linkedNames.length; ++i) {
-			this.connect(linkedNames[i], mappingsCyOV[i], mappingsOVCy[i]);
+		// We look for connected networks
+		for(CyNetwork net : this.ovManager.getNetworkManager().getNetworkSet()) {
+			CyTable netTable = net.getDefaultNetworkTable();
+			
+			if(netTable.getColumn(OVShared.CYNETWORKTABLE_OVCOL) != null) {
+				String link = netTable.getRow(net.getSUID()).get(OVShared.CYNETWORKTABLE_OVCOL, String.class);
+				if(link != null && !link.isEmpty()) {
+					String splittedLink[] = link.split(",");
+					
+					if(splittedLink.length == 3 && splittedLink[0].equals(this.getTitle())) {
+						this.connect(net.toString(), splittedLink[1], splittedLink[2]);
+					}
+				}
+			}
 		}
 	}
 	

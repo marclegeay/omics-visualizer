@@ -15,9 +15,9 @@ public class OVShared {
 
 	public static final String CYPROPERTY_NAME = "OmicsVisualizer";
 	
-	public static final String PROPERTY_LINKED_NETWORK = OV_PREFIX+"linked_network";
-	public static final String PROPERTY_MAPPING_OV_CY = OV_PREFIX+"OV_to_CyNetwork";
-	public static final String PROPERTY_MAPPING_CY_OV = OV_PREFIX+"CyNetwork_to_OV";
+//	public static final String PROPERTY_LINKED_NETWORK = OV_PREFIX+"linked_network";
+//	public static final String PROPERTY_MAPPING_OV_CY = OV_PREFIX+"OV_to_CyNetwork";
+//	public static final String PROPERTY_MAPPING_CY_OV = OV_PREFIX+"CyNetwork_to_OV";
 	
 	public static final String CYNETWORKTABLE_OVCOL = "OVTable";
 
