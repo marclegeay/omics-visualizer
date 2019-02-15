@@ -97,6 +97,13 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 		this.pack();
 		this.setLocationRelativeTo(ovConnectWindow);
 		this.setResizable(false);
+		this.setAlwaysOnTop(true);
+	}
+	
+	@Override
+	public void setVisible(boolean b) {
+		this.ovConnectWindow.setEnabled(!b);
+		super.setVisible(b);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -157,6 +164,8 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 			
 			// The task is executed in background, we don't want the window to be displayed
 			this.setVisible(false);
+			// We also hide the OVConnectWindow while the process is running
+			this.ovConnectWindow.setVisible(false);
 		}
 	}
 

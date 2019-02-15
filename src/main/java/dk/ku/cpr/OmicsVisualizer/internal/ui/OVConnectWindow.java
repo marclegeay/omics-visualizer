@@ -187,11 +187,15 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 		this.selectColTable.setSelectedItem(tableColName);
 		
 		this.setVisible(true);
-		this.toFront();
+		// So that we are sure that the JFrame is visible when the taskMonitor closes
+		this.setAlwaysOnTop(true);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		// If there is a change, we don't need the JFrame to be always on top
+		this.setAlwaysOnTop(false);
+		
 		if(e.getSource() == this.selectNetwork) {
 			String netName = (String) this.selectNetwork.getSelectedItem();
 			
