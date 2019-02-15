@@ -18,14 +18,14 @@ import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.swing.GUITunableHandlerFactory;
 import org.osgi.framework.BundleContext;
 
-import dk.ku.cpr.OmicsVisualizer.internal.io.read.OVTableReaderManager;
-import dk.ku.cpr.OmicsVisualizer.internal.io.read.OVTableReaderManagerImpl;
-import dk.ku.cpr.OmicsVisualizer.internal.loaddatatable.LoadOVTableFileTaskFactoryImpl;
+import dk.ku.cpr.OmicsVisualizer.external.io.read.OVTableReaderManager;
+import dk.ku.cpr.OmicsVisualizer.external.io.read.OVTableReaderManagerImpl;
+import dk.ku.cpr.OmicsVisualizer.external.loaddatatable.LoadOVTableFileTaskFactoryImpl;
+import dk.ku.cpr.OmicsVisualizer.external.tableimport.io.WildCardCyFileFilter;
+import dk.ku.cpr.OmicsVisualizer.external.tableimport.task.ImportAttributeOVTableReaderFactory;
+import dk.ku.cpr.OmicsVisualizer.external.tableimport.tunable.AttributeDoubleIDMappingParametersHandlerFactory;
+import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.ImportType;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
-import dk.ku.cpr.OmicsVisualizer.internal.tableimport.io.WildCardCyFileFilter;
-import dk.ku.cpr.OmicsVisualizer.internal.tableimport.task.ImportAttributeOVTableReaderFactory;
-import dk.ku.cpr.OmicsVisualizer.internal.tableimport.tunable.AttributeDoubleIDMappingParametersHandlerFactory;
-import dk.ku.cpr.OmicsVisualizer.internal.tableimport.util.ImportType;
 
 public class CyActivator extends AbstractCyActivator {
 

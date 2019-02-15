@@ -25,7 +25,7 @@ import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskManager;
 import org.cytoscape.work.TaskObserver;
 
-import dk.ku.cpr.OmicsVisualizer.internal.tableimport.task.ShowOVPanelTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.ShowOVPanelTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
 
 public class OVManager

@@ -69,7 +69,7 @@
 						<Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
 						<Bundle-Version>${project.version}</Bundle-Version>
 						<Export-Package>!${bundle.namespace}.*</Export-Package>
-						<Private-Package>${bundle.namespace}.*</Private-Package>
+						<Private-Package>${bundle.namespace}.*,${bundle.symbolicName}.external.*</Private-Package>
 						<Bundle-Activator>${bundle.namespace}.CyActivator</Bundle-Activator>
 						<Embed-Dependency>gson</Embed-Dependency>
 						<Embed-Dependency>poi|poi-ooxml|poi-ooxml-schemas|ooxml-schemas;groupId=org.apache.poi;inline=false</Embed-Dependency>
