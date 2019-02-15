@@ -233,6 +233,11 @@ public final class TypeUtil {
 				
 				if (val == null || val.isEmpty() || val.equals("null"))
 					continue;
+				
+				// Modification ML : An empty value does not give any clue
+				if(val.trim().isEmpty()) {
+					continue;
+				}
 
 				if (dt == TYPE_STRING || dt == TYPE_STRING_LIST) {
 					// If type detected as String, it can't be a number or boolean anymore...
@@ -288,6 +293,10 @@ public final class TypeUtil {
 				}
 			}
 			
+			// Modification ML : An empty col should be string by default
+			if(dt == null) {
+				dt = TYPE_STRING;
+			}
 			dataTypes[col] = dt;
 		}
 		
