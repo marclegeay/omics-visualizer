@@ -8,6 +8,8 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -29,7 +31,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 
 public class OVConnectWindow extends JFrame implements ActionListener {
 	private static final long serialVersionUID = -5328093228061621675L;
-	
+
 	private static final String CHOOSE ="--- Choose ---";
 	private static final String STRING_NETWORK = "--- Get a STRING Network ---";
 
@@ -73,12 +75,42 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 		this.connectButton.setEnabled(false);
 
 		this.setResizable(false);
+
+
+		// We make sure that the JFrame is always on top, only when Cytoscape is on top
+		JFrame me = this;
+		if(this.cytoPanel.getTopLevelAncestor() instanceof JFrame) {
+			JFrame ancestor = (JFrame)this.cytoPanel.getTopLevelAncestor();
+
+			ancestor.addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowDeactivated(WindowEvent e) {
+					super.windowDeactivated(e);
+
+					me.setAlwaysOnTop(false);
+				}
+
+				@Override
+				public void windowActivated(WindowEvent e) {
+					super.windowActivated(e);
+
+					me.setAlwaysOnTop(true);
+				}
+				
+				@Override
+				public void windowGainedFocus(WindowEvent e) {
+					super.windowGainedFocus(e);
+					
+					me.toFront();
+				}
+			});
+		}
 	}
 
 	public void update(OVTable ovTable) {
 		this.ovTable=ovTable;
 		this.setTitle("Connect " + ovTable.getTitle());
-		
+
 		this.setPreferredSize(null); // We want to recompute the size each time
 
 		// We don't want to trigger event when we make the list of networks
@@ -110,7 +142,7 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 
 		JPanel addPanel = new JPanel();
 		addPanel.setLayout(new GridBagLayout());
-		
+
 		MyGridBagConstraints c = new MyGridBagConstraints();
 		c.expandHorizontal();
 
@@ -130,7 +162,7 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 		JLabel addLabel = new JLabel("Add a new connection");
 		Font fontLabel = new Font("Title Font", addLabel.getFont().getStyle(), (int) (addLabel.getFont().getSize()*1.3));
 		addLabel.setFont(fontLabel);
-		
+
 		addNetworkPanel.add(addLabel, BorderLayout.NORTH);
 		addNetworkPanel.add(addPanel, BorderLayout.CENTER);
 		addNetworkPanel.add(addButtonPanel, BorderLayout.SOUTH);
@@ -157,7 +189,7 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 
 			listNetworkPanel.add(scrollList, BorderLayout.CENTER);
 		}
-		
+
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
 		buttonPanel.add(this.closeButton);
@@ -179,13 +211,13 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 		this.pack(); // We recompute the size with the new preferences
 		this.setLocationRelativeTo(this.cytoPanel.getTopLevelAncestor()); // We center the Frame according to the Cytoscape window
 	}
-	
+
 	public void setStringNetwork(String netName, String tableColName) {
 		this.selectNetwork.setSelectedItem(netName);
-		
+
 		this.selectColNetwork.setSelectedItem("display name");
 		this.selectColTable.setSelectedItem(tableColName);
-		
+
 		this.setVisible(true);
 		// So that we are sure that the JFrame is visible when the taskMonitor closes
 		this.setAlwaysOnTop(true);
@@ -195,10 +227,10 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		// If there is a change, we don't need the JFrame to be always on top
 		this.setAlwaysOnTop(false);
-		
+
 		if(e.getSource() == this.selectNetwork) {
 			String netName = (String) this.selectNetwork.getSelectedItem();
-			
+
 			if(netName.equals(STRING_NETWORK)) {
 				OVRetrieveStringNetworkWindow retrieveString = new OVRetrieveStringNetworkWindow(this.ovManager, this, this.ovTable);
 				retrieveString.setVisible(true);
@@ -211,7 +243,7 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 					net=cyNet;
 				}
 			}
-			
+
 			OVConnection ovCon = this.ovManager.getConnection(net);
 			if(ovCon != null) {
 				JOptionPane.showMessageDialog(null,
@@ -236,7 +268,7 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 			}
 		} else if (e.getSource() == this.connectButton && this.connectButton.isEnabled()) {
 			String netName = (String) this.selectNetwork.getSelectedItem();
-			
+
 			int response = JOptionPane.OK_OPTION;
 			OVConnection ovCon = this.ovManager.getConnection(netName);
 			if(ovCon != null) {
@@ -244,12 +276,12 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 						"This network is already connected to \""+ovCon.getOVTable().getTitle()+"\". You will disconnect this table if you continue.",
 						"Disconnection warning",
 						JOptionPane.OK_CANCEL_OPTION);
-				
+
 				if(response == JOptionPane.OK_OPTION) {
 					ovCon.disconnect();
 				}
 			}
-			
+
 			if(response != JOptionPane.OK_OPTION) {
 				return;
 			}

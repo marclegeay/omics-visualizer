@@ -5,6 +5,8 @@ import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -41,7 +43,7 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 	private JComboBox<String> selectQuery;
 
 	private JButton retrieveButton;
-	
+
 	private CyNetwork retrievedNetwork;
 
 	public OVRetrieveStringNetworkWindow(OVManager ovManager, OVConnectWindow ovConnectWindow, OVTable ovTable) {
@@ -67,6 +69,31 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 		this.ovManager.executeSynchronousTask(ti);
 
 		this.init();
+
+		// We make sure that when the Connect Window is activated, this window will always be on top
+		JFrame me = this;
+		this.ovConnectWindow.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowDeactivated(WindowEvent e) {
+				super.windowDeactivated(e);
+
+				me.setAlwaysOnTop(false);
+			}
+
+			@Override
+			public void windowActivated(WindowEvent e) {
+				super.windowActivated(e);
+
+				me.setAlwaysOnTop(true);
+			}
+			
+			@Override
+			public void windowGainedFocus(WindowEvent e) {
+				super.windowGainedFocus(e);
+				
+				me.toFront();
+			}
+		});
 	}
 
 	public void init() {
@@ -99,7 +126,7 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 		this.setResizable(false);
 		this.setAlwaysOnTop(true);
 	}
-	
+
 	@Override
 	public void setVisible(boolean b) {
 		this.ovConnectWindow.setEnabled(!b);
@@ -115,7 +142,7 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 			for(Map<String,String> r : res) {
 				OVSpecies species = new OVSpecies(r);
 				this.selectSpecies.addItem(species);
-				
+
 				//We select Human as default
 				if(species.abbreviatedName.equals("Homo sapiens")) {
 					this.selectSpecies.setSelectedItem(species);
@@ -143,25 +170,25 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 			// We identify the query column
 			String queryCol = (String) this.selectQuery.getSelectedItem();
 			Class<?> colType = this.ovTable.getColType(queryCol);
-			
+
 			// We retrieve the list for the query
 			Set<String> queryTerms = new HashSet<>();
 			for(CyRow row : this.ovTable.getCyTable().getAllRows()) {
 				queryTerms.add(row.get(queryCol, colType).toString());
 			}
-			
+
 			// We set the arguments for the STRING command
 			String query = String.join(",", queryTerms);
 			Integer taxonID = ((OVSpecies) this.selectSpecies.getSelectedItem()).getTaxonID();
 			Map<String, Object> args = new HashMap<>();
 			args.put("query", query);
 			args.put("taxonID", taxonID);
-			
+
 			// We call the STRING command
 			StringCommandTaskFactory factory = new StringCommandTaskFactory(this.ovManager, OVShared.STRING_CMD_PROTEIN_QUERY, args, this);
 			TaskIterator ti = factory.createTaskIterator();
 			this.ovManager.executeTask(ti, this);
-			
+
 			// The task is executed in background, we don't want the window to be displayed
 			this.setVisible(false);
 			// We also hide the OVConnectWindow while the process is running

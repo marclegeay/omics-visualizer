@@ -75,22 +75,7 @@ public class OVTable {
 		return this.getConnection(net) != null;
 	}
 	
-	/*
-	private void addLink(CyRow networkNode, CyRow tableRow) {
-		if(!this.node2table.containsKey(networkNode)) {
-			this.node2table.put(networkNode, new ArrayList<>());
-		}
-		
-		List<CyRow> tableRows = this.node2table.get(networkNode);
-		tableRows.add(tableRow);
-	}
-	
-	public List<CyRow> getLinkedRows(CyRow networkNode) {
-		return this.node2table.get(networkNode);
-	}
-	*/
-	
-	public void connect(String netName, String mappingColCyto, String mappingColOVTable) {
+	public OVConnection connect(String netName, String mappingColCyto, String mappingColOVTable) {
 		CyNetwork linkedNetwork=null;
 		
 		for(CyNetwork net : this.ovManager.getNetworkManager().getNetworkSet()) {
@@ -100,7 +85,7 @@ public class OVTable {
 		}
 		
 		if(linkedNetwork == null) {
-			return;
+			return null;
 		}
 		
 		OVConnection con = this.getConnection(linkedNetwork);
@@ -110,6 +95,8 @@ public class OVTable {
 				con = new OVConnection(this.ovManager, this, linkedNetwork, mappingColCyto, mappingColOVTable);
 			}
 		}
+		
+		return con;
 	}
 	
 	public void disconnectAll() {
@@ -291,12 +278,21 @@ public class OVTable {
 			CyTable netTable = net.getDefaultNetworkTable();
 			
 			if(netTable.getColumn(OVShared.CYNETWORKTABLE_OVCOL) != null) {
+				// We found a connected network
 				String link = netTable.getRow(net.getSUID()).get(OVShared.CYNETWORKTABLE_OVCOL, String.class);
 				if(link != null && !link.isEmpty()) {
 					String splittedLink[] = link.split(",");
 					
 					if(splittedLink.length == 3 && splittedLink[0].equals(this.getTitle())) {
-						this.connect(net.toString(), splittedLink[1], splittedLink[2]);
+						OVConnection ovCon = this.connect(net.toString(), splittedLink[1], splittedLink[2]);
+						
+						// We try to load the Style
+						if(ovCon != null && netTable.getColumn(OVShared.CYNETWORKTABLE_STYLECOL) != null) {
+							String style = netTable.getRow(net.getSUID()).get(OVShared.CYNETWORKTABLE_STYLECOL, String.class);
+							if(style != null && !style.isEmpty()) {
+								ovCon.setStyle(OVStyle.load(style));
+							}
+						}
 					}
 				}
 			}

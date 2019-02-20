@@ -1,9 +1,24 @@
 package dk.ku.cpr.OmicsVisualizer.internal.ui;
 
 import java.awt.GridBagConstraints;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MyGridBagConstraints extends GridBagConstraints {
 	private static final long serialVersionUID = 8741125344034643901L;
+	
+	static Map<String, Integer> anchors = new HashMap<>();
+	static {
+		anchors.put("NW",	FIRST_LINE_START);
+		anchors.put("N",	PAGE_START);
+		anchors.put("NE",	FIRST_LINE_END);
+		anchors.put("W",	LINE_START);
+		anchors.put("C",	CENTER);
+		anchors.put("E",	LINE_END);
+		anchors.put("SW",	LAST_LINE_START);
+		anchors.put("S",	PAGE_END);
+		anchors.put("W",	LAST_LINE_END);
+	}
 	
 	public MyGridBagConstraints() {
 		reset();
@@ -60,6 +75,26 @@ public class MyGridBagConstraints extends GridBagConstraints {
 	public MyGridBagConstraints expandBoth() {
 		weightx=weighty=1.0;
 		fill=GridBagConstraints.BOTH;
+		
+		return this;
+	}
+	
+	public MyGridBagConstraints useNCols(int n) {
+		gridwidth=n;
+		
+		return this;
+	}
+	
+	public MyGridBagConstraints setAnchor(String direction) {
+		Integer anc = anchors.get(direction);
+		
+		anchor = (anc==null ? CENTER : anc);
+		
+		return this;
+	}
+	
+	public MyGridBagConstraints setInsets(int top, int left, int bottom, int right) {
+		insets.set(top, left, bottom, right);
 		
 		return this;
 	}

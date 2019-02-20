@@ -1,5 +1,6 @@
 package dk.ku.cpr.OmicsVisualizer.internal.model;
 
+import java.awt.Color;
 import java.util.Iterator;
 
 import org.cytoscape.model.CyColumn;
@@ -20,6 +21,7 @@ public class OVShared {
 //	public static final String PROPERTY_MAPPING_CY_OV = OV_PREFIX+"CyNetwork_to_OV";
 	
 	public static final String CYNETWORKTABLE_OVCOL = "OVTable";
+	public static final String CYNETWORKTABLE_STYLECOL="OVStyle";
 
 	public static final String CYNODETABLE_STYLECOL="OVStyle";
 	public static final String CYNODETABLE_STYLECOL_VALUES="OVStyle Values Circle ";
@@ -62,5 +64,9 @@ public class OVShared {
 				cyTable.deleteColumn(cycol.getName());
 			}
 		}
+	}
+	
+	public static String color2String(Color color) {
+		return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
 	}
 }

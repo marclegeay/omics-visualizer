@@ -20,6 +20,7 @@ public class OVConnection {
 	private String mappingColOVTable;
 	/** Map that associates the list of table rows with the network node */
 	private Map<CyRow, List<CyRow>> node2table;
+	private OVStyle ovStyle;
 
 	public OVConnection(OVManager ovManager, OVTable ovTable, CyNetwork network, String mappingColCyto, String mappingColOVTable) {
 		super();
@@ -29,6 +30,7 @@ public class OVConnection {
 		this.mappingColCyto = mappingColCyto;
 		this.mappingColOVTable = mappingColOVTable;
 		this.node2table = new HashMap<>();
+		this.ovStyle=null;
 		
 		// We register all OVConnection to the OVManager
 		this.ovManager.addConnection(this);
@@ -54,12 +56,39 @@ public class OVConnection {
 		return mappingColCyto;
 	}
 	
+	public List<CyRow> getLinkedRows(CyRow netRow) {
+		List<CyRow> list = this.node2table.get(netRow); 
+		return (list == null ? new ArrayList<>() : list);
+	}
+	
+	public void setStyle(OVStyle ovStyle) {
+		this.ovStyle=ovStyle;
+		this.updateStyle();
+	}
+	
+	public OVStyle getStyle() {
+		return this.ovStyle;
+	}
+	
 	private Object getKey(CyRow row, CyColumn keyCol) {
 		if(keyCol.getListElementType() == null) { // this is not a List element
 			return row.get(keyCol.getName(), keyCol.getType());
 		} else { // this is a list
 			return row.getList(keyCol.getName(), keyCol.getListElementType());
 		}
+	}
+	
+	public void updateStyle() {
+		String savedStyle = "";
+		if(this.ovStyle != null) {
+			savedStyle = this.ovStyle.save();
+		}
+		
+		CyTable networkTable = this.network.getDefaultNetworkTable();
+		if(networkTable.getColumn(OVShared.CYNETWORKTABLE_STYLECOL) == null) {
+			networkTable.createColumn(OVShared.CYNETWORKTABLE_STYLECOL, String.class, false);
+		}
+		networkTable.getRow(this.network.getSUID()).set(OVShared.CYNETWORKTABLE_STYLECOL, savedStyle);
 	}
 	
 	public void updateLinks() {
@@ -132,6 +161,9 @@ public class OVConnection {
 		CyTable networkTable = this.network.getDefaultNetworkTable();
 		if(networkTable.getColumn(OVShared.CYNETWORKTABLE_OVCOL) != null) {
 			networkTable.getRow(this.network.getSUID()).set(OVShared.CYNETWORKTABLE_OVCOL, "");
+		}
+		if(networkTable.getColumn(OVShared.CYNETWORKTABLE_STYLECOL) != null) {
+			networkTable.getRow(this.network.getSUID()).set(OVShared.CYNETWORKTABLE_STYLECOL, "");
 		}
 
 		// We delete the style columns in the node table
