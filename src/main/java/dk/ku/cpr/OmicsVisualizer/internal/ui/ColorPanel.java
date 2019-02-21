@@ -2,6 +2,7 @@ package dk.ku.cpr.OmicsVisualizer.internal.ui;
 
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Graphics;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -15,6 +16,7 @@ public class ColorPanel extends JPanel {
 		super();
 		this.setColor(color);
 		this.setBorder(BorderFactory.createLineBorder(parent.getBackground()));
+		this.setOpaque(false); // To display alpha-colors
 	}
 	
 	public ColorPanel(Container parent) {
@@ -28,5 +30,14 @@ public class ColorPanel extends JPanel {
 	
 	public Color getColor() {
 		return this.color;
+	}
+	
+	@Override
+	protected void paintComponent(Graphics g) {
+		// We paint ourself the background
+		g.setColor(this.getBackground());
+		g.fillRect(0, 0, this.getWidth(), this.getHeight());
+		
+		super.paintComponent(g);
 	}
 }

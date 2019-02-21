@@ -67,6 +67,6 @@ public class OVShared {
 	}
 	
 	public static String color2String(Color color) {
-		return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+		return String.format("#%02x%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
 	}
 }
