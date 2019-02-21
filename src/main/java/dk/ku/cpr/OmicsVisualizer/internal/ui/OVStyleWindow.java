@@ -9,6 +9,8 @@ import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -130,6 +132,36 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		this.displayPanel1();
 
 		this.setResizable(false);
+
+
+		// We make sure that the JFrame is always on top, only when Cytoscape is on top
+		JFrame me = this;
+		if(this.cytoPanel.getTopLevelAncestor() instanceof JFrame) {
+			JFrame ancestor = (JFrame)this.cytoPanel.getTopLevelAncestor();
+
+			ancestor.addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowDeactivated(WindowEvent e) {
+					super.windowDeactivated(e);
+
+					me.setAlwaysOnTop(false);
+				}
+
+				@Override
+				public void windowActivated(WindowEvent e) {
+					super.windowActivated(e);
+
+					me.setAlwaysOnTop(true);
+				}
+				
+				@Override
+				public void windowGainedFocus(WindowEvent e) {
+					super.windowGainedFocus(e);
+					
+					me.toFront();
+				}
+			});
+		}
 	}
 
 	private void displayPanel1() {
@@ -544,6 +576,9 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 	public void setVisible(boolean b) {
 		if(b && (this.ovTable == null || !this.ovTable.isConnected())) {
 			b=false;
+		}
+		if(!b) {
+			this.colorChooser.setVisible(false);
 		}
 		super.setVisible(b);
 	}

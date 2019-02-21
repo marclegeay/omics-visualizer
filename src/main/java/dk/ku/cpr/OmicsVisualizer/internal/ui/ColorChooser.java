@@ -46,7 +46,9 @@ public class ColorChooser extends JFrame implements ChangeListener, ActionListen
 			this.colorChooser.setColor(this.colorLabel.getColor());
 		}
 
-		this.setLocationRelativeTo(this.colorLabel);
+		// We try to align the JFrame with the label, and put the JFrame at the border of the Style Window
+		this.setLocationRelativeTo(this.colorLabel); // align the element on the Y basis
+		this.setLocation(this.colorLabel.getTopLevelAncestor().getX() + this.colorLabel.getTopLevelAncestor().getWidth(), this.getY());
 		this.setVisible(true);
 	}
 
