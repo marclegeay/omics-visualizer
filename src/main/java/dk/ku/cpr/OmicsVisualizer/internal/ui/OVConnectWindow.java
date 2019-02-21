@@ -20,6 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkManager;
@@ -232,6 +233,15 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 			String netName = (String) this.selectNetwork.getSelectedItem();
 
 			if(netName.equals(STRING_NETWORK)) {
+				
+				AvailableCommands availableCommands = (AvailableCommands) this.ovManager.getService(AvailableCommands.class);
+				if (!availableCommands.getNamespaces().contains("string")) {
+					JOptionPane.showMessageDialog(null,
+							"You need to install stringApp from the App Manager or Cytoscape App Store.",
+							"Dependency error", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
 				OVRetrieveStringNetworkWindow retrieveString = new OVRetrieveStringNetworkWindow(this.ovManager, this, this.ovTable);
 				retrieveString.setVisible(true);
 				return;
