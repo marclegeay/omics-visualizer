@@ -81,6 +81,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 	private Object[] discreteValues;
 	private JCheckBox transposeCheck;
 	private JButton backButton;
+	private JButton resetButton;
 	private JButton drawButton;
 
 	public OVStyleWindow(OVCytoPanel cytoPanel, OVManager ovManager) {
@@ -120,6 +121,9 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		// Panel 2
 		this.backButton = new JButton("< Back");
 		this.backButton.addActionListener(this);
+
+		this.resetButton = new JButton("Reset values");
+		this.resetButton.addActionListener(this);
 
 		this.drawButton = new JButton("Draw");
 		this.drawButton.addActionListener(this);
@@ -217,8 +221,8 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		this.pack();
 		this.setLocationRelativeTo(this.cytoPanel.getTopLevelAncestor());
 	}
-
-	private void displayPanel2() {
+	
+	private void displayPanel2(boolean reset) {
 		this.setPreferredSize(null); // We want to recompute the size each time
 
 		OVStyle ovStyle = null;
@@ -236,10 +240,11 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		this.transposeCheck.setSelected(false);
 
 		if(this.selectDiscreteContinuous.getSelectedItem() == OVStyleWindow.CONTINUOUS) {
-			double rangeMin, rangeMax; // enhancedGraphics uses double for ranges
+			double rangeMin=0.0, rangeMax=0.0; // enhancedGraphics uses double for ranges
 			Color colorMin, colorZero, colorMax;
 			colorMin = colorZero = colorMax = Color.BLACK;
 
+			boolean styleLoaded=false;
 			if(ovStyle != null && ovStyle.getColors() instanceof OVColorContinuous) {
 				// There is already a style applied for this, we simply load the information from it
 				OVColorContinuous colorStyle = (OVColorContinuous) ovStyle.getColors();
@@ -252,7 +257,12 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 				colorMax = colorStyle.getUp();
 				
 				this.transposeCheck.setSelected(ovStyle.isTranspose());
-			} else { // We don't have any information, we infer them from the data
+				
+				styleLoaded=true;
+			}
+			
+			if(reset || !styleLoaded) {
+				// We don't have any information, we infer them from the data
 				// We identify max and min value
 				// We can't compare two Number, so we have to do the same for the 3 types
 				if(valueType == Integer.class) {
@@ -367,7 +377,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		} else { // Discrete mapping
 			Set<Object> values = new HashSet<>();
 			
-			if(ovStyle != null && ovStyle.getColors() instanceof OVColorDiscrete) {
+			if(!reset && ovStyle != null && ovStyle.getColors() instanceof OVColorDiscrete) {
 				// There is already a style applied for this, we simply load the information from it
 				OVColorDiscrete colorStyle = (OVColorDiscrete) ovStyle.getColors();
 				
@@ -426,6 +436,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		buttonPanel.setLayout(new FlowLayout());
 
 		buttonPanel.add(this.backButton);
+		buttonPanel.add(this.resetButton);
 		buttonPanel.add(this.drawButton);
 
 		this.setContentPane(new JPanel());
@@ -501,12 +512,33 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 				&& this.ovManager.getConnection(currentNetwork).getOVTable().equals(ovTable)) {
 			this.selectNetwork.setSelectedItem(currentNetwork.toString());
 			this.selectCopyNetwork.setSelectedItem(currentNetwork.toString());
+			
+			if(this.selectNetwork.getSelectedIndex()==0) {
+				// Here it means that the ActionListener was not triggered
+				changedNetwork();
+			}
 		}
 
 		this.displayPanel1();
 
 		this.pack();
 		this.setLocationRelativeTo(this.cytoPanel.getTopLevelAncestor());
+	}
+	
+	private void changedNetwork() {
+		for(OVConnection ovCon : this.ovManager.getConnections(this.ovTable)) {
+			if(ovCon.getNetwork().toString().equals(this.selectNetwork.getSelectedItem())) {
+				this.ovCon = ovCon;
+
+				this.setTitle(this.ovTable, this.ovCon.getNetwork().toString());
+
+				this.updateStyle(this.ovCon.getStyle());
+				
+				this.selectValues.setTable(this.ovCon.getOVTable());
+				this.selectValues.setStyle(this.ovCon.getStyle());
+				break;
+			}
+		}
 	}
 
 	private void checkValueTypes() {
@@ -590,19 +622,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == this.selectNetwork) {
-			for(OVConnection ovCon : this.ovManager.getConnections(this.ovTable)) {
-				if(ovCon.getNetwork().toString().equals(this.selectNetwork.getSelectedItem())) {
-					this.ovCon = ovCon;
-
-					this.setTitle(this.ovTable, this.ovCon.getNetwork().toString());
-
-					this.updateStyle(this.ovCon.getStyle());
-					
-					this.selectValues.setTable(this.ovCon.getOVTable());
-					this.selectValues.setStyle(this.ovCon.getStyle());
-					break;
-				}
-			}
+			this.changedNetwork();
 		} else if(e.getSource() == this.copyButton) {
 			for(OVConnection ovCon : this.ovManager.getConnections(this.ovTable)) {
 				if(ovCon.getNetwork().toString().equals(this.selectCopyNetwork.getSelectedItem())) {
@@ -618,10 +638,19 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
+			
+			// We look if something has changed from the loaded style
+			// To know if we have to reset panel2 or not
+			boolean reset = false;
+			if(this.ovCon.getStyle() != null) {
+				reset = !ovCon.getStyle().getValues().equals(this.selectValues.getValues());
+			}
 
-			this.displayPanel2();
+			this.displayPanel2(reset);
 		} else if(e.getSource() == this.backButton) {
 			this.displayPanel1();
+		} else if(e.getSource() == this.resetButton) {
+			this.displayPanel2(true);
 		} else if(e.getSource() == this.drawButton) {
 			OVColor colors = null;
 
