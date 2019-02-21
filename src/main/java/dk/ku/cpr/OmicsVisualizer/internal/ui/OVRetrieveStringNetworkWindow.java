@@ -5,8 +5,8 @@ import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -72,25 +72,13 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 
 		// We make sure that when the Connect Window is activated, this window will always be on top
 		JFrame me = this;
-		this.ovConnectWindow.addWindowListener(new WindowAdapter() {
+		this.ovConnectWindow.addWindowFocusListener(new WindowFocusListener() {
 			@Override
-			public void windowDeactivated(WindowEvent e) {
-				super.windowDeactivated(e);
-
-				me.setAlwaysOnTop(false);
-			}
-
-			@Override
-			public void windowActivated(WindowEvent e) {
-				super.windowActivated(e);
-
-				me.setAlwaysOnTop(true);
+			public void windowLostFocus(WindowEvent e) {
 			}
 			
 			@Override
 			public void windowGainedFocus(WindowEvent e) {
-				super.windowGainedFocus(e);
-				
 				me.toFront();
 			}
 		});

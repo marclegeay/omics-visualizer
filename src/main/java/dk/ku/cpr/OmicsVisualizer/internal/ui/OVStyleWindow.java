@@ -574,12 +574,16 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 	@Override
 	public void setVisible(boolean b) {
+		// We disable the fact that the window can be visible if the table is not connected
 		if(b && (this.ovTable == null || !this.ovTable.isConnected())) {
 			b=false;
 		}
+		
+		// If we hide this window, the ColorChooser should be hidden also
 		if(!b) {
 			this.colorChooser.setVisible(false);
 		}
+		
 		super.setVisible(b);
 	}
 

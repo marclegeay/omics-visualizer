@@ -239,6 +239,8 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 					JOptionPane.showMessageDialog(null,
 							"You need to install stringApp from the App Manager or Cytoscape App Store.",
 							"Dependency error", JOptionPane.ERROR_MESSAGE);
+					
+					this.selectNetwork.setSelectedItem(OVConnectWindow.CHOOSE);
 					return;
 				}
 				

@@ -1,6 +1,8 @@
 package dk.ku.cpr.OmicsVisualizer.internal.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -16,21 +18,31 @@ public class ColorChooser extends JFrame implements ChangeListener, ActionListen
 
 	private JColorChooser colorChooser;
 	private JButton closeButton;
+	private JButton cancelButton;
 
 	private ColorPanel colorLabel;
+	private Color previousColor;
 
 	public ColorChooser() {
 		this.colorChooser = new JColorChooser();
 		this.colorChooser.getSelectionModel().addChangeListener(this);
 
-		this.closeButton = new JButton("Close");
+		this.closeButton = new JButton("OK");
 		this.closeButton.addActionListener(this);
+
+		this.cancelButton = new JButton("Cancel");
+		this.cancelButton.addActionListener(this);
 		
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());
 		
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new FlowLayout());
+		buttonPanel.add(this.closeButton);
+		buttonPanel.add(this.cancelButton);
+		
 		mainPanel.add(this.colorChooser, BorderLayout.CENTER);
-		mainPanel.add(this.closeButton, BorderLayout.SOUTH);
+		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 		
 		this.setContentPane(mainPanel);
 		
@@ -41,6 +53,7 @@ public class ColorChooser extends JFrame implements ChangeListener, ActionListen
 
 	public void show(ColorPanel colorLabel) {
 		this.colorLabel = colorLabel;
+		this.previousColor = this.colorLabel.getColor();
 		
 		if(this.colorLabel.getColor() != null) {
 			this.colorChooser.setColor(this.colorLabel.getColor());
@@ -55,6 +68,11 @@ public class ColorChooser extends JFrame implements ChangeListener, ActionListen
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == this.closeButton) {
+			this.setVisible(false);
+		} else if(e.getSource() == this.cancelButton) {
+			if(this.colorLabel != null) {
+				this.colorLabel.setColor(this.previousColor);
+			}
 			this.setVisible(false);
 		}
 	}
