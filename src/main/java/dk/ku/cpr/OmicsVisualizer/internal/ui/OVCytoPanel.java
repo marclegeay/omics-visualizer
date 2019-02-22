@@ -17,6 +17,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -53,22 +54,27 @@ import org.cytoscape.application.swing.CytoPanelComponent;
 import org.cytoscape.application.swing.CytoPanelComponent2;
 import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.command.AvailableCommands;
+import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyNetworkManager;
+import org.cytoscape.model.CyRow;
+import org.cytoscape.model.events.RowSetRecord;
 import org.cytoscape.model.events.RowsSetEvent;
 import org.cytoscape.model.events.RowsSetListener;
 import org.cytoscape.task.destroy.DeleteTableTaskFactory;
 import org.cytoscape.util.swing.IconManager;
 import org.cytoscape.work.swing.DialogTaskManager;
 
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.ViewUtil;
 
 public class OVCytoPanel extends JPanel
-	implements CytoPanelComponent2,
-		ActionListener,
-		PopupMenuListener,
-		RowsSetListener {
+implements CytoPanelComponent2,
+ActionListener,
+PopupMenuListener,
+RowsSetListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -78,38 +84,38 @@ public class OVCytoPanel extends JPanel
 	private JScrollPane scrollPane;
 	private OVTableModel mainTableModel;
 	private final Font iconFont;
-	
+
 	private IconManager iconManager;
 
 	private GlobalTableChooser tableChooser;
-	
+
 	private JButton selectButton;
 	private JButton deleteTableButton;
 	private JButton connectButton;
 	private JButton styleButton;
-	
+
 	private JPopupMenu columnSelectorPopupMenu;
 	private CyColumnSelector columnSelector;
-	
+
 	private OVConnectWindow connectWindow;
 	private OVStyleWindow styleWindow;
-	
+
 	private JPanel toolBarPanel;
 	private SequentialGroup hToolBarGroup;
 	private ParallelGroup vToolBarGroup;
-	
+
 	private OVTable displayedTable;
-	
+
 	private final  float ICON_FONT_SIZE = 22.0f;
 
 	public OVCytoPanel(OVManager ovManager) {
 		this.setLayout(new BorderLayout());
 		this.ovManager=ovManager;
 		this.ovManager.setOVCytoPanel(this);
-		
+
 		iconManager = this.ovManager.getServiceRegistrar().getService(IconManager.class);
 		iconFont = iconManager.getIconFont(ICON_FONT_SIZE);
-		
+
 		tableChooser = new GlobalTableChooser();
 		tableChooser.addActionListener(this);
 		final Dimension d = new Dimension(400, tableChooser.getPreferredSize().height);
@@ -117,15 +123,15 @@ public class OVCytoPanel extends JPanel
 		tableChooser.setMinimumSize(d);
 		tableChooser.setPreferredSize(d);
 		tableChooser.setSize(d);
-		
+
 		GlobalTableComboBoxModel tcModel = (GlobalTableComboBoxModel)tableChooser.getModel();
 		for(OVTable table : ovManager.getOVTables()) {
 			tcModel.addAndSetSelectedItem(table);
 		}
-		
+
 		initPanel(null);
 	}
-	
+
 	public void reload() {
 		tableChooser = new GlobalTableChooser();
 		tableChooser.addActionListener(this);
@@ -134,21 +140,21 @@ public class OVCytoPanel extends JPanel
 		tableChooser.setMinimumSize(d);
 		tableChooser.setPreferredSize(d);
 		tableChooser.setSize(d);
-		
+
 		GlobalTableComboBoxModel tcModel = (GlobalTableComboBoxModel)tableChooser.getModel();
 		for(OVTable table : ovManager.getOVTables()) {
 			tcModel.addAndSetSelectedItem(table);
 		}
-		
+
 		initPanel(null);
 	}
 
 	private OVTable getLastAddedTable() {
 		List<OVTable> ovTables = this.ovManager.getOVTables();
-		
+
 		if(ovTables.size() == 0)
 			return null;
-		
+
 		return ovTables.get(ovTables.size()-1);
 	}
 
@@ -167,17 +173,17 @@ public class OVCytoPanel extends JPanel
 	public String getTitle() {
 		return "Omics Visualizer Table";
 	}
-	
+
 	public Icon getIcon() {
 		return null;
 	}
 
 	public OVTableModel getTableModel() { return mainTableModel; }
-	
+
 	public void addToolBarComponent(final JComponent component, final ComponentPlacement placement) {
 		if (placement != null)
 			hToolBarGroup.addPreferredGap(placement);
-		
+
 		hToolBarGroup.addComponent(component);
 		vToolBarGroup.addComponent(component, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE);
 	}
@@ -187,16 +193,16 @@ public class OVCytoPanel extends JPanel
 		btn.setBorder(null);
 		btn.setContentAreaFilled(false);
 		btn.setBorderPainted(false);
-		
+
 		int w = 32, h = 32;
-		
+
 		if (tableChooser != null)
 			h = Math.max(h, tableChooser.getPreferredSize().height);
-		
+
 		btn.setMinimumSize(new Dimension(w, h));
 		btn.setPreferredSize(new Dimension(w, h));
 	}
-	
+
 	private JPopupMenu getColumnSelectorPopupMenu() {
 		if (columnSelectorPopupMenu == null) {
 			columnSelectorPopupMenu = new JPopupMenu();
@@ -214,41 +220,47 @@ public class OVCytoPanel extends JPanel
 
 		return columnSelectorPopupMenu;
 	}
-	
+
 	private CyColumnSelector getColumnSelector() {
 		if (columnSelector == null) {
 			IconManager iconManager = ovManager.getService(IconManager.class);
 			CyColumnPresentationManager presentationManager = ovManager.getService(CyColumnPresentationManager.class);
 			columnSelector = new CyColumnSelector(iconManager, presentationManager);
 		}
-		
+
 		return columnSelector;
 	}
-	
+
 	private OVConnectWindow getConnectWindow() {
 		if(this.connectWindow == null) {
 			this.connectWindow = new OVConnectWindow(this, this.ovManager);
 		}
-		
+
 		return this.connectWindow;
 	}
-	
+
 	private OVStyleWindow getStyleWindow() {
 		if(this.styleWindow == null) {
 			this.styleWindow = new OVStyleWindow(this, this.ovManager);
 		}
-		
+
 		return this.styleWindow;
 	}
 
 	public void initPanel(OVTable ovTable) {
 		this.removeAll();
+		if(this.connectWindow != null) {
+			this.connectWindow.setVisible(false);
+		}
+		if(this.styleWindow != null) {
+			this.styleWindow.setVisible(false);
+		}
 
 		if(ovTable==null) {
 			ovTable = this.getLastAddedTable();
 		}
 		this.displayedTable = ovTable;
-		
+
 		JTable currentTable=ovTable.getJTable();
 
 		JToolBar toolBar = new JToolBar();
@@ -260,11 +272,11 @@ public class OVCytoPanel extends JPanel
 		toolBar.setLayout(layout);
 		hToolBarGroup = layout.createSequentialGroup();
 		vToolBarGroup = layout.createParallelGroup(Alignment.CENTER, false);
-		
+
 		// Layout information.
 		layout.setHorizontalGroup(layout.createParallelGroup(Alignment.LEADING).addGroup(hToolBarGroup));
 		layout.setVerticalGroup(vToolBarGroup);
-		
+
 		if (selectButton == null) {
 			selectButton = new JButton(ICON_COLUMNS);
 			selectButton.setToolTipText("Show Columns");
@@ -283,7 +295,7 @@ public class OVCytoPanel extends JPanel
 			deleteTableButton = new JButton(ICON_TABLE + "" + ICON_TIMES_CIRCLE);
 			deleteTableButton.setToolTipText("Delete Table...");
 			styleButton(deleteTableButton, iconManager.getIconFont(ICON_FONT_SIZE / 2.0f));
-			
+
 			// Create pop-up window for deletion
 			deleteTableButton.addActionListener(e -> removeTable());
 		}
@@ -291,7 +303,7 @@ public class OVCytoPanel extends JPanel
 			connectButton = new JButton(ICON_LINK);
 			connectButton.setToolTipText("Manage table connections...");
 			styleButton(connectButton, iconFont);
-			
+
 			connectButton.addActionListener(e -> {
 				if(this.displayedTable != null) {
 					this.getConnectWindow().update(this.displayedTable);
@@ -303,11 +315,11 @@ public class OVCytoPanel extends JPanel
 			styleButton = new JButton(IconManager.ICON_PAINT_BRUSH);
 			styleButton.setToolTipText("Apply style to the connected networks...");
 			styleButton(styleButton, iconFont);
-			
+
 			styleButton.addActionListener(e -> {
 				if(this.displayedTable != null && this.displayedTable.isConnected()) {
-//					resetCharts();
-					
+					//					resetCharts();
+
 					AvailableCommands availableCommands = (AvailableCommands) this.ovManager.getService(AvailableCommands.class);
 					if (!availableCommands.getNamespaces().contains("enhancedGraphics")) {
 						JOptionPane.showMessageDialog(null,
@@ -322,31 +334,31 @@ public class OVCytoPanel extends JPanel
 			});
 		}
 		styleButton.setEnabled(this.displayedTable != null && this.displayedTable.isConnected());
-		
+
 		addToolBarComponent(selectButton, ComponentPlacement.RELATED);
 		addToolBarComponent(deleteTableButton, ComponentPlacement.RELATED);
 		addToolBarComponent(connectButton, ComponentPlacement.RELATED);
 		addToolBarComponent(styleButton, ComponentPlacement.RELATED);
-		
+
 		toolBarPanel = new JPanel();
 		toolBarPanel.setLayout(new BorderLayout());
 		toolBarPanel.add(toolBar, BorderLayout.CENTER);
-		
+
 		if (tableChooser != null) {
 			hToolBarGroup.addGap(0, 20, Short.MAX_VALUE);
 			addToolBarComponent(tableChooser, ComponentPlacement.UNRELATED);
 		}
-		
+
 		// System.out.println("show table: " + showTable);
 		scrollPane = new JScrollPane(currentTable);
-		
+
 		this.setLayout(new BorderLayout());
 		this.add(scrollPane, BorderLayout.CENTER);
 		this.add(toolBarPanel, BorderLayout.NORTH);
-		
+
 		final GlobalTableComboBoxModel comboBoxModel = (GlobalTableComboBoxModel) tableChooser.getModel();
 		comboBoxModel.addAndSetSelectedItem(ovTable);
-		
+
 		this.mainTable = currentTable;
 		this.mainTableModel = (OVTableModel)this.mainTable.getModel();
 
@@ -357,38 +369,38 @@ public class OVCytoPanel extends JPanel
 	public void update() {
 		this.initPanel(this.displayedTable);
 	}
-	
+
 	private void removeTable() {
-			final OVTable table = this.displayedTable;
+		final OVTable table = this.displayedTable;
 
-			String title = "Please confirm this action";
-			String msg = "Are you sure you want to delete this table?";
-			int confirmValue = JOptionPane.showConfirmDialog(this, msg, title, JOptionPane.YES_NO_OPTION,
-					JOptionPane.QUESTION_MESSAGE);
+		String title = "Please confirm this action";
+		String msg = "Are you sure you want to delete this table?";
+		int confirmValue = JOptionPane.showConfirmDialog(this, msg, title, JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE);
 
-			// if user selects yes delete the table
-			if (confirmValue == JOptionPane.OK_OPTION) {
-				table.disconnectAll();
-				
-				final DialogTaskManager taskMgr = ovManager.getService(DialogTaskManager.class);
-				final DeleteTableTaskFactory deleteTableTaskFactory =
-						ovManager.getService(DeleteTableTaskFactory.class);
-				
-				taskMgr.execute(deleteTableTaskFactory.createTaskIterator(table.getCyTable()));
-				removeTable(table);
-			}
+		// if user selects yes delete the table
+		if (confirmValue == JOptionPane.OK_OPTION) {
+			table.disconnectAll();
+
+			final DialogTaskManager taskMgr = ovManager.getService(DialogTaskManager.class);
+			final DeleteTableTaskFactory deleteTableTaskFactory =
+					ovManager.getService(DeleteTableTaskFactory.class);
+
+			taskMgr.execute(deleteTableTaskFactory.createTaskIterator(table.getCyTable()));
+			removeTable(table);
 		}
-	
+	}
+
 	private void removeTable(OVTable ovTable) {
 		this.ovManager.removeOVTable(ovTable);
-		
+
 		final GlobalTableComboBoxModel comboBoxModel = (GlobalTableComboBoxModel) tableChooser.getModel();
 		comboBoxModel.removeItem(ovTable);
-		
+
 		if(this.ovManager.getOVTables().size() == 0) {
 			// No more Omics Visualizer tables, we unregister the panel
 			this.ovManager.unregisterService(this, CytoPanelComponent.class);
-//			this.ovManager.unregisterService(this, RowsSetListener.class);
+			//			this.ovManager.unregisterService(this, RowsSetListener.class);
 		} else {
 			initPanel(null);
 		}
@@ -397,12 +409,12 @@ public class OVCytoPanel extends JPanel
 	@Override
 	public void actionPerformed(final ActionEvent e) {
 		final OVTable table = (OVTable) tableChooser.getSelectedItem();
-		
+
 		if (table == displayedTable || table == null)
 			return;
 
-//		serviceRegistrar.getService(CyApplicationManager.class).setCurrentTable(table);
-//		showSelectedTable();
+		//		serviceRegistrar.getService(CyApplicationManager.class).setCurrentTable(table);
+		//		showSelectedTable();
 		initPanel(table);
 	}
 
@@ -411,7 +423,7 @@ public class OVCytoPanel extends JPanel
 	private class GlobalTableChooser extends JComboBox<OVTable> {
 
 		private final Map<OVTable, String> tableToStringMap;
-		
+
 		GlobalTableChooser() {
 			tableToStringMap = new HashMap<>();
 			setModel(new GlobalTableComboBoxModel(tableToStringMap));
@@ -440,7 +452,7 @@ public class OVCytoPanel extends JPanel
 
 		private void updateTableToStringMap() {
 			tableToStringMap.clear();
-			
+
 			for (final OVTable table : tables)
 				tableToStringMap.put(table, table.getTitle());
 		}
@@ -472,7 +484,7 @@ public class OVCytoPanel extends JPanel
 		void removeItem(final OVTable deletedTable) {
 			if (tables.contains(deletedTable)) {
 				tables.remove(deletedTable);
-				
+
 				if (tables.size() > 0) {
 					Collections.sort(tables, tableComparator);
 					setSelectedItem(tables.get(0));
@@ -482,12 +494,12 @@ public class OVCytoPanel extends JPanel
 			}
 		}
 	}
-	
+
 	@SuppressWarnings("serial")
 	private class TableChooserCellRenderer extends DefaultListCellRenderer {
-		
+
 		private final Map<OVTable, String> tableToStringMap;
-		
+
 		TableChooserCellRenderer(final Map<OVTable, String> tableToStringMap) {
 			this.tableToStringMap = tableToStringMap;
 		}
@@ -496,7 +508,7 @@ public class OVCytoPanel extends JPanel
 		public Component getListCellRendererComponent(final JList<?> list, final Object value,
 				final int index, final boolean isSelected, final boolean cellHasFocus) {
 			super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-			
+
 			if (isSelected) {
 				setBackground(list.getSelectionBackground());
 				setForeground(list.getSelectionForeground());
@@ -504,18 +516,18 @@ public class OVCytoPanel extends JPanel
 				setBackground(list.getBackground());
 				setForeground(list.getForeground());
 			}
-			
+
 			if (value instanceof OVTable == false) {
 				setText("-- No Table --");
 				return this;
 			}
-			
+
 			final OVTable table = (OVTable) value;
 			String label = tableToStringMap.get(table);
-			
+
 			if (label == null)
 				label = table == null ? "-- No Table --" : table.getTitle();
-			
+
 			setText(label);
 
 			return this;
@@ -526,7 +538,7 @@ public class OVCytoPanel extends JPanel
 	public void popupMenuCanceled(PopupMenuEvent e) {
 		// Do nothing
 	}
-	
+
 	@Override
 	public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
 		// Update actual table
@@ -534,7 +546,7 @@ public class OVCytoPanel extends JPanel
 			if(e.getSource()==this.columnSelectorPopupMenu) {
 				final Set<String> visibleAttributes = getColumnSelector().getSelectedColumnNames();
 				displayedTable.setVisibleColumns(visibleAttributes);
-//			updateEnableState();
+				//			updateEnableState();
 			}
 		} catch (Exception ex) {
 		}
@@ -547,7 +559,27 @@ public class OVCytoPanel extends JPanel
 
 	@Override
 	public void handleEvent(RowsSetEvent e) {
-		// TODO Auto-generated method stub
-		
+		CyNetworkManager networkManager = this.ovManager.getService(CyNetworkManager.class);
+		CyNetwork selectedNetwork = null;
+		if (e.containsColumn(CyNetwork.SELECTED)) {
+			Collection<RowSetRecord> columnRecords = e.getColumnRecords(CyNetwork.SELECTED);
+			for (RowSetRecord rec : columnRecords) {
+				CyRow row = rec.getRow();
+				if (row.toString().indexOf("FACADE") >= 0)
+					continue;
+				Long networkID = row.get(CyNetwork.SUID, Long.class);
+				Boolean selectedValue = (Boolean) rec.getValue();
+				if (selectedValue && networkManager.networkExists(networkID)) {
+					selectedNetwork = networkManager.getNetwork(networkID);
+				}
+			}
+		}
+		if (selectedNetwork != null) {
+			OVConnection ovCon = this.ovManager.getConnection(selectedNetwork);
+			if(ovCon != null && !ovCon.getOVTable().equals(this.displayedTable)) {
+				this.initPanel(ovCon.getOVTable());
+			}
+			return;
+		}
 	}
 }

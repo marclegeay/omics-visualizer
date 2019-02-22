@@ -512,11 +512,10 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 				&& this.ovManager.getConnection(currentNetwork).getOVTable().equals(ovTable)) {
 			this.selectNetwork.setSelectedItem(currentNetwork.toString());
 			this.selectCopyNetwork.setSelectedItem(currentNetwork.toString());
-			
-			if(this.selectNetwork.getSelectedIndex()==0) {
-				// Here it means that the ActionListener was not triggered
-				changedNetwork();
-			}
+		}
+		if(this.selectNetwork.getSelectedIndex()==0) { // Here it means that the ActionListener was not triggered
+			// So we triger it
+			changedNetwork();
 		}
 
 		this.displayPanel1();
@@ -532,10 +531,18 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 				this.setTitle(this.ovTable, this.ovCon.getNetwork().toString());
 
+				this.selectCopyNetwork.setSelectedItem(this.ovCon.getNetwork().toString());
+				
 				this.updateStyle(this.ovCon.getStyle());
 				
 				this.selectValues.setTable(this.ovCon.getOVTable());
 				this.selectValues.setStyle(this.ovCon.getStyle());
+				
+				// We change the network to the one selected
+				CyApplicationManager appManager = this.ovManager.getService(CyApplicationManager.class);
+				if(!appManager.getCurrentNetwork().equals(this.ovCon.getNetwork())) {
+					appManager.setCurrentNetwork(this.ovCon.getNetwork());
+				}
 				break;
 			}
 		}
