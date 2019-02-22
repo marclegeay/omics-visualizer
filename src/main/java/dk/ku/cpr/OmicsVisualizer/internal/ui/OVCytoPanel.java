@@ -249,16 +249,20 @@ RowsSetListener {
 
 	public void initPanel(OVTable ovTable) {
 		this.removeAll();
-		if(this.connectWindow != null) {
-			this.connectWindow.setVisible(false);
-		}
-		if(this.styleWindow != null) {
-			this.styleWindow.setVisible(false);
-		}
 
 		if(ovTable==null) {
 			ovTable = this.getLastAddedTable();
 		}
+		
+		if(!ovTable.equals(this.displayedTable)) {
+			if(this.connectWindow != null) {
+				this.connectWindow.setVisible(false);
+			}
+			if(this.styleWindow != null) {
+				this.styleWindow.setVisible(false);
+			}
+		}
+		
 		this.displayedTable = ovTable;
 
 		JTable currentTable=ovTable.getJTable();

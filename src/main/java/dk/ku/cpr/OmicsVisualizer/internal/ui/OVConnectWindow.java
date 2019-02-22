@@ -149,6 +149,10 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 
 		addPanel.add(new JLabel("Select Network:"), c);
 		addPanel.add(this.selectNetwork, c.nextCol());
+		
+		if(this.selectNetwork.getSelectedItem().equals(OVConnectWindow.CHOOSE)) {
+			this.connectButton.setEnabled(false);
+		}
 
 		addPanel.add(new JLabel("Select key column from Network:"), c.nextRow());
 		addPanel.add(this.selectColNetwork, c.nextCol());
@@ -305,7 +309,7 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 						(String) this.selectColTable.getSelectedItem()
 						);
 			}
-
+			
 			this.update(this.ovTable);
 			this.cytoPanel.update();
 		} else if(e.getSource() == this.closeButton) {
