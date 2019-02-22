@@ -73,7 +73,7 @@ public class OVStyle implements Serializable {
 				this.transpose);
 	}
 	
-	public String toEnhancedGraphics(List<Object> values) {
+	public String toEnhancedGraphics(List<List<Object>> values) {
 		String style = this.type.getStyle();
 		
 		style += " ";

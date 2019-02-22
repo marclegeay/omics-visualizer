@@ -65,7 +65,7 @@ public class OVColorContinuous implements OVColor, Serializable {
 	}
 
 	@Override
-	public String toEnhancedGraphics(List<Object> values) {
+	public String toEnhancedGraphics(List<List<Object>> values) {
 		String colorlist = "colorlist=\"";
 		colorlist += "down:" + OVShared.color2String(this.down);
 		colorlist += ",";

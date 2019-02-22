@@ -28,15 +28,20 @@ public class OVColorDiscrete implements OVColor, Serializable {
 	}
 
 	@Override
-	public String toEnhancedGraphics(List<Object> values) {
+	public String toEnhancedGraphics(List<List<Object>> values) {
 		if(values.isEmpty()) {
 			return "";
 		}
 		
 		String colorlist = "";
 		
-		for(Object val : values) {
-			colorlist += "," + OVShared.color2String(this.colors.get(val));
+		for(List<Object> vals : values) {
+			colorlist += ",[";
+			String colorsublist = "";
+			for(Object val : vals) {
+				colorsublist += "," + OVShared.color2String(this.colors.get(val));
+			}
+			colorlist += colorsublist.substring(1) + "]";
 		}
 		
 		colorlist = colorlist.substring(1); // We get rid of the first comma

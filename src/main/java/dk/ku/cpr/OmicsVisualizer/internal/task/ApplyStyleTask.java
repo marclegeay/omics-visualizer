@@ -93,6 +93,8 @@ public class ApplyStyleTask extends AbstractTask {
 			int nrow = nodeValues.size() / ncol;
 
 			List<String> attributeList = new ArrayList<>();
+			
+			List<List<Object>> styleValues = new ArrayList<>();
 
 			int ncolValues = (this.ovCon.getStyle().isTranspose() ? nrow : ncol);
 			int nrowValues = (this.ovCon.getStyle().isTranspose() ? ncol : nrow);
@@ -115,15 +117,14 @@ public class ApplyStyleTask extends AbstractTask {
 					colValues.add(nodeValues.get(index));
 				}
 				nodeTable.getRow(node.getSUID()).set(colName, colValues);
+				styleValues.add(colValues);
 			}
 
-			String nodeStyle = this.ovCon.getStyle().toEnhancedGraphics(nodeValues);
+			String nodeStyle = this.ovCon.getStyle().toEnhancedGraphics(styleValues);
 			nodeStyle += " valuelist=\"" + String.join(",", Collections.nCopies(nrowValues, "1")) + "\"";
 			if(this.ovCon.getStyle().isContinuous()) {
+				// Only continuous mapping needs attributes
 				nodeStyle += " attributelist=\"" + String.join(",", attributeList) + "\"";
-			} else {
-				// Discrete mapping have only 1 circle
-				nodeStyle += " attributelist=\"1\"";
 			}
 
 
