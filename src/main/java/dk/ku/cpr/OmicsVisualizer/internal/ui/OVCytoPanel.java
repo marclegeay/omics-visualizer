@@ -1,13 +1,5 @@
 package dk.ku.cpr.OmicsVisualizer.internal.ui;
 
-import static javax.swing.GroupLayout.DEFAULT_SIZE;
-import static javax.swing.GroupLayout.PREFERRED_SIZE;
-import static org.cytoscape.util.swing.IconManager.ICON_COLUMNS;
-import static org.cytoscape.util.swing.IconManager.ICON_LINK;
-import static org.cytoscape.util.swing.IconManager.ICON_TABLE;
-import static org.cytoscape.util.swing.IconManager.ICON_TIMES_CIRCLE;
-import static org.cytoscape.util.swing.LookAndFeelUtil.isAquaLAF;
-
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -65,6 +57,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
+import dk.ku.cpr.OmicsVisualizer.internal.task.FilterTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.ViewUtil;
 
 public class OVCytoPanel extends JPanel
@@ -87,6 +80,7 @@ RowsSetListener {
 	private GlobalTableChooser tableChooser;
 
 	private JButton selectButton;
+	private JButton filterButton;
 	private JButton deleteTableButton;
 	private JButton connectButton;
 	private JButton styleButton;
@@ -176,13 +170,17 @@ RowsSetListener {
 	}
 
 	public OVTableModel getTableModel() { return mainTableModel; }
+	
+	public OVTable getDisplayedTable() {
+		return this.displayedTable;
+	}
 
 	public void addToolBarComponent(final JComponent component, final ComponentPlacement placement) {
 		if (placement != null)
 			hToolBarGroup.addPreferredGap(placement);
 
 		hToolBarGroup.addComponent(component);
-		vToolBarGroup.addComponent(component, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE);
+		vToolBarGroup.addComponent(component, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE);
 	}
 
 	protected void styleButton(final AbstractButton btn, final Font font) {
@@ -267,7 +265,6 @@ RowsSetListener {
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
 		toolBar.setOrientation(JToolBar.HORIZONTAL);
-		toolBar.setOpaque(!isAquaLAF());
 
 		final GroupLayout layout = new GroupLayout(toolBar);
 		toolBar.setLayout(layout);
@@ -279,7 +276,7 @@ RowsSetListener {
 		layout.setVerticalGroup(vToolBarGroup);
 
 		if (selectButton == null) {
-			selectButton = new JButton(ICON_COLUMNS);
+			selectButton = new JButton(IconManager.ICON_COLUMNS);
 			selectButton.setToolTipText("Show Columns");
 			styleButton(selectButton, iconFont);
 
@@ -292,8 +289,18 @@ RowsSetListener {
 				}
 			});
 		}
+		if (filterButton == null) {
+			filterButton = new JButton(IconManager.ICON_FILTER);
+			filterButton.setToolTipText("Filter rows");
+			styleButton(filterButton, iconFont);
+
+			filterButton.addActionListener(e -> {
+				FilterTaskFactory factory = new FilterTaskFactory(this.ovManager, this);
+				this.ovManager.executeTask(factory.createTaskIterator());
+			});
+		}
 		if (deleteTableButton == null) {
-			deleteTableButton = new JButton(ICON_TABLE + "" + ICON_TIMES_CIRCLE);
+			deleteTableButton = new JButton(IconManager.ICON_TABLE + "" + IconManager.ICON_TIMES_CIRCLE);
 			deleteTableButton.setToolTipText("Delete Table...");
 			styleButton(deleteTableButton, iconManager.getIconFont(ICON_FONT_SIZE / 2.0f));
 
@@ -301,7 +308,7 @@ RowsSetListener {
 			deleteTableButton.addActionListener(e -> removeTable());
 		}
 		if (connectButton == null ) {
-			connectButton = new JButton(ICON_LINK);
+			connectButton = new JButton(IconManager.ICON_LINK);
 			connectButton.setToolTipText("Manage table connections...");
 			styleButton(connectButton, iconFont);
 
@@ -337,6 +344,7 @@ RowsSetListener {
 		styleButton.setEnabled(this.displayedTable != null && this.displayedTable.isConnected());
 
 		addToolBarComponent(selectButton, ComponentPlacement.RELATED);
+		addToolBarComponent(filterButton, ComponentPlacement.RELATED);
 		addToolBarComponent(deleteTableButton, ComponentPlacement.RELATED);
 		addToolBarComponent(connectButton, ComponentPlacement.RELATED);
 		addToolBarComponent(styleButton, ComponentPlacement.RELATED);

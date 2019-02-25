@@ -39,12 +39,14 @@ public class OVTableModel extends AbstractTableModel {
 
 	@Override
 	public int getRowCount() {
-		return this.cyTable.getRowCount();
+//		return this.cyTable.getRowCount();
+		return this.rowKeys.length;
 	}
 
 	@Override
 	public int getColumnCount() {
-		return this.cyTable.getColumns().size();
+//		return this.cyTable.getColumns().size();
+		return this.columnNames.size();
 	}
 
 	@Override
@@ -66,5 +68,15 @@ public class OVTableModel extends AbstractTableModel {
 			return this.columnNames.indexOf(name);
 		
 		return -1;
+	}
+	
+	/**
+	 * filter the rows according to the keys
+	 * @param rowKeys : new list of row keys to display
+	 */
+	public void filter(List<Object> rowKeys) {
+		this.rowKeys = rowKeys.toArray();
+		
+		this.fireTableDataChanged();
 	}
 }
