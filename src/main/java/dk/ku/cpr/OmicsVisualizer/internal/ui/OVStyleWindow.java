@@ -382,6 +382,8 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 				OVColorDiscrete colorStyle = (OVColorDiscrete) ovStyle.getColors();
 				
 				values = colorStyle.getValues();
+				
+				this.transposeCheck.setSelected(ovStyle.isTranspose());
 			} else {
 				// We look for the values in the data
 				for(CyRow row : valueTable.getAllRows()) {
@@ -430,6 +432,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 			valuesScroll.setBorder(null);
 
 			mainPanel.add(valuesScroll, BorderLayout.CENTER);
+			mainPanel.add(transposeCheck, BorderLayout.SOUTH);
 		}
 
 		JPanel buttonPanel = new JPanel();
