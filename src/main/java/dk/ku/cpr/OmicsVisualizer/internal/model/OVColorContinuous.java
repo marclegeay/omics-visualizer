@@ -2,6 +2,7 @@ package dk.ku.cpr.OmicsVisualizer.internal.model;
 
 import java.awt.Color;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,19 +67,23 @@ public class OVColorContinuous implements OVColor, Serializable {
 
 	@Override
 	public String toEnhancedGraphics(List<List<Object>> values) {
-		String colorlist = "colorlist=\"";
-		colorlist += "down:" + OVShared.color2String(this.down);
-		colorlist += ",";
-		colorlist += "up:" + OVShared.color2String(this.up);
-		colorlist += ",";
-		colorlist += "zero:" + OVShared.color2String(this.zero);
-		colorlist += "\"";
+		String style = "colorlist=\"";
+		style += "down:" + OVShared.color2String(this.down);
+		style += ",";
+		style += "up:" + OVShared.color2String(this.up);
+		style += ",";
+		style += "zero:" + OVShared.color2String(this.zero);
+		style += "\"";
 
-		colorlist += " ";
+		style += " ";
 
-		colorlist += "range=\"" + this.rangeMin + "," + this.rangeMax + "\"";;
+		style += "range=\"" + this.rangeMin + "," + this.rangeMax + "\"";
+		
+		if(!values.isEmpty()) {
+			style += " valuelist=\"" + String.join(",", Collections.nCopies(values.get(0).size(), "1")) + "\"";
+		}
 
-		return colorlist;
+		return style;
 	}
 
 	@Override

@@ -121,7 +121,6 @@ public class ApplyStyleTask extends AbstractTask {
 			}
 
 			String nodeStyle = this.ovCon.getStyle().toEnhancedGraphics(styleValues);
-			nodeStyle += " valuelist=\"" + String.join(",", Collections.nCopies(nrowValues, "1")) + "\"";
 			if(this.ovCon.getStyle().isContinuous()) {
 				// Only continuous mapping needs attributes
 				nodeStyle += " attributelist=\"" + String.join(",", attributeList) + "\"";

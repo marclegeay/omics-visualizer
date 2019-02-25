@@ -2,6 +2,7 @@ package dk.ku.cpr.OmicsVisualizer.internal.model;
 
 import java.awt.Color;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,20 +35,27 @@ public class OVColorDiscrete implements OVColor, Serializable {
 		}
 		
 		String colorlist = "";
+		String valuelist = "";
 		
 		for(List<Object> vals : values) {
 			colorlist += ",[";
+			valuelist += ",[";
 			String colorsublist = "";
 			for(Object val : vals) {
 				colorsublist += "," + OVShared.color2String(this.colors.get(val));
 			}
 			colorlist += colorsublist.substring(1) + "]";
+			valuelist += String.join(",", Collections.nCopies(vals.size(), "1")) + "]";
 		}
-		
-		colorlist = colorlist.substring(1); // We get rid of the first comma
+
+		// We get rid of the first comma
+		colorlist = colorlist.substring(1);
+		valuelist = valuelist.substring(1);
 		
 		colorlist = "colorlist=\"" + colorlist + "\"";
-		return colorlist;
+		valuelist = "valuelist=\"" + valuelist + "\"";
+		
+		return colorlist + " " + valuelist;
 	}
 
 	@Override
