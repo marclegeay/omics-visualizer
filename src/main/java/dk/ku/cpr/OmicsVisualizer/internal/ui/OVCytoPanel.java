@@ -48,6 +48,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CyColumnPresentationManager;
 import org.cytoscape.application.swing.CyColumnSelector;
 import org.cytoscape.application.swing.CytoPanelComponent;
@@ -563,27 +564,17 @@ RowsSetListener {
 
 	@Override
 	public void handleEvent(RowsSetEvent e) {
-		CyNetworkManager networkManager = this.ovManager.getService(CyNetworkManager.class);
-		CyNetwork selectedNetwork = null;
-		if (e.containsColumn(CyNetwork.SELECTED)) {
-			Collection<RowSetRecord> columnRecords = e.getColumnRecords(CyNetwork.SELECTED);
-			for (RowSetRecord rec : columnRecords) {
-				CyRow row = rec.getRow();
-				if (row.toString().indexOf("FACADE") >= 0)
-					continue;
-				Long networkID = row.get(CyNetwork.SUID, Long.class);
-				Boolean selectedValue = (Boolean) rec.getValue();
-				if (selectedValue && networkManager.networkExists(networkID)) {
-					selectedNetwork = networkManager.getNetwork(networkID);
+		CyApplicationManager appManager = this.ovManager.getService(CyApplicationManager.class);
+		
+		if (e.containsColumn(CyNetwork.SELECTED)) { // It means that the selection has changed (can be node, edge, or network)
+			CyNetwork selectedNetwork = appManager.getCurrentNetwork();
+			if (selectedNetwork != null) {
+				OVConnection ovCon = this.ovManager.getConnection(selectedNetwork);
+				if(ovCon != null && !ovCon.getOVTable().equals(this.displayedTable)) {
+					this.initPanel(ovCon.getOVTable());
 				}
+				return;
 			}
-		}
-		if (selectedNetwork != null) {
-			OVConnection ovCon = this.ovManager.getConnection(selectedNetwork);
-			if(ovCon != null && !ovCon.getOVTable().equals(this.displayedTable)) {
-				this.initPanel(ovCon.getOVTable());
-			}
-			return;
 		}
 	}
 }
