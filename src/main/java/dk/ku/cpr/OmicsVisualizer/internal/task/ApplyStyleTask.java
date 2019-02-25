@@ -20,6 +20,7 @@ import org.cytoscape.work.TaskMonitor;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVStyle;
 
 public class ApplyStyleTask extends AbstractTask {
 
@@ -41,16 +42,21 @@ public class ApplyStyleTask extends AbstractTask {
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
 		taskMonitor.setTitle("Apply style to Network");
-		
+
 		// First we erase all previous charts
 		taskMonitor.setStatusMessage("Cleaning previous data");
 		CyTable nodeTable = this.ovCon.getNetwork().getDefaultNodeTable();
 		OVShared.deleteOVColumns(nodeTable);
 		nodeTable.createColumn(OVShared.CYNODETABLE_STYLECOL, String.class, false);
 
+		OVStyle ovStyle = this.ovCon.getStyle();
+		if(ovStyle == null) {
+			return;
+		}
+
 		double progress = 0.0;
 		taskMonitor.setProgress(progress);
-		
+
 		double nbNodes = this.ovCon.getNetwork().getNodeCount() * 1.0;
 		int i=0;
 		// Then we fill the columns
@@ -58,28 +64,28 @@ public class ApplyStyleTask extends AbstractTask {
 		for(CyNode node : this.ovCon.getNetwork().getNodeList()) {
 			progress = (i++)/nbNodes;
 			taskMonitor.setProgress(progress);
-			
+
 			ArrayList<Object> nodeValues = new ArrayList<>();
 			String nodeLabels = "";
 			for(CyRow tableRow : this.ovCon.getLinkedRows(nodeTable.getRow(node.getSUID()))) {
-				for(String colName : this.ovCon.getStyle().getValues()) {
-					Object val = tableRow.get(colName, this.ovCon.getStyle().getValuesType());
+				for(String colName : ovStyle.getValues()) {
+					Object val = tableRow.get(colName, ovStyle.getValuesType());
 					if(val != null) {
-						nodeValues.add(tableRow.get(colName, this.ovCon.getStyle().getValuesType()));
+						nodeValues.add(tableRow.get(colName, ovStyle.getValuesType()));
 					} else {
-						if(this.ovCon.getStyle().getValuesType() == Integer.class) {
+						if(ovStyle.getValuesType() == Integer.class) {
 							nodeValues.add(new Integer(0));
-						} else if(this.ovCon.getStyle().getValuesType() == Long.class) {
+						} else if(ovStyle.getValuesType() == Long.class) {
 							nodeValues.add(new Long(0));
-						} else if(this.ovCon.getStyle().getValuesType() == Double.class) {
+						} else if(ovStyle.getValuesType() == Double.class) {
 							nodeValues.add(new Double(0.0));
 						} else {
 							nodeValues.add("");
 						}
 					}
 				}
-				if(this.ovCon.getStyle().getLabel() != null) {
-					nodeLabels += tableRow.get(this.ovCon.getStyle().getLabel(), this.ovCon.getOVTable().getColType(this.ovCon.getStyle().getLabel()));
+				if(ovStyle.getLabel() != null) {
+					nodeLabels += tableRow.get(ovStyle.getLabel(), this.ovCon.getOVTable().getColType(ovStyle.getLabel()));
 					nodeLabels += ",";
 				}
 			}
@@ -88,26 +94,26 @@ public class ApplyStyleTask extends AbstractTask {
 				continue;
 			}
 
-			int ncol = this.ovCon.getStyle().getValues().size();
+			int ncol = ovStyle.getValues().size();
 			int nrow = nodeValues.size() / ncol;
 
 			List<String> attributeList = new ArrayList<>();
-			
+
 			List<List<Object>> styleValues = new ArrayList<>();
 
-			int ncolValues = (this.ovCon.getStyle().isTranspose() ? nrow : ncol);
-			int nrowValues = (this.ovCon.getStyle().isTranspose() ? ncol : nrow);
+			int ncolValues = (ovStyle.isTranspose() ? nrow : ncol);
+			int nrowValues = (ovStyle.isTranspose() ? ncol : nrow);
 			for(int c=0; c<ncolValues; ++c) {
 				String colName = OVShared.CYNODETABLE_STYLECOL_VALUES+(c+1);
 				attributeList.add(colName);
 				// We create the column if this one does not exist yet
-				createOVListColumn(nodeTable, colName, this.ovCon.getStyle().getValuesType());
+				createOVListColumn(nodeTable, colName, ovStyle.getValuesType());
 
 				List<Object> colValues = new ArrayList<>();
 				for(int r=0; r<nrowValues; ++r) {
 					int index = 0;
 
-					if(this.ovCon.getStyle().isTranspose()) {
+					if(ovStyle.isTranspose()) {
 						index = c*ncol+r;
 					} else {
 						index = r*ncol+c;
@@ -119,8 +125,8 @@ public class ApplyStyleTask extends AbstractTask {
 				styleValues.add(colValues);
 			}
 
-			String nodeStyle = this.ovCon.getStyle().toEnhancedGraphics(styleValues);
-			if(this.ovCon.getStyle().isContinuous()) {
+			String nodeStyle = ovStyle.toEnhancedGraphics(styleValues);
+			if(ovStyle.isContinuous()) {
 				// Only continuous mapping needs attributes
 				nodeStyle += " attributelist=\"" + String.join(",", attributeList) + "\"";
 			}
@@ -157,6 +163,7 @@ public class ApplyStyleTask extends AbstractTask {
 			netView.updateView();
 		}
 		//*/
+
 	}
 
 }
