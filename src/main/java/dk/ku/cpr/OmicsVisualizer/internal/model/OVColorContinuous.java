@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVStyle.ChartType;
+
 public class OVColorContinuous implements OVColor, Serializable {
 	private static final long serialVersionUID = -5770168065992750255L;
 	
@@ -66,7 +68,7 @@ public class OVColorContinuous implements OVColor, Serializable {
 	}
 
 	@Override
-	public String toEnhancedGraphics(List<List<Object>> values) {
+	public String toEnhancedGraphics(List<List<Object>> values, ChartType chartType) {
 		String style = "colorlist=\"";
 		style += "down:" + OVShared.color2String(this.down);
 		style += ",";

@@ -77,7 +77,7 @@ public class OVStyle implements Serializable {
 		String style = this.type.getStyle();
 		
 		style += " ";
-		style += this.colors.toEnhancedGraphics(values);
+		style += this.colors.toEnhancedGraphics(values, this.type);
 		
 		return style;
 	}

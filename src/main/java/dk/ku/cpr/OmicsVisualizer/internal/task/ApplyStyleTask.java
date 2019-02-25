@@ -1,7 +1,6 @@
 package dk.ku.cpr.OmicsVisualizer.internal.task;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.cytoscape.application.CyApplicationManager;

@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVStyle.ChartType;
+
 public class OVColorDiscrete implements OVColor, Serializable {
 	private static final long serialVersionUID = 482988419184312110L;
 	
@@ -29,7 +31,7 @@ public class OVColorDiscrete implements OVColor, Serializable {
 	}
 
 	@Override
-	public String toEnhancedGraphics(List<List<Object>> values) {
+	public String toEnhancedGraphics(List<List<Object>> values, ChartType chartType) {
 		if(values.isEmpty()) {
 			return "";
 		}
@@ -51,6 +53,12 @@ public class OVColorDiscrete implements OVColor, Serializable {
 		// We get rid of the first comma
 		colorlist = colorlist.substring(1);
 		valuelist = valuelist.substring(1);
+		
+		if(!chartType.equals(ChartType.CIRCOS)) { // Only CIRCOS can have several layers
+			// In that case there is only one layer, we do not use [ ]
+			colorlist = colorlist.substring(1, colorlist.length()-1);
+			valuelist = valuelist.substring(1, valuelist.length()-1);
+		}
 		
 		colorlist = "colorlist=\"" + colorlist + "\"";
 		valuelist = "valuelist=\"" + valuelist + "\"";

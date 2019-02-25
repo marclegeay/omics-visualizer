@@ -372,7 +372,10 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 			mainPanel.add(this.colorPanels[2], c.nextCol().expandBoth());
 			mainPanel.add(this.colorButtons[2], c.nextCol().expandHorizontal());
 			
-			mainPanel.add(transposeCheck, c.nextRow().useNCols(3));
+			if(this.selectChartType.getSelectedItem().equals(ChartType.CIRCOS)) {
+				// Only CIRCOS can have several layouts
+				mainPanel.add(transposeCheck, c.nextRow().useNCols(3));
+			}
 
 		} else { // Discrete mapping
 			Set<Object> values = new HashSet<>();
@@ -432,7 +435,10 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 			valuesScroll.setBorder(null);
 
 			mainPanel.add(valuesScroll, BorderLayout.CENTER);
-			mainPanel.add(transposeCheck, BorderLayout.SOUTH);
+			if(this.selectChartType.getSelectedItem().equals(ChartType.CIRCOS)) {
+				// Only CIRCOS can have several layers
+				mainPanel.add(transposeCheck, BorderLayout.SOUTH);
+			}
 		}
 
 		JPanel buttonPanel = new JPanel();
