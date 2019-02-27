@@ -13,8 +13,6 @@ import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedEvent;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
 import org.cytoscape.property.CyProperty;
-import org.cytoscape.property.CyProperty.SavePolicy;
-import org.cytoscape.property.SimpleCyProperty;
 import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.session.events.SessionAboutToBeSavedEvent;
 import org.cytoscape.session.events.SessionAboutToBeSavedListener;
@@ -34,7 +32,6 @@ public class OVManager
 		NetworkAboutToBeDestroyedListener {
 	
 	private CyServiceRegistrar serviceRegistrar;
-	private CyProperty<Properties> serviceProperties;
 	
 	private List<OVTable> ovTables;
 	private List<OVConnection> ovCons;
@@ -47,7 +44,6 @@ public class OVManager
 	
 	public OVManager(CyServiceRegistrar serviceRegistrar) {
 		this.serviceRegistrar=serviceRegistrar;
-		this.serviceProperties=null;
 		this.showPanelFactory=new ShowOVPanelTaskFactory(this);
 		this.ovCytoPanel=null;
 		this.ovTables=new ArrayList<OVTable>();
@@ -165,34 +161,6 @@ public class OVManager
 		this.serviceRegistrar.unregisterAllServices(service);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public CyProperty<Properties> getServiceCyProperty() {
-		if(this.serviceProperties == null) {
-			try { // If the service is not registered yet, it throws an Exception
-				this.serviceProperties = this.serviceRegistrar.getService(CyProperty.class, "(cyPropertyName="+OVShared.CYPROPERTY_NAME+")");
-			} catch(Exception e ) {
-				// Now we store those Properties into the Session File
-				// We use the SimpleCyProperty class to do so
-				this.serviceProperties = new SimpleCyProperty<Properties>(OVShared.CYPROPERTY_NAME, new Properties(), Properties.class, SavePolicy.SESSION_FILE_AND_CONFIG_DIR);
-				Properties cyPropServiceProps = new Properties(); // The SimpleCyProperty service must be registered with a name, so we have Properties for this service also
-				cyPropServiceProps.setProperty("cyPropertyName", this.serviceProperties.getName());
-				this.serviceRegistrar.registerAllServices(this.serviceProperties, cyPropServiceProps);
-			}
-		}
-		
-		return this.serviceProperties;
-	}
-
-	public String getProperty(String propName) {
-		return this.getServiceCyProperty().getProperties().getProperty(propName);
-	}
-	public String getProperty(String propName, String propDefaultValue) {
-		return this.getServiceCyProperty().getProperties().getProperty(propName, propDefaultValue);
-	}
-	public void setProperty(String propName, String propValue) {
-		this.getServiceCyProperty().getProperties().setProperty(propName, propValue);
-	}
-	
 	public CyNetworkManager getNetworkManager() {
 		return this.netManager;
 	}
@@ -241,7 +209,6 @@ public class OVManager
 
 	@Override
 	public void handleEvent(SessionLoadedEvent e) {
-		this.serviceProperties=null;
 		this.ovTables=new ArrayList<OVTable>();
 		
 		initOVTables();

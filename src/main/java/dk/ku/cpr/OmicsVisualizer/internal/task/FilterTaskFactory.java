@@ -22,7 +22,10 @@ public class FilterTaskFactory extends AbstractTaskFactory {
 
 	@Override
 	public TaskIterator createTaskIterator() {
-		return new TaskIterator(new FilterTask(this.ovManager, this.ovPanel));
+		return new TaskIterator(new FilterTunableTask(this.ovManager, this.ovPanel));
 	}
 
+	public TaskIterator createTaskIterator(String colName, String strOperator, String strReference) {
+		return new TaskIterator(new FilterTask(this.ovManager, this.ovPanel, colName, strOperator, strReference));
+	}
 }

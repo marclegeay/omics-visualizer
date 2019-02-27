@@ -66,6 +66,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 	private JComboBox<String> selectCopyNetwork;
 	private JButton copyButton;
 	private SelectValuesPanel selectValues;
+	private JCheckBox filteredCheck;
 	private JComboBox<ChartType> selectChartType;
 	private ChartType oldType;
 	private JComboBox<String> selectChartLabels;
@@ -102,6 +103,8 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		this.copyButton.addActionListener(this);
 
 		this.selectValues = new SelectValuesPanel(this);
+		
+		this.filteredCheck = new JCheckBox("Apply style only to filtered rows", true);
 
 		this.selectChartType = new JComboBox<>();
 		for(ChartType ct : ChartType.values()) {
@@ -198,6 +201,9 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		//reset constraint
 		c.setAnchor("C").setInsets(0, 0, 0, 0);
 		mainPanel.add(this.selectValues, c.nextCol());
+		
+		mainPanel.add(this.filteredCheck, c.nextRow().useNCols(2));
+		c.useNCols(1);
 
 		mainPanel.add(new JLabel("Select Chart Type:"), c.nextRow());
 		mainPanel.add(this.selectChartType, c.nextCol());
@@ -270,6 +276,10 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 					int max = Integer.MIN_VALUE;
 
 					for(CyRow row : valueTable.getAllRows()) {
+						if(this.filteredCheck.isSelected() && !this.ovTable.isFiltered(row)) {
+							continue;
+						}
+						
 						for(String colName : colNames) {
 							Integer Val = row.get(colName, Integer.class);
 							int val=0;
@@ -286,7 +296,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 					}
 
 					// We detect the highest absolute value for the range
-					max = (max > -min ? max : -min);
+					max = (max >= -min ? max : -min);
 					rangeMin = max * -1.0;
 					rangeMax = max * 1.0;
 				} else if(valueType == Long.class) {
@@ -294,6 +304,10 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 					long max = Long.MIN_VALUE;
 
 					for(CyRow row : valueTable.getAllRows()) {
+						if(this.filteredCheck.isSelected() && !this.ovTable.isFiltered(row)) {
+							continue;
+						}
+						
 						for(String colName : colNames) {
 							Long Val = row.get(colName, Long.class);
 							long val=0;
@@ -310,7 +324,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 					}
 
 					// We detect the highest absolute value for the range
-					max = (max > -min ? max : -min);
+					max = (max >= -min ? max : -min);
 					rangeMin = max * -1.0;
 					rangeMax = max * 1.0;
 				} else { // Double
@@ -318,6 +332,10 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 					double max = Double.NEGATIVE_INFINITY;
 
 					for(CyRow row : valueTable.getAllRows()) {
+						if(this.filteredCheck.isSelected() && !this.ovTable.isFiltered(row)) {
+							continue;
+						}
+						
 						for(String colName : colNames) {
 							Double Val = row.get(colName, Double.class);
 							double val=0.0;
@@ -334,7 +352,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 					}
 
 					// We detect the highest absolute value for the range
-					max = (max > -min ? max : -min);
+					max = (max >= -min ? max : -min);
 					rangeMin = max * -1.0;
 					rangeMax = max;
 				}
@@ -390,6 +408,10 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 			} else {
 				// We look for the values in the data
 				for(CyRow row : valueTable.getAllRows()) {
+					if(this.filteredCheck.isSelected() && !this.ovTable.isFiltered(row)) {
+						continue;
+					}
+					
 					for(String colName : colNames) {
 						Object val = row.get(colName, valueType);
 						if(val != null ) {
@@ -417,6 +439,10 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 				if(ovStyle != null && ovStyle.getColors() instanceof OVColorDiscrete) {
 					OVColorDiscrete colorStyle = (OVColorDiscrete) ovStyle.getColors();
 					color = colorStyle.getColor(val);
+					
+					if(color == null) {
+						color = Color.BLACK;
+					}
 				}
 				
 				this.discreteValues[i] = val;
@@ -549,7 +575,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 				
 				// We change the network to the one selected
 				CyApplicationManager appManager = this.ovManager.getService(CyApplicationManager.class);
-				if(!appManager.getCurrentNetwork().equals(this.ovCon.getNetwork())) {
+				if(!this.ovCon.getNetwork().equals(appManager.getCurrentNetwork())) {
 					appManager.setCurrentNetwork(this.ovCon.getNetwork());
 				}
 				break;
@@ -585,6 +611,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		// We only update the Panel1 information, the information of Panel2 always check for ovStyle
 		this.selectValues.setStyle(ovStyle);
 		if(ovStyle != null) {
+			this.filteredCheck.setSelected(ovStyle.isOnlyFiltered());
 			this.selectChartType.setSelectedItem(ovStyle.getType());
 			if(ovStyle.getLabel() == null) {
 				this.selectChartLabels.setSelectedItem(OVStyleWindow.NO_LABEL);
@@ -660,6 +687,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 			boolean reset = false;
 			if(this.ovCon.getStyle() != null) {
 				reset = !ovCon.getStyle().getValues().equals(this.selectValues.getValues());
+				reset |= ovCon.getStyle().isOnlyFiltered() != this.filteredCheck.isSelected();
 			}
 
 			this.displayPanel2(reset);
@@ -699,13 +727,14 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 			OVStyle ovStyle = new OVStyle((ChartType) this.selectChartType.getSelectedItem(),
 					this.selectValues.getValues(),
 					this.selectValues.getValueType(),
+					this.filteredCheck.isSelected(),
 					colors,
 					label,
 					this.transposeCheck.isSelected());
 
 			this.ovCon.setStyle(ovStyle);
 
-			ApplyStyleTaskFactory factory = new ApplyStyleTaskFactory(this.ovManager, this.ovCon);
+			ApplyStyleTaskFactory factory = new ApplyStyleTaskFactory(this.ovManager, this.ovCon, this.filteredCheck.isSelected());
 			this.ovManager.executeTask(factory.createTaskIterator());
 
 			this.setVisible(false);

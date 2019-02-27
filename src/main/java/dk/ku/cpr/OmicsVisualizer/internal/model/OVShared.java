@@ -14,11 +14,14 @@ public class OVShared {
 	
 	public static final String OVTABLE_COLID_NAME = OV_PREFIX+"internalID";
 
-	public static final String CYPROPERTY_NAME = "OmicsVisualizer";
+	public static final String OVPROPERTY_KEY = "key";
+	public static final String OVPROPERTY_VALUE = "value";
+	public static final String OVPROPERTY_NAME = "OmicsVisualizer";
 	
 //	public static final String PROPERTY_LINKED_NETWORK = OV_PREFIX+"linked_network";
 //	public static final String PROPERTY_MAPPING_OV_CY = OV_PREFIX+"OV_to_CyNetwork";
 //	public static final String PROPERTY_MAPPING_CY_OV = OV_PREFIX+"CyNetwork_to_OV";
+	public static final String PROPERTY_FILTER = OV_PREFIX+"filter";
 	
 	public static final String CYNETWORKTABLE_OVCOL = "OVTable";
 	public static final String CYNETWORKTABLE_STYLECOL="OVStyle";

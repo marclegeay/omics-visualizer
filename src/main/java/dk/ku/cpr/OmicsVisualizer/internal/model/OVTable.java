@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.swing.JTable;
@@ -13,11 +12,10 @@ import javax.swing.table.TableColumn;
 
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
-import org.cytoscape.property.CyProperty;
-import org.cytoscape.property.CyProperty.SavePolicy;
-import org.cytoscape.property.SimpleCyProperty;
 
+import dk.ku.cpr.OmicsVisualizer.internal.properties.OVProperties;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVTableColumnModel;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVTableModel;
 
@@ -28,14 +26,15 @@ public class OVTable {
 	private JTable jTable;
 	private OVTableModel tableModel;
 	private OVTableColumnModel tableColumnModel;
-	
-	private CyProperty<Properties> cyProperty;
+
+	private OVProperties ovProps;
 	
 	public OVTable(OVManager ovManager, CyTable cyTable) {
 		this.ovManager=ovManager;
 		this.cyTable=cyTable;
 		this.jTable=null;
-		this.cyProperty=null;
+		
+		this.ovProps = new OVProperties(this.ovManager, OVShared.OVPROPERTY_NAME+"-"+this.cyTable.getTitle());
 		
 		this.createJTable();
 		this.load();
@@ -256,6 +255,28 @@ public class OVTable {
 		tableColumnModel.addColumn(tableColumn);
 	}
 	
+	public void filter(List<Object> filteredRowKeys) {
+		this.tableModel.filter(filteredRowKeys);
+	}
+	
+	public void removeFilter() {
+		this.tableModel.removeFilter();
+	}
+	
+	public boolean isFiltered(CyRow row) {
+		return this.tableModel.isFiltered(row);
+	}
+	
+	public String getFilter() {
+		String filter = this.getTableProperty(OVShared.PROPERTY_FILTER, "");
+		
+		if(!filter.isEmpty()) {
+			return filter;
+		}
+		
+		return null;
+	}
+	
 	public String getTitle() {
 		return this.cyTable.getTitle();
 	}
@@ -299,36 +320,24 @@ public class OVTable {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	public CyProperty<Properties> getTableCyProperty() {
-		String propName = OVShared.CYPROPERTY_NAME+"-"+this.cyTable.getTitle();
-		
-		try { // If the service is not registered yet, it throws an Exception
-			this.cyProperty = this.ovManager.getService(CyProperty.class, "(cyPropertyName="+propName+")");
-		} catch(Exception e ) {
-			// Now we store those Properties into the Session File
-			// We use the SimpleCyProperty class to do so
-			this.cyProperty = new SimpleCyProperty<Properties>(propName, new Properties(), Properties.class, SavePolicy.SESSION_FILE_AND_CONFIG_DIR);
-			Properties cyPropServiceProps = new Properties(); // The SimpleCyProperty service must be registered with a name, so we have Properties for this service also
-			cyPropServiceProps.setProperty("cyPropertyName", this.cyProperty.getName());
-			this.ovManager.registerAllServices(this.cyProperty, cyPropServiceProps);
-		}
-		
-		return this.cyProperty;
+	public OVProperties getTableOVProperties() {
+		return (this.ovProps == null ? new OVProperties(this.ovManager, OVShared.OVPROPERTY_NAME + this.cyTable.getTitle()) : this.ovProps);
 	}
+	
 	public String getTableProperty(String propName) {
-		return this.getTableCyProperty().getProperties().getProperty(propName);
+		return this.getTableOVProperties().getProperty(propName);
 	}
 	public String getTableProperty(String propName, String propDefaultValue) {
-		return this.getTableCyProperty().getProperties().getProperty(propName, propDefaultValue);
+		return this.getTableOVProperties().getProperty(propName, propDefaultValue);
 	}
 	public void setTableProperty(String propName, String propValue) {
-		this.getTableCyProperty().getProperties().put(propName, propValue);
+		this.getTableOVProperties().setProperty(propName, propValue);
 	}
 	
 	public void deleteProperties() {
-		if(this.cyProperty != null) {
-			this.ovManager.unregisterAllServices(this.cyProperty);
+		if(this.ovProps != null) {
+			this.ovProps.delete();
+			this.ovProps=null;
 		}
 	}
 }

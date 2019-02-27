@@ -9,17 +9,19 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 public class ApplyStyleTaskFactory extends AbstractTaskFactory {
 	private OVManager ovManager;
 	private OVConnection ovCon;
+	private boolean onlyFiltered;
 
-	public ApplyStyleTaskFactory(OVManager ovManager, OVConnection ovCon) {
+	public ApplyStyleTaskFactory(OVManager ovManager, OVConnection ovCon, boolean onlyFiltered) {
 		super();
 		this.ovManager = ovManager;
 		this.ovCon = ovCon;
+		this.onlyFiltered=onlyFiltered;
 	}
 
 	@Override
 	public TaskIterator createTaskIterator() {
 		// TODO Auto-generated method stub
-		return new TaskIterator(new ApplyStyleTask(ovManager, ovCon));
+		return new TaskIterator(new ApplyStyleTask(ovManager, ovCon, onlyFiltered));
 	}
 
 }

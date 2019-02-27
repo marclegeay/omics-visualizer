@@ -32,6 +32,18 @@ public class ColorChooser extends JFrame implements ChangeListener, ActionListen
 
 		this.cancelButton = new JButton("Cancel");
 		this.cancelButton.addActionListener(this);
+
+		this.colorLabel=null;
+	}
+
+	public void show(ColorPanel colorLabel) {
+		this.colorLabel = colorLabel;
+		this.previousColor = this.colorLabel.getColor();
+		
+		if(this.colorLabel.getColor() != null) {
+			this.colorChooser = new JColorChooser(this.colorLabel.getColor());
+			this.colorChooser.getSelectionModel().addChangeListener(this);
+		}
 		
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());
@@ -47,17 +59,6 @@ public class ColorChooser extends JFrame implements ChangeListener, ActionListen
 		this.setContentPane(mainPanel);
 		
 		this.pack();
-
-		this.colorLabel=null;
-	}
-
-	public void show(ColorPanel colorLabel) {
-		this.colorLabel = colorLabel;
-		this.previousColor = this.colorLabel.getColor();
-		
-		if(this.colorLabel.getColor() != null) {
-			this.colorChooser.setColor(this.colorLabel.getColor());
-		}
 
 		// We try to align the JFrame with the label, and put the JFrame at the border of the Style Window
 		this.setLocationRelativeTo(this.colorLabel); // align the element on the Y basis

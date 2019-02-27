@@ -16,15 +16,17 @@ public class OVStyle implements Serializable {
 	private ChartType type;
 	private List<String> values;
 	private Class<?> valuesType;
+	private boolean onlyFiltered;
 	private OVColor colors;
 	private String label;
 	private boolean transpose;
 	
-	public OVStyle(ChartType type, List<String> values, Class<?> valuesType, OVColor colors, String label, boolean transpose) {
+	public OVStyle(ChartType type, List<String> values, Class<?> valuesType, boolean onlyFiltered, OVColor colors, String label, boolean transpose) {
 		super();
 		this.type=type;
 		this.values=values;
 		this.valuesType=valuesType;
+		this.onlyFiltered=onlyFiltered;
 		this.colors=colors;
 		this.label=label;
 		this.transpose=transpose;
@@ -40,6 +42,10 @@ public class OVStyle implements Serializable {
 	
 	public Class<?> getValuesType() {
 		return this.valuesType;
+	}
+	
+	public boolean isOnlyFiltered() {
+		return this.onlyFiltered;
 	}
 
 	public OVColor getColors() {
@@ -68,6 +74,7 @@ public class OVStyle implements Serializable {
 		return new OVStyle(this.type,
 				valuesCopy,
 				this.valuesType,
+				this.onlyFiltered,
 				this.colors.copy(),
 				this.label,
 				this.transpose);

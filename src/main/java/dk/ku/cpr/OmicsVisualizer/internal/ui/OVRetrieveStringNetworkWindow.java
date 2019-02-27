@@ -15,6 +15,7 @@ import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -41,6 +42,7 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 
 	private JComboBox<OVSpecies> selectSpecies;
 	private JComboBox<String> selectQuery;
+	private JCheckBox filteredOnly;
 
 	private JButton retrieveButton;
 
@@ -60,6 +62,8 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 				this.selectQuery.addItem(colName);
 			}
 		}
+		
+		this.filteredOnly = new JCheckBox("Only filtered rows", true);
 
 		this.retrieveButton = new JButton("Retrieve the network");
 		this.retrieveButton.addActionListener(this);
@@ -99,6 +103,9 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 
 		selectPanel.add(new JLabel("Protein names column:"), c.nextRow());
 		selectPanel.add(this.selectQuery, c.nextCol());
+		
+		selectPanel.add(this.filteredOnly, c.nextRow().useNCols(2));
+		c.useNCols(1);
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
@@ -162,7 +169,9 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 			// We retrieve the list for the query
 			Set<String> queryTerms = new HashSet<>();
 			for(CyRow row : this.ovTable.getCyTable().getAllRows()) {
-				queryTerms.add(row.get(queryCol, colType).toString());
+				if(!this.filteredOnly.isSelected() || this.ovTable.isFiltered(row)) {
+					queryTerms.add(row.get(queryCol, colType).toString());
+				}
 			}
 
 			// We set the arguments for the STRING command

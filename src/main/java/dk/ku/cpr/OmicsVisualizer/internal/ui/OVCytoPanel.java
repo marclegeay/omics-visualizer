@@ -1,6 +1,7 @@
 package dk.ku.cpr.OmicsVisualizer.internal.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -51,6 +52,7 @@ import org.cytoscape.model.events.RowsSetEvent;
 import org.cytoscape.model.events.RowsSetListener;
 import org.cytoscape.task.destroy.DeleteTableTaskFactory;
 import org.cytoscape.util.swing.IconManager;
+import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.swing.DialogTaskManager;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
@@ -74,6 +76,8 @@ RowsSetListener {
 	private JScrollPane scrollPane;
 	private OVTableModel mainTableModel;
 	private final Font iconFont;
+	private final Color filterActive;
+	private final Color filterInactive;
 
 	private IconManager iconManager;
 
@@ -106,21 +110,11 @@ RowsSetListener {
 
 		iconManager = this.ovManager.getServiceRegistrar().getService(IconManager.class);
 		iconFont = iconManager.getIconFont(ICON_FONT_SIZE);
+		
+		filterActive = new Color(0,153,0); // Green
+		filterInactive = Color.BLACK;
 
-		tableChooser = new GlobalTableChooser();
-		tableChooser.addActionListener(this);
-		final Dimension d = new Dimension(400, tableChooser.getPreferredSize().height);
-		tableChooser.setMaximumSize(d);
-		tableChooser.setMinimumSize(d);
-		tableChooser.setPreferredSize(d);
-		tableChooser.setSize(d);
-
-		GlobalTableComboBoxModel tcModel = (GlobalTableComboBoxModel)tableChooser.getModel();
-		for(OVTable table : ovManager.getOVTables()) {
-			tcModel.addAndSetSelectedItem(table);
-		}
-
-		initPanel(null);
+		this.reload();
 	}
 
 	public void reload() {
@@ -135,6 +129,17 @@ RowsSetListener {
 		GlobalTableComboBoxModel tcModel = (GlobalTableComboBoxModel)tableChooser.getModel();
 		for(OVTable table : ovManager.getOVTables()) {
 			tcModel.addAndSetSelectedItem(table);
+			
+			// We look for a potential filter previously applied to the table
+			String filter = table.getTableProperty(OVShared.PROPERTY_FILTER, "");
+			if(!filter.isEmpty()) {
+				String filterParts[] = filter.split(",");
+				
+				FilterTaskFactory factory = new FilterTaskFactory(this.ovManager, this);
+				TaskIterator ti = factory.createTaskIterator(filterParts[0], filterParts[1], filterParts[2]);
+				
+				this.ovManager.executeTask(ti);
+			}
 		}
 
 		initPanel(null);
@@ -168,8 +173,6 @@ RowsSetListener {
 	public Icon getIcon() {
 		return null;
 	}
-
-	public OVTableModel getTableModel() { return mainTableModel; }
 	
 	public OVTable getDisplayedTable() {
 		return this.displayedTable;
@@ -184,10 +187,18 @@ RowsSetListener {
 	}
 
 	protected void styleButton(final AbstractButton btn, final Font font) {
+		this.styleButton(btn, font, null);
+	}
+	
+	protected void styleButton(final AbstractButton btn, final Font font, final Color color) {
 		btn.setFont(font);
 		btn.setBorder(null);
 		btn.setContentAreaFilled(false);
 		btn.setBorderPainted(false);
+		
+		if(color != null) {
+			btn.setForeground(color);
+		}
 
 		int w = 32, h = 32;
 
@@ -196,6 +207,7 @@ RowsSetListener {
 
 		btn.setMinimumSize(new Dimension(w, h));
 		btn.setPreferredSize(new Dimension(w, h));
+		
 	}
 
 	private JPopupMenu getColumnSelectorPopupMenu() {
@@ -292,13 +304,18 @@ RowsSetListener {
 		if (filterButton == null) {
 			filterButton = new JButton(IconManager.ICON_FILTER);
 			filterButton.setToolTipText("Filter rows");
-			styleButton(filterButton, iconFont);
 
 			filterButton.addActionListener(e -> {
 				FilterTaskFactory factory = new FilterTaskFactory(this.ovManager, this);
 				this.ovManager.executeTask(factory.createTaskIterator());
 			});
 		}
+		if(this.displayedTable.getFilter() == null) {
+			styleButton(filterButton, iconFont, filterInactive);
+		} else {
+			styleButton(filterButton, iconFont, filterActive);
+		}
+		
 		if (deleteTableButton == null) {
 			deleteTableButton = new JButton(IconManager.ICON_TABLE + "" + IconManager.ICON_TIMES_CIRCLE);
 			deleteTableButton.setToolTipText("Delete Table...");

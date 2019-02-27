@@ -26,11 +26,13 @@ public class ApplyStyleTask extends AbstractTask {
 
 	private OVManager ovManager;
 	private OVConnection ovCon;
+	private boolean onlyFiltered;
 
-	public ApplyStyleTask(OVManager ovManager, OVConnection ovCon) {
+	public ApplyStyleTask(OVManager ovManager, OVConnection ovCon, boolean onlyFiltered) {
 		super();
 		this.ovManager = ovManager;
 		this.ovCon = ovCon;
+		this.onlyFiltered=onlyFiltered;
 	}
 
 	private void createOVListColumn(CyTable cyTable, String colName, Class<?> valueType) {
@@ -68,6 +70,10 @@ public class ApplyStyleTask extends AbstractTask {
 			ArrayList<Object> nodeValues = new ArrayList<>();
 			String nodeLabels = "";
 			for(CyRow tableRow : this.ovCon.getLinkedRows(nodeTable.getRow(node.getSUID()))) {
+				if(this.onlyFiltered && !this.ovCon.getOVTable().isFiltered(tableRow)) {
+					continue;
+				}
+				
 				for(String colName : ovStyle.getValues()) {
 					Object val = tableRow.get(colName, ovStyle.getValuesType());
 					if(val != null) {

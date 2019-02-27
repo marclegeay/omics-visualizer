@@ -1,7 +1,6 @@
 package dk.ku.cpr.OmicsVisualizer.internal.task;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.cytoscape.application.swing.CySwingApplication;
@@ -9,10 +8,7 @@ import org.cytoscape.application.swing.CytoPanel;
 import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.work.AbstractTask;
-import org.cytoscape.work.ProvidesTitle;
 import org.cytoscape.work.TaskMonitor;
-import org.cytoscape.work.Tunable;
-import org.cytoscape.work.util.ListSingleSelection;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
@@ -20,57 +16,41 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
 
 public class FilterTask extends AbstractTask {
-	private OVManager ovManager;
-	private OVCytoPanel ovPanel;
+	protected OVManager ovManager;
+	protected OVCytoPanel ovPanel;
 
-	private OVTable ovTable;
+	protected OVTable ovTable;
+	
+	protected boolean removeFilter;
 
-	@Tunable(description="Select column",
-			tooltip="Select the column you want to filter",
-			gravity=1.0)
-	public ListSingleSelection<String> selectColName;
-
-	@Tunable(description="Operator",
-			tooltip="Select the way the values should be filtered",
-			gravity=1.0)
-	public ListSingleSelection<String> selectOperator;
-
-	@Tunable(description="Value",
-			tooltip="Select the value to compare with",
-			gravity=1.0)
-	public String strReference;
-
-	public FilterTask(OVManager ovManager) {
-		this(ovManager, null);
-	}
-
-	public FilterTask(OVManager ovManager, OVCytoPanel ovPanel) {
-		super();
-		this.ovManager = ovManager;
-		this.ovPanel = ovPanel;
-
-		this.ovTable = this.ovPanel.getDisplayedTable();
-
-		List<String> colNames = new ArrayList<>();
-		for(String colname : this.ovTable.getColNames()) {
-			if(!OVShared.isOVCol(colname) && 
-					this.ovTable.getColType(colname) != String.class &&
-					this.ovTable.getColType(colname) != List.class) {
-				colNames.add(colname);
-			}
+	protected String colName;
+	protected String strOperator;
+	protected String strReference;
+	
+	public FilterTask(OVManager ovManager, OVCytoPanel ovPanel, boolean removeFilter) {
+		this.ovManager=ovManager;
+		this.ovPanel=ovPanel;
+		
+		this.removeFilter=removeFilter;
+		
+		if(this.ovPanel != null) {
+			this.ovTable = this.ovPanel.getDisplayedTable();
 		}
-		this.selectColName = new ListSingleSelection<>(colNames);
-
-		this.selectOperator = new ListSingleSelection<String>(Arrays.asList("==",
-				"!=",
-				"<",
-				"<=",
-				">",
-				">=",
-				"null",
-				"not null"));
-
-		this.strReference="0";
+	}
+	
+	public FilterTask(OVManager ovManager, OVCytoPanel ovPanel, String colName, String strOperator, String strReference) {
+		this.ovManager=ovManager;
+		this.ovPanel=ovPanel;
+		
+		this.removeFilter=false;
+		
+		this.colName=colName;
+		this.strOperator=strOperator;
+		this.strReference=strReference;
+		
+		if(this.ovPanel != null) {
+			this.ovTable = this.ovPanel.getDisplayedTable();
+		}
 	}
 
 	@Override
@@ -80,74 +60,90 @@ public class FilterTask extends AbstractTask {
 		if(this.ovPanel == null) {
 			CySwingApplication swingApplication = this.ovManager.getService(CySwingApplication.class);
 			CytoPanel cytoPanel = swingApplication.getCytoPanel(CytoPanelName.SOUTH);
-			this.ovPanel = (OVCytoPanel) cytoPanel.getComponentAt(cytoPanel.indexOfComponent(OVShared.CYTOPANEL_NAME));
+			try {
+				this.ovPanel = (OVCytoPanel) cytoPanel.getComponentAt(cytoPanel.indexOfComponent(OVShared.CYTOPANEL_NAME));
+			} catch(IndexOutOfBoundsException e) {
+				return;
+			}
 
 			if(this.ovPanel == null) {
 				return;
 			}
 		}
+		
+		this.ovTable = this.ovPanel.getDisplayedTable();
 
-		Operator operator=null;
-		if(this.selectOperator.getSelectedValue().equals("==")) {
-			operator = new OperatorE();
-		} else if(this.selectOperator.getSelectedValue().equals("!=")) {
-			operator = new OperatorNE();
-		} else if(this.selectOperator.getSelectedValue().equals("<")) {
-			operator = new OperatorL();
-		} else if(this.selectOperator.getSelectedValue().equals("<=")) {
-			operator = new OperatorLE();
-		} else if(this.selectOperator.getSelectedValue().equals(">")) {
-			operator = new OperatorG();
-		} else if(this.selectOperator.getSelectedValue().equals(">=")) {
-			operator = new OperatorGE();
-		} else if(this.selectOperator.getSelectedValue().equals("null")) {
-			operator = new OperatorN();
-		} else if(this.selectOperator.getSelectedValue().equals("not null")) {
-			operator = new OperatorNN();
+		if(this.removeFilter) {
+			this.ovTable.removeFilter();
+			// TODO
+			this.ovTable.setTableProperty(OVShared.PROPERTY_FILTER, "");
 		} else {
-			return;
-		}
-
-		String colName = this.selectColName.getSelectedValue();
-		Class<?> colType = this.ovTable.getColType(colName);
-
-		Number reference = null;
-		try {
-			if(colType == Integer.class) {
-				reference=Integer.parseInt(strReference);
-			} else if(colType == Long.class) {
-				reference=Long.parseLong(strReference);
-			} else if(colType == Double.class) {
-				reference=Double.parseDouble(strReference);
+			Operator operator=null;
+			if(this.strOperator.equals("==")) {
+				operator = new OperatorE();
+			} else if(this.strOperator.equals("!=")) {
+				operator = new OperatorNE();
+			} else if(this.strOperator.equals("<")) {
+				operator = new OperatorL();
+			} else if(this.strOperator.equals("<=")) {
+				operator = new OperatorLE();
+			} else if(this.strOperator.equals(">")) {
+				operator = new OperatorG();
+			} else if(this.strOperator.equals(">=")) {
+				operator = new OperatorGE();
+			} else if(this.strOperator.equals("null")) {
+				operator = new OperatorN();
+			} else if(this.strOperator.equals("not null")) {
+				operator = new OperatorNN();
+			} else {
+				return;
 			}
-		} catch(NumberFormatException e) {
-			reference = null;
-		}
 
-		if(reference ==null) {
-			taskMonitor.setStatusMessage("Error: Impossible to parse the value \""+strReference+"\" as a number.");
-			return;
-		}
+			Class<?> colType = this.ovTable.getColType(colName);
 
-		List<Object> filteredRowKeys = new ArrayList<>();
-		for(CyRow row : this.ovTable.getCyTable().getAllRows()) {
-			try { 
-				Number value = (Number) row.get(colName, colType);
-
-				if(operator.filter(new NumberComparable(value), reference)) {
-					filteredRowKeys.add(row.getRaw(this.ovTable.getCyTable().getPrimaryKey().getName()));
+			Number reference = null;
+			try {
+				if(colType == Integer.class) {
+					reference=Integer.parseInt(strReference);
+				} else if(colType == Long.class) {
+					reference=Long.parseLong(strReference);
+				} else if(colType == Double.class) {
+					reference=Double.parseDouble(strReference);
 				}
-			} catch(ClassCastException e) {
-				taskMonitor.setStatusMessage("Warning: Could not cast \""+colName+"\" into double for row "+row.toString()+".");
+			} catch(NumberFormatException e) {
+				reference = null;
 			}
+
+			if(reference ==null) {
+				taskMonitor.setStatusMessage("Error: Impossible to parse the value \""+strReference+"\" as a number.");
+				return;
+			}
+
+			// TODO
+			String savedFilter = colName+","+this.strOperator+","+this.strReference;
+			this.ovTable.setTableProperty(OVShared.PROPERTY_FILTER, savedFilter);
+			
+			List<Object> filteredRowKeys = new ArrayList<>();
+			List<CyRow> allRows = this.ovTable.getCyTable().getAllRows();
+			int i=0;
+			for(CyRow row : allRows) {
+				taskMonitor.setProgress((i++)/allRows.size());
+				try { 
+					Number value = (Number) row.get(colName, colType);
+
+					if(operator.filter(new NumberComparable(value), reference)) {
+						filteredRowKeys.add(row.getRaw(this.ovTable.getCyTable().getPrimaryKey().getName()));
+					}
+				} catch(ClassCastException e) {
+					taskMonitor.setStatusMessage("Warning: Could not cast \""+colName+"\" into double for row "+row.toString()+".");
+				}
+			}
+
+			this.ovTable.filter(filteredRowKeys);
 		}
 
-		this.ovPanel.getTableModel().filter(filteredRowKeys);
-	}
-
-	@ProvidesTitle
-	public String getTitle() {
-		return "Filter Omics Visualizer Table";
+		this.ovTable.save();
+		this.ovPanel.update();
 	}
 
 	private class NumberComparable implements Comparable<Number> {

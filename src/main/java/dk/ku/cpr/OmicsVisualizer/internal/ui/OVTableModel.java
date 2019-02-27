@@ -1,5 +1,6 @@
 package dk.ku.cpr.OmicsVisualizer.internal.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
@@ -15,57 +16,63 @@ public class OVTableModel extends AbstractTableModel {
 	
 	private CyTable cyTable;
 	// We need the column names to access the data
-	private List<String> columnNames;
-	private Object[] rowKeys;
+	private List<String> displayedColumnNames;
+	private List<Object> displayedRowKeys;
+	private List<Object> filteredRowKeys;
+	private List<Object> selectedRowKeys;
+	private String colKey;
 
 	public OVTableModel(OVTable ovTable, List<String> columnNames) {
 		super();
 		
 		this.cyTable=ovTable.getCyTable();
-		this.columnNames=columnNames;
+		this.displayedColumnNames=columnNames;
 		
-		String colKey = this.cyTable.getPrimaryKey().getName();
+		this.colKey = this.cyTable.getPrimaryKey().getName();
+		
 		List<CyRow> rows = this.cyTable.getAllRows();
-		this.rowKeys=new Object[rows.size()];
-		int i=0;
+		this.displayedRowKeys=new ArrayList<>();
+		this.filteredRowKeys=new ArrayList<>();
+		this.selectedRowKeys=new ArrayList<>();
 		for(CyRow r : rows) {
-			this.rowKeys[i++] = r.getRaw(colKey);
+			this.filteredRowKeys.add(r.getRaw(colKey));
+			this.displayedRowKeys.add(r.getRaw(colKey));
 		}
 	}
 	
 	public void addColumnName(String colName) {
-		this.columnNames.add(colName);
+		this.displayedColumnNames.add(colName);
 	}
 
 	@Override
 	public int getRowCount() {
 //		return this.cyTable.getRowCount();
-		return this.rowKeys.length;
+		return this.displayedRowKeys.size();
 	}
 
 	@Override
 	public int getColumnCount() {
 //		return this.cyTable.getColumns().size();
-		return this.columnNames.size();
+		return this.displayedColumnNames.size();
 	}
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		return this.cyTable.getRow(this.rowKeys[rowIndex]).getRaw(this.columnNames.get(columnIndex));
+		return this.cyTable.getRow(this.displayedRowKeys.get(rowIndex)).getRaw(this.displayedColumnNames.get(columnIndex));
 	}
 
 	@Override
 	public String getColumnName(int col) {
-		return this.columnNames.get(col);
+		return this.displayedColumnNames.get(col);
 	}
 	
 	public List<String> getAllColumnNames() {
-		return this.columnNames;
+		return this.displayedColumnNames;
 	}
 	
 	public int mapColumnNameToColumnIndex(String name) {
-		if(this.columnNames.contains(name))
-			return this.columnNames.indexOf(name);
+		if(this.displayedColumnNames.contains(name))
+			return this.displayedColumnNames.indexOf(name);
 		
 		return -1;
 	}
@@ -75,8 +82,39 @@ public class OVTableModel extends AbstractTableModel {
 	 * @param rowKeys : new list of row keys to display
 	 */
 	public void filter(List<Object> rowKeys) {
-		this.rowKeys = rowKeys.toArray();
+		this.filteredRowKeys = rowKeys;
+		
+		this.displayedRowKeys = this.filteredRowKeys;
+		if(!this.selectedRowKeys.isEmpty()) {
+			this.displayedRowKeys.retainAll(this.selectedRowKeys);
+		}
 		
 		this.fireTableDataChanged();
+	}
+	
+	public void removeFilter() {
+		// We look for all the rows from the table
+		List<CyRow> rows = this.cyTable.getAllRows();
+		this.displayedRowKeys=new ArrayList<>();
+		for(CyRow r : rows) {
+			this.displayedRowKeys.add(r.getRaw(colKey));
+		}
+		
+		// If needed we select only selected rows
+		if(!this.selectedRowKeys.isEmpty()) {
+			this.displayedRowKeys.retainAll(this.selectedRowKeys);
+		}
+		
+		this.fireTableDataChanged();
+	}
+	
+	public boolean isFiltered(CyRow row) {
+		return this.filteredRowKeys.contains(row.getRaw(colKey));
+	}
+	
+	public void setSelectedRowKeys(List<Object> selectedRowKeys) {
+		this.selectedRowKeys = selectedRowKeys;
+		
+		this.filter(this.filteredRowKeys);
 	}
 }
