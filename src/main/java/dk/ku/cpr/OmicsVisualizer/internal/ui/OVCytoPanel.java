@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -48,8 +49,13 @@ import org.cytoscape.application.swing.CytoPanelComponent2;
 import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyNetworkManager;
+import org.cytoscape.model.CyRow;
+import org.cytoscape.model.events.RowSetRecord;
 import org.cytoscape.model.events.RowsSetEvent;
 import org.cytoscape.model.events.RowsSetListener;
+import org.cytoscape.model.events.SelectedNodesAndEdgesEvent;
+import org.cytoscape.model.events.SelectedNodesAndEdgesListener;
 import org.cytoscape.task.destroy.DeleteTableTaskFactory;
 import org.cytoscape.util.swing.IconManager;
 import org.cytoscape.work.TaskIterator;
@@ -66,7 +72,8 @@ public class OVCytoPanel extends JPanel
 implements CytoPanelComponent2,
 ActionListener,
 PopupMenuListener,
-RowsSetListener {
+RowsSetListener,
+SelectedNodesAndEdgesListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -110,7 +117,7 @@ RowsSetListener {
 
 		iconManager = this.ovManager.getServiceRegistrar().getService(IconManager.class);
 		iconFont = iconManager.getIconFont(ICON_FONT_SIZE);
-		
+
 		filterActive = new Color(0,153,0); // Green
 		filterInactive = Color.BLACK;
 
@@ -129,15 +136,15 @@ RowsSetListener {
 		GlobalTableComboBoxModel tcModel = (GlobalTableComboBoxModel)tableChooser.getModel();
 		for(OVTable table : ovManager.getOVTables()) {
 			tcModel.addAndSetSelectedItem(table);
-			
+
 			// We look for a potential filter previously applied to the table
 			String filter = table.getTableProperty(OVShared.PROPERTY_FILTER, "");
 			if(!filter.isEmpty()) {
 				String filterParts[] = filter.split(",");
-				
+
 				FilterTaskFactory factory = new FilterTaskFactory(this.ovManager, this);
 				TaskIterator ti = factory.createTaskIterator(filterParts[0], filterParts[1], filterParts[2]);
-				
+
 				this.ovManager.executeTask(ti);
 			}
 		}
@@ -173,7 +180,7 @@ RowsSetListener {
 	public Icon getIcon() {
 		return null;
 	}
-	
+
 	public OVTable getDisplayedTable() {
 		return this.displayedTable;
 	}
@@ -189,13 +196,13 @@ RowsSetListener {
 	protected void styleButton(final AbstractButton btn, final Font font) {
 		this.styleButton(btn, font, null);
 	}
-	
+
 	protected void styleButton(final AbstractButton btn, final Font font, final Color color) {
 		btn.setFont(font);
 		btn.setBorder(null);
 		btn.setContentAreaFilled(false);
 		btn.setBorderPainted(false);
-		
+
 		if(color != null) {
 			btn.setForeground(color);
 		}
@@ -207,7 +214,7 @@ RowsSetListener {
 
 		btn.setMinimumSize(new Dimension(w, h));
 		btn.setPreferredSize(new Dimension(w, h));
-		
+
 	}
 
 	private JPopupMenu getColumnSelectorPopupMenu() {
@@ -260,7 +267,7 @@ RowsSetListener {
 		if(ovTable==null) {
 			ovTable = this.getLastAddedTable();
 		}
-		
+
 		if(!ovTable.equals(this.displayedTable)) {
 			if(this.connectWindow != null) {
 				this.connectWindow.setVisible(false);
@@ -269,8 +276,12 @@ RowsSetListener {
 				this.styleWindow.setVisible(false);
 			}
 		}
-		
+
 		this.displayedTable = ovTable;
+
+		// We check for selected rows
+		CyApplicationManager applicationManager = this.ovManager.getService(CyApplicationManager.class);
+		this.displayedTable.displaySelectedRows(applicationManager.getCurrentNetwork());
 
 		JTable currentTable=ovTable.getJTable();
 
@@ -315,7 +326,7 @@ RowsSetListener {
 		} else {
 			styleButton(filterButton, iconFont, filterActive);
 		}
-		
+
 		if (deleteTableButton == null) {
 			deleteTableButton = new JButton(IconManager.ICON_TABLE + "" + IconManager.ICON_TIMES_CIRCLE);
 			deleteTableButton.setToolTipText("Delete Table...");
@@ -582,19 +593,86 @@ RowsSetListener {
 	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
 		// Do nothing
 	}
+	
+	/**
+	 * OVTable that was filtered by the selected network.
+	 * In case a network is selected, 2 RowsSetEvent are triggered:
+	 * - First the selected network event;
+	 * - Then the unselected network event.
+	 * If the two networks are connected to the same table, we want to filter the selected rows only to the selected network, not the unselected one.
+	 */
+	private OVTable selectedTable;
 
 	@Override
 	public void handleEvent(RowsSetEvent e) {
-		CyApplicationManager appManager = this.ovManager.getService(CyApplicationManager.class);
-		
-		if (e.containsColumn(CyNetwork.SELECTED)) { // It means that the selection has changed (can be node, edge, or network)
-			CyNetwork selectedNetwork = appManager.getCurrentNetwork();
-			if (selectedNetwork != null) {
-				OVConnection ovCon = this.ovManager.getConnection(selectedNetwork);
-				if(ovCon != null && !ovCon.getOVTable().equals(this.displayedTable)) {
-					this.initPanel(ovCon.getOVTable());
+		// This method is called when a table change, it can be Network, Node or Edge
+		// Here we only take care of Network selection changes, Node changes are taken care in another method
+		// The CyApplicationManager.getCurrentNetwork() has not been changed yet, so we can not use it
+		CyNetworkManager networkManager = this.ovManager.getNetworkManager();
+
+		// We only look for "selected" changes
+		if (e.containsColumn(CyNetwork.SELECTED)) {
+			OVConnection ovCon = null;
+			CyNetwork changedNetwork = null;
+			Boolean selected=false;
+
+			Collection<RowSetRecord> columnRecords = e.getColumnRecords(CyNetwork.SELECTED);
+			if(columnRecords.size() == 1) { // When there is a change with a network, only one row is modified
+				// Even if there is only 1 record, we have to use a for-loop to access the data of a Collection
+				for (RowSetRecord rec : columnRecords) {
+					CyRow row = rec.getRow();
+
+					// I do not know what FACADE is, but when a row is changed, the RowSetEvent is created twice:
+					// one "regular" and one FACADE, the FACADE is the second one so we do not want to deal with the same event a second time
+					if (row.toString().indexOf("FACADE") >= 0) {
+						continue;
+					}
+					
+					Long networkID = row.get(CyNetwork.SUID, Long.class);
+					selected = row.get(CyNetwork.SELECTED, Boolean.class);
+					// SUID is unique within all Cytoscape
+					// Here we verify if the SUID we have is the SUID of a network
+					if (networkManager.networkExists(networkID)) {
+						changedNetwork = networkManager.getNetwork(networkID);
+					}
 				}
-				return;
+
+				if (changedNetwork != null) {
+					System.out.println(changedNetwork);
+					// We have a network, we check if he is connected with an OVTable
+					ovCon = this.ovManager.getConnection(changedNetwork);
+
+					if(ovCon != null) {
+						if(selected) {
+							// If the network is selected, we display it
+							this.initPanel(ovCon.getOVTable());
+							// Some nodes may have already been selected before, we only display it
+							ovCon.getOVTable().displaySelectedRows(changedNetwork);
+							// We save the connected OVTable
+							selectedTable = ovCon.getOVTable();
+						} else { // The network is unselected
+							// We check that the table is different from the one we just selected
+							if(selectedTable==null || !ovCon.getOVTable().equals(selectedTable)) {
+								ovCon.getOVTable().selectAllRows();
+							}
+							
+							// We do not keep the table into memory
+							selectedTable=null;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	@Override
+	public void handleEvent(SelectedNodesAndEdgesEvent event) {
+		if(event.nodesChanged()) {
+			CyNetwork cyNetwork = event.getNetwork();
+			OVConnection ovCon = this.ovManager.getConnection(cyNetwork);
+
+			if(ovCon != null) {
+				ovCon.getOVTable().displaySelectedRows(cyNetwork);
 			}
 		}
 	}

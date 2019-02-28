@@ -33,7 +33,7 @@ public class OVProperties {
 		if(this.cyTable == null) {
 			CyTableFactory tableFactory = this.ovManager.getService(CyTableFactory.class);
 
-			this.cyTable = tableFactory.createTable(this.tableTitle, OVShared.OVPROPERTY_KEY, String.class, false, false);
+			this.cyTable = tableFactory.createTable(this.tableTitle, OVShared.OVPROPERTY_KEY, String.class, false, true);
 			this.cyTable.createColumn(OVShared.OVPROPERTY_VALUE, String.class, false);
 
 			tableManager.addTable(this.cyTable);

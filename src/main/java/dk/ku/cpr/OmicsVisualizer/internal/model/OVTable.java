@@ -277,6 +277,31 @@ public class OVTable {
 		return null;
 	}
 	
+	public void selectAllRows() {
+		this.tableModel.setSelectedRowKeys(new ArrayList<>());
+	}
+	
+	public void displaySelectedRows(CyNetwork cyNetwork) {
+		List<Object> selectedRowKeys = new ArrayList<>();
+		OVConnection ovCon = this.getConnection(cyNetwork);
+		
+		if(ovCon == null) {
+			this.selectAllRows();
+			return;
+		}
+		
+		for(CyRow nodeRow : cyNetwork.getDefaultNodeTable().getAllRows()) {
+			if(nodeRow.get(CyNetwork.SELECTED, Boolean.class)) {
+				List<CyRow> linkedRows = ovCon.getLinkedRows(nodeRow);
+				for(CyRow tableRow : linkedRows) {
+					selectedRowKeys.add(tableRow.getRaw(OVShared.OVTABLE_COLID_NAME));
+				}
+			}
+		}
+		
+		this.tableModel.setSelectedRowKeys(selectedRowKeys);
+	}
+	
 	public String getTitle() {
 		return this.cyTable.getTitle();
 	}

@@ -84,7 +84,7 @@ public class OVTableModel extends AbstractTableModel {
 	public void filter(List<Object> rowKeys) {
 		this.filteredRowKeys = rowKeys;
 		
-		this.displayedRowKeys = this.filteredRowKeys;
+		this.displayedRowKeys = new ArrayList<>(this.filteredRowKeys);
 		if(!this.selectedRowKeys.isEmpty()) {
 			this.displayedRowKeys.retainAll(this.selectedRowKeys);
 		}
@@ -99,6 +99,9 @@ public class OVTableModel extends AbstractTableModel {
 		for(CyRow r : rows) {
 			this.displayedRowKeys.add(r.getRaw(colKey));
 		}
+		
+		// Because the filter is removed, all rows pass the filter
+		this.filteredRowKeys = new ArrayList<>(this.displayedRowKeys);
 		
 		// If needed we select only selected rows
 		if(!this.selectedRowKeys.isEmpty()) {

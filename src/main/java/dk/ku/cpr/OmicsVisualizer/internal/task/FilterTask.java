@@ -75,7 +75,6 @@ public class FilterTask extends AbstractTask {
 
 		if(this.removeFilter) {
 			this.ovTable.removeFilter();
-			// TODO
 			this.ovTable.setTableProperty(OVShared.PROPERTY_FILTER, "");
 		} else {
 			Operator operator=null;
@@ -119,7 +118,6 @@ public class FilterTask extends AbstractTask {
 				return;
 			}
 
-			// TODO
 			String savedFilter = colName+","+this.strOperator+","+this.strReference;
 			this.ovTable.setTableProperty(OVShared.PROPERTY_FILTER, savedFilter);
 			

@@ -9,6 +9,7 @@ import org.cytoscape.application.swing.CytoPanelComponent2;
 import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.application.swing.CytoPanelState;
 import org.cytoscape.model.events.RowsSetListener;
+import org.cytoscape.model.events.SelectedNodesAndEdgesListener;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.TaskMonitor;
 
@@ -36,6 +37,7 @@ public class ShowOVPanelTask extends AbstractTask {
 			// Register it
 			this.ovManager.registerService(panel, CytoPanelComponent.class, new Properties());
 			this.ovManager.registerService(panel, RowsSetListener.class, new Properties());
+			this.ovManager.registerService(panel, SelectedNodesAndEdgesListener.class, new Properties());
 
 			if (cytoPanel.getState() == CytoPanelState.HIDE)
 				cytoPanel.setState(CytoPanelState.DOCK);
