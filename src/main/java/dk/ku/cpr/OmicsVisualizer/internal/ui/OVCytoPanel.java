@@ -638,7 +638,6 @@ SelectedNodesAndEdgesListener {
 				}
 
 				if (changedNetwork != null) {
-					System.out.println(changedNetwork);
 					// We have a network, we check if he is connected with an OVTable
 					ovCon = this.ovManager.getConnection(changedNetwork);
 
