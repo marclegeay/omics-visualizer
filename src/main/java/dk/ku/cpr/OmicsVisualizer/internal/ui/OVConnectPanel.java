@@ -1,6 +1,7 @@
 package dk.ku.cpr.OmicsVisualizer.internal.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -66,6 +67,7 @@ public class OVConnectPanel extends JPanel implements ActionListener {
 		this.updateButton = new JButton("Update");
 		this.updateButton.addActionListener(this);
 		this.disconnectButton = new JButton("Disconnect");
+		this.disconnectButton.setForeground(Color.RED);
 		this.disconnectButton.addActionListener(this);
 		
 		buttonPanel.add(this.updateButton);
