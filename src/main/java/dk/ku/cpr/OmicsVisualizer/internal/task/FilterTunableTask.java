@@ -45,7 +45,6 @@ public class FilterTunableTask extends FilterTask {
 		List<String> colNames = new ArrayList<>();
 		for(String colname : this.ovTable.getColNames()) {
 			if(!OVShared.isOVCol(colname) && 
-					this.ovTable.getColType(colname) != String.class &&
 					this.ovTable.getColType(colname) != List.class) {
 				colNames.add(colname);
 			}

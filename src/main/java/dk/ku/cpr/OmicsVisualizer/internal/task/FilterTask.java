@@ -100,22 +100,26 @@ public class FilterTask extends AbstractTask {
 
 			Class<?> colType = this.ovTable.getColType(colName);
 
-			Number reference = null;
-			try {
-				if(colType == Integer.class) {
-					reference=Integer.parseInt(strReference);
-				} else if(colType == Long.class) {
-					reference=Long.parseLong(strReference);
-				} else if(colType == Double.class) {
-					reference=Double.parseDouble(strReference);
+			Object reference = null;
+			if(colType == String.class) {
+				reference = strReference;
+			} else {
+				try {
+					if(colType == Integer.class) {
+						reference=Integer.parseInt(strReference);
+					} else if(colType == Long.class) {
+						reference=Long.parseLong(strReference);
+					} else if(colType == Double.class) {
+						reference=Double.parseDouble(strReference);
+					}
+				} catch(NumberFormatException e) {
+					reference = null;
 				}
-			} catch(NumberFormatException e) {
-				reference = null;
-			}
-
-			if(reference ==null) {
-				taskMonitor.setStatusMessage("Error: Impossible to parse the value \""+strReference+"\" as a number.");
-				return;
+	
+				if(reference ==null) {
+					taskMonitor.setStatusMessage("Error: Impossible to parse the value \""+strReference+"\" as a number.");
+					return;
+				}
 			}
 
 			String savedFilter = colName+","+this.strOperator+","+this.strReference;
@@ -127,13 +131,11 @@ public class FilterTask extends AbstractTask {
 			for(CyRow row : allRows) {
 				taskMonitor.setProgress((i++)/allRows.size());
 				try { 
-					Number value = (Number) row.get(colName, colType);
-
-					if(operator.filter(new NumberComparable(value), reference)) {
+					if(operator.filter(row.get(colName, colType), reference)) {
 						filteredRowKeys.add(row.getRaw(this.ovTable.getCyTable().getPrimaryKey().getName()));
 					}
 				} catch(ClassCastException e) {
-					taskMonitor.setStatusMessage("Warning: Could not cast \""+colName+"\" into double for row "+row.toString()+".");
+					taskMonitor.setStatusMessage("Warning: Could not cast \""+colName+"\".");
 				}
 			}
 
@@ -169,75 +171,102 @@ public class FilterTask extends AbstractTask {
 	}
 
 	private abstract class Operator {
-		public boolean filter(NumberComparable tableValue, Number reference) {
-			if(tableValue == null) {
-				return false;
+		public abstract boolean filter(Object tableValue, Object reference);
+	}
+	
+	private abstract class NumericOperator extends Operator {
+		public NumberComparable cast(Object tableValue) {
+			if((tableValue == null) || !(tableValue instanceof Number)) {
+				return null;
 			}
-			if(tableValue.n == reference) {
-				return true;
-			}
-			if(tableValue.n == null) {
-				return false;
-			}
-			return true;
+			
+			return new NumberComparable((Number)tableValue);
 		}
 	}
 
 	private class OperatorE extends Operator {
 		@Override
-		public boolean filter(NumberComparable tableValue, Number reference) {
-			return super.filter(tableValue, reference) && (tableValue.compareTo(reference)==0);
+		public boolean filter(Object tableValue, Object reference) {
+			if(tableValue == null) {
+				return false;
+			}
+			
+			return tableValue.equals(reference);
 		}
 	}
 
 	private class OperatorNE extends Operator {
 		@Override
-		public boolean filter(NumberComparable tableValue, Number reference) {
-			return super.filter(tableValue, reference) && (tableValue.compareTo(reference) != 0);
+		public boolean filter(Object tableValue, Object reference) {
+			if(tableValue == null) {
+				return false;
+			}
+			
+			return !tableValue.equals(reference);
 		}
 	}
 
-	private class OperatorL extends Operator {
+	private class OperatorL extends NumericOperator {
 		@Override
-		public boolean filter(NumberComparable tableValue, Number reference) {
-			return super.filter(tableValue, reference) && (tableValue.compareTo(reference) < 0);
+		public boolean filter(Object tableValue, Object reference) {
+			NumberComparable value = this.cast(tableValue);
+			
+			if(value == null) {
+				return false;
+			}
+			return value.compareTo((Number)reference) < 0;
 		}
 	}
 
-	private class OperatorLE extends Operator {
+	private class OperatorLE extends NumericOperator {
 		@Override
-		public boolean filter(NumberComparable tableValue, Number reference) {
-			return super.filter(tableValue, reference) && (tableValue.compareTo(reference) <= 0);
+		public boolean filter(Object tableValue, Object reference) {
+			NumberComparable value = this.cast(tableValue);
+			
+			if(value == null) {
+				return false;
+			}
+			return value.compareTo((Number)reference) <= 0;
 		}
 	}
 
-	private class OperatorG extends Operator {
+	private class OperatorG extends NumericOperator {
 		@Override
-		public boolean filter(NumberComparable tableValue, Number reference) {
-			return super.filter(tableValue, reference) && (tableValue.compareTo(reference) > 0);
+		public boolean filter(Object tableValue, Object reference) {
+			NumberComparable value = this.cast(tableValue);
+			
+			if(value == null) {
+				return false;
+			}
+			return value.compareTo((Number)reference) > 0;
 		}
 	}
 
-	private class OperatorGE extends Operator {
+	private class OperatorGE extends NumericOperator {
 		@Override
-		public boolean filter(NumberComparable tableValue, Number reference) {
-			return super.filter(tableValue, reference) && (tableValue.compareTo(reference) >= 0);
+		public boolean filter(Object tableValue, Object reference) {
+			NumberComparable value = this.cast(tableValue);
+			
+			if(value == null) {
+				return false;
+			}
+			return value.compareTo((Number)reference) >= 0;
 		}
 	}
 
 	private class OperatorN extends Operator {
 		@Override
-		public boolean filter(NumberComparable tableValue, Number reference) {
+		public boolean filter(Object tableValue, Object reference) {
 			// Here we do not look at reference
-			return (tableValue==null || tableValue.n == null);
+			return (tableValue==null);
 		}
 	}
 
 	private class OperatorNN extends Operator {
 		@Override
-		public boolean filter(NumberComparable tableValue, Number reference) {
+		public boolean filter(Object tableValue, Object reference) {
 			// Here we do not look at reference
-			return (tableValue!=null && tableValue.n != null);
+			return (tableValue!=null);
 		}
 	}
 }
