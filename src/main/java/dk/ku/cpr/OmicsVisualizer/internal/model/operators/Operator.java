@@ -26,6 +26,15 @@ public enum Operator {
 		return this.operator;
 	}
 	
+	public boolean isNumeric() {
+		return this.operator instanceof NumericOperator;
+	}
+	
+	public boolean isUnary() {
+		return this.operator instanceof OperatorNN ||
+				this.operator instanceof OperatorN;
+	}
+	
 	public String toString() {
 		return this.name;
 	}

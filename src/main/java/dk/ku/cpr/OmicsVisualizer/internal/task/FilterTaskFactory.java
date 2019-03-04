@@ -29,4 +29,9 @@ public class FilterTaskFactory extends AbstractTaskFactory {
 	public TaskIterator createTaskIterator(String colName, Operator operator, String strReference) {
 		return new TaskIterator(new FilterTask(this.ovManager, this.ovPanel, colName, operator, strReference));
 	}
+	
+	@Override
+	public boolean isReady() {
+		return super.isReady() && (this.ovManager.getActiveOVTable()!=null);
+	}
 }

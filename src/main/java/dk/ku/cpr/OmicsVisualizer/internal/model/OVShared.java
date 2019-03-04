@@ -7,8 +7,9 @@ import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyTable;
 
 public class OVShared {
-
 	public static final String OV_PREFIX = "dk.ku.cpr.OmicsVisualizer.";
+	
+	public static final String OV_PREFERRED_MENU = "Apps.Omics Visualizer";
 	
 	public static final String CYTOPANEL_NAME = OV_PREFIX+"CytoPanel";
 	

@@ -31,17 +31,12 @@ public class FilterTunableTask extends FilterTask {
 			gravity=1.0)
 	public String strTunableReference;
 
-	@Tunable(description="Remove filter",
-			tooltip="Remove the current filter and display all the rows",
-			gravity=1.0)
-	public boolean tunableRemoveFilter;
-
 	public FilterTunableTask(OVManager ovManager) {
 		this(ovManager, null);
 	}
 
 	public FilterTunableTask(OVManager ovManager, OVCytoPanel ovPanel) {
-		super(ovManager, ovPanel, false);
+		super(ovManager, ovPanel);
 
 		List<String> colNames = new ArrayList<>();
 		for(String colname : this.ovTable.getColNames()) {
@@ -53,16 +48,14 @@ public class FilterTunableTask extends FilterTask {
 		this.selectColName = new ListSingleSelection<>(colNames);
 
 		this.selectOperator = new ListSingleSelection<>(Arrays.asList(Operator.values()));
-		
+
 
 		this.strTunableReference="0";
 
-		this.tunableRemoveFilter=false;
-		
 		String oldFilter = this.ovTable.getFilter();
 		if(oldFilter != null) {
 			String oldFilterParts[] = oldFilter.split(",");
-			
+
 			this.selectColName.setSelectedValue(oldFilterParts[0]);
 			this.selectOperator.setSelectedValue(Operator.valueOf(oldFilterParts[1]));
 			this.strTunableReference = oldFilterParts[2];
@@ -71,14 +64,10 @@ public class FilterTunableTask extends FilterTask {
 
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
-		if(this.tunableRemoveFilter) {
-			this.removeFilter=true;
-		} else {
-			this.colName = this.selectColName.getSelectedValue();
-			this.operator = this.selectOperator.getSelectedValue();
-			this.strReference = this.strTunableReference;
-		}
-		
+		this.colName = this.selectColName.getSelectedValue();
+		this.operator = this.selectOperator.getSelectedValue();
+		this.strReference = this.strTunableReference;
+
 		super.run(taskMonitor);
 	}
 

@@ -267,6 +267,10 @@ public class OVTable {
 		return this.tableModel.isFiltered(row);
 	}
 	
+	/**
+	 * Get the applied filter represented in a String.
+	 * @return the String or <code>null</code> if no filter is applied
+	 */
 	public String getFilter() {
 		String filter = this.getTableProperty(OVShared.PROPERTY_FILTER, "");
 		

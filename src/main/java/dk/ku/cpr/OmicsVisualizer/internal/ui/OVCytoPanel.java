@@ -100,6 +100,7 @@ SelectedNodesAndEdgesListener {
 	private JPopupMenu columnSelectorPopupMenu;
 	private CyColumnSelector columnSelector;
 
+	private OVFilterWindow filterWindow;
 	private OVConnectWindow connectWindow;
 	private OVStyleWindow styleWindow;
 
@@ -245,6 +246,14 @@ SelectedNodesAndEdgesListener {
 
 		return columnSelector;
 	}
+	
+	private OVFilterWindow getFilterWindow() {
+		if(this.filterWindow == null) {
+			this.filterWindow = new OVFilterWindow(this.ovManager);
+		}
+		
+		return this.filterWindow;
+	}
 
 	private OVConnectWindow getConnectWindow() {
 		if(this.connectWindow == null) {
@@ -318,8 +327,9 @@ SelectedNodesAndEdgesListener {
 			filterButton.setToolTipText("Filter rows");
 
 			filterButton.addActionListener(e -> {
-				FilterTaskFactory factory = new FilterTaskFactory(this.ovManager, this);
-				this.ovManager.executeTask(factory.createTaskIterator());
+//				FilterTaskFactory factory = new FilterTaskFactory(this.ovManager, this);
+//				this.ovManager.executeTask(factory.createTaskIterator());
+				this.getFilterWindow().setVisible(true);
 			});
 		}
 		if(this.displayedTable.getFilter() == null) {
@@ -378,14 +388,14 @@ SelectedNodesAndEdgesListener {
 		addToolBarComponent(connectButton, ComponentPlacement.RELATED);
 		addToolBarComponent(styleButton, ComponentPlacement.RELATED);
 
-		toolBarPanel = new JPanel();
-		toolBarPanel.setLayout(new BorderLayout());
-		toolBarPanel.add(toolBar, BorderLayout.CENTER);
-
 		if (tableChooser != null) {
 			hToolBarGroup.addGap(0, 20, Short.MAX_VALUE);
 			addToolBarComponent(tableChooser, ComponentPlacement.UNRELATED);
 		}
+
+		toolBarPanel = new JPanel();
+		toolBarPanel.setLayout(new BorderLayout());
+		toolBarPanel.add(toolBar, BorderLayout.CENTER);
 
 		// System.out.println("show table: " + showTable);
 		scrollPane = new JScrollPane(currentTable);

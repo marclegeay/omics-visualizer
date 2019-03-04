@@ -183,8 +183,24 @@ public class OVManager
 		return this.ovTables;
 	}
 	
+	/**
+	 * Get the active OVTable, i.e. the table displayed in the OVCytoPanel.
+	 * @return the active OVTable, <code>null</code> if there is no active OVTable.
+	 */
+	public OVTable getActiveOVTable() {
+		if(this.ovCytoPanel != null) {
+			return this.ovCytoPanel.getDisplayedTable();
+		}
+		
+		return null;
+	}
+	
 	public void setOVCytoPanel(OVCytoPanel panel) {
 		this.ovCytoPanel=panel;
+	}
+	
+	public OVCytoPanel getOVCytoPanel() {
+		return this.ovCytoPanel;
 	}
 	
 	public void showPanel() {
