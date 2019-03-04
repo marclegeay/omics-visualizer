@@ -416,6 +416,16 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 						Object val = row.get(colName, valueType);
 						if(val != null ) {
 							values.add(val);
+						} else {
+							if(valueType == Integer.class) {
+								values.add(new Integer(0));
+							} else if(valueType == Long.class) {
+								values.add(new Long(0));
+							} else if(valueType == Double.class) {
+								values.add(new Double(0.0));
+							} else {
+								values.add("");
+							}
 						}
 					}
 				}
