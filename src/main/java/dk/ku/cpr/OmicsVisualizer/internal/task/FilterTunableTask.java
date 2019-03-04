@@ -11,6 +11,7 @@ import org.cytoscape.work.util.ListSingleSelection;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
+import dk.ku.cpr.OmicsVisualizer.internal.model.operators.Operator;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
 
 public class FilterTunableTask extends FilterTask {
@@ -23,7 +24,7 @@ public class FilterTunableTask extends FilterTask {
 	@Tunable(description="Operator",
 			tooltip="Select the way the values should be filtered",
 			gravity=1.0)
-	public ListSingleSelection<String> selectOperator;
+	public ListSingleSelection<Operator> selectOperator;
 
 	@Tunable(description="Value",
 			tooltip="Select the value to compare with",
@@ -51,14 +52,8 @@ public class FilterTunableTask extends FilterTask {
 		}
 		this.selectColName = new ListSingleSelection<>(colNames);
 
-		this.selectOperator = new ListSingleSelection<String>(Arrays.asList("==",
-				"!=",
-				"<",
-				"<=",
-				">",
-				">=",
-				"null",
-				"not null"));
+		this.selectOperator = new ListSingleSelection<>(Arrays.asList(Operator.values()));
+		
 
 		this.strTunableReference="0";
 
@@ -69,7 +64,7 @@ public class FilterTunableTask extends FilterTask {
 			String oldFilterParts[] = oldFilter.split(",");
 			
 			this.selectColName.setSelectedValue(oldFilterParts[0]);
-			this.selectOperator.setSelectedValue(oldFilterParts[1]);
+			this.selectOperator.setSelectedValue(Operator.valueOf(oldFilterParts[1]));
 			this.strTunableReference = oldFilterParts[2];
 		}
 	}
@@ -80,7 +75,7 @@ public class FilterTunableTask extends FilterTask {
 			this.removeFilter=true;
 		} else {
 			this.colName = this.selectColName.getSelectedValue();
-			this.strOperator = this.selectOperator.getSelectedValue();
+			this.operator = this.selectOperator.getSelectedValue();
 			this.strReference = this.strTunableReference;
 		}
 		

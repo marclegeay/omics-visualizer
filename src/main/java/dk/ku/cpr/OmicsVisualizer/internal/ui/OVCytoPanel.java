@@ -65,6 +65,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
+import dk.ku.cpr.OmicsVisualizer.internal.model.operators.Operator;
 import dk.ku.cpr.OmicsVisualizer.internal.task.FilterTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.ViewUtil;
 
@@ -143,7 +144,7 @@ SelectedNodesAndEdgesListener {
 				String filterParts[] = filter.split(",");
 
 				FilterTaskFactory factory = new FilterTaskFactory(this.ovManager, this);
-				TaskIterator ti = factory.createTaskIterator(filterParts[0], filterParts[1], filterParts[2]);
+				TaskIterator ti = factory.createTaskIterator(filterParts[0], Operator.valueOf(filterParts[1]), filterParts[2]);
 
 				this.ovManager.executeTask(ti);
 			}

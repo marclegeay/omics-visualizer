@@ -144,7 +144,7 @@ public class OVStyle implements Serializable {
 		}
 
 		public String getName() {
-			return this.name();
+			return this.name;
 		}
 
 		public String getStyle() {
