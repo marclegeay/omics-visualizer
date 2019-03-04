@@ -68,24 +68,26 @@ public class FilterTask extends AbstractTask {
 		Class<?> colType = this.ovTable.getColType(colName);
 
 		Object reference = null;
-		if(colType == String.class) {
-			reference = strReference;
-		} else {
-			try {
-				if(colType == Integer.class) {
-					reference=Integer.parseInt(strReference);
-				} else if(colType == Long.class) {
-					reference=Long.parseLong(strReference);
-				} else if(colType == Double.class) {
-					reference=Double.parseDouble(strReference);
+		if(!this.operator.isUnary()) {
+			if(colType == String.class) {
+				reference = strReference;
+			} else {
+				try {
+					if(colType == Integer.class) {
+						reference=Integer.parseInt(strReference);
+					} else if(colType == Long.class) {
+						reference=Long.parseLong(strReference);
+					} else if(colType == Double.class) {
+						reference=Double.parseDouble(strReference);
+					}
+				} catch(NumberFormatException e) {
+					reference = null;
 				}
-			} catch(NumberFormatException e) {
-				reference = null;
-			}
 
-			if(reference ==null) {
-				taskMonitor.setStatusMessage("Error: Impossible to parse the value \""+strReference+"\" as a number.");
-				return;
+				if(reference ==null) {
+					taskMonitor.setStatusMessage("Error: Impossible to parse the value \""+strReference+"\" as a number.");
+					return;
+				}
 			}
 		}
 
@@ -106,10 +108,13 @@ public class FilterTask extends AbstractTask {
 
 		String savedFilter = colName+","+this.operator.name()+","+this.strReference;
 		this.ovTable.setTableProperty(OVShared.PROPERTY_FILTER, savedFilter);
+		
 		this.ovTable.save();
 		
 		if(this.ovPanel != null) {
 			this.ovPanel.update();
 		}
+		
+		taskMonitor.setStatusMessage("Applied filter : " + savedFilter);
 	}
 }

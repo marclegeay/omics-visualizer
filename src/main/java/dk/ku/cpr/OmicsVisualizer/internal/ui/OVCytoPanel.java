@@ -683,6 +683,7 @@ SelectedNodesAndEdgesListener {
 
 			if(ovCon != null) {
 				ovCon.getOVTable().displaySelectedRows(cyNetwork);
+				this.update();
 			}
 		}
 	}
