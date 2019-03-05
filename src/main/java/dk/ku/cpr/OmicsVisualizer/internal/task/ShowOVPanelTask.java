@@ -1,15 +1,9 @@
 package dk.ku.cpr.OmicsVisualizer.internal.task;
 
-import java.util.Properties;
-
 import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.application.swing.CytoPanel;
-import org.cytoscape.application.swing.CytoPanelComponent;
-import org.cytoscape.application.swing.CytoPanelComponent2;
 import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.application.swing.CytoPanelState;
-import org.cytoscape.model.events.RowsSetListener;
-import org.cytoscape.model.events.SelectedNodesAndEdgesListener;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.TaskMonitor;
 
@@ -32,12 +26,10 @@ public class ShowOVPanelTask extends AbstractTask {
 		CytoPanel cytoPanel = swingApplication.getCytoPanel(CytoPanelName.SOUTH);
 
 		if (cytoPanel.indexOfComponent(OVShared.CYTOPANEL_NAME) < 0) {
-			CytoPanelComponent2 panel = new OVCytoPanel(this.ovManager);
+			OVCytoPanel panel = new OVCytoPanel(this.ovManager);
 
 			// Register it
-			this.ovManager.registerService(panel, CytoPanelComponent.class, new Properties());
-			this.ovManager.registerService(panel, RowsSetListener.class, new Properties());
-			this.ovManager.registerService(panel, SelectedNodesAndEdgesListener.class, new Properties());
+			this.ovManager.registerOVCytoPanel(panel);
 
 			if (cytoPanel.getState() == CytoPanelState.HIDE)
 				cytoPanel.setState(CytoPanelState.DOCK);

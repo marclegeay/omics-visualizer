@@ -115,7 +115,6 @@ SelectedNodesAndEdgesListener {
 	public OVCytoPanel(OVManager ovManager) {
 		this.setLayout(new BorderLayout());
 		this.ovManager=ovManager;
-		this.ovManager.setOVCytoPanel(this);
 
 		iconManager = this.ovManager.getServiceRegistrar().getService(IconManager.class);
 		iconFont = iconManager.getIconFont(ICON_FONT_SIZE);
@@ -142,10 +141,27 @@ SelectedNodesAndEdgesListener {
 			// We look for a potential filter previously applied to the table
 			String filter = table.getTableProperty(OVShared.PROPERTY_FILTER, "");
 			if(!filter.isEmpty()) {
+				System.out.println(filter);
 				String filterParts[] = filter.split(",");
 
+				String colName;
+				Operator operator;
+				String strReference;
+				if(filterParts.length == 3) {
+					colName = filterParts[0];
+					operator = Operator.valueOf(filterParts[1]);
+					strReference = filterParts[2];
+				} else if(filterParts.length == 2) {
+					colName = filterParts[0];
+					operator = Operator.valueOf(filterParts[1]);
+					strReference = "";
+				} else {
+					continue;
+				}
+				
+
 				FilterTaskFactory factory = new FilterTaskFactory(this.ovManager, this);
-				TaskIterator ti = factory.createTaskIterator(filterParts[0], Operator.valueOf(filterParts[1]), filterParts[2]);
+				TaskIterator ti = factory.createTaskIterator(colName, operator, strReference);
 
 				this.ovManager.executeTask(ti);
 			}
@@ -447,8 +463,7 @@ SelectedNodesAndEdgesListener {
 
 		if(this.ovManager.getOVTables().size() == 0) {
 			// No more Omics Visualizer tables, we unregister the panel
-			this.ovManager.unregisterService(this, CytoPanelComponent.class);
-			//			this.ovManager.unregisterService(this, RowsSetListener.class);
+			this.ovManager.unregisterOVCytoPanel();
 		} else {
 			initPanel(null);
 		}
