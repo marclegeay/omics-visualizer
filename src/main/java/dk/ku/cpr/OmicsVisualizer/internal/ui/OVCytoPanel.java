@@ -159,7 +159,7 @@ SelectedNodesAndEdgesListener {
 				
 
 				FilterTaskFactory factory = new FilterTaskFactory(this.ovManager, this);
-				TaskIterator ti = factory.createTaskIterator(colName, operator, strReference);
+				TaskIterator ti = factory.createTaskIterator(table, colName, operator, strReference);
 
 				this.ovManager.executeTask(ti);
 			}

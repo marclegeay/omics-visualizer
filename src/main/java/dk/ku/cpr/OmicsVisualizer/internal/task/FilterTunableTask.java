@@ -70,9 +70,4 @@ public class FilterTunableTask extends FilterTask {
 
 		super.run(taskMonitor);
 	}
-
-	@ProvidesTitle
-	public String getTitle() {
-		return "Filter Omics Visualizer Table";
-	}
 }

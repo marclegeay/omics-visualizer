@@ -8,6 +8,7 @@ import org.cytoscape.application.swing.CytoPanel;
 import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.work.AbstractTask;
+import org.cytoscape.work.ProvidesTitle;
 import org.cytoscape.work.TaskMonitor;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
@@ -56,9 +57,30 @@ public class FilterTask extends AbstractTask {
 
 		this.ovTable = this.ovManager.getActiveOVTable();
 	}
+	
+	public FilterTask(OVManager ovManager, OVCytoPanel ovPanel, OVTable ovTable, String colName, Operator operator, String strReference) {
+		this.ovManager=ovManager;
+		this.ovPanel=ovPanel;
+
+		this.colName=colName;
+		this.operator=operator;
+		this.strReference=strReference;
+
+		if(this.ovPanel == null) {
+			CySwingApplication swingApplication = this.ovManager.getService(CySwingApplication.class);
+			CytoPanel cytoPanel = swingApplication.getCytoPanel(CytoPanelName.SOUTH);
+			try {
+				this.ovPanel = (OVCytoPanel) cytoPanel.getComponentAt(cytoPanel.indexOfComponent(OVShared.CYTOPANEL_NAME));
+			} catch(IndexOutOfBoundsException e) {
+			}
+		}
+
+		this.ovTable = ovTable;
+	}
 
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
+		System.out.println("[OV - FilterTask::run]");
 		if(this.ovTable == null) {
 			return;
 		}
@@ -116,5 +138,10 @@ public class FilterTask extends AbstractTask {
 		}
 		
 		taskMonitor.setStatusMessage("Applied filter : " + savedFilter);
+	}
+
+	@ProvidesTitle
+	public String getTitle() {
+		return "Filter Omics Visualizer Table";
 	}
 }

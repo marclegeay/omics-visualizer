@@ -4,6 +4,7 @@ import org.cytoscape.work.AbstractTaskFactory;
 import org.cytoscape.work.TaskIterator;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 import dk.ku.cpr.OmicsVisualizer.internal.model.operators.Operator;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
 
@@ -28,6 +29,10 @@ public class FilterTaskFactory extends AbstractTaskFactory {
 
 	public TaskIterator createTaskIterator(String colName, Operator operator, String strReference) {
 		return new TaskIterator(new FilterTask(this.ovManager, this.ovPanel, colName, operator, strReference));
+	}
+
+	public TaskIterator createTaskIterator(OVTable ovTable, String colName, Operator operator, String strReference) {
+		return new TaskIterator(new FilterTask(this.ovManager, this.ovPanel, ovTable, colName, operator, strReference));
 	}
 	
 	@Override

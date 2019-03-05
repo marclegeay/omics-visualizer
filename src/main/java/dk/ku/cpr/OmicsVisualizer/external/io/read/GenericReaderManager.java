@@ -1,6 +1,5 @@
 package dk.ku.cpr.OmicsVisualizer.external.io.read;
 
-import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;

@@ -106,7 +106,9 @@ public class OVFilterWindow extends JFrame implements ActionListener {
 				
 				this.selectColumn.setSelectedItem(filterParts[0]);
 				this.selectOperator.setSelectedItem(Operator.valueOf(filterParts[1]));
-				this.fieldValue.setText(filterParts[2]);
+				if(filterParts.length==3) {
+					this.fieldValue.setText(filterParts[2]);
+				}
 			}
 			
 			this.removeButton.setEnabled(filter!=null);
