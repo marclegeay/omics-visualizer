@@ -34,6 +34,8 @@ public class OVTable {
 		this.cyTable=cyTable;
 		this.jTable=null;
 		
+		this.cyTable.setPublic(false);
+		
 		this.ovProps = new OVProperties(this.ovManager, OVShared.OVPROPERTY_NAME+"-"+this.cyTable.getTitle());
 		
 		this.createJTable();

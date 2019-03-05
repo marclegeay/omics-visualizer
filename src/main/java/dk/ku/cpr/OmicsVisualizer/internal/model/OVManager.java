@@ -1,11 +1,16 @@
 package dk.ku.cpr.OmicsVisualizer.internal.model;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
 import org.cytoscape.application.swing.CytoPanelComponent;
+import org.cytoscape.io.DataCategory;
+import org.cytoscape.io.read.CyTableReader;
+import org.cytoscape.io.read.InputStreamTaskFactory;
+import org.cytoscape.io.util.StreamUtil;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyTable;
@@ -25,6 +30,7 @@ import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskManager;
 import org.cytoscape.work.TaskObserver;
 
+import dk.ku.cpr.OmicsVisualizer.external.io.read.GenericReaderManager;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowOVPanelTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
 
@@ -43,6 +49,8 @@ NetworkAboutToBeDestroyedListener {
 
 	private CyNetworkManager netManager;
 	private CyTableManager tableManager;
+	
+	private GenericReaderManager<InputStreamTaskFactory, CyTableReader> readerManager;
 
 	public OVManager(CyServiceRegistrar serviceRegistrar) {
 		this.serviceRegistrar=serviceRegistrar;
@@ -53,6 +61,9 @@ NetworkAboutToBeDestroyedListener {
 
 		this.netManager = this.getService(CyNetworkManager.class);
 		this.tableManager = this.getService(CyTableManager.class);
+		
+		StreamUtil streamUtil = this.getService(StreamUtil.class);
+		this.readerManager = new GenericReaderManager<>(DataCategory.TABLE, streamUtil);
 
 		initOVTables();
 	}
@@ -187,6 +198,14 @@ NetworkAboutToBeDestroyedListener {
 
 	public CyTableManager getTableManager() {
 		return this.tableManager;
+	}
+	
+	public void addReaderFactory(InputStreamTaskFactory factory, Properties props) {
+		this.readerManager.addInputStreamTaskFactory(factory, props);
+	}
+	
+	public CyTableReader getReader(URI uri, String inputName) {
+		return this.readerManager.getReader(uri, inputName);
 	}
 
 	public void addOVTable(OVTable table) {

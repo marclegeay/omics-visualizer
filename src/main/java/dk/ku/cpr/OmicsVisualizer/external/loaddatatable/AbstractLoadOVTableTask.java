@@ -36,7 +36,6 @@ import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.json.JSONResult;
 
-import dk.ku.cpr.OmicsVisualizer.external.io.read.OVTableReaderManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 
 
@@ -51,8 +50,7 @@ abstract class AbstractLoadOVTableTask extends AbstractTask {
 	void loadTable(final String name, final URI uri, boolean combine, final TaskMonitor taskMonitor) throws Exception {
 		taskMonitor.setStatusMessage("Finding Table Data Reader...");
 
-		final OVTableReaderManager tableReaderMgr = ovManager.getServiceRegistrar().getService(OVTableReaderManager.class);
-		final CyTableReader reader = tableReaderMgr.getReader(uri, uri.toString());
+		final CyTableReader reader = this.ovManager.getReader(uri, uri.toString());
 		
 		if (reader == null)
 			throw new NullPointerException("Failed to find reader for specified file.");
