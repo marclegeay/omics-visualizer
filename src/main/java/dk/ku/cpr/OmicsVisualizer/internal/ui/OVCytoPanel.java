@@ -141,7 +141,6 @@ SelectedNodesAndEdgesListener {
 			// We look for a potential filter previously applied to the table
 			String filter = table.getTableProperty(OVShared.PROPERTY_FILTER, "");
 			if(!filter.isEmpty()) {
-				System.out.println(filter);
 				String filterParts[] = filter.split(",");
 
 				String colName;
