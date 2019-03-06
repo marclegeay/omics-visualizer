@@ -70,10 +70,10 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 
 		this.connectButton = new JButton("Connect");
 		this.connectButton.addActionListener(this);
+		this.connectButton.setEnabled(false);
 
 		this.closeButton = new JButton("Close");
 		this.closeButton.addActionListener(this);
-		this.connectButton.setEnabled(false);
 
 		this.setResizable(false);
 
@@ -151,6 +151,8 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 		addPanel.add(this.selectNetwork, c.nextCol());
 		
 		if(this.selectNetwork.getSelectedItem().equals(OVConnectWindow.CHOOSE)) {
+			this.selectColNetwork.setEnabled(false);
+			this.selectColTable.setEnabled(false);
 			this.connectButton.setEnabled(false);
 		}
 
