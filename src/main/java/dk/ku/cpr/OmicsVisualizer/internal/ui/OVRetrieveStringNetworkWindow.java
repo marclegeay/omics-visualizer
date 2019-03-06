@@ -150,13 +150,9 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 
 	@Override
 	public void allFinished(FinishStatus finishStatus) {
-		try { // We try to wait that the TaskMonitor window closes
-			Thread.sleep(1500);
-		} catch(Exception e) {
-			// Do nothing
-		}
-		this.ovConnectWindow.update(this.ovTable);
-		this.ovConnectWindow.setStringNetwork(this.retrievedNetwork.toString(), (String)this.selectQuery.getSelectedItem());
+		// We connect the table we the imported String Network with the "query term" column
+		// This column is a special column that contains the matching query term
+		this.ovTable.connect(this.retrievedNetwork.toString(), "query term", (String)this.selectQuery.getSelectedItem());
 	}
 
 	@Override

@@ -107,6 +107,9 @@ public class OVConnection {
 		
 		for(CyRow netRow : nodeTable.getAllRows()) {
 			Object netKey = getKey(netRow, keyCytoCol);
+			if(netKey == null) {
+				continue;
+			}
 			
 			for(CyRow tableRow : this.ovTable.getCyTable().getAllRows()) {
 				Object tableKey = getKey(tableRow, keyOVCol);
