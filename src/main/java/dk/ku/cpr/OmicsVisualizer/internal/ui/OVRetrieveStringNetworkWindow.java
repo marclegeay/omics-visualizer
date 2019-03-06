@@ -176,6 +176,7 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 			Map<String, Object> args = new HashMap<>();
 			args.put("query", query);
 			args.put("taxonID", taxonID);
+			args.put("limit", "0");
 
 			// We call the STRING command
 			StringCommandTaskFactory factory = new StringCommandTaskFactory(this.ovManager, OVShared.STRING_CMD_PROTEIN_QUERY, args, this);
