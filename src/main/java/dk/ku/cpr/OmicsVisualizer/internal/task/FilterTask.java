@@ -80,7 +80,6 @@ public class FilterTask extends AbstractTask {
 
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
-		System.out.println("[OV - FilterTask::run]");
 		if(this.ovTable == null) {
 			return;
 		}

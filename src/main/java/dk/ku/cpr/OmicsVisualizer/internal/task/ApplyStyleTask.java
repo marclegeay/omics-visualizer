@@ -139,7 +139,11 @@ public class ApplyStyleTask extends AbstractTask {
 
 
 			if(nodeLabels.length()>0) {
-				nodeLabels = "labellist=\"" + nodeLabels.substring(0, nodeLabels.length()-1) + "\" showlabels=\"true\"";
+				if(ovStyle.isTranspose()) {
+					nodeLabels = "showlabels=\"false\" labelcircles=east circlelabels=\"" + nodeLabels.substring(0, nodeLabels.length()-1) + "\"";
+				} else {
+					nodeLabels = "labellist=\"" + nodeLabels.substring(0, nodeLabels.length()-1) + "\" showlabels=\"true\"";
+				}
 			} else {
 				nodeLabels = "showlabels=\"false\"";
 			}
