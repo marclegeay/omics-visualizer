@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
@@ -55,6 +56,10 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 	private static final String CONTINUOUS = "Continuous";
 	private static final String DISCRETE = "Discrete";
 
+	private static final Color DEFAULT_MIN_COLOR = new Color(33,102,172);
+	private static final Color DEFAULT_ZERO_COLOR = Color.WHITE;
+	private static final Color DEFAULT_MAX_COLOR = new Color(178,24,43);
+
 	private OVCytoPanel cytoPanel;
 	private OVManager ovManager;
 
@@ -87,7 +92,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 	public OVStyleWindow(OVCytoPanel cytoPanel, OVManager ovManager) {
 		super();
-
+		
 		this.cytoPanel=cytoPanel;
 		this.ovManager=ovManager;
 
@@ -103,7 +108,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		this.copyButton.addActionListener(this);
 
 		this.selectValues = new SelectValuesPanel(this);
-		
+
 		this.filteredCheck = new JCheckBox("Apply style only to filtered rows", true);
 
 		this.selectChartType = new JComboBox<>();
@@ -130,9 +135,9 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 		this.drawButton = new JButton("Draw");
 		this.drawButton.addActionListener(this);
-		
+
 		this.colorChooser = new ColorChooser();
-		
+
 		this.transposeCheck = new JCheckBox("Transpose data");
 
 		// We show Panel1 first, obviously
@@ -160,11 +165,11 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 					me.setAlwaysOnTop(true);
 				}
-				
+
 				@Override
 				public void windowGainedFocus(WindowEvent e) {
 					super.windowGainedFocus(e);
-					
+
 					me.toFront();
 				}
 			});
@@ -201,7 +206,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		//reset constraint
 		c.setAnchor("C").setInsets(0, 0, 0, 0);
 		mainPanel.add(this.selectValues, c.nextCol());
-		
+
 		mainPanel.add(this.filteredCheck, c.nextRow().useNCols(2));
 		c.useNCols(1);
 
@@ -227,7 +232,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		this.pack();
 		this.setLocationRelativeTo(this.cytoPanel.getTopLevelAncestor());
 	}
-	
+
 	private void displayPanel2(boolean reset) {
 		this.setPreferredSize(null); // We want to recompute the size each time
 
@@ -242,31 +247,32 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		List<String> colNames = this.selectValues.getValues();
 		Class<?> valueType = this.selectValues.getValueType();
 		CyTable valueTable = this.ovTable.getCyTable();
-		
+
 		this.transposeCheck.setSelected(false);
 
 		if(this.selectDiscreteContinuous.getSelectedItem() == OVStyleWindow.CONTINUOUS) {
 			double rangeMin=0.0, rangeMax=0.0; // enhancedGraphics uses double for ranges
-			Color colorMin, colorZero, colorMax;
-			colorMin = colorZero = colorMax = Color.BLACK;
+			Color colorMin = DEFAULT_MIN_COLOR;
+			Color colorZero = DEFAULT_ZERO_COLOR;
+			Color colorMax = DEFAULT_MAX_COLOR;
 
 			boolean styleLoaded=false;
 			if(ovStyle != null && ovStyle.getColors() instanceof OVColorContinuous) {
 				// There is already a style applied for this, we simply load the information from it
 				OVColorContinuous colorStyle = (OVColorContinuous) ovStyle.getColors();
-				
+
 				rangeMax = colorStyle.getRangeMax();
 				rangeMin = colorStyle.getRangeMin();
-				
+
 				colorMin = colorStyle.getDown();
 				colorZero = colorStyle.getZero();
 				colorMax = colorStyle.getUp();
-				
+
 				this.transposeCheck.setSelected(ovStyle.isTranspose());
-				
+
 				styleLoaded=true;
 			}
-			
+
 			if(reset || !styleLoaded) {
 				// We don't have any information, we infer them from the data
 				// We identify max and min value
@@ -279,7 +285,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 						if(this.filteredCheck.isSelected() && !this.ovTable.isFiltered(row)) {
 							continue;
 						}
-						
+
 						for(String colName : colNames) {
 							Integer Val = row.get(colName, Integer.class);
 							int val=0;
@@ -307,7 +313,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 						if(this.filteredCheck.isSelected() && !this.ovTable.isFiltered(row)) {
 							continue;
 						}
-						
+
 						for(String colName : colNames) {
 							Long Val = row.get(colName, Long.class);
 							long val=0;
@@ -335,7 +341,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 						if(this.filteredCheck.isSelected() && !this.ovTable.isFiltered(row)) {
 							continue;
 						}
-						
+
 						for(String colName : colNames) {
 							Double Val = row.get(colName, Double.class);
 							double val=0.0;
@@ -364,7 +370,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 			this.colorPanels = new ColorPanel[3];
 			this.colorButtons = new JButton[3];
-			
+
 			this.rangeMax = new JTextField(String.valueOf(rangeMax));
 			this.colorPanels[0] = new ColorPanel(colorMax, this);
 			this.colorButtons[0] = new JButton("Pick color");
@@ -389,7 +395,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 			mainPanel.add(this.rangeMin, c.nextRow());
 			mainPanel.add(this.colorPanels[2], c.nextCol().expandBoth());
 			mainPanel.add(this.colorButtons[2], c.nextCol().expandHorizontal());
-			
+
 			if(this.selectChartType.getSelectedItem().equals(ChartType.CIRCOS)) {
 				// Only CIRCOS can have several layouts
 				mainPanel.add(transposeCheck, c.nextRow().useNCols(3));
@@ -397,13 +403,13 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 		} else { // Discrete mapping
 			Set<Object> values = new HashSet<>();
-			
+
 			if(!reset && ovStyle != null && ovStyle.getColors() instanceof OVColorDiscrete) {
 				// There is already a style applied for this, we simply load the information from it
 				OVColorDiscrete colorStyle = (OVColorDiscrete) ovStyle.getColors();
-				
+
 				values = colorStyle.getValues();
-				
+
 				this.transposeCheck.setSelected(ovStyle.isTranspose());
 			} else {
 				// We look for the values in the data
@@ -411,7 +417,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 					if(this.filteredCheck.isSelected() && !this.ovTable.isFiltered(row)) {
 						continue;
 					}
-					
+
 					for(String colName : colNames) {
 						Object val = row.get(colName, valueType);
 						if(val != null ) {
@@ -432,7 +438,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 			}
 
 			mainPanel.setLayout(new BorderLayout());
-			
+
 			this.colorPanels = new ColorPanel[values.size()];
 			this.colorButtons = new JButton[values.size()];
 			// To be sure that values and colors are well associated, we do not use toArray() but we copy each value
@@ -444,27 +450,27 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 			clist.expandHorizontal();
 			int i=0;
 			for(Object val : values) {
-				Color color = Color.BLACK;
-				
+				Color color = generateRandomColor();
+
 				if(ovStyle != null && ovStyle.getColors() instanceof OVColorDiscrete) {
 					OVColorDiscrete colorStyle = (OVColorDiscrete) ovStyle.getColors();
 					color = colorStyle.getColor(val);
-					
+
 					if(color == null) {
-						color = Color.BLACK;
+						color = generateRandomColor();
 					}
 				}
-				
+
 				this.discreteValues[i] = val;
-				
+
 				this.colorPanels[i] = new ColorPanel(color, this);
 				this.colorButtons[i] = new JButton("Pick color");
 				this.colorButtons[i].addActionListener(this);
-				
+
 				valuesList.add(new JLabel(val.toString()), clist.nextRow());
 				valuesList.add(this.colorPanels[i], clist.nextCol().expandBoth());
 				valuesList.add(this.colorButtons[i], clist.nextCol().expandHorizontal());
-				
+
 				++i;
 			}
 			JScrollPane valuesScroll = new JScrollPane(valuesList);
@@ -545,13 +551,13 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 				this.selectChartLabels.addItem(colName);
 			}
 		}
-		
+
 		// We look for the current displayed network
 		CyNetwork currentNetwork=null;
-		
+
 		CyApplicationManager appManager = this.ovManager.getService(CyApplicationManager.class);
 		currentNetwork=appManager.getCurrentNetwork();
-		
+
 		if(currentNetwork != null
 				&& this.ovManager.getConnection(currentNetwork) != null
 				&& this.ovManager.getConnection(currentNetwork).getOVTable().equals(ovTable)) {
@@ -568,7 +574,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		this.pack();
 		this.setLocationRelativeTo(this.cytoPanel.getTopLevelAncestor());
 	}
-	
+
 	private void changedNetwork() {
 		for(OVConnection ovCon : this.ovManager.getConnections(this.ovTable)) {
 			if(ovCon.getNetwork().toString().equals(this.selectNetwork.getSelectedItem())) {
@@ -577,12 +583,12 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 				this.setTitle(this.ovTable, this.ovCon.getNetwork().toString());
 
 				this.selectCopyNetwork.setSelectedItem(this.ovCon.getNetwork().toString());
-				
+
 				this.updateStyle(this.ovCon.getStyle());
-				
+
 				this.selectValues.setTable(this.ovCon.getOVTable());
 				this.selectValues.setStyle(this.ovCon.getStyle());
-				
+
 				// We change the network to the one selected
 				CyApplicationManager appManager = this.ovManager.getService(CyApplicationManager.class);
 				if(!this.ovCon.getNetwork().equals(appManager.getCurrentNetwork())) {
@@ -657,18 +663,28 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		this.setLocationRelativeTo(this.cytoPanel.getTopLevelAncestor());
 	}
 
+	private Color generateRandomColor() {
+		Random rand = new Random();
+
+		int r = rand.nextInt(255);
+		int g = rand.nextInt(255);
+		int b = rand.nextInt(255);
+
+		return new Color(r,g,b);
+	}
+
 	@Override
 	public void setVisible(boolean b) {
 		// We disable the fact that the window can be visible if the table is not connected
 		if(b && (this.ovTable == null || !this.ovTable.isConnected())) {
 			b=false;
 		}
-		
+
 		// If we hide this window, the ColorChooser should be hidden also
 		if(!b) {
 			this.colorChooser.setVisible(false);
 		}
-		
+
 		super.setVisible(b);
 	}
 
@@ -691,7 +707,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			
+
 			// We look if something has changed from the loaded style
 			// To know if we have to reset panel2 or not
 			boolean reset = false;
@@ -713,17 +729,17 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 				rangeMin = Double.valueOf(this.rangeMin.getText());
 				rangeMax = Double.valueOf(this.rangeMax.getText());
 				colors = new OVColorContinuous(this.colorPanels[2].getColor(), // min
-							this.colorPanels[0].getColor(), // max
-							this.colorPanels[1].getColor(), // zero
-							rangeMin.doubleValue(),
-							rangeMax.doubleValue());
+						this.colorPanels[0].getColor(), // max
+						this.colorPanels[1].getColor(), // zero
+						rangeMin.doubleValue(),
+						rangeMax.doubleValue());
 			} else { // Discrete
 				Map<Object, Color> mapping = new HashMap<>();
-				
+
 				for(int i=0; i<this.colorPanels.length; ++i) {
 					mapping.put(this.discreteValues[i], this.colorPanels[i].getColor());
 				}
-				
+
 				colors = new OVColorDiscrete(mapping);
 			}
 
@@ -753,7 +769,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 			for(int i=0; i<this.colorButtons.length; ++i) {
 				if(e.getSource() == this.colorButtons[i]) {
 					this.colorChooser.show(this.colorPanels[i]);
-					
+
 					break;
 				}
 			}
