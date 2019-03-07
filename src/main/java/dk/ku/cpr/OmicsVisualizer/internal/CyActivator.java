@@ -138,6 +138,8 @@ public class CyActivator extends AbstractCyActivator {
 				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
 				props.setProperty(TITLE, "Remove filter");
 				props.setProperty(MENU_GRAVITY, "3");
+				props.setProperty(COMMAND_NAMESPACE, "ov");
+				props.setProperty(COMMAND, "remove filter");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}

@@ -77,6 +77,7 @@ public class DataUtils {
 		return name;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T> T convertString(String value, Class<T> type) {
 		if (type.equals(Long.class))
 			return (T)Long.valueOf(value);
@@ -105,11 +106,12 @@ public class DataUtils {
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static String convertData(Object data) {
 		if (data instanceof List)
-			return convertListToString((List)data);
+			return convertListToString((List<Object>)data);
 		else if (data instanceof Map)
-			return convertMapToString((Map)data);
+			return convertMapToString((Map<?, ?>)data);
 		else
 			return data.toString();
 	}
@@ -149,7 +151,8 @@ public class DataUtils {
 		}
 	}
 	
-	public static String convertMapToString(Map data) {
+	@SuppressWarnings("unchecked")
+	public static String convertMapToString(Map<?, ?> data) {
 		if (data.size() == 0)
 			return "{}";
 
@@ -159,9 +162,9 @@ public class DataUtils {
 			if (v == null) continue;
 			result += key.toString()+":";
 			if (v instanceof List)
-				result += convertListToString((List)v)+",";
+				result += convertListToString((List<Object>)v)+",";
 			else if (v instanceof Map)
-				result += convertMapToString((Map)v)+",";
+				result += convertMapToString((Map<?, ?>)v)+",";
 			else
 				result += v.toString()+",";
 		}
@@ -178,7 +181,7 @@ public class DataUtils {
 		return result.substring(0, result.length()-1)+"]";
 	}
 
-	public static Class getType(String type) {
+	public static Class<?> getType(String type) {
 		if ("double".equalsIgnoreCase(type))
 			return Double.class;
 		if ("integer".equalsIgnoreCase(type))
@@ -195,7 +198,7 @@ public class DataUtils {
 		return String.class;
 	}
 
-	public static String getType(Class type) {
+	public static String getType(Class<?> type) {
 		if (type.equals(Double.class))
 			return "double";
 		if (type.equals(Integer.class))
@@ -231,12 +234,20 @@ public class DataUtils {
 	public static String[] getCSV(String str) {
 		// Split the string, but allow for protected commas
 		String [] s1 = str.split("(?<!\\\\),");
-		// Now replace any backslashes with nothing.
+		// Now replace any backslashes.
 		for (int index = 0; index < s1.length; index++) {
 			String s = s1[index];
-			s1[index] = s.replaceAll("\\\\", "");
+			s1[index] = s.replaceAll("\\\\(.)", "$1");
 		}
 		return s1;
+	}
+	
+	public static String escapeComma(String str) {
+		return str.replaceAll(",", "\\\\,");
+	}
+	
+	public static String escapeBackslash(String str) {
+		return str.replaceAll("\\\\", "\\\\\\\\");
 	}
 
 	/**

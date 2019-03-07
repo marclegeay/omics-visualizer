@@ -16,6 +16,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 import dk.ku.cpr.OmicsVisualizer.internal.model.operators.*;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
+import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 
 public class FilterTask extends AbstractTask {
 	protected OVManager ovManager;
@@ -92,6 +93,8 @@ public class FilterTask extends AbstractTask {
 		if(!this.operator.isUnary()) {
 			if(colType == String.class) {
 				reference = strReference;
+			} else if(colType == Boolean.class) {
+				reference = Boolean.valueOf(strReference);
 			} else {
 				try {
 					if(colType == Integer.class) {
@@ -127,7 +130,7 @@ public class FilterTask extends AbstractTask {
 		}
 		this.ovTable.filter(filteredRowKeys);
 
-		String savedFilter = colName+","+this.operator.name()+","+this.strReference;
+		String savedFilter = DataUtils.escapeComma(colName)+","+this.operator.name()+","+DataUtils.escapeBackslash(DataUtils.escapeComma(this.strReference));
 		this.ovTable.setTableProperty(OVShared.PROPERTY_FILTER, savedFilter);
 		
 		this.ovTable.save();
