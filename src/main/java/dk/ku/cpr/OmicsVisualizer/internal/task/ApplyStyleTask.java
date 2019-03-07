@@ -17,6 +17,7 @@ import org.cytoscape.view.vizmap.mappings.PassthroughMapping;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.TaskMonitor;
 
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVColorContinuous;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
@@ -77,7 +78,38 @@ public class ApplyStyleTask extends AbstractTask {
 				for(String colName : ovStyle.getValues()) {
 					Object val = tableRow.get(colName, ovStyle.getValuesType());
 					if(val != null) {
-						nodeValues.add(tableRow.get(colName, ovStyle.getValuesType()));
+						if(ovStyle.getColors() instanceof OVColorContinuous) {
+							// If we have a continuous mapping, we have to change the value to center them in rangeZero
+							double zero = ((OVColorContinuous) ovStyle.getColors()).getRangeZero();
+							Double newVal=null;
+							
+							// We subtract the zero value to center it
+							if(ovStyle.getValuesType() == Integer.class) {
+								newVal = ((Integer)val) - zero;
+							} else if(ovStyle.getValuesType() == Long.class) {
+								newVal = ((Long)val) - zero;
+							} else if(ovStyle.getValuesType() == Double.class) {
+								newVal = ((Double)val) - zero;
+							}
+							
+							// It should not be List or String with a continuous mapping...
+							// But we make sure it is not null
+							if(newVal == null) {
+								// If it is we do not change the value
+								nodeValues.add(val);
+								continue;
+							}
+							
+							// And then we cast back the value to its original type
+							if(ovStyle.getValuesType() == Integer.class) {
+								val = newVal.intValue();
+							} else if(ovStyle.getValuesType() == Long.class) {
+								val = newVal.longValue();
+							} else { // Double, no cast needed
+								val = newVal;
+							}
+						}
+						nodeValues.add(val);
 					} else {
 						if(ovStyle.getValuesType() == Integer.class) {
 							nodeValues.add(new Integer(0));

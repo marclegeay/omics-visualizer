@@ -65,16 +65,4 @@ public class OVColorDiscrete implements OVColor, Serializable {
 		
 		return colorlist + " " + valuelist;
 	}
-
-	@Override
-	public String save() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public OVColor copy() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

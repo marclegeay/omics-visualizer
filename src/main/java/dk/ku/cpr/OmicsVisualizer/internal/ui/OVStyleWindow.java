@@ -36,7 +36,6 @@ import javax.swing.JTextField;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyRow;
-import org.cytoscape.model.CyTable;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVColor;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVColorContinuous;
@@ -56,9 +55,18 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 	private static final String CONTINUOUS = "Continuous";
 	private static final String DISCRETE = "Discrete";
 
+	/** Used when values are positive and negative */
 	private static final Color DEFAULT_MIN_COLOR = new Color(33,102,172);
+	/** Used when values are positive and negative */
 	private static final Color DEFAULT_ZERO_COLOR = Color.WHITE;
+	/** Used when values are positive and negative */
 	private static final Color DEFAULT_MAX_COLOR = new Color(178,24,43);
+	/** Used when values are only positive or only negative */
+	private static final Color DEFAULT_MIN_COLOR_2 = new Color(253,231,37);
+	/** Used when values are only positive or only negative */
+	private static final Color DEFAULT_ZERO_COLOR_2 = new Color(33,145,140);
+	/** Used when values are only positive or only negative */
+	private static final Color DEFAULT_MAX_COLOR_2 = new Color(68,1,84);
 
 	private OVCytoPanel cytoPanel;
 	private OVManager ovManager;
@@ -81,6 +89,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 	private ColorChooser colorChooser;
 	private JTextField rangeMin;
+	private JTextField rangeZero;
 	private JTextField rangeMax;
 	private ColorPanel[] colorPanels;
 	private JButton[] colorButtons;
@@ -92,7 +101,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 	public OVStyleWindow(OVCytoPanel cytoPanel, OVManager ovManager) {
 		super();
-		
+
 		this.cytoPanel=cytoPanel;
 		this.ovManager=ovManager;
 
@@ -246,12 +255,17 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 		List<String> colNames = this.selectValues.getValues();
 		Class<?> valueType = this.selectValues.getValueType();
-		CyTable valueTable = this.ovTable.getCyTable();
+
+		// We only look at values of rows connected to the network
+		List<CyRow> valueRows = new ArrayList<>();
+		for(CyRow netRow : this.ovCon.getNetwork().getDefaultNodeTable().getAllRows()) {
+			valueRows.addAll(this.ovCon.getLinkedRows(netRow));
+		}
 
 		this.transposeCheck.setSelected(false);
 
 		if(this.selectDiscreteContinuous.getSelectedItem() == OVStyleWindow.CONTINUOUS) {
-			double rangeMin=0.0, rangeMax=0.0; // enhancedGraphics uses double for ranges
+			double rangeMin=0.0, rangeZero=0.0, rangeMax=0.0; // enhancedGraphics uses double for ranges
 			Color colorMin = DEFAULT_MIN_COLOR;
 			Color colorZero = DEFAULT_ZERO_COLOR;
 			Color colorMax = DEFAULT_MAX_COLOR;
@@ -262,6 +276,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 				OVColorContinuous colorStyle = (OVColorContinuous) ovStyle.getColors();
 
 				rangeMax = colorStyle.getRangeMax();
+				rangeZero = colorStyle.getRangeZero();
 				rangeMin = colorStyle.getRangeMin();
 
 				colorMin = colorStyle.getDown();
@@ -281,7 +296,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 					int min = Integer.MAX_VALUE;
 					int max = Integer.MIN_VALUE;
 
-					for(CyRow row : valueTable.getAllRows()) {
+					for(CyRow row : valueRows) {
 						if(this.filteredCheck.isSelected() && !this.ovTable.isFiltered(row)) {
 							continue;
 						}
@@ -295,21 +310,38 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 							if(val < min) {
 								min=val;
-							} else if(val > max) {
+							}
+							if(val > max) {
 								max=val;
 							}
 						}
 					}
-
-					// We detect the highest absolute value for the range
-					max = (max >= -min ? max : -min);
-					rangeMin = max * -1.0;
-					rangeMax = max * 1.0;
+					
+					if((max <= 0) || (min >= 0)) {
+						// The values have the same sign
+						rangeMin = min;
+						rangeMax = max;
+						rangeZero = (max+min)/2;
+						
+						colorMin = DEFAULT_MIN_COLOR_2;
+						colorZero = DEFAULT_ZERO_COLOR_2;
+						colorMax = DEFAULT_MAX_COLOR_2;
+					} else {
+						// We detect the highest absolute value for the range
+						max = (max >= -min ? max : -min);
+						rangeMin = max * -1.0;
+						rangeMax = max * 1.0;
+						rangeZero = 0.0;
+						
+						colorMin = DEFAULT_MIN_COLOR;
+						colorZero = DEFAULT_ZERO_COLOR;
+						colorMax = DEFAULT_MAX_COLOR;
+					}
 				} else if(valueType == Long.class) {
 					long min = Long.MAX_VALUE;
 					long max = Long.MIN_VALUE;
 
-					for(CyRow row : valueTable.getAllRows()) {
+					for(CyRow row : valueRows) {
 						if(this.filteredCheck.isSelected() && !this.ovTable.isFiltered(row)) {
 							continue;
 						}
@@ -323,21 +355,38 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 							if(val < min) {
 								min=val;
-							} else if(val > max) {
+							}
+							if(val > max) {
 								max=val;
 							}
 						}
 					}
 
-					// We detect the highest absolute value for the range
-					max = (max >= -min ? max : -min);
-					rangeMin = max * -1.0;
-					rangeMax = max * 1.0;
+					if((max <= 0) || (min >= 0)) {
+						// The values have the same sign
+						rangeMin = min;
+						rangeMax = max;
+						rangeZero = (max+min)/2;
+						
+						colorMin = DEFAULT_MIN_COLOR_2;
+						colorZero = DEFAULT_ZERO_COLOR_2;
+						colorMax = DEFAULT_MAX_COLOR_2;
+					} else {
+						// We detect the highest absolute value for the range
+						max = (max >= -min ? max : -min);
+						rangeMin = max * -1.0;
+						rangeMax = max * 1.0;
+						rangeZero = 0.0;
+						
+						colorMin = DEFAULT_MIN_COLOR;
+						colorZero = DEFAULT_ZERO_COLOR;
+						colorMax = DEFAULT_MAX_COLOR;
+					}
 				} else { // Double
 					double min = Double.POSITIVE_INFINITY;
 					double max = Double.NEGATIVE_INFINITY;
 
-					for(CyRow row : valueTable.getAllRows()) {
+					for(CyRow row : valueRows) {
 						if(this.filteredCheck.isSelected() && !this.ovTable.isFiltered(row)) {
 							continue;
 						}
@@ -351,16 +400,33 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 							if(val < min) {
 								min=val;
-							} else if(val > max) {
+							}
+							if(val > max) {
 								max=val;
 							}
 						}
 					}
 
-					// We detect the highest absolute value for the range
-					max = (max >= -min ? max : -min);
-					rangeMin = max * -1.0;
-					rangeMax = max;
+					if((max <= 0) || (min >= 0)) {
+						// The values have the same sign
+						rangeMin = min;
+						rangeMax = max;
+						rangeZero = (max+min)/2;
+						
+						colorMin = DEFAULT_MIN_COLOR_2;
+						colorZero = DEFAULT_ZERO_COLOR_2;
+						colorMax = DEFAULT_MAX_COLOR_2;
+					} else {
+						// We detect the highest absolute value for the range
+						max = (max >= -min ? max : -min);
+						rangeMin = max * -1.0;
+						rangeMax = max * 1.0;
+						rangeZero = 0.0;
+						
+						colorMin = DEFAULT_MIN_COLOR;
+						colorZero = DEFAULT_ZERO_COLOR;
+						colorMax = DEFAULT_MAX_COLOR;
+					}
 				}
 			}
 
@@ -379,12 +445,11 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 			mainPanel.add(this.colorPanels[0], c.nextCol().expandBoth());
 			mainPanel.add(this.colorButtons[0], c.nextCol().expandHorizontal());
 
-			JTextField zero = new JTextField("0");
-			zero.setEditable(false);
+			this.rangeZero = new JTextField(String.valueOf(rangeZero));
 			this.colorPanels[1] = new ColorPanel(colorZero, this);
 			this.colorButtons[1] = new JButton("Pick color");
 			this.colorButtons[1].addActionListener(this);
-			mainPanel.add(zero, c.nextRow());
+			mainPanel.add(this.rangeZero, c.nextRow());
 			mainPanel.add(this.colorPanels[1], c.nextCol().expandBoth());
 			mainPanel.add(this.colorButtons[1], c.nextCol().expandHorizontal());
 
@@ -413,7 +478,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 				this.transposeCheck.setSelected(ovStyle.isTranspose());
 			} else {
 				// We look for the values in the data
-				for(CyRow row : valueTable.getAllRows()) {
+				for(CyRow row : valueRows) {
 					if(this.filteredCheck.isSelected() && !this.ovTable.isFiltered(row)) {
 						continue;
 					}
@@ -725,13 +790,26 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 			OVColor colors = null;
 
 			if(this.selectDiscreteContinuous.getSelectedItem().equals(OVStyleWindow.CONTINUOUS)) {
-				Double rangeMin, rangeMax;
-				rangeMin = Double.valueOf(this.rangeMin.getText());
-				rangeMax = Double.valueOf(this.rangeMax.getText());
+				Double rangeMin, rangeZero, rangeMax;
+				try {
+					rangeMin = Double.valueOf(this.rangeMin.getText());
+					rangeZero = Double.valueOf(this.rangeZero.getText());
+					rangeMax = Double.valueOf(this.rangeMax.getText());
+				} catch(NumberFormatException nfe) {
+					JOptionPane.showMessageDialog(this, "Limits and middle values should be floating-point values.", "Error", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+
+				if((rangeMin > rangeZero) || (rangeZero > rangeMax)) {
+					JOptionPane.showMessageDialog(this, "The minimum limit should be lower than the middle value, that should be lower than the maximum limit.", "Error", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+
 				colors = new OVColorContinuous(this.colorPanels[2].getColor(), // min
 						this.colorPanels[0].getColor(), // max
 						this.colorPanels[1].getColor(), // zero
 						rangeMin.doubleValue(),
+						rangeZero.doubleValue(),
 						rangeMax.doubleValue());
 			} else { // Discrete
 				Map<Object, Color> mapping = new HashMap<>();

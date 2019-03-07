@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
@@ -62,22 +61,6 @@ public class OVStyle implements Serializable {
 
 	public boolean isTranspose() {
 		return transpose;
-	}
-
-	public Object copy() {
-		List<String> valuesCopy = new ArrayList<>();
-		
-		for(String val : this.values) {
-			valuesCopy.add(val);
-		}
-		
-		return new OVStyle(this.type,
-				valuesCopy,
-				this.valuesType,
-				this.onlyFiltered,
-				this.colors.copy(),
-				this.label,
-				this.transpose);
 	}
 	
 	public String toEnhancedGraphics(List<List<Object>> values) {

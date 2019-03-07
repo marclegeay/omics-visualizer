@@ -153,6 +153,7 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 		// We connect the table we the imported String Network with the "query term" column
 		// This column is a special column that contains the matching query term
 		this.ovTable.connect(this.retrievedNetwork.toString(), "query term", (String)this.selectQuery.getSelectedItem());
+		this.ovManager.getOVCytoPanel().update();
 	}
 
 	@Override

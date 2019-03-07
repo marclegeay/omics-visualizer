@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVStyle.ChartType;
 
@@ -16,14 +14,16 @@ public class OVColorContinuous implements OVColor, Serializable {
 	private Color up;
 	private Color zero;
 	private double rangeMin;
+	private double rangeZero;
 	private double rangeMax;
 
-	public OVColorContinuous(Color down, Color up, Color zero, double rangeMin, double rangeMax) {
+	public OVColorContinuous(Color down, Color up, Color zero, double rangeMin, double rangeMid, double rangeMax) {
 		super();
 		this.down = down;
 		this.up = up;
 		this.zero = zero;
 		this.rangeMin = rangeMin;
+		this.rangeZero = rangeMid;
 		this.rangeMax = rangeMax;
 	}
 
@@ -59,6 +59,14 @@ public class OVColorContinuous implements OVColor, Serializable {
 		this.rangeMin = rangeMin;
 	}
 
+	public double getRangeZero() {
+		return this.rangeZero;
+	}
+
+	public void setRangeZero(double rangeZero) {
+		this.rangeZero = rangeZero;
+	}
+
 	public double getRangeMax() {
 		return this.rangeMax;
 	}
@@ -79,56 +87,13 @@ public class OVColorContinuous implements OVColor, Serializable {
 
 		style += " ";
 
-		style += "range=\"" + this.rangeMin + "," + this.rangeMax + "\"";
+		// We always center the values so that the rangeZero is 0
+		style += "range=\"" + (this.rangeMin-this.rangeZero) + "," + (this.rangeMax-this.rangeZero) + "\"";
 		
 		if(!values.isEmpty()) {
 			style += " valuelist=\"" + String.join(",", Collections.nCopies(values.get(0).size(), "1")) + "\"";
 		}
 
 		return style;
-	}
-
-	@Override
-	public String save() {
-		return "OVColorContinuous("+
-				OVShared.color2String(down)+
-				","+
-				OVShared.color2String(up)+
-				","+
-				OVShared.color2String(zero)+
-				","+
-				rangeMin+
-				","+
-				rangeMax+
-				")";
-	}
-
-	@Override
-	public OVColor copy() {
-		return new OVColorContinuous(down, up, zero, rangeMin, rangeMax);
-	}
-
-	public static OVColor load(String str) {
-		if(str.isEmpty()) {
-			return null;
-		}
-
-		Color down, up, zero;
-		double rangeMin, rangeMax;
-
-		Pattern pattern = Pattern.compile("OVColorContinuous\\((.*),(.*),(.*),(.*),(.*)\\)");
-		Matcher matcher = pattern.matcher(str);
-
-		if(matcher.find()) {
-			down = Color.decode(matcher.group(0));
-			up = Color.decode(matcher.group(1));
-			zero = Color.decode(matcher.group(2));
-			rangeMin = Double.parseDouble(matcher.group(3));
-			rangeMax = Double.parseDouble(matcher.group(4));
-		} else {
-			return null;
-		}
-
-		return new OVColorContinuous(down, up, zero, rangeMin, rangeMax);
 	}
 }
