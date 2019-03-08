@@ -37,6 +37,7 @@ public class FilterTunableTask extends FilterTask {
 	public FilterTunableTask(OVManager ovManager, OVCytoPanel ovPanel) {
 		super(ovManager, ovPanel);
 
+		/* TODO
 		List<String> colNames = new ArrayList<>();
 		for(String colname : this.ovTable.getColNames()) {
 			if(!OVShared.isOVCol(colname) && 
@@ -59,13 +60,12 @@ public class FilterTunableTask extends FilterTask {
 			this.selectOperator.setSelectedValue(Operator.valueOf(oldFilterParts[1]));
 			this.strTunableReference = oldFilterParts[2];
 		}
+		*/
 	}
 
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
-		this.colName = this.selectColName.getSelectedValue();
-		this.operator = this.selectOperator.getSelectedValue();
-		this.strReference = this.strTunableReference;
+		//TODO
 
 		super.run(taskMonitor);
 	}

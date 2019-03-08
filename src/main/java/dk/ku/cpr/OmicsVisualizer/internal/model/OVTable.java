@@ -18,6 +18,7 @@ import org.cytoscape.model.CyTable;
 import dk.ku.cpr.OmicsVisualizer.internal.properties.OVProperties;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVTableColumnModel;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVTableModel;
+import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 
 public class OVTable {
 	private OVManager ovManager;
@@ -26,6 +27,8 @@ public class OVTable {
 	private JTable jTable;
 	private OVTableModel tableModel;
 	private OVTableColumnModel tableColumnModel;
+	
+	private OVFilter filter;
 
 	private OVProperties ovProps;
 	
@@ -36,10 +39,12 @@ public class OVTable {
 		
 		this.cyTable.setPublic(false);
 		
-		this.ovProps = new OVProperties(this.ovManager, OVShared.OVPROPERTY_NAME+"-"+this.cyTable.getTitle());
+		this.filter = null;
 		
-		this.createJTable();
+		this.ovProps = new OVProperties(this.ovManager, OVShared.OVPROPERTY_NAME+"-"+this.cyTable.getTitle());
+
 		this.load();
+		this.createJTable();
 		this.save();
 	}
 	
@@ -263,6 +268,7 @@ public class OVTable {
 	
 	public void removeFilter() {
 		this.tableModel.removeFilter();
+		this.setFilter(null);
 	}
 	
 	public boolean isFiltered(CyRow row) {
@@ -270,17 +276,16 @@ public class OVTable {
 	}
 	
 	/**
-	 * Get the applied filter represented in a String.
-	 * @return the String or <code>null</code> if no filter is applied
+	 * Get the applied filter.
+	 * @return the OVFilter or <code>null</code> if no filter is applied
 	 */
-	public String getFilter() {
-		String filter = this.getTableProperty(OVShared.PROPERTY_FILTER, "");
-		
-		if(!filter.isEmpty()) {
-			return filter;
-		}
-		
-		return null;
+	public OVFilter getFilter() {
+		return this.filter;
+	}
+	
+	public void setFilter(OVFilter filter) {
+		this.filter=filter;
+		this.save();
 	}
 	
 	public void selectAllRows() {
@@ -322,9 +327,21 @@ public class OVTable {
 			this.setTableProperty(col, savedValue);
 			index += 1;
 		}
+
+		if(this.filter != null) {
+			this.setTableProperty(OVShared.PROPERTY_FILTER, this.filter.save());
+		} else {
+			this.setTableProperty(OVShared.PROPERTY_FILTER, "");
+		}
 	}
 	
 	public void load() {
+		// We first load the filter
+		String filterStr = this.getTableProperty(OVShared.PROPERTY_FILTER, "");
+		if(!filterStr.isEmpty()) {
+			this.filter = OVFilter.load(filterStr);
+		}
+		
 		// We look for connected networks
 		for(CyNetwork net : this.ovManager.getNetworkManager().getNetworkSet()) {
 			CyTable netTable = net.getDefaultNetworkTable();
@@ -333,7 +350,7 @@ public class OVTable {
 				// We found a connected network
 				String link = netTable.getRow(net.getSUID()).get(OVShared.CYNETWORKTABLE_OVCOL, String.class);
 				if(link != null && !link.isEmpty()) {
-					String splittedLink[] = link.split(",");
+					String splittedLink[] = DataUtils.getCSV(link);
 					
 					if(splittedLink.length == 3 && splittedLink[0].equals(this.getTitle())) {
 						OVConnection ovCon = this.connect(net.toString(), splittedLink[1], splittedLink[2]);

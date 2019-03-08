@@ -1,6 +1,8 @@
 package dk.ku.cpr.OmicsVisualizer.internal.model.operators;
 
-public enum Operator {
+import java.io.Serializable;
+
+public enum Operator implements Serializable {
 	EQUALS("==", new OperatorE(), true, true, true),
 	NOT_EQUALS("!=", new OperatorNE(), true, true, true),
 	CONTAINS("contains", new OperatorC(), false, true, false),

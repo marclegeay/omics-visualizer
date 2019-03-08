@@ -3,20 +3,18 @@ package dk.ku.cpr.OmicsVisualizer.internal.task;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.cytoscape.application.swing.CySwingApplication;
-import org.cytoscape.application.swing.CytoPanel;
-import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.ProvidesTitle;
 import org.cytoscape.work.TaskMonitor;
 
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVFilter;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVFilter.OVFilterType;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVFilterCriteria;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
-import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
-import dk.ku.cpr.OmicsVisualizer.internal.model.operators.*;
+import dk.ku.cpr.OmicsVisualizer.internal.model.operators.Operator;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
-import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 
 public class FilterTask extends AbstractTask {
 	protected OVManager ovManager;
@@ -24,9 +22,7 @@ public class FilterTask extends AbstractTask {
 
 	protected OVTable ovTable;
 
-	protected String colName;
-	protected Operator operator;
-	protected String strReference;
+	protected OVFilter ovFilter;
 
 	public FilterTask(OVManager ovManager, OVCytoPanel ovPanel) {
 		this.ovManager=ovManager;
@@ -38,45 +34,17 @@ public class FilterTask extends AbstractTask {
 
 		this.ovTable = this.ovManager.getActiveOVTable();
 	}
-
-	public FilterTask(OVManager ovManager, OVCytoPanel ovPanel, String colName, Operator operator, String strReference) {
-		this.ovManager=ovManager;
-		this.ovPanel=ovPanel;
-
-		this.colName=colName;
-		this.operator=operator;
-		this.strReference=strReference;
-
-		if(this.ovPanel == null) {
-			CySwingApplication swingApplication = this.ovManager.getService(CySwingApplication.class);
-			CytoPanel cytoPanel = swingApplication.getCytoPanel(CytoPanelName.SOUTH);
-			try {
-				this.ovPanel = (OVCytoPanel) cytoPanel.getComponentAt(cytoPanel.indexOfComponent(OVShared.CYTOPANEL_NAME));
-			} catch(IndexOutOfBoundsException e) {
-			}
-		}
-
-		this.ovTable = this.ovManager.getActiveOVTable();
-	}
 	
-	public FilterTask(OVManager ovManager, OVCytoPanel ovPanel, OVTable ovTable, String colName, Operator operator, String strReference) {
+	public FilterTask(OVManager ovManager, OVCytoPanel ovPanel, OVTable ovTable) {
 		this.ovManager=ovManager;
 		this.ovPanel=ovPanel;
 
-		this.colName=colName;
-		this.operator=operator;
-		this.strReference=strReference;
-
 		if(this.ovPanel == null) {
-			CySwingApplication swingApplication = this.ovManager.getService(CySwingApplication.class);
-			CytoPanel cytoPanel = swingApplication.getCytoPanel(CytoPanelName.SOUTH);
-			try {
-				this.ovPanel = (OVCytoPanel) cytoPanel.getComponentAt(cytoPanel.indexOfComponent(OVShared.CYTOPANEL_NAME));
-			} catch(IndexOutOfBoundsException e) {
-			}
+			this.ovPanel=this.ovManager.getOVCytoPanel();
 		}
 
 		this.ovTable = ovTable;
+		this.ovFilter = this.ovTable.getFilter();
 	}
 
 	@Override
@@ -86,60 +54,89 @@ public class FilterTask extends AbstractTask {
 		}
 		
 		taskMonitor.setTitle("Filtering the rows of '"+this.ovTable.getTitle()+"' Omics Visualizer table");
-
-		Class<?> colType = this.ovTable.getColType(colName);
-
-		Object reference = null;
-		if(!this.operator.isUnary()) {
-			if(colType == String.class) {
-				reference = strReference;
-			} else if(colType == Boolean.class) {
-				reference = Boolean.valueOf(strReference);
-			} else {
-				try {
-					if(colType == Integer.class) {
-						reference=Integer.parseInt(strReference);
-					} else if(colType == Long.class) {
-						reference=Long.parseLong(strReference);
-					} else if(colType == Double.class) {
-						reference=Double.parseDouble(strReference);
-					}
-				} catch(NumberFormatException e) {
-					reference = null;
-				}
-
-				if(reference ==null) {
-					taskMonitor.setStatusMessage("Error: Impossible to parse the value \""+strReference+"\" as a number.");
-					return;
-				}
-			}
+		taskMonitor.setStatusMessage("Apply filter : " + this.ovFilter);
+		
+		if(this.ovFilter == null) {
+			return;
 		}
 
-		List<Object> filteredRowKeys = new ArrayList<>();
-		List<CyRow> allRows = this.ovTable.getCyTable().getAllRows();
-		int i=0;
-		for(CyRow row : allRows) {
-			taskMonitor.setProgress((i++)/allRows.size());
-			try { 
-				if(operator.getOperator().filter(row.get(colName, colType), reference)) {
-					filteredRowKeys.add(row.getRaw(this.ovTable.getCyTable().getPrimaryKey().getName()));
+
+		List<CyRow> filteredRows=null;
+		List<CyRow> workingRows=this.ovTable.getCyTable().getAllRows(); // rows used to apply the criteria
+		if(this.ovFilter.getType() == OVFilterType.ALL) {
+			// We start with all the rows
+			filteredRows = this.ovTable.getCyTable().getAllRows();
+		} else if(this.ovFilter.getType() == OVFilterType.ANY) {
+			// We start with no rows
+			filteredRows = new ArrayList<>();
+		} else {
+			taskMonitor.setStatusMessage("Unknow filter type : " + this.ovFilter.getType());
+			return;
+		}
+		for(OVFilterCriteria crit : this.ovFilter.getCriterias()) {
+			String colName = crit.getColName();
+			Operator operator = crit.getOperator();
+			String strReference = crit.getReference();
+			
+			Class<?> colType = this.ovTable.getColType(colName);
+	
+			Object reference = null;
+			if(!operator.isUnary()) {
+				if(colType == String.class) {
+					reference = strReference;
+				} else if(colType == Boolean.class) {
+					reference = Boolean.valueOf(strReference);
+				} else {
+					try {
+						if(colType == Integer.class) {
+							reference=Integer.parseInt(strReference);
+						} else if(colType == Long.class) {
+							reference=Long.parseLong(strReference);
+						} else if(colType == Double.class) {
+							reference=Double.parseDouble(strReference);
+						}
+					} catch(NumberFormatException e) {
+						reference = null;
+					}
+	
+					if(reference ==null) {
+						taskMonitor.setStatusMessage("Error: Impossible to parse the value \""+strReference+"\" as a number.");
+						return;
+					}
 				}
-			} catch(ClassCastException e) {
-				taskMonitor.setStatusMessage("Warning: Could not cast \""+colName+"\".");
 			}
+	
+			List<CyRow> critFilteredRows = new ArrayList<>();
+			for(CyRow row : workingRows) {
+				try { 
+					if(operator.getOperator().filter(row.get(colName, colType), reference)) {
+						critFilteredRows.add(row);
+					}
+				} catch(ClassCastException e) {
+					taskMonitor.setStatusMessage("Warning: Could not cast \""+colName+"\".");
+				}
+			}
+			
+			if(this.ovFilter.getType() == OVFilterType.ALL) {
+				filteredRows = critFilteredRows;
+				workingRows = filteredRows;
+			} else if(this.ovFilter.getType() == OVFilterType.ANY) {
+				filteredRows.addAll(critFilteredRows);
+			}
+		}
+		
+		// We convert CyRow in keys:
+		List<Object> filteredRowKeys = new ArrayList<>();
+		for(CyRow row : filteredRows) {
+			filteredRowKeys.add(row.getRaw(this.ovTable.getCyTable().getPrimaryKey().getName()));
 		}
 		this.ovTable.filter(filteredRowKeys);
-
-		String savedFilter = DataUtils.escapeComma(colName)+","+this.operator.name()+","+DataUtils.escapeBackslash(DataUtils.escapeComma(this.strReference));
-		this.ovTable.setTableProperty(OVShared.PROPERTY_FILTER, savedFilter);
 		
 		this.ovTable.save();
 		
 		if(this.ovPanel != null) {
 			this.ovPanel.update();
 		}
-		
-		taskMonitor.setStatusMessage("Applied filter : " + savedFilter);
 	}
 
 	@ProvidesTitle

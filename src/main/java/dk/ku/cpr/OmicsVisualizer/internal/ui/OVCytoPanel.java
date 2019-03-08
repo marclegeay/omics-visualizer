@@ -64,9 +64,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
-import dk.ku.cpr.OmicsVisualizer.internal.model.operators.Operator;
 import dk.ku.cpr.OmicsVisualizer.internal.task.FilterTaskFactory;
-import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.ViewUtil;
 
 public class OVCytoPanel extends JPanel
@@ -139,28 +137,9 @@ SelectedNodesAndEdgesListener {
 			tcModel.addAndSetSelectedItem(table);
 
 			// We look for a potential filter previously applied to the table
-			String filter = table.getFilter();
-			if(filter != null) {
-				String filterParts[] = DataUtils.getCSV(filter);
-
-				String colName;
-				Operator operator;
-				String strReference;
-				if(filterParts.length == 3) {
-					colName = filterParts[0];
-					operator = Operator.valueOf(filterParts[1]);
-					strReference = filterParts[2];
-				} else if(filterParts.length == 2) {
-					colName = filterParts[0];
-					operator = Operator.valueOf(filterParts[1]);
-					strReference = "";
-				} else {
-					continue;
-				}
-				
-
+			if(table.getFilter() != null) {
 				FilterTaskFactory factory = new FilterTaskFactory(this.ovManager, this);
-				TaskIterator ti = factory.createTaskIterator(table, colName, operator, strReference);
+				TaskIterator ti = factory.createTaskIterator(table);
 
 				this.ovManager.executeTask(ti);
 			}

@@ -4,7 +4,6 @@ import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.TaskMonitor;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
-import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
 
@@ -47,8 +46,6 @@ public class RemoveFilterTask extends AbstractTask {
 		
 		// We remove the filter from the table
 		this.ovTable.removeFilter();
-		// And from the TableProperty
-		this.ovTable.setTableProperty(OVShared.PROPERTY_FILTER, "");
 		
 		// We update the panel, if we know it
 		if(this.ovPanel != null) {

@@ -10,6 +10,8 @@ import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 
+import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
+
 public class OVConnection {
 	private OVManager ovManager;
 	private OVTable ovTable;
@@ -127,7 +129,7 @@ public class OVConnection {
 		if(networkTable.getColumn(OVShared.CYNETWORKTABLE_OVCOL) == null) {
 			networkTable.createColumn(OVShared.CYNETWORKTABLE_OVCOL, String.class, false);
 		}
-		networkTable.getRow(this.network.getSUID()).set(OVShared.CYNETWORKTABLE_OVCOL, this.ovTable.getTitle()+","+mappingColCyto+","+mappingColOVTable);
+		networkTable.getRow(this.network.getSUID()).set(OVShared.CYNETWORKTABLE_OVCOL, DataUtils.escapeComma(this.ovTable.getTitle())+","+DataUtils.escapeComma(mappingColCyto)+","+DataUtils.escapeComma(mappingColOVTable));
 	}
 
 	/**
