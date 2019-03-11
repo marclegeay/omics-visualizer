@@ -29,31 +29,34 @@ import org.cytoscape.application.CyUserLog;
 import org.cytoscape.io.read.CyTableReader;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableManager;
-import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.TaskMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 
 class AddImportedTableTask extends AbstractTask {
 
 	private static Logger logger = LoggerFactory.getLogger(CyUserLog.NAME);
 
 	private final CyTableReader reader;
-	private final CyServiceRegistrar serviceRegistrar;
+	private final OVManager ovManager;
 
-	AddImportedTableTask(final CyTableReader reader, final CyServiceRegistrar serviceRegistrar) {
+	AddImportedTableTask(final CyTableReader reader, final OVManager ovManager) {
 		this.reader = reader;
-		this.serviceRegistrar = serviceRegistrar;
+		this.ovManager = ovManager;
 	}
 
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
 		if (reader != null && reader.getTables() != null) {
-			final CyTableManager tableMgr = serviceRegistrar.getService(CyTableManager.class);
+			final CyTableManager tableMgr = ovManager.getService(CyTableManager.class);
 			
 			for (CyTable table : reader.getTables())
 				tableMgr.addTable(table);
+			
+			ovManager.showPanel();
 		} else {
 			if (reader == null)
 				logger.warn("reader is null.");

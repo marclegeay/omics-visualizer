@@ -62,7 +62,7 @@ abstract class AbstractLoadOVTableTask extends AbstractTask {
 			taskMonitor.setStatusMessage("Loading Data Table...");
 			insertTasksAfterCurrentTask(
 					new ReaderTableTask(reader, ovManager.getServiceRegistrar()),
-					new AddImportedTableTask(reader, ovManager.getServiceRegistrar())
+					new AddImportedTableTask(reader, ovManager)
 			);
 		}
 	}
@@ -71,6 +71,7 @@ abstract class AbstractLoadOVTableTask extends AbstractTask {
 		if (requestedType.equals(CyTable.class)) 		return "";
 		if (requestedType.equals(String.class)) 		return "";
 		if (requestedType.equals(JSONResult.class)) {
+			@SuppressWarnings("unused")
 			JSONResult res = () -> {		return "{}";	};	}
 		return null;
 	}

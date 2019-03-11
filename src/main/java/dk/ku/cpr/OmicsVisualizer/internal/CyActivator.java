@@ -22,6 +22,7 @@ import org.osgi.framework.BundleContext;
 
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.io.WildCardCyFileFilter;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.task.ImportAttributeOVTableReaderFactory;
+import dk.ku.cpr.OmicsVisualizer.external.tableimport.task.ImportNoGuiOVTableReaderFactory;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.task.LoadOVTableFileTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.tunable.AttributeDoubleIDMappingParametersHandlerFactory;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.ImportType;
@@ -111,12 +112,21 @@ public class CyActivator extends AbstractCyActivator {
 				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
 				props.setProperty(MENU_GRAVITY, "1");
 				props.setProperty(TITLE, "Load a File...");
+
+				registerService(context, factory, TaskFactory.class, props);
+				//registerService(context, factory, LoadTableFileTaskFactory.class, props);
+			}
+			
+			// Loading a table (Command only)
+			{
+				ImportNoGuiOVTableReaderFactory factory = new ImportNoGuiOVTableReaderFactory(ovManager);
+				
+				Properties props = new Properties();
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "load");
 				props.setProperty(COMMAND_DESCRIPTION, "Load an Omics Visualizer table");
 
 				registerService(context, factory, TaskFactory.class, props);
-				//registerService(context, factory, LoadTableFileTaskFactory.class, props);
 			}
 			
 			// Get operator list (Command only)

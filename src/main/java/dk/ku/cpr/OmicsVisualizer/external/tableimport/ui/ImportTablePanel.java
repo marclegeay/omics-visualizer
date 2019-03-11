@@ -1397,12 +1397,9 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 
 		// Build mapping parameter object.
 		final List<String> del = checkDelimiter();
-		// Modification ML:
-		//final int keyInFile = getPreviewPanel().getColumnIndex(KEY);
-		final int keyInFile=0;
 		
 		final AttributeMappingParameters mapping = new AttributeMappingParameters(sourceName, del, listDelimitersCopy,
-				keyInFile, attrNames, dataTypesCopy, typesCopy, namespacesCopy, startLineNumber, commentChar);
+				attrNames, dataTypesCopy, typesCopy, namespacesCopy, startLineNumber, commentChar);
 
 		return mapping;
 	}

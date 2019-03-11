@@ -51,20 +51,18 @@ public class AttributeMappingParameters extends AbstractMappingParameters {
 			final String name,
 			final List<String> delimiters,
 			final String[] listDelimiters,
-			final int keyIndex,
 			final String[] attrNames,
 			final AttributeDataType[] dataTypes,
 	        final SourceColumnSemantic[] types,
 	        final String[] namespaces
 	) throws Exception {
-		this(name, delimiters, listDelimiters, keyIndex, attrNames, dataTypes, types, namespaces, 0, null);
+		this(name, delimiters, listDelimiters, attrNames, dataTypes, types, namespaces, 0, null);
 	}
 	
 	public AttributeMappingParameters(
 			final String name,
 			final List<String> delimiters,
             final String[] listDelimiters,
-            final int keyIndex,
             final String[] attrNames,
             final AttributeDataType[] dataTypes,
             final SourceColumnSemantic[] types,
@@ -76,15 +74,6 @@ public class AttributeMappingParameters extends AbstractMappingParameters {
 		
 		if (attrNames == null)
 			throw new Exception("attributeNames should not be null.");
-
-		/*
-		 * Error check: Key column number should be smaller than actual number
-		 * of columns in the text table.
-		 */
-		if (attrNames.length < keyIndex)
-			throw new IOException("Key is out of range.");
-		
-//		this.keyIndex = keyIndex;
 		
 		/*
 		 * If not specified, import everything as String attributes.
