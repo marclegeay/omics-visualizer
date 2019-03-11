@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class OVFilter implements Serializable {
 	private static final long serialVersionUID = -1392340255472045173L;
@@ -82,13 +84,53 @@ public class OVFilter implements Serializable {
 	
 	@Override
 	public String toString() {
-		String str = "[" + this.type + "]";
+		String str = "[" + this.type.name() + "]";
 		
 		for(OVFilterCriteria c : this.criterias) {
-			str += c;
+			str += "(" +  c + ")";
 		}
 		
 		return str;
+	}
+	
+	public static OVFilter valueOf(String str) {
+		if(str == null) {
+			return null;
+		}
+		
+		Pattern p_type = Pattern.compile("^\\[(.+)\\](.+)$");
+		Matcher m_type = p_type.matcher(str);
+		
+		if(!m_type.matches()) {
+			return null;
+		}
+		
+		OVFilterType type = OVFilterType.valueOf(m_type.group(1));
+		String crits = m_type.group(2);
+		
+		Pattern p_crit = Pattern.compile("\\((.+?)\\)");
+		Matcher m_crit = p_crit.matcher(crits);
+		
+		if(!m_crit.find()) {
+			return null;
+		}
+		
+		OVFilter filter = new OVFilter();
+		filter.setType(type);
+		
+		int start = m_crit.start();
+		int end;
+		while(m_crit.find(start)) {
+			end = m_crit.end();
+			
+			// 'start' and 'end' catches the string "(filter)" with the parenthesis
+			// But OVFilterCriteria.valueOf does not want the parenthesis 
+			filter.addCriteria(OVFilterCriteria.valueOf(crits.substring(start+1, end-1)));
+			
+			start = end;
+		}
+		
+		return filter;
 	}
 
 	public enum OVFilterType {

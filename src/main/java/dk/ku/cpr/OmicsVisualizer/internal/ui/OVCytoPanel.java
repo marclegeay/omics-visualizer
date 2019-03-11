@@ -241,7 +241,7 @@ SelectedNodesAndEdgesListener {
 		return columnSelector;
 	}
 	
-	private OVFilterWindow getFilterWindow() {
+	public OVFilterWindow getFilterWindow() {
 		if(this.filterWindow == null) {
 			this.filterWindow = new OVFilterWindow(this.ovManager);
 		}
@@ -249,7 +249,7 @@ SelectedNodesAndEdgesListener {
 		return this.filterWindow;
 	}
 
-	private OVConnectWindow getConnectWindow() {
+	public OVConnectWindow getConnectWindow() {
 		if(this.connectWindow == null) {
 			this.connectWindow = new OVConnectWindow(this, this.ovManager);
 		}
@@ -257,7 +257,7 @@ SelectedNodesAndEdgesListener {
 		return this.connectWindow;
 	}
 
-	private OVStyleWindow getStyleWindow() {
+	public OVStyleWindow getStyleWindow() {
 		if(this.styleWindow == null) {
 			this.styleWindow = new OVStyleWindow(this, this.ovManager);
 		}

@@ -20,7 +20,7 @@ import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.swing.GUITunableHandlerFactory;
 import org.osgi.framework.BundleContext;
 
-import dk.ku.cpr.OmicsVisualizer.external.loaddatatable.LoadOVTableFileTaskFactoryImpl;
+import dk.ku.cpr.OmicsVisualizer.external.loaddatatable.LoadOVTableFileTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.io.WildCardCyFileFilter;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.task.ImportAttributeOVTableReaderFactory;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.tunable.AttributeDoubleIDMappingParametersHandlerFactory;
@@ -28,7 +28,9 @@ import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.ImportType;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.task.FilterTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.OperatorListTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveFilterTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.ShowFilterWindowTaskFactory;
 
 public class CyActivator extends AbstractCyActivator {
 
@@ -98,7 +100,7 @@ public class CyActivator extends AbstractCyActivator {
 			// Loading a table:
 			// Code from core-task-impl CyActivator
 			{
-				LoadOVTableFileTaskFactoryImpl factory = new LoadOVTableFileTaskFactoryImpl(ovManager);
+				LoadOVTableFileTaskFactory factory = new LoadOVTableFileTaskFactory(ovManager);
 
 				Properties props = new Properties();
 
@@ -109,24 +111,46 @@ public class CyActivator extends AbstractCyActivator {
 				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
 				props.setProperty(MENU_GRAVITY, "1");
 				props.setProperty(TITLE, "Load a File...");
-				props.setProperty(COMMAND_NAMESPACE, "ov");
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "load");
 				props.setProperty(COMMAND_DESCRIPTION, "Load an Omics Visualizer table");
 
 				registerService(context, factory, TaskFactory.class, props);
 				//registerService(context, factory, LoadTableFileTaskFactory.class, props);
 			}
+			
+			// Get operator list (Command only)
+			{
+				OperatorListTaskFactory factory = new OperatorListTaskFactory();
+				Properties props = new Properties();
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(COMMAND, "operators");
+				props.setProperty(COMMAND_DESCRIPTION, "List the available operators");
+				
+				registerService(context, factory, TaskFactory.class, props);
+			}
 
 			// Access filter
 			{
-				FilterTaskFactory factory = new FilterTaskFactory(ovManager);
+				ShowFilterWindowTaskFactory factory = new ShowFilterWindowTaskFactory(ovManager);
 				Properties props = new Properties();
 				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
 				props.setProperty(TITLE, "Filter...");
 				props.setProperty(MENU_GRAVITY, "2");
-				props.setProperty(COMMAND_NAMESPACE, "ov");
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(COMMAND, "filter show");
+				props.setProperty(COMMAND_DESCRIPTION, "Show the filter window of the current table");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+
+			// Modify filter (Command only)
+			{
+				FilterTaskFactory factory = new FilterTaskFactory(ovManager);
+				Properties props = new Properties();
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "filter");
-				props.setProperty(COMMAND_DESCRIPTION, "Filters the row of the active Omics Visualizer table");
+				props.setProperty(COMMAND_DESCRIPTION, "Filters the row of an Omics Visualizer table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -138,8 +162,9 @@ public class CyActivator extends AbstractCyActivator {
 				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
 				props.setProperty(TITLE, "Remove filter");
 				props.setProperty(MENU_GRAVITY, "3");
-				props.setProperty(COMMAND_NAMESPACE, "ov");
-				props.setProperty(COMMAND, "remove filter");
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(COMMAND, "filter remove");
+				props.setProperty(COMMAND_DESCRIPTION, "Removes the filter of the active table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}

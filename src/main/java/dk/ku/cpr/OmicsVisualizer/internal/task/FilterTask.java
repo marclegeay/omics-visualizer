@@ -132,6 +132,8 @@ public class FilterTask extends AbstractTask {
 		}
 		this.ovTable.filter(filteredRowKeys);
 		
+		// The filter can come from the command, so we assign the filter to the table
+		this.ovTable.setFilter(this.ovFilter);
 		this.ovTable.save();
 		
 		if(this.ovPanel != null) {

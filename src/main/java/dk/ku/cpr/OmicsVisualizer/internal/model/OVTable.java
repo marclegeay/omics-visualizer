@@ -44,7 +44,6 @@ public class OVTable {
 		this.ovProps = new OVProperties(this.ovManager, OVShared.OVPROPERTY_NAME+"-"+this.cyTable.getTitle());
 
 		this.load();
-		this.createJTable();
 		this.save();
 	}
 	
@@ -341,6 +340,8 @@ public class OVTable {
 		if(!filterStr.isEmpty()) {
 			this.filter = OVFilter.load(filterStr);
 		}
+		
+		this.createJTable();
 		
 		// We look for connected networks
 		for(CyNetwork net : this.ovManager.getNetworkManager().getNetworkSet()) {

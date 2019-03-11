@@ -45,12 +45,28 @@ public class OVFilterCriteria implements Serializable {
 	
 	@Override
 	public String toString() {
-		return "("
-				+ DataUtils.escapeComma(this.colName)
+		return DataUtils.escapeComma(this.colName)
 				+ ","
-				+ this.operator
+				+ this.operator.name()
 				+ ","
-				+ DataUtils.escapeComma(DataUtils.escapeBackslash(this.reference))
-				+ ")";
+				+ DataUtils.escapeComma(DataUtils.escapeBackslash(this.reference));
+	}
+	
+	public static OVFilterCriteria valueOf(String str) {
+		String critParts[] = DataUtils.getCSV(str);
+		
+		if((critParts.length < 2) || (critParts.length > 3)) {
+			return null;
+		}
+		
+		String colName = critParts[0];
+		Operator operator = Operator.valueOf(critParts[1]);
+		String reference="";
+		
+		if(critParts.length == 3) {
+			reference = critParts[2];
+		}
+		
+		return new OVFilterCriteria(colName, operator, reference);
 	}
 }

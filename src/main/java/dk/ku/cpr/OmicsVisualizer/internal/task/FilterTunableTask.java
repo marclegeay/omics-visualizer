@@ -1,72 +1,54 @@
 package dk.ku.cpr.OmicsVisualizer.internal.task;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.Tunable;
-import org.cytoscape.work.util.ListSingleSelection;
 
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVFilter;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
-import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
-import dk.ku.cpr.OmicsVisualizer.internal.model.operators.Operator;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
 
 public class FilterTunableTask extends FilterTask {
 
-	@Tunable(description="Select column",
-			tooltip="Select the column you want to filter",
+	@Tunable(description="Omics Visualizer table name",
+			required=false,
+			tooltip="By default the active table is filtered, but you can specify the name of the table you wish to filter here.",
+			exampleStringValue="My table",
 			gravity=1.0)
-	public ListSingleSelection<String> selectColName;
+	public String tableName="";
 
-	@Tunable(description="Operator",
-			tooltip="Select the way the values should be filtered",
+	@Tunable(description="Filter",
+			longDescription="The filter must have the following format:<br>"
+					+ "[filter_type](filter_criteria_1)(filter_criteria_2)...(filter_criteria_n)<br>"
+					+ "'filter_type' must be either 'ALL' or 'ANY'<br>"
+					+ "'filter_criteria_x' must be formatted as:<br>"
+					+ "colName,operator,value<br>"
+					+ "where 'colName' is the name of the column, where commas are escaped by being preceeded by two backslashes<br>"
+					+ "'operator' is the name of the operation applied, the list of operators is available with the command \"ov operators\"<br>"
+					+ "'value' if necessary, is the value to compare with. If the value is a regex, the backslash must be repeated four-times to be escaped \"\\\\\\\\w\" to represent the regex \"\\w\".",
+			tooltip="Define the filter that should be applied",
+			required=true,
+			exampleStringValue="[ALL](name,MATCHES,\\\\w+)(pvalue,LOWER,0.05)",
 			gravity=1.0)
-	public ListSingleSelection<Operator> selectOperator;
-
-	@Tunable(description="Value",
-			tooltip="Select the value to compare with",
-			gravity=1.0)
-	public String strTunableReference;
-
-	public FilterTunableTask(OVManager ovManager) {
-		this(ovManager, null);
-	}
+	public String filter;
 
 	public FilterTunableTask(OVManager ovManager, OVCytoPanel ovPanel) {
 		super(ovManager, ovPanel);
-
-		/* TODO
-		List<String> colNames = new ArrayList<>();
-		for(String colname : this.ovTable.getColNames()) {
-			if(!OVShared.isOVCol(colname) && 
-					this.ovTable.getColType(colname) != List.class) {
-				colNames.add(colname);
-			}
-		}
-		this.selectColName = new ListSingleSelection<>(colNames);
-
-		this.selectOperator = new ListSingleSelection<>(Arrays.asList(Operator.values()));
-
-
-		this.strTunableReference="0";
-
-		String oldFilter = this.ovTable.getFilter();
-		if(oldFilter != null) {
-			String oldFilterParts[] = oldFilter.split(",");
-
-			this.selectColName.setSelectedValue(oldFilterParts[0]);
-			this.selectOperator.setSelectedValue(Operator.valueOf(oldFilterParts[1]));
-			this.strTunableReference = oldFilterParts[2];
-		}
-		*/
 	}
-
+	
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
-		//TODO
-
+		if(!this.tableName.isEmpty()) {
+			for(OVTable table : this.ovManager.getOVTables()) {
+				if(table.getTitle().equals(this.tableName)) {
+					this.ovTable=table;
+					break;
+				}
+			}
+		}
+		
+		this.ovFilter = OVFilter.valueOf(this.filter);
+		
 		super.run(taskMonitor);
 	}
 }

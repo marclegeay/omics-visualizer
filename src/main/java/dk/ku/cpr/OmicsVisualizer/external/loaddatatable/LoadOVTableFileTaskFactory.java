@@ -6,11 +6,11 @@ import org.cytoscape.work.TaskIterator;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 
 
-public class LoadOVTableFileTaskFactoryImpl extends AbstractTaskFactory {
+public class LoadOVTableFileTaskFactory extends AbstractTaskFactory {
 
 	private final OVManager ovManager;
 
-	public LoadOVTableFileTaskFactoryImpl(final OVManager ovManager) {
+	public LoadOVTableFileTaskFactory(final OVManager ovManager) {
 		this.ovManager = ovManager;
 	}
 
