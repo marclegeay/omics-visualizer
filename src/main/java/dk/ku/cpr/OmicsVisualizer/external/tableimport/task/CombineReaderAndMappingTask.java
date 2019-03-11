@@ -1,4 +1,4 @@
-package dk.ku.cpr.OmicsVisualizer.external.loaddatatable;
+package dk.ku.cpr.OmicsVisualizer.external.tableimport.task;
 
 /*
  * #%L

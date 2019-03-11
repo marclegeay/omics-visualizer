@@ -21,7 +21,7 @@
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  * #L%
  */
-package dk.ku.cpr.OmicsVisualizer.external.loaddatatable;
+package dk.ku.cpr.OmicsVisualizer.external.tableimport.task;
 
 import static org.cytoscape.work.TunableValidator.ValidationState.OK;
 
