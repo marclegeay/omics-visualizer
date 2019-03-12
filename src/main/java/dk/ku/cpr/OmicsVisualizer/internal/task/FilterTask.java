@@ -79,6 +79,10 @@ public class FilterTask extends AbstractTask {
 			String strReference = crit.getReference();
 			
 			Class<?> colType = this.ovTable.getColType(colName);
+			if(colType == null) {
+				taskMonitor.setStatusMessage("Warning: Column \"" + colName +"\" not found, the criteria will not be applied.");
+				continue;
+			}
 	
 			Object reference = null;
 			if(!operator.isUnary()) {

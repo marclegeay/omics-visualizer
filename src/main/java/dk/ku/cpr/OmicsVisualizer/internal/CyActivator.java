@@ -134,7 +134,7 @@ public class CyActivator extends AbstractCyActivator {
 				OperatorListTaskFactory factory = new OperatorListTaskFactory();
 				Properties props = new Properties();
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "operators");
+				props.setProperty(COMMAND, "filter list operators");
 				props.setProperty(COMMAND_DESCRIPTION, "List the available operators");
 				
 				registerService(context, factory, TaskFactory.class, props);

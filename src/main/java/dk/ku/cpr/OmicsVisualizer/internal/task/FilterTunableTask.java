@@ -28,7 +28,7 @@ public class FilterTunableTask extends FilterTask {
 					+ "'value' if necessary, is the value to compare with. If the value is a regex, the backslash must be repeated four-times to be escaped \"\\\\\\\\w\" to represent the regex \"\\w\".",
 			tooltip="Define the filter that should be applied",
 			required=true,
-			exampleStringValue="[ALL](name,MATCHES,\\\\w+)(pvalue,LOWER,0.05)",
+			exampleStringValue="[ALL](name,MATCHES,\\\\\\\\w+)(pvalue,LOWER,0.05)",
 			gravity=1.0)
 	public String filter;
 
