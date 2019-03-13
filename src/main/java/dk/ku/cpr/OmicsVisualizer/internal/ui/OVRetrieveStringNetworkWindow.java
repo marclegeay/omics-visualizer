@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,6 +21,9 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyRow;
@@ -33,13 +37,16 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 import dk.ku.cpr.OmicsVisualizer.internal.task.StringCommandTaskFactory;
 
-public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserver, ActionListener {
+public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserver, ActionListener, CaretListener {
 	private static final long serialVersionUID = 8015437684470645491L;
 
 	private OVManager ovManager;
 	private OVConnectWindow ovConnectWindow;
 	private OVTable ovTable;
+	
+	private List<OVSpecies> speciesList;
 
+	private JTextField querySpecies;
 	private JComboBox<OVSpecies> selectSpecies;
 	private JComboBox<String> selectQuery;
 	private JCheckBox filteredOnly;
@@ -54,6 +61,11 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 		this.ovConnectWindow=ovConnectWindow;
 		this.ovTable=ovTable;
 
+		this.querySpecies = new JTextField();
+		this.querySpecies.setToolTipText("You can type here the name of a specie to search it quickly in the dropdown list below.");
+		this.querySpecies.addCaretListener(this);
+		
+		this.speciesList = new ArrayList<>();
 		this.selectSpecies = new JComboBox<>();
 
 		this.selectQuery = new JComboBox<>();
@@ -99,7 +111,10 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 		c.expandHorizontal();
 
 		selectPanel.add(new JLabel("Species:"), c);
-		selectPanel.add(this.selectSpecies, c.nextCol());
+		selectPanel.add(this.querySpecies, c.nextCol());
+
+		selectPanel.add(this.selectSpecies, c.nextRow().useNCols(2));
+		c.useNCols(1);
 
 		selectPanel.add(new JLabel("Protein names column:"), c.nextRow());
 		selectPanel.add(this.selectQuery, c.nextCol());
@@ -137,6 +152,7 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 			for(Map<String,String> r : res) {
 				OVSpecies species = new OVSpecies(r);
 				this.selectSpecies.addItem(species);
+				this.speciesList.add(species);
 
 				//We select Human as default
 				if(species.abbreviatedName.equals("Homo sapiens")) {
@@ -191,6 +207,24 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 		}
 	}
 
+	@Override
+	public void caretUpdate(CaretEvent e) {
+		if(e.getSource() == this.querySpecies) {
+			OVSpecies selectedSpecies = (OVSpecies) this.selectSpecies.getSelectedItem();
+			this.selectSpecies.removeAllItems();
+			for(OVSpecies spe : this.speciesList) {
+				if(spe.getQueryString().contains(this.querySpecies.getText().toLowerCase())) {
+					this.selectSpecies.addItem(spe);
+				}
+			}
+			// We always display at leat one species
+			if(this.selectSpecies.getItemCount() == 0) {
+				this.selectSpecies.addItem(selectedSpecies);
+			}
+			this.selectSpecies.setSelectedItem(selectedSpecies);
+		}
+	}
+
 	private class OVSpecies {
 		private Integer taxonID;
 		private String abbreviatedName;
@@ -199,16 +233,20 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 		public OVSpecies(Map<String,String> data) {
 			super();
 			this.taxonID = Integer.valueOf(data.get("taxonomyId"));
-			this.abbreviatedName = data.get("abbreviatedName");
-			this.scientificName =  data.get("scientificName");
+			this.abbreviatedName = data.get("scientificName"); // TODO: Bug ? The scientificName is the shortest one
+			this.scientificName =  data.get("abbreviatedName"); // TODO: Bug ? The abbreviatedName looks like a scientific Name
 		}
 
 		public Integer getTaxonID() {
 			return this.taxonID;
 		}
+		
+		public String getQueryString() {
+			return (this.abbreviatedName + " " + this.scientificName).toLowerCase();
+		}
 
 		public String toString() {
-			return this.abbreviatedName + " [" + this.scientificName + "]";
+			return this.scientificName;
 		}
 	}
 }
