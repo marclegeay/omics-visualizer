@@ -63,12 +63,19 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 	private static final Color DEFAULT_ZERO_COLOR = Color.WHITE;
 	/** Used when values are positive and negative */
 	private static final Color DEFAULT_MAX_COLOR = new Color(178,24,43);
-	/** Used when values are only positive or only negative */
-	private static final Color DEFAULT_MIN_COLOR_2 = new Color(253,231,37);
-	/** Used when values are only positive or only negative */
-	private static final Color DEFAULT_ZERO_COLOR_2 = new Color(33,145,140);
-	/** Used when values are only positive or only negative */
-	private static final Color DEFAULT_MAX_COLOR_2 = new Color(68,1,84);
+	/** Used when values are only positive */
+	private static final Color DEFAULT_MIN_COLOR_POS = new Color(253,231,37);
+	/** Used when values are only positive */
+	private static final Color DEFAULT_ZERO_COLOR_POS = new Color(33,145,140);
+	/** Used when values are only positive */
+	private static final Color DEFAULT_MAX_COLOR_POS = new Color(68,1,84);
+	// With switch colors between POS and NEG values (so that the "low" color is always near 0)
+	/** Used when values are only negative */
+	private static final Color DEFAULT_MIN_COLOR_NEG = DEFAULT_MAX_COLOR_POS;
+	/** Used when values are only negative */
+	private static final Color DEFAULT_ZERO_COLOR_NEG = DEFAULT_ZERO_COLOR_POS;
+	/** Used when values are only negative */
+	private static final Color DEFAULT_MAX_COLOR_NEG = DEFAULT_MIN_COLOR_POS;
 
 	private OVCytoPanel cytoPanel;
 	private OVManager ovManager;
@@ -325,9 +332,15 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 						rangeMax = max;
 						rangeZero = (max+min)/2;
 						
-						colorMin = DEFAULT_MIN_COLOR_2;
-						colorZero = DEFAULT_ZERO_COLOR_2;
-						colorMax = DEFAULT_MAX_COLOR_2;
+						if(max <= 0) { // Values all negatives
+							colorMin = DEFAULT_MIN_COLOR_NEG;
+							colorZero = DEFAULT_ZERO_COLOR_NEG;
+							colorMax = DEFAULT_MAX_COLOR_NEG;
+						} else { // values all positives
+							colorMin = DEFAULT_MIN_COLOR_POS;
+							colorZero = DEFAULT_ZERO_COLOR_POS;
+							colorMax = DEFAULT_MAX_COLOR_POS;
+						}
 					} else {
 						// We detect the highest absolute value for the range
 						max = (max >= -min ? max : -min);
@@ -370,9 +383,15 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 						rangeMax = max;
 						rangeZero = (max+min)/2;
 						
-						colorMin = DEFAULT_MIN_COLOR_2;
-						colorZero = DEFAULT_ZERO_COLOR_2;
-						colorMax = DEFAULT_MAX_COLOR_2;
+						if(max <= 0) { // Values all negatives
+							colorMin = DEFAULT_MIN_COLOR_NEG;
+							colorZero = DEFAULT_ZERO_COLOR_NEG;
+							colorMax = DEFAULT_MAX_COLOR_NEG;
+						} else { // values all positives
+							colorMin = DEFAULT_MIN_COLOR_POS;
+							colorZero = DEFAULT_ZERO_COLOR_POS;
+							colorMax = DEFAULT_MAX_COLOR_POS;
+						}
 					} else {
 						// We detect the highest absolute value for the range
 						max = (max >= -min ? max : -min);
@@ -415,9 +434,15 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 						rangeMax = max;
 						rangeZero = (max+min)/2;
 						
-						colorMin = DEFAULT_MIN_COLOR_2;
-						colorZero = DEFAULT_ZERO_COLOR_2;
-						colorMax = DEFAULT_MAX_COLOR_2;
+						if(max <= 0) { // Values all negatives
+							colorMin = DEFAULT_MIN_COLOR_NEG;
+							colorZero = DEFAULT_ZERO_COLOR_NEG;
+							colorMax = DEFAULT_MAX_COLOR_NEG;
+						} else { // values all positives
+							colorMin = DEFAULT_MIN_COLOR_POS;
+							colorZero = DEFAULT_ZERO_COLOR_POS;
+							colorMax = DEFAULT_MAX_COLOR_POS;
+						}
 					} else {
 						// We detect the highest absolute value for the range
 						max = (max >= -min ? max : -min);
