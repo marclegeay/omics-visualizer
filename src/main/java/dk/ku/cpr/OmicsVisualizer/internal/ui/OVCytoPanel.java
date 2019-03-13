@@ -55,6 +55,8 @@ import org.cytoscape.model.events.RowsSetEvent;
 import org.cytoscape.model.events.RowsSetListener;
 import org.cytoscape.model.events.SelectedNodesAndEdgesEvent;
 import org.cytoscape.model.events.SelectedNodesAndEdgesListener;
+import org.cytoscape.model.subnetwork.CyRootNetwork;
+import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.task.destroy.DeleteTableTaskFactory;
 import org.cytoscape.util.swing.IconManager;
 import org.cytoscape.work.TaskIterator;
@@ -613,11 +615,13 @@ SelectedNodesAndEdgesListener {
 		// Here we only take care of Network selection changes, Node changes are taken care in another method
 		// The CyApplicationManager.getCurrentNetwork() has not been changed yet, so we can not use it
 		CyNetworkManager networkManager = this.ovManager.getNetworkManager();
+		CyRootNetworkManager rootNetManager = this.ovManager.getService(CyRootNetworkManager.class);
 
 		// We only look for "selected" changes
 		if (e.containsColumn(CyNetwork.SELECTED)) {
 			OVConnection ovCon = null;
 			CyNetwork changedNetwork = null;
+			CyRootNetwork changedRootNetwork = null;
 			Boolean selected=false;
 
 			Collection<RowSetRecord> columnRecords = e.getColumnRecords(CyNetwork.SELECTED);
@@ -638,12 +642,13 @@ SelectedNodesAndEdgesListener {
 					// Here we verify if the SUID we have is the SUID of a network
 					if (networkManager.networkExists(networkID)) {
 						changedNetwork = networkManager.getNetwork(networkID);
+						changedRootNetwork =  rootNetManager.getRootNetwork(changedNetwork);
 					}
 				}
 
-				if (changedNetwork != null) {
+				if (changedRootNetwork != null) {
 					// We have a network, we check if he is connected with an OVTable
-					ovCon = this.ovManager.getConnection(changedNetwork);
+					ovCon = this.ovManager.getConnection(changedRootNetwork);
 
 					if(ovCon != null) {
 						if(selected) {
@@ -672,7 +677,12 @@ SelectedNodesAndEdgesListener {
 	public void handleEvent(SelectedNodesAndEdgesEvent event) {
 		if(event.nodesChanged()) {
 			CyNetwork cyNetwork = event.getNetwork();
-			OVConnection ovCon = this.ovManager.getConnection(cyNetwork);
+			if(cyNetwork == null) {
+				return;
+			}
+			
+			CyRootNetworkManager rootNetManager = this.ovManager.getService(CyRootNetworkManager.class);
+			OVConnection ovCon = this.ovManager.getConnection(rootNetManager.getRootNetwork(cyNetwork));
 
 			if(ovCon != null) {
 				ovCon.getOVTable().displaySelectedRows(cyNetwork);

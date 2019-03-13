@@ -42,7 +42,7 @@ public class OVConnectPanel extends JPanel implements ActionListener {
 		// GUI initialization
 		
 		this.mainPanel = new JPanel();
-		this.mainPanel.setBorder(BorderFactory.createTitledBorder(this.con.getNetwork().toString()));
+		this.mainPanel.setBorder(BorderFactory.createTitledBorder(this.con.getCollectionNetworkName()));
 		this.mainPanel.setLayout(new BorderLayout());
 		
 		JPanel selectPanel = new JPanel();
@@ -84,15 +84,15 @@ public class OVConnectPanel extends JPanel implements ActionListener {
 	}
 	
 	public void update() {
-		if(this.con.getNetwork() == null) {
+		if(this.con.getRootNetwork() == null) {
 			this.setVisible(false);
 			return;
 		}
 
-		this.mainPanel.setBorder(BorderFactory.createTitledBorder(this.con.getNetwork().toString()));
+		this.mainPanel.setBorder(BorderFactory.createTitledBorder(this.con.getCollectionNetworkName()));
 		
 		this.selectColNetwork.removeAllItems();
-		for(CyColumn col : this.con.getNetwork().getDefaultNodeTable().getColumns()) {
+		for(CyColumn col : this.con.getBaseNetwork().getDefaultNodeTable().getColumns()) {
 			this.selectColNetwork.addItem(col.getName());
 		}
 		this.selectColNetwork.setSelectedItem(this.con.getMappingColCyto());
@@ -117,7 +117,7 @@ public class OVConnectPanel extends JPanel implements ActionListener {
 			);
 		} else if(e.getSource() == this.disconnectButton) {
 			int response = JOptionPane.showConfirmDialog(null,
-					"You are disconnecting \""+this.con.getOVTable().getTitle()+"\" and \""+this.con.getNetwork().toString()+"\".",
+					"You are disconnecting \""+this.con.getOVTable().getTitle()+"\" and \""+this.con.getCollectionNetworkName()+"\".",
 					"Confirmation",
 					JOptionPane.OK_CANCEL_OPTION);
 			

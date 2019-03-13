@@ -17,8 +17,12 @@ import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedEvent;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
+import org.cytoscape.model.events.NetworkAddedEvent;
+import org.cytoscape.model.events.NetworkAddedListener;
 import org.cytoscape.model.events.RowsSetListener;
 import org.cytoscape.model.events.SelectedNodesAndEdgesListener;
+import org.cytoscape.model.subnetwork.CyRootNetwork;
+import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.property.CyProperty;
 import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.session.events.SessionAboutToBeSavedEvent;
@@ -37,7 +41,8 @@ import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
 public class OVManager
 implements SessionLoadedListener,
 SessionAboutToBeSavedListener,
-NetworkAboutToBeDestroyedListener {
+NetworkAboutToBeDestroyedListener,
+NetworkAddedListener {
 
 	private CyServiceRegistrar serviceRegistrar;
 
@@ -83,17 +88,17 @@ NetworkAboutToBeDestroyedListener {
 	}
 
 	/**
-	 * Get the connection for a given CyNetwork
-	 * @param network
+	 * Get the connection for a given CyRootNetwork
+	 * @param rootNetwork
 	 * @return <code>null</code> if the network is connected to no OVTable, the OVConnection otherwise
 	 */
-	public OVConnection getConnection(CyNetwork network) {
-		if(network == null) {
+	public OVConnection getConnection(CyRootNetwork rootNetwork) {
+		if(rootNetwork == null) {
 			return null;
 		}
 
 		for(OVConnection ovCon : this.ovCons) {
-			if(network.equals(ovCon.getNetwork())) {
+			if(rootNetwork.equals(ovCon.getRootNetwork())) {
 				return ovCon;
 			}
 		}
@@ -102,13 +107,13 @@ NetworkAboutToBeDestroyedListener {
 	}
 
 	/**
-	 * Get the connection for a given CyNetwork
-	 * @param network
+	 * Get the connection for a given CyRootNetwork
+	 * @param rootNetworkName name of the CyRootNetwork
 	 * @return <code>null</code> if the network is connected to no OVTable, the OVConnection otherwise
 	 */
-	public OVConnection getConnection(String networkName) {
+	public OVConnection getConnection(String rootNetworkName) {
 		for(OVConnection ovCon : this.ovCons) {
-			if(networkName.equals(ovCon.getNetwork().toString())) {
+			if(rootNetworkName.equals(ovCon.getRootNetwork().toString())) {
 				return ovCon;
 			}
 		}
@@ -288,5 +293,22 @@ NetworkAboutToBeDestroyedListener {
 			this.ovCytoPanel.update();
 		}
 	}
+
+	@Override
+	public void handleEvent(NetworkAddedEvent e) {
+		CyRootNetworkManager rootNetManager = this.getService(CyRootNetworkManager.class);
+		CyNetwork newNetwork = e.getNetwork();
+		
+		if(newNetwork == null) {
+			return;
+		}
+		
+		CyRootNetwork newRootNertork = rootNetManager.getRootNetwork(newNetwork);
+		OVConnection ovCon = this.getConnection(newRootNertork);
+		if(ovCon != null) {
+			ovCon.connectNetwork(newNetwork);
+		}
+	}
+	
 
 }

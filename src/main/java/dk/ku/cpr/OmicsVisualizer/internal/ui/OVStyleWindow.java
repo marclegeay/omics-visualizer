@@ -36,6 +36,8 @@ import javax.swing.JTextField;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyRow;
+import org.cytoscape.model.subnetwork.CyRootNetwork;
+import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVColor;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVColorContinuous;
@@ -258,7 +260,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 		// We only look at values of rows connected to the network
 		List<CyRow> valueRows = new ArrayList<>();
-		for(CyRow netRow : this.ovCon.getNetwork().getDefaultNodeTable().getAllRows()) {
+		for(CyRow netRow : this.ovCon.getBaseNetwork().getDefaultNodeTable().getAllRows()) {
 			valueRows.addAll(this.ovCon.getLinkedRows(netRow));
 		}
 
@@ -601,8 +603,8 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		this.selectNetwork.removeAllItems();
 		this.selectCopyNetwork.removeAllItems();
 		for(OVConnection ovCon : this.ovManager.getConnections(this.ovTable)) {
-			this.selectNetwork.addItem(ovCon.getNetwork().toString());
-			this.selectCopyNetwork.addItem(ovCon.getNetwork().toString());
+			this.selectNetwork.addItem(ovCon.getCollectionNetworkName());
+			this.selectCopyNetwork.addItem(ovCon.getCollectionNetworkName());
 		}
 		this.selectNetwork.addActionListener(this);
 
@@ -618,16 +620,17 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		}
 
 		// We look for the current displayed network
-		CyNetwork currentNetwork=null;
-
 		CyApplicationManager appManager = this.ovManager.getService(CyApplicationManager.class);
-		currentNetwork=appManager.getCurrentNetwork();
+		CyRootNetworkManager rootNetManager = this.ovManager.getService(CyRootNetworkManager.class);
+		CyNetwork currentNetwork=appManager.getCurrentNetwork();
 
-		if(currentNetwork != null
-				&& this.ovManager.getConnection(currentNetwork) != null
-				&& this.ovManager.getConnection(currentNetwork).getOVTable().equals(ovTable)) {
-			this.selectNetwork.setSelectedItem(currentNetwork.toString());
-			this.selectCopyNetwork.setSelectedItem(currentNetwork.toString());
+		if(currentNetwork != null) {
+			CyRootNetwork currentRoot = rootNetManager.getRootNetwork(currentNetwork);
+			OVConnection currentRootConnection = this.ovManager.getConnection(currentRoot);
+			if(currentRootConnection != null && currentRootConnection.getOVTable().equals(ovTable)) {
+				this.selectNetwork.setSelectedItem(currentRoot.toString());
+				this.selectCopyNetwork.setSelectedItem(currentRoot.toString());
+			}
 		}
 		if(this.selectNetwork.getSelectedIndex()==0) { // Here it means that the ActionListener was not triggered
 			// So we triger it
@@ -642,12 +645,12 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 	private void changedNetwork() {
 		for(OVConnection ovCon : this.ovManager.getConnections(this.ovTable)) {
-			if(ovCon.getNetwork().toString().equals(this.selectNetwork.getSelectedItem())) {
+			if(ovCon.getCollectionNetworkName().equals(this.selectNetwork.getSelectedItem())) {
 				this.ovCon = ovCon;
 
-				this.setTitle(this.ovTable, this.ovCon.getNetwork().toString());
+				this.setTitle(this.ovTable, this.ovCon.getCollectionNetworkName());
 
-				this.selectCopyNetwork.setSelectedItem(this.ovCon.getNetwork().toString());
+				this.selectCopyNetwork.setSelectedItem(this.ovCon.getCollectionNetworkName());
 
 				this.updateStyle(this.ovCon.getStyle());
 
@@ -656,9 +659,15 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 				// We change the network to the one selected
 				CyApplicationManager appManager = this.ovManager.getService(CyApplicationManager.class);
-				if(!this.ovCon.getNetwork().equals(appManager.getCurrentNetwork())) {
-					appManager.setCurrentNetwork(this.ovCon.getNetwork());
+				CyRootNetworkManager netRootManager = this.ovManager.getService(CyRootNetworkManager.class);
+				CyNetwork currentNetwork = appManager.getCurrentNetwork();
+				if(currentNetwork != null) {
+					CyRootNetwork currentRoot = netRootManager.getRootNetwork(currentNetwork);
+					if(!this.ovCon.getRootNetwork().equals(currentRoot)) {
+						appManager.setCurrentNetwork(this.ovCon.getBaseNetwork());
+					}
 				}
+				
 				break;
 			}
 		}
@@ -759,7 +768,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 			this.changedNetwork();
 		} else if(e.getSource() == this.copyButton) {
 			for(OVConnection ovCon : this.ovManager.getConnections(this.ovTable)) {
-				if(ovCon.getNetwork().toString().equals(this.selectCopyNetwork.getSelectedItem())) {
+				if(ovCon.getCollectionNetworkName().equals(this.selectCopyNetwork.getSelectedItem())) {
 					this.updateStyle(ovCon.getStyle());
 					break;
 				}

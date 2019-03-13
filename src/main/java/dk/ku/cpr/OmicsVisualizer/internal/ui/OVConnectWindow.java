@@ -24,6 +24,8 @@ import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkManager;
+import org.cytoscape.model.subnetwork.CyRootNetwork;
+import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
@@ -176,7 +178,7 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 
 		JPanel listNetworkPanel = new JPanel();
 		listNetworkPanel.setLayout(new BorderLayout());
-		JLabel linkLabel = new JLabel("Connected Networks:");
+		JLabel linkLabel = new JLabel("Connected Network Collections:");
 		linkLabel.setFont(fontLabel);
 		listNetworkPanel.add(linkLabel, BorderLayout.NORTH);
 
@@ -222,9 +224,9 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == this.selectNetwork) {
-			String netName = (String) this.selectNetwork.getSelectedItem();
+			String rootNetName = (String) this.selectNetwork.getSelectedItem();
 
-			if(netName.equals(STRING_NETWORK)) {
+			if(rootNetName.equals(STRING_NETWORK)) {
 				
 				AvailableCommands availableCommands = (AvailableCommands) this.ovManager.getService(AvailableCommands.class);
 				if (!availableCommands.getNamespaces().contains("string")) {
@@ -241,28 +243,29 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 				return;
 			}
 
-			CyNetwork net=null;
+			CyRootNetworkManager rootNetManager = this.ovManager.getService(CyRootNetworkManager.class);
+			CyRootNetwork rootNet=null;
 			for(CyNetwork cyNet : this.netManager.getNetworkSet()) {
-				if(cyNet.toString().equals(netName)) {
-					net=cyNet;
+				if(rootNetManager.getRootNetwork(cyNet).toString().equals(rootNetName)) {
+					rootNet=rootNetManager.getRootNetwork(cyNet);
 				}
 			}
 
-			OVConnection ovCon = this.ovManager.getConnection(net);
+			OVConnection ovCon = this.ovManager.getConnection(rootNet);
 			if(ovCon != null) {
 				JOptionPane.showMessageDialog(null,
-						"This network is already connected to \""+ovCon.getOVTable().getTitle()+"\".",
+						"This network collection is already connected to \""+ovCon.getOVTable().getTitle()+"\".",
 						"Warning",
 						JOptionPane.WARNING_MESSAGE);
 			}
 
-			if(net == null) {
+			if(rootNet == null) {
 				this.selectColNetwork.setEnabled(false);
 				this.selectColTable.setEnabled(false);
 				this.connectButton.setEnabled(false);
 			} else {
 				this.selectColNetwork.removeAllItems();
-				for(CyColumn col : net.getDefaultNodeTable().getColumns()) {
+				for(CyColumn col : rootNet.getBaseNetwork().getDefaultNodeTable().getColumns()) {
 					this.selectColNetwork.addItem(col.getName());
 				}
 
@@ -271,13 +274,13 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 				this.connectButton.setEnabled(true);
 			}
 		} else if (e.getSource() == this.connectButton && this.connectButton.isEnabled()) {
-			String netName = (String) this.selectNetwork.getSelectedItem();
+			String rootNetName = (String) this.selectNetwork.getSelectedItem();
 
 			int response = JOptionPane.OK_OPTION;
-			OVConnection ovCon = this.ovManager.getConnection(netName);
+			OVConnection ovCon = this.ovManager.getConnection(rootNetName);
 			if(ovCon != null) {
 				response = JOptionPane.showConfirmDialog(null,
-						"This network is already connected to \""+ovCon.getOVTable().getTitle()+"\". You will disconnect this table if you continue.",
+						"This network collection is already connected to \""+ovCon.getOVTable().getTitle()+"\". You will disconnect this table if you continue.",
 						"Disconnection warning",
 						JOptionPane.OK_CANCEL_OPTION);
 
@@ -290,7 +293,7 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 				return;
 			}
 
-			if(netName != null) {
+			if(rootNetName != null) {
 				this.ovTable.connect(
 						(String) this.selectNetwork.getSelectedItem(),
 						(String) this.selectColNetwork.getSelectedItem(),

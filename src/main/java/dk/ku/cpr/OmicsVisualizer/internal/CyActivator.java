@@ -12,6 +12,7 @@ import java.util.Properties;
 
 import org.cytoscape.io.util.StreamUtil;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
+import org.cytoscape.model.events.NetworkAddedListener;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.session.events.SessionAboutToBeSavedListener;
@@ -47,6 +48,7 @@ public class CyActivator extends AbstractCyActivator {
 		registerService(context, ovManager, SessionLoadedListener.class);
 		registerService(context, ovManager, SessionAboutToBeSavedListener.class);
 		registerService(context, ovManager, NetworkAboutToBeDestroyedListener.class);
+		registerService(context, ovManager, NetworkAddedListener.class);
 
 		// Register services to load a file
 		{

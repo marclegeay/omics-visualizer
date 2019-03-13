@@ -14,6 +14,8 @@ import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
+import org.cytoscape.model.subnetwork.CyRootNetwork;
+import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 
 import dk.ku.cpr.OmicsVisualizer.internal.properties.OVProperties;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVTableColumnModel;
@@ -63,13 +65,26 @@ public class OVTable {
 		return this.ovManager.getConnections(this);
 	}
 	
-	public OVConnection getConnection(CyNetwork network) {
+	public OVConnection getConnection(CyRootNetwork rootNetwork) {
+		if(rootNetwork == null) {
+			return null;
+		}
+		
 		for(OVConnection con : this.getConnections()) {
-			if(con.getNetwork() == network) {
+			if(con.getRootNetwork() == rootNetwork) {
 				return con;
 			}
 		}
 		return null;
+	}
+	
+	public OVConnection getConnection(CyNetwork network) {
+		if(network == null) {
+			return null;
+		}
+		
+		CyRootNetworkManager manager = this.ovManager.getService(CyRootNetworkManager.class);
+		return this.getConnection(manager.getRootNetwork(network));
 	}
 	
 	public boolean isConnected() {
@@ -80,25 +95,27 @@ public class OVTable {
 		return this.getConnection(net) != null;
 	}
 	
-	public OVConnection connect(String netName, String mappingColCyto, String mappingColOVTable) {
-		CyNetwork linkedNetwork=null;
+	public OVConnection connect(String rootNetName, String mappingColCyto, String mappingColOVTable) {
+		CyRootNetwork linkedRootNetwork=null;
+		CyRootNetworkManager manager = this.ovManager.getService(CyRootNetworkManager.class);
 		
 		for(CyNetwork net : this.ovManager.getNetworkManager().getNetworkSet()) {
-			if(net.toString().equals(netName)) {
-				linkedNetwork = net;
+			CyRootNetwork rootNet = manager.getRootNetwork(net);
+			if(rootNet.toString().equals(rootNetName)) {
+				linkedRootNetwork = rootNet;
 			}
 		}
 		
-		if(linkedNetwork == null) {
+		if(linkedRootNetwork == null) {
 			return null;
 		}
 		
-		OVConnection con = this.getConnection(linkedNetwork);
+		OVConnection con = this.getConnection(linkedRootNetwork);
 		
-		if(con == null || con.update(mappingColCyto, mappingColOVTable)) {
-			if(con == null) { // Connection to a new network
-				con = new OVConnection(this.ovManager, this, linkedNetwork, mappingColCyto, mappingColOVTable);
-			}
+		if(con == null) { // new network collection
+			con = new OVConnection(this.ovManager, this, linkedRootNetwork, mappingColCyto, mappingColOVTable);
+		} else {
+			con.update(mappingColCyto, mappingColOVTable);
 		}
 		
 		return con;
@@ -114,7 +131,7 @@ public class OVTable {
 		OVConnection con = this.getConnection(network);
 		
 		if(con != null) {
-			con.disconnect();
+			con.disconnectNetwork(network);
 		}
 	}
 

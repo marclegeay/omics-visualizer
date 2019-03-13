@@ -48,7 +48,7 @@ public class ApplyStyleTask extends AbstractTask {
 
 		// First we erase all previous charts
 		taskMonitor.setStatusMessage("Cleaning previous data");
-		CyTable nodeTable = this.ovCon.getNetwork().getDefaultNodeTable();
+		CyTable nodeTable = this.ovCon.getBaseNetwork().getDefaultNodeTable();
 		OVShared.deleteOVColumns(nodeTable);
 		nodeTable.createColumn(OVShared.CYNODETABLE_STYLECOL, String.class, false);
 
@@ -60,14 +60,14 @@ public class ApplyStyleTask extends AbstractTask {
 		double progress = 0.0;
 		taskMonitor.setProgress(progress);
 
-		double nbNodes = this.ovCon.getNetwork().getNodeCount() * 1.0;
+		double nbNodes = this.ovCon.getBaseNetwork().getNodeCount() * 1.0;
 		int i=0;
 		// Then we fill the columns
 		taskMonitor.setStatusMessage("Computing style for each node");
-		for(CyNode node : this.ovCon.getNetwork().getNodeList()) {
+		for(CyNode node : this.ovCon.getBaseNetwork().getNodeList()) {
 			progress = (i++)/nbNodes;
 			taskMonitor.setProgress(progress);
-
+			
 			ArrayList<Object> nodeValues = new ArrayList<>();
 			String nodeLabels = "";
 			for(CyRow tableRow : this.ovCon.getLinkedRows(nodeTable.getRow(node.getSUID()))) {

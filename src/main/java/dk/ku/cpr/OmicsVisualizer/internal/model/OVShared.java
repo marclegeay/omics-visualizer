@@ -29,7 +29,7 @@ public class OVShared {
 	public static final String CYNETWORKTABLE_STYLECOL="OVStyle";
 
 	public static final String CYNODETABLE_STYLECOL="OVStyle";
-	public static final String CYNODETABLE_STYLECOL_VALUES="OVStyle Values Circle ";
+	public static final String CYNODETABLE_STYLECOL_VALUES="OVStyle Values ";
 	
 	public static final String STRING_CMD_PROTEIN_QUERY = "protein query";
 	public static final String STRING_CMD_LIST_SPECIES = "list species";
