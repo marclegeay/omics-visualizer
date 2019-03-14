@@ -77,6 +77,8 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 	/** Used when values are only negative */
 	private static final Color DEFAULT_MAX_COLOR_NEG = DEFAULT_MIN_COLOR_POS;
 
+	private static int MAXIMUM_COLOR_NUMBERS = 50;
+
 	private OVCytoPanel cytoPanel;
 	private OVManager ovManager;
 
@@ -325,13 +327,13 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 							}
 						}
 					}
-					
+
 					if((max <= 0) || (min >= 0)) {
 						// The values have the same sign
 						rangeMin = min;
 						rangeMax = max;
 						rangeZero = (max+min)/2;
-						
+
 						if(max <= 0) { // Values all negatives
 							colorMin = DEFAULT_MIN_COLOR_NEG;
 							colorZero = DEFAULT_ZERO_COLOR_NEG;
@@ -347,7 +349,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 						rangeMin = max * -1.0;
 						rangeMax = max * 1.0;
 						rangeZero = 0.0;
-						
+
 						colorMin = DEFAULT_MIN_COLOR;
 						colorZero = DEFAULT_ZERO_COLOR;
 						colorMax = DEFAULT_MAX_COLOR;
@@ -382,7 +384,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 						rangeMin = min;
 						rangeMax = max;
 						rangeZero = (max+min)/2;
-						
+
 						if(max <= 0) { // Values all negatives
 							colorMin = DEFAULT_MIN_COLOR_NEG;
 							colorZero = DEFAULT_ZERO_COLOR_NEG;
@@ -398,7 +400,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 						rangeMin = max * -1.0;
 						rangeMax = max * 1.0;
 						rangeZero = 0.0;
-						
+
 						colorMin = DEFAULT_MIN_COLOR;
 						colorZero = DEFAULT_ZERO_COLOR;
 						colorMax = DEFAULT_MAX_COLOR;
@@ -433,7 +435,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 						rangeMin = min;
 						rangeMax = max;
 						rangeZero = (max+min)/2;
-						
+
 						if(max <= 0) { // Values all negatives
 							colorMin = DEFAULT_MIN_COLOR_NEG;
 							colorZero = DEFAULT_ZERO_COLOR_NEG;
@@ -449,7 +451,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 						rangeMin = max * -1.0;
 						rangeMax = max * 1.0;
 						rangeZero = 0.0;
-						
+
 						colorMin = DEFAULT_MIN_COLOR;
 						colorZero = DEFAULT_ZERO_COLOR;
 						colorMax = DEFAULT_MAX_COLOR;
@@ -541,15 +543,16 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 			MyGridBagConstraints clist = new MyGridBagConstraints();
 			clist.expandHorizontal();
 			int i=0;
+			int nb_values = values.size();
 			for(Object val : values) {
-				Color color = generateRandomColor();
+				Color color = generateRandomColor(i, nb_values);
 
 				if(ovStyle != null && ovStyle.getColors() instanceof OVColorDiscrete) {
 					OVColorDiscrete colorStyle = (OVColorDiscrete) ovStyle.getColors();
 					color = colorStyle.getColor(val);
 
 					if(color == null) {
-						color = generateRandomColor();
+						color = generateRandomColor(i, nb_values);
 					}
 				}
 
@@ -692,7 +695,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 						appManager.setCurrentNetwork(this.ovCon.getBaseNetwork());
 					}
 				}
-				
+
 				break;
 			}
 		}
@@ -762,14 +765,38 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		this.setLocationRelativeTo(this.cytoPanel.getTopLevelAncestor());
 	}
 
-	private Color generateRandomColor() {
-		Random rand = new Random();
+	private Color generateRandomColor(int i, int nb_colors) {
+		if(nb_colors > MAXIMUM_COLOR_NUMBERS) {
+			nb_colors = MAXIMUM_COLOR_NUMBERS;
+		}
 
-		int r = rand.nextInt(255);
-		int g = rand.nextInt(255);
-		int b = rand.nextInt(255);
+		Random random = new Random();
+		float h = (float)(i % nb_colors)/(float)nb_colors;
+		float s, b;
 
-		return new Color(r,g,b);
+		switch(i/nb_colors) {
+		case 0:
+			s = 1.0f;
+			b = 1.0f;
+			break;
+		case 1:
+			s = 0.5f;
+			b = 1.0f;
+			break;
+		case 2:
+			s = 0.5f;
+			b = 0.5f;
+			break;
+		case 3:
+			s = 1.0f;
+			b = 0.5f;
+			break;
+		default: // after more than 4 "turns around the HSB circle", we just pick random values between 0.5 and 1
+			s = random.nextFloat()/2 + 0.5f;
+			b = random.nextFloat()/2 + 0.5f;
+		}
+
+		return Color.getHSBColor(h, s, b);
 	}
 
 	@Override
