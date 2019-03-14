@@ -378,7 +378,8 @@ SelectedNodesAndEdgesListener {
 		styleButton.setEnabled(this.displayedTable != null && this.displayedTable.isConnected());
 
 		addToolBarComponent(selectButton, ComponentPlacement.RELATED);
-		addToolBarComponent(filterButton, ComponentPlacement.RELATED);
+		// TODO Version 1.0: Without filters
+//		addToolBarComponent(filterButton, ComponentPlacement.RELATED);
 		addToolBarComponent(deleteTableButton, ComponentPlacement.RELATED);
 		addToolBarComponent(connectButton, ComponentPlacement.RELATED);
 		addToolBarComponent(styleButton, ComponentPlacement.RELATED);

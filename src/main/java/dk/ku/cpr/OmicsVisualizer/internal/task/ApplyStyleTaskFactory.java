@@ -20,7 +20,6 @@ public class ApplyStyleTaskFactory extends AbstractTaskFactory {
 
 	@Override
 	public TaskIterator createTaskIterator() {
-		// TODO Auto-generated method stub
 		return new TaskIterator(new ApplyStyleTask(ovManager, ovCon, onlyFiltered));
 	}
 

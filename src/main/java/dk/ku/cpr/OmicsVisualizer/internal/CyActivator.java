@@ -134,62 +134,63 @@ public class CyActivator extends AbstractCyActivator {
 				registerService(context, factory, TaskFactory.class, props);
 			}
 			
-			// Get operator list (Command only)
-			{
-				OperatorListTaskFactory factory = new OperatorListTaskFactory();
-				Properties props = new Properties();
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "filter list operators");
-				props.setProperty(COMMAND_DESCRIPTION, "List the available operators");
-				
-				registerService(context, factory, TaskFactory.class, props);
-			}
-
-			// Access filter
-			{
-				ShowFilterWindowTaskFactory factory = new ShowFilterWindowTaskFactory(ovManager);
-				Properties props = new Properties();
-				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
-				props.setProperty(TITLE, "Filter...");
-				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "filter show");
-				props.setProperty(COMMAND_DESCRIPTION, "Show the filter window of the current table");
-
-				registerService(context, factory, TaskFactory.class, props);
-			}
-
-			// Modify filter (Command only)
-			{
-				FilterTaskFactory factory = new FilterTaskFactory(ovManager);
-				Properties props = new Properties();
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "filter");
-				props.setProperty(COMMAND_DESCRIPTION, "Filters the row of an Omics Visualizer table");
-
-				registerService(context, factory, TaskFactory.class, props);
-			}
-
-			// Remove filter
-			{
-				RemoveFilterTaskFactory factory = new RemoveFilterTaskFactory(ovManager);
-				Properties props = new Properties();
-				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
-				props.setProperty(TITLE, "Remove filter");
-				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "filter remove");
-				props.setProperty(COMMAND_DESCRIPTION, "Removes the filter of the active table");
-
-				registerService(context, factory, TaskFactory.class, props);
-			}
+			// TODO Version 1.0: Without filters
+//			// Get operator list (Command only)
+//			{
+//				OperatorListTaskFactory factory = new OperatorListTaskFactory();
+//				Properties props = new Properties();
+//				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+//				props.setProperty(COMMAND, "filter list operators");
+//				props.setProperty(COMMAND_DESCRIPTION, "List the available operators");
+//				
+//				registerService(context, factory, TaskFactory.class, props);
+//			}
+//
+//			// Access filter
+//			{
+//				ShowFilterWindowTaskFactory factory = new ShowFilterWindowTaskFactory(ovManager);
+//				Properties props = new Properties();
+//				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
+//				props.setProperty(TITLE, "Filter...");
+//				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
+//				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+//				props.setProperty(COMMAND, "filter show");
+//				props.setProperty(COMMAND_DESCRIPTION, "Show the filter window of the current table");
+//
+//				registerService(context, factory, TaskFactory.class, props);
+//			}
+//
+//			// Modify filter (Command only)
+//			{
+//				FilterTaskFactory factory = new FilterTaskFactory(ovManager);
+//				Properties props = new Properties();
+//				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+//				props.setProperty(COMMAND, "filter");
+//				props.setProperty(COMMAND_DESCRIPTION, "Filters the row of an Omics Visualizer table");
+//
+//				registerService(context, factory, TaskFactory.class, props);
+//			}
+//
+//			// Remove filter
+//			{
+//				RemoveFilterTaskFactory factory = new RemoveFilterTaskFactory(ovManager);
+//				Properties props = new Properties();
+//				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
+//				props.setProperty(TITLE, "Remove filter");
+//				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
+//				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+//				props.setProperty(COMMAND, "filter remove");
+//				props.setProperty(COMMAND_DESCRIPTION, "Removes the filter of the active table");
+//
+//				registerService(context, factory, TaskFactory.class, props);
+//			}
 			
 			// Access connect
 			{
 				ShowConnectWindowTaskFactory factory = new ShowConnectWindowTaskFactory(ovManager);
 				Properties props = new Properties();
 				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
-				props.setProperty(TITLE, "Manage table connections");
+				props.setProperty(TITLE, "Manage table connections...");
 				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "connect show");
@@ -203,7 +204,7 @@ public class CyActivator extends AbstractCyActivator {
 				ShowStyleWindowTaskFactory factory = new ShowStyleWindowTaskFactory(ovManager);
 				Properties props = new Properties();
 				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
-				props.setProperty(TITLE, "Manage table styles");
+				props.setProperty(TITLE, "Apply style to the connected networks...");
 				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "style show");

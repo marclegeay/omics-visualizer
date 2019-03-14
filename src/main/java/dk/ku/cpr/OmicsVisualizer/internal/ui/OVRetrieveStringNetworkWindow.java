@@ -119,8 +119,9 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 		selectPanel.add(new JLabel("Protein names column:"), c.nextRow());
 		selectPanel.add(this.selectQuery, c.nextCol());
 		
-		selectPanel.add(this.filteredOnly, c.nextRow().useNCols(2));
-		c.useNCols(1);
+		// TODO Version 1.0: Without filters
+//		selectPanel.add(this.filteredOnly, c.nextRow().useNCols(2));
+//		c.useNCols(1);
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());

@@ -227,8 +227,9 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		c.setAnchor("C").setInsets(0, 0, 0, 0);
 		mainPanel.add(this.selectValues, c.nextCol());
 
-		mainPanel.add(this.filteredCheck, c.nextRow().useNCols(2));
-		c.useNCols(1);
+		// TODO Version 1.0: Without filters
+//		mainPanel.add(this.filteredCheck, c.nextRow().useNCols(2));
+//		c.useNCols(1);
 
 		mainPanel.add(new JLabel("Select Chart Type:"), c.nextRow());
 		mainPanel.add(this.selectChartType, c.nextCol());
@@ -236,8 +237,9 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		mainPanel.add(new JLabel("Select Labels:"), c.nextRow());
 		mainPanel.add(this.selectChartLabels, c.nextCol());
 
-		mainPanel.add(new JLabel("Mapping:"), c.nextRow());
-		mainPanel.add(this.selectDiscreteContinuous, c.nextCol());
+		// TODO Version 1.0: Without Discrete Mapping
+//		mainPanel.add(new JLabel("Mapping:"), c.nextRow());
+//		mainPanel.add(this.selectDiscreteContinuous, c.nextCol());
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
@@ -711,16 +713,18 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		}
 
 
-		Class<?> valueType = this.selectValues.getValueType();
-		if(valueType == String.class || valueType == Boolean.class) {
-			// No choice but discrete mapping
-			this.oldDC = (String) this.selectDiscreteContinuous.getSelectedItem();
-			this.selectDiscreteContinuous.setSelectedItem(OVStyleWindow.DISCRETE);
-			this.selectDiscreteContinuous.setEnabled(false);
-		} else if(!this.selectDiscreteContinuous.isEnabled()) {
-			this.selectDiscreteContinuous.setEnabled(true);
-			this.selectDiscreteContinuous.setSelectedItem(this.oldDC);
-		}
+		// TODO Version 1.0: Without Discrete Mapping
+		this.selectDiscreteContinuous.setSelectedItem(OVStyleWindow.CONTINUOUS);
+//		Class<?> valueType = this.selectValues.getValueType();
+//		if(valueType == String.class || valueType == Boolean.class) {
+//			// No choice but discrete mapping
+//			this.oldDC = (String) this.selectDiscreteContinuous.getSelectedItem();
+//			this.selectDiscreteContinuous.setSelectedItem(OVStyleWindow.DISCRETE);
+//			this.selectDiscreteContinuous.setEnabled(false);
+//		} else if(!this.selectDiscreteContinuous.isEnabled()) {
+//			this.selectDiscreteContinuous.setEnabled(true);
+//			this.selectDiscreteContinuous.setSelectedItem(this.oldDC);
+//		}
 	}
 
 	private void updateStyle(OVStyle ovStyle) {
@@ -971,7 +975,9 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 				for(String colName : ovTable.getColNames()) {
 					Class<?> colType = ovTable.getColType(colName);
 					// We don't want OVCol, neither do we want List columns
-					if(!OVShared.isOVCol(colName) && colType != List.class) {
+					// TODO Version 1.0: Without Discrete Mapping (so without String columns)
+					if(!OVShared.isOVCol(colName) && colType != List.class
+							&& colType != String.class) {
 						selectItems.add(new ChartValues(colName, colType));
 						this.selectItemStringValues.add(colName);
 					}
@@ -1046,12 +1052,10 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		private void addSelect() {
 			JComboBox<ChartValues> select = this.createSelect();
 			// The select has the first item selected
-			// But we will look for the first ChartValues that has the same type as the other selected items
-			// We take the first select as a reference
+			// By default we will select the last ChartValues
 			select.removeActionListener(this.comboBoxActionListener);
-			while(((ChartValues)select.getSelectedItem()).getColType() != ((ChartValues)this.selects.get(0).getSelectedItem()).getColType()) {
-				select.setSelectedIndex(select.getSelectedIndex()+1);
-			}
+			// this select was added, so the "last" ChartValues is at size()-2
+			select.setSelectedItem(this.selects.get(this.selects.size()-2).getSelectedItem());
 			select.addActionListener(this.comboBoxActionListener);
 
 			JButton del = new JButton("del");
