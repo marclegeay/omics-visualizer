@@ -220,6 +220,15 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 		this.pack(); // We recompute the size with the new preferences
 		this.setLocationRelativeTo(this.cytoPanel.getTopLevelAncestor()); // We center the Frame according to the Cytoscape window
 	}
+	
+	@Override
+	public void setVisible(boolean b) {
+		if(b) {
+			this.update(this.cytoPanel.getDisplayedTable());
+		}
+		
+		super.setVisible(b);
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {

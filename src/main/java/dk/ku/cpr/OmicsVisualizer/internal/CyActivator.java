@@ -32,7 +32,9 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.task.FilterTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.OperatorListTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveFilterTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.ShowConnectWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowFilterWindowTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.ShowStyleWindowTaskFactory;
 
 public class CyActivator extends AbstractCyActivator {
 
@@ -100,6 +102,7 @@ public class CyActivator extends AbstractCyActivator {
 
 		// Register the available actions
 		{
+			Integer menuGravity=0;
 			// Loading a table:
 			// Code from core-task-impl CyActivator
 			{
@@ -112,7 +115,7 @@ public class CyActivator extends AbstractCyActivator {
 				//				props.setProperty(TITLE, "OVTable from File...");
 
 				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
-				props.setProperty(MENU_GRAVITY, "1");
+				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
 				props.setProperty(TITLE, "Load a File...");
 
 				registerService(context, factory, TaskFactory.class, props);
@@ -148,7 +151,7 @@ public class CyActivator extends AbstractCyActivator {
 				Properties props = new Properties();
 				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
 				props.setProperty(TITLE, "Filter...");
-				props.setProperty(MENU_GRAVITY, "2");
+				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "filter show");
 				props.setProperty(COMMAND_DESCRIPTION, "Show the filter window of the current table");
@@ -173,10 +176,38 @@ public class CyActivator extends AbstractCyActivator {
 				Properties props = new Properties();
 				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
 				props.setProperty(TITLE, "Remove filter");
-				props.setProperty(MENU_GRAVITY, "3");
+				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "filter remove");
 				props.setProperty(COMMAND_DESCRIPTION, "Removes the filter of the active table");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+			
+			// Access connect
+			{
+				ShowConnectWindowTaskFactory factory = new ShowConnectWindowTaskFactory(ovManager);
+				Properties props = new Properties();
+				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
+				props.setProperty(TITLE, "Manage table connections");
+				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(COMMAND, "connect show");
+				props.setProperty(COMMAND_DESCRIPTION, "Show the connect window of the current table");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+			
+			// Access style
+			{
+				ShowStyleWindowTaskFactory factory = new ShowStyleWindowTaskFactory(ovManager);
+				Properties props = new Properties();
+				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
+				props.setProperty(TITLE, "Manage table styles");
+				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(COMMAND, "style show");
+				props.setProperty(COMMAND_DESCRIPTION, "Show the style window of the current table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}

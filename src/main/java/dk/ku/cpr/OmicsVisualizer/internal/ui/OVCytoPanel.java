@@ -349,7 +349,6 @@ SelectedNodesAndEdgesListener {
 
 			connectButton.addActionListener(e -> {
 				if(this.displayedTable != null) {
-					this.getConnectWindow().update(this.displayedTable);
 					this.getConnectWindow().setVisible(true);
 				}
 			});
