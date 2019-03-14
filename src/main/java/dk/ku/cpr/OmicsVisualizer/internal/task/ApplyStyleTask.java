@@ -77,50 +77,53 @@ public class ApplyStyleTask extends AbstractTask {
 				
 				for(String colName : ovStyle.getValues()) {
 					Object val = tableRow.get(colName, ovStyle.getValuesType());
-					if(val != null) {
-						if(ovStyle.getColors() instanceof OVColorContinuous) {
-							// If we have a continuous mapping, we have to change the value to center them in rangeZero
-							double zero = ((OVColorContinuous) ovStyle.getColors()).getRangeZero();
-							Double newVal=null;
-							
-							// We subtract the zero value to center it
-							if(ovStyle.getValuesType() == Integer.class) {
-								newVal = ((Integer)val) - zero;
-							} else if(ovStyle.getValuesType() == Long.class) {
-								newVal = ((Long)val) - zero;
-							} else if(ovStyle.getValuesType() == Double.class) {
-								newVal = ((Double)val) - zero;
-							}
-							
-							// It should not be List or String with a continuous mapping...
-							// But we make sure it is not null
-							if(newVal == null) {
-								// If it is we do not change the value
-								nodeValues.add(val);
-								continue;
-							}
-							
-							// And then we cast back the value to its original type
-							if(ovStyle.getValuesType() == Integer.class) {
-								val = newVal.intValue();
-							} else if(ovStyle.getValuesType() == Long.class) {
-								val = newVal.longValue();
-							} else { // Double, no cast needed
-								val = newVal;
-							}
-						}
-						nodeValues.add(val);
-					} else {
+					
+					// Missing values are treated as 0 (or "")
+					if(val == null) {
 						if(ovStyle.getValuesType() == Integer.class) {
-							nodeValues.add(new Integer(0));
+							val = new Integer(0);
 						} else if(ovStyle.getValuesType() == Long.class) {
-							nodeValues.add(new Long(0));
+							val = new Long(0);
 						} else if(ovStyle.getValuesType() == Double.class) {
-							nodeValues.add(new Double(0.0));
+							val = new Double(0.0);
 						} else {
-							nodeValues.add("");
+							val = "";
 						}
 					}
+					
+					// If we have a continuous mapping, we have to change the value to center them in rangeZero
+					if(ovStyle.getColors() instanceof OVColorContinuous) {
+						double zero = ((OVColorContinuous) ovStyle.getColors()).getRangeZero();
+						Double newVal=null;
+						
+						// We subtract the zero value to center it
+						if(ovStyle.getValuesType() == Integer.class) {
+							newVal = ((Integer)val) - zero;
+						} else if(ovStyle.getValuesType() == Long.class) {
+							newVal = ((Long)val) - zero;
+						} else if(ovStyle.getValuesType() == Double.class) {
+							newVal = ((Double)val) - zero;
+						}
+						
+						// It should not be List or String with a continuous mapping...
+						// But we make sure it is not null
+						if(newVal == null) {
+							// If it is we do not change the value
+							nodeValues.add(val);
+							continue;
+						}
+						
+						// And then we cast back the value to its original type
+						if(ovStyle.getValuesType() == Integer.class) {
+							val = newVal.intValue();
+						} else if(ovStyle.getValuesType() == Long.class) {
+							val = newVal.longValue();
+						} else { // Double, no cast needed
+							val = newVal;
+						}
+					}
+					
+					nodeValues.add(val);
 				}
 				if(ovStyle.getLabel() != null) {
 					nodeLabels += tableRow.get(ovStyle.getLabel(), this.ovCon.getOVTable().getColType(ovStyle.getLabel()));
