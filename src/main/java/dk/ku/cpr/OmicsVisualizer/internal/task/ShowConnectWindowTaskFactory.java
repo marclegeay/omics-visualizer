@@ -19,4 +19,10 @@ public class ShowConnectWindowTaskFactory extends AbstractTaskFactory {
 		return new TaskIterator(new ShowConnectWindowTask(ovManager));
 	}
 
+	@Override
+	public boolean isReady() {
+		return super.isReady()
+				&& (this.ovManager.getActiveOVTable() != null)
+				&& (this.ovManager.getNetworkManager().getNetworkSet().size() > 0);
+	}
 }

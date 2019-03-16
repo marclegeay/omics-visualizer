@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -17,6 +16,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+
+import org.cytoscape.util.swing.LookAndFeelUtil;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVFilter;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVFilter.OVFilterType;
@@ -76,7 +77,8 @@ public class OVFilterWindow extends JFrame implements ActionListener {
 
 	private void update() {
 		JPanel mainPanel = new JPanel();
-		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+//		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		mainPanel.setBorder(LookAndFeelUtil.createPanelBorder());
 		mainPanel.setLayout(new BorderLayout());
 		
 		JPanel typePanel = new JPanel();

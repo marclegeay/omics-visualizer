@@ -19,6 +19,8 @@ import org.cytoscape.model.events.NetworkAboutToBeDestroyedEvent;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
 import org.cytoscape.model.events.NetworkAddedEvent;
 import org.cytoscape.model.events.NetworkAddedListener;
+import org.cytoscape.model.events.NetworkDestroyedEvent;
+import org.cytoscape.model.events.NetworkDestroyedListener;
 import org.cytoscape.model.events.RowsSetListener;
 import org.cytoscape.model.events.SelectedNodesAndEdgesListener;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
@@ -42,6 +44,7 @@ public class OVManager
 implements SessionLoadedListener,
 SessionAboutToBeSavedListener,
 NetworkAboutToBeDestroyedListener,
+NetworkDestroyedListener,
 NetworkAddedListener {
 
 	private CyServiceRegistrar serviceRegistrar;
@@ -284,7 +287,7 @@ NetworkAddedListener {
 	public void handleEvent(NetworkAboutToBeDestroyedEvent e) {
 		CyNetwork net = e.getNetwork();
 
-		if(e!= null) {
+		if(net!= null) {
 			for(OVTable table : this.ovTables) {
 				if(table.isConnected() && table.isConnectedTo(net)) {
 					table.disconnect(net);
@@ -292,6 +295,11 @@ NetworkAddedListener {
 			}
 			this.ovCytoPanel.update();
 		}
+	}
+
+	@Override
+	public void handleEvent(NetworkDestroyedEvent e) {
+		this.ovCytoPanel.update();
 	}
 
 	@Override
@@ -308,6 +316,8 @@ NetworkAddedListener {
 		if(ovCon != null) {
 			ovCon.connectNetwork(newNetwork);
 		}
+		
+		this.ovCytoPanel.update();
 	}
 	
 

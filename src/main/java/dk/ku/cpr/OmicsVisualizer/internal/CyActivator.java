@@ -13,6 +13,7 @@ import java.util.Properties;
 import org.cytoscape.io.util.StreamUtil;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
 import org.cytoscape.model.events.NetworkAddedListener;
+import org.cytoscape.model.events.NetworkDestroyedListener;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.session.events.SessionAboutToBeSavedListener;
@@ -50,6 +51,7 @@ public class CyActivator extends AbstractCyActivator {
 		registerService(context, ovManager, SessionLoadedListener.class);
 		registerService(context, ovManager, SessionAboutToBeSavedListener.class);
 		registerService(context, ovManager, NetworkAboutToBeDestroyedListener.class);
+		registerService(context, ovManager, NetworkDestroyedListener.class);
 		registerService(context, ovManager, NetworkAddedListener.class);
 
 		// Register services to load a file
@@ -116,7 +118,7 @@ public class CyActivator extends AbstractCyActivator {
 
 				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
 				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
-				props.setProperty(TITLE, "Load a File...");
+				props.setProperty(TITLE, "Import Table from File...");
 
 				registerService(context, factory, TaskFactory.class, props);
 				//registerService(context, factory, LoadTableFileTaskFactory.class, props);

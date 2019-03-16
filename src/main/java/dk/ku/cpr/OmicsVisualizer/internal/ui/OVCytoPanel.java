@@ -5,10 +5,12 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,6 +28,7 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -59,6 +62,7 @@ import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.task.destroy.DeleteTableTaskFactory;
 import org.cytoscape.util.swing.IconManager;
+import org.cytoscape.util.swing.LookAndFeelUtil;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.swing.DialogTaskManager;
 
@@ -84,6 +88,7 @@ SelectedNodesAndEdgesListener {
 	private JScrollPane scrollPane;
 	private OVTableModel mainTableModel;
 	private final Font iconFont;
+	private Font iconStringFont;
 	private final Color filterActive;
 	private final Color filterInactive;
 
@@ -94,6 +99,7 @@ SelectedNodesAndEdgesListener {
 	private JButton selectButton;
 	private JButton filterButton;
 	private JButton deleteTableButton;
+	private JButton retrieveNetworkButton;
 	private JButton connectButton;
 	private JButton styleButton;
 
@@ -114,10 +120,20 @@ SelectedNodesAndEdgesListener {
 
 	public OVCytoPanel(OVManager ovManager) {
 		this.setLayout(new BorderLayout());
+		this.setOpaque(!LookAndFeelUtil.isAquaLAF());
 		this.ovManager=ovManager;
 
 		iconManager = this.ovManager.getServiceRegistrar().getService(IconManager.class);
 		iconFont = iconManager.getIconFont(ICON_FONT_SIZE);
+		
+		try {
+			this.iconStringFont = Font.createFont(Font.TRUETYPE_FONT, OVCytoPanel.class.getResourceAsStream("/fonts/string.ttf"));
+			this.iconStringFont = this.iconStringFont.deriveFont(ICON_FONT_SIZE);
+		} catch (FontFormatException e) {
+			this.iconStringFont=null;
+		} catch (IOException e) {
+			this.iconStringFont=null;
+		}
 
 		filterActive = new Color(0,153,0); // Green
 		filterInactive = Color.BLACK;
@@ -212,7 +228,6 @@ SelectedNodesAndEdgesListener {
 
 		btn.setMinimumSize(new Dimension(w, h));
 		btn.setPreferredSize(new Dimension(w, h));
-
 	}
 
 	private JPopupMenu getColumnSelectorPopupMenu() {
@@ -293,6 +308,7 @@ SelectedNodesAndEdgesListener {
 
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
+		toolBar.setOpaque(!LookAndFeelUtil.isAquaLAF());
 		toolBar.setOrientation(JToolBar.HORIZONTAL);
 
 		final GroupLayout layout = new GroupLayout(toolBar);
@@ -342,6 +358,31 @@ SelectedNodesAndEdgesListener {
 			// Create pop-up window for deletion
 			deleteTableButton.addActionListener(e -> removeTable());
 		}
+		if(retrieveNetworkButton == null) {
+//			retrieveNetworkButton = new JButton(IconManager.ICON_NAVICON);
+			if(this.iconStringFont == null) { // We use the image instead of the font
+				retrieveNetworkButton = new JButton(new ImageIcon(OVCytoPanel.class.getResource("/images/string_logo_22.png")));
+				styleButton(retrieveNetworkButton, iconFont);
+			} else {
+				// In the "String Font", the character "a" is the String logo
+				retrieveNetworkButton = new JButton("a");
+				styleButton(retrieveNetworkButton, iconStringFont);
+			}
+			retrieveNetworkButton.setToolTipText("Retrieve and connect the table with a String Network...");
+			
+			retrieveNetworkButton.addActionListener(e -> {
+				AvailableCommands availableCommands = (AvailableCommands) this.ovManager.getService(AvailableCommands.class);
+				if (!availableCommands.getNamespaces().contains("string")) {
+					JOptionPane.showMessageDialog(null,
+							"You need to install stringApp from the App Manager or Cytoscape App Store.",
+							"Dependency error", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
+				OVRetrieveStringNetworkWindow retrieveString = new OVRetrieveStringNetworkWindow(this.ovManager, this.ovManager.getActiveOVTable());
+				retrieveString.setVisible(true);
+			});
+		}
 		if (connectButton == null ) {
 			connectButton = new JButton(IconManager.ICON_LINK);
 			connectButton.setToolTipText("Manage table connections...");
@@ -353,6 +394,7 @@ SelectedNodesAndEdgesListener {
 				}
 			});
 		}
+		connectButton.setEnabled(this.displayedTable != null && this.ovManager.getNetworkManager().getNetworkSet().size() != 0);
 		if (styleButton == null ) {
 			styleButton = new JButton(IconManager.ICON_PAINT_BRUSH);
 			styleButton.setToolTipText("Apply style to the connected networks...");
@@ -381,6 +423,7 @@ SelectedNodesAndEdgesListener {
 		// TODO Version 1.0: Without filters
 //		addToolBarComponent(filterButton, ComponentPlacement.RELATED);
 		addToolBarComponent(deleteTableButton, ComponentPlacement.RELATED);
+		addToolBarComponent(retrieveNetworkButton, ComponentPlacement.RELATED);
 		addToolBarComponent(connectButton, ComponentPlacement.RELATED);
 		addToolBarComponent(styleButton, ComponentPlacement.RELATED);
 
@@ -391,6 +434,7 @@ SelectedNodesAndEdgesListener {
 
 		toolBarPanel = new JPanel();
 		toolBarPanel.setLayout(new BorderLayout());
+		toolBarPanel.setOpaque(!LookAndFeelUtil.isAquaLAF());
 		toolBarPanel.add(toolBar, BorderLayout.CENTER);
 
 		// System.out.println("show table: " + showTable);

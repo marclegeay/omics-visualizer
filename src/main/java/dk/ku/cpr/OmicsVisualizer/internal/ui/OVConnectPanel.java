@@ -7,7 +7,6 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -15,6 +14,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.cytoscape.model.CyColumn;
+import org.cytoscape.util.swing.LookAndFeelUtil;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
@@ -26,7 +26,7 @@ public class OVConnectPanel extends JPanel implements ActionListener {
 	
 	private OVConnection con;
 	
-	private JPanel mainPanel;
+//	private JPanel mainPanel;
 	
 	private JComboBox<String> selectColNetwork;
 	private JComboBox<String> selectColTable;
@@ -40,12 +40,17 @@ public class OVConnectPanel extends JPanel implements ActionListener {
 		this.con=con;
 		
 		// GUI initialization
-		
-		this.mainPanel = new JPanel();
-		this.mainPanel.setBorder(BorderFactory.createTitledBorder(this.con.getCollectionNetworkName()));
-		this.mainPanel.setLayout(new BorderLayout());
+
+//		this.mainPanel = new JPanel();
+////		this.mainPanel.setBorder(BorderFactory.createTitledBorder(this.con.getCollectionNetworkName()));
+//		this.mainPanel.setBorder(LookAndFeelUtil.createTitledBorder(this.con.getCollectionNetworkName()));
+//		this.mainPanel.setLayout(new BorderLayout());
+		this.setBorder(LookAndFeelUtil.createTitledBorder(this.con.getCollectionNetworkName()));
+		this.setOpaque(!LookAndFeelUtil.isAquaLAF());
+		this.setLayout(new BorderLayout());
 		
 		JPanel selectPanel = new JPanel();
+		selectPanel.setOpaque(!LookAndFeelUtil.isAquaLAF());
 		selectPanel.setLayout(new GridBagLayout());
 		
 		MyGridBagConstraints c = new MyGridBagConstraints();
@@ -62,6 +67,7 @@ public class OVConnectPanel extends JPanel implements ActionListener {
 		selectPanel.add(this.selectColTable, c.nextCol());
 		
 		JPanel buttonPanel = new JPanel();
+		buttonPanel.setOpaque(!LookAndFeelUtil.isAquaLAF());
 		buttonPanel.setLayout(new FlowLayout());
 		
 		this.updateButton = new JButton("Update");
@@ -73,12 +79,13 @@ public class OVConnectPanel extends JPanel implements ActionListener {
 		buttonPanel.add(this.updateButton);
 		buttonPanel.add(this.disconnectButton);
 		
-		this.mainPanel.add(selectPanel, BorderLayout.CENTER);
-		this.mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+//		this.mainPanel.add(selectPanel, BorderLayout.CENTER);
+//		this.mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+		this.add(selectPanel, BorderLayout.CENTER);
+		this.add(buttonPanel, BorderLayout.SOUTH);
 		
-		this.setLayout(new BorderLayout());
-		this.add(this.mainPanel, BorderLayout.CENTER);
-		
+//		this.setLayout(new BorderLayout());
+//		this.add(this.mainPanel, BorderLayout.CENTER);
 		
 		update();
 	}
@@ -89,7 +96,8 @@ public class OVConnectPanel extends JPanel implements ActionListener {
 			return;
 		}
 
-		this.mainPanel.setBorder(BorderFactory.createTitledBorder(this.con.getCollectionNetworkName()));
+//		this.mainPanel.setBorder(BorderFactory.createTitledBorder(this.con.getCollectionNetworkName()));
+		this.setBorder(LookAndFeelUtil.createTitledBorder(this.con.getCollectionNetworkName()));
 		
 		this.selectColNetwork.removeAllItems();
 		for(CyColumn col : this.con.getBaseNetwork().getDefaultNodeTable().getColumns()) {

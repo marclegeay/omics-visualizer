@@ -38,6 +38,7 @@ import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
+import org.cytoscape.util.swing.LookAndFeelUtil;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVColor;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVColorContinuous;
@@ -202,7 +203,8 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new GridBagLayout());
-		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+//		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		mainPanel.setBorder(LookAndFeelUtil.createPanelBorder());
 
 		MyGridBagConstraints c = new MyGridBagConstraints();
 		c.expandHorizontal().setAnchor("C");
@@ -211,6 +213,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		mainPanel.add(this.selectNetwork, c.nextCol());
 
 		JPanel copyButtonPanel = new JPanel();
+		copyButtonPanel.setOpaque(!LookAndFeelUtil.isAquaLAF());
 		copyButtonPanel.setLayout(new FlowLayout());
 		copyButtonPanel.add(this.copyButton);
 
@@ -264,7 +267,8 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		}
 
 		JPanel mainPanel = new JPanel();
-		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+//		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		mainPanel.setBorder(LookAndFeelUtil.createPanelBorder());
 
 		List<String> colNames = this.selectValues.getValues();
 		Class<?> valueType = this.selectValues.getValueType();
@@ -958,6 +962,8 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 		public SelectValuesPanel(OVStyleWindow ovStyleWindow) {
 			this.ovStyleWindow = ovStyleWindow;
+			
+			this.setOpaque(!LookAndFeelUtil.isAquaLAF());
 
 			this.selects = new ArrayList<>();
 			this.buttons = new ArrayList<>();

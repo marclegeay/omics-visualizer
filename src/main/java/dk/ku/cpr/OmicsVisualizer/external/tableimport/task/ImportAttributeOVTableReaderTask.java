@@ -191,7 +191,7 @@ public class ImportAttributeOVTableReaderTask extends AbstractTask implements Cy
 
 		final CyTable table =
 				serviceRegistrar.getService(CyTableFactory.class).createTable(
-						"Omics Visualizer Table " + Integer.toString(numImports++),
+						OVShared.OVTABLE_DEFAULT_NAME + Integer.toString(++numImports),
 			             primaryKey, keyType, false, true);
 		
 		cyTables = new CyTable[] { table };

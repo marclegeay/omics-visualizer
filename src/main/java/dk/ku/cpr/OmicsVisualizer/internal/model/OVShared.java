@@ -12,6 +12,8 @@ public class OVShared {
 	public static final String OV_PREFERRED_MENU = "Apps.Omics Visualizer";
 	public static final String OV_COMMAND_NAMESPACE = "ov";
 	
+	public static final String OVTABLE_DEFAULT_NAME = "Omics Visualizer Table ";
+	
 	public static final String CYTOPANEL_NAME = OV_PREFIX+"CytoPanel";
 	
 	public static final String OVTABLE_COLID_NAME = OV_PREFIX+"internalID";

@@ -3,7 +3,6 @@ package dk.ku.cpr.OmicsVisualizer.internal.ui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -20,12 +19,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
+import org.cytoscape.util.swing.LookAndFeelUtil;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
@@ -36,7 +35,6 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 	private static final long serialVersionUID = -5328093228061621675L;
 
 	private static final String CHOOSE ="--- Choose ---";
-	private static final String STRING_NETWORK = "--- Get a STRING Network ---";
 
 	private OVCytoPanel cytoPanel;
 	private OVManager ovManager;
@@ -120,7 +118,6 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 		this.selectNetwork.removeActionListener(this);
 		this.selectNetwork.removeAllItems();
 		this.selectNetwork.addItem(CHOOSE);
-		this.selectNetwork.addItem(STRING_NETWORK);
 		for(CyNetwork net : this.netManager.getNetworkSet()) {
 			this.selectNetwork.addItem(net.toString());
 		}
@@ -139,11 +136,13 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+//		mainPanel.setBorder(LookAndFeelUtil.createPanelBorder());
 
 		JPanel addNetworkPanel = new JPanel();
 		addNetworkPanel.setLayout(new BorderLayout());
 
 		JPanel addPanel = new JPanel();
+		addPanel.setOpaque(!LookAndFeelUtil.isAquaLAF());
 		addPanel.setLayout(new GridBagLayout());
 
 		MyGridBagConstraints c = new MyGridBagConstraints();
@@ -165,28 +164,33 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 		addPanel.add(this.selectColTable, c.nextCol());
 
 		JPanel addButtonPanel = new JPanel();
+		addButtonPanel.setOpaque(!LookAndFeelUtil.isAquaLAF());
 		addButtonPanel.setLayout(new FlowLayout());
 		addButtonPanel.add(this.connectButton);
 
-		JLabel addLabel = new JLabel("Add a new connection");
-		Font fontLabel = new Font("Title Font", addLabel.getFont().getStyle(), (int) (addLabel.getFont().getSize()*1.3));
-		addLabel.setFont(fontLabel);
+//		JLabel addLabel = new JLabel("Add a new connection");
+//		Font fontLabel = new Font("Title Font", addLabel.getFont().getStyle(), (int) (addLabel.getFont().getSize()*1.3));
+//		addLabel.setFont(fontLabel);
 
-		addNetworkPanel.add(addLabel, BorderLayout.NORTH);
+//		addNetworkPanel.add(addLabel, BorderLayout.NORTH);
 		addNetworkPanel.add(addPanel, BorderLayout.CENTER);
 		addNetworkPanel.add(addButtonPanel, BorderLayout.SOUTH);
+		
+		addNetworkPanel.setBorder(LookAndFeelUtil.createTitledBorder("Add a new connection"));
 
 		JPanel listNetworkPanel = new JPanel();
 		listNetworkPanel.setLayout(new BorderLayout());
-		JLabel linkLabel = new JLabel("Connected Network Collections:");
-		linkLabel.setFont(fontLabel);
-		listNetworkPanel.add(linkLabel, BorderLayout.NORTH);
+//		JLabel linkLabel = new JLabel("Connected Network Collections:");
+//		linkLabel.setFont(fontLabel);
+//		listNetworkPanel.add(linkLabel, BorderLayout.NORTH);
+		listNetworkPanel.setBorder(LookAndFeelUtil.createTitledBorder("Connected Network Collections"));
 
 		int nbCons = this.ovTable.getConnections().size();
 		if(nbCons == 0) {
 			listNetworkPanel.add(new JLabel("None"), BorderLayout.CENTER);
 		} else {
 			JPanel listPanel = new JPanel();
+			listPanel.setOpaque(!LookAndFeelUtil.isAquaLAF());
 			listPanel.setLayout(new GridLayout(nbCons, 1));
 			for(OVConnection con : this.ovTable.getConnections()) {
 				OVConnectPanel conPanel = new OVConnectPanel(this, con);
@@ -195,6 +199,8 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 			}
 			JScrollPane scrollList = new JScrollPane(listPanel);
 			scrollList.setBorder(null);
+			scrollList.setOpaque(!LookAndFeelUtil.isAquaLAF());
+			scrollList.getViewport().setOpaque(!LookAndFeelUtil.isAquaLAF());
 
 			listNetworkPanel.add(scrollList, BorderLayout.CENTER);
 		}
@@ -234,23 +240,6 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == this.selectNetwork) {
 			String rootNetName = (String) this.selectNetwork.getSelectedItem();
-
-			if(rootNetName.equals(STRING_NETWORK)) {
-				
-				AvailableCommands availableCommands = (AvailableCommands) this.ovManager.getService(AvailableCommands.class);
-				if (!availableCommands.getNamespaces().contains("string")) {
-					JOptionPane.showMessageDialog(null,
-							"You need to install stringApp from the App Manager or Cytoscape App Store.",
-							"Dependency error", JOptionPane.ERROR_MESSAGE);
-					
-					this.selectNetwork.setSelectedItem(OVConnectWindow.CHOOSE);
-					return;
-				}
-				
-				OVRetrieveStringNetworkWindow retrieveString = new OVRetrieveStringNetworkWindow(this.ovManager, this, this.ovTable);
-				retrieveString.setVisible(true);
-				return;
-			}
 
 			CyRootNetworkManager rootNetManager = this.ovManager.getService(CyRootNetworkManager.class);
 			CyRootNetwork rootNet=null;
