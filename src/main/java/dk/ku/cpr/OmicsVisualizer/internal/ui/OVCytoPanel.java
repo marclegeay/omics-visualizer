@@ -109,6 +109,7 @@ SelectedNodesAndEdgesListener {
 	private OVFilterWindow filterWindow;
 	private OVConnectWindow connectWindow;
 	private OVStyleWindow styleWindow;
+	private OVRetrieveStringNetworkWindow retrieveWindow;
 
 	private JPanel toolBarPanel;
 	private SequentialGroup hToolBarGroup;
@@ -282,6 +283,14 @@ SelectedNodesAndEdgesListener {
 		return this.styleWindow;
 	}
 
+	public OVRetrieveStringNetworkWindow getRetrieveWindow() {
+		if(this.retrieveWindow == null) {
+			this.retrieveWindow = new OVRetrieveStringNetworkWindow(this.ovManager);
+		}
+
+		return this.retrieveWindow;
+	}
+
 	public void initPanel(OVTable ovTable) {
 		this.removeAll();
 
@@ -379,8 +388,7 @@ SelectedNodesAndEdgesListener {
 					return;
 				}
 				
-				OVRetrieveStringNetworkWindow retrieveString = new OVRetrieveStringNetworkWindow(this.ovManager, this.ovManager.getActiveOVTable());
-				retrieveString.setVisible(true);
+				this.getRetrieveWindow().setVisible(true);
 			});
 		}
 		if (connectButton == null ) {

@@ -61,10 +61,10 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 
 	private CyNetwork retrievedNetwork;
 
-	public OVRetrieveStringNetworkWindow(OVManager ovManager, OVTable ovTable) {
+	public OVRetrieveStringNetworkWindow(OVManager ovManager) {
 		super("Retrieve a STRING Network");
 		this.ovManager=ovManager;
-		this.ovTable=ovTable;
+		this.ovTable=null;
 
 		this.querySpecies = new JTextField();
 		this.querySpecies.setToolTipText("You can type here the name of a species to search it quickly in the dropdown list below.");
@@ -74,11 +74,6 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 		this.selectSpecies = new JComboBox<>();
 
 		this.selectQuery = new JComboBox<>();
-		for(String colName : this.ovTable.getColNames()) {
-			if(!OVShared.isOVCol(colName)) {
-				this.selectQuery.addItem(colName);
-			}
-		}
 
 		this.filteredOnly = new JCheckBox("Only filtered rows", true);
 
@@ -120,6 +115,22 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 		}
 
 		this.init();
+	}
+	
+	@Override
+	public void setVisible(boolean b) {
+		if(b) {
+			this.ovTable = this.ovManager.getActiveOVTable();
+			
+			this.selectQuery.removeAllItems();
+			for(String colName : this.ovTable.getColNames()) {
+				if(!OVShared.isOVCol(colName)) {
+					this.selectQuery.addItem(colName);
+				}
+			}
+		}
+		
+		super.setVisible(b);
 	}
 
 	public void init() {

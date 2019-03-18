@@ -35,6 +35,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.task.OperatorListTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveFilterTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowConnectWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowFilterWindowTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.ShowRetrieveWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowStyleWindowTaskFactory;
 
 public class CyActivator extends AbstractCyActivator {
@@ -186,6 +187,20 @@ public class CyActivator extends AbstractCyActivator {
 //
 //				registerService(context, factory, TaskFactory.class, props);
 //			}
+			
+			// Access retrieve
+			{
+				ShowRetrieveWindowTaskFactory factory = new ShowRetrieveWindowTaskFactory(ovManager);
+				Properties props = new Properties();
+				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
+				props.setProperty(TITLE, "Retrieve and connect the table to a String Network...");
+				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(COMMAND, "retrieve show");
+				props.setProperty(COMMAND_DESCRIPTION, "Show the retrieve window of the current table");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
 			
 			// Access connect
 			{
