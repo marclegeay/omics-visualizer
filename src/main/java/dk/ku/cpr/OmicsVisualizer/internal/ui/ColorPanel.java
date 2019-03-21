@@ -3,24 +3,30 @@ package dk.ku.cpr.OmicsVisualizer.internal.ui;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Graphics;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
-public class ColorPanel extends JPanel {
+public class ColorPanel extends JPanel implements MouseListener {
 	private static final long serialVersionUID = -2950405099490317278L;
 	
 	private Color color;
+	private ColorChooser colorChooser;
 	
-	public ColorPanel(Color color, Container parent) {
+	public ColorPanel(Color color, Container parent, ColorChooser colorChooser) {
 		super();
+		this.colorChooser=colorChooser;
 		this.setColor(color);
 		this.setBorder(BorderFactory.createLineBorder(parent.getBackground()));
 		this.setOpaque(false); // To display alpha-colors
+		
+		this.addMouseListener(this);
 	}
 	
-	public ColorPanel(Container parent) {
-		this(null, parent);
+	public ColorPanel(Container parent, ColorChooser colorChooser) {
+		this(null, parent, colorChooser);
 	}
 	
 	public void setColor(Color color) {
@@ -39,5 +45,30 @@ public class ColorPanel extends JPanel {
 		g.fillRect(0, 0, this.getWidth(), this.getHeight());
 		
 		super.paintComponent(g);
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		this.colorChooser.show(this);
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// Do nothing
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// Do nothing
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// Do nothing
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// Do nothing
 	}
 }

@@ -77,6 +77,10 @@ public class OVTableModel extends AbstractTableModel {
 		return -1;
 	}
 	
+	public List<Object> getDisplayedRowKeys() {
+		return this.displayedRowKeys;
+	}
+	
 	/**
 	 * filter the rows according to the keys
 	 * @param rowKeys : new list of row keys to display

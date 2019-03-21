@@ -12,9 +12,12 @@ import org.cytoscape.model.CyTable;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 
+import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveFilterTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 
 public class OVConnection {
+	public static final double MINIMUM_CONNECTED_ROWS = 0.5;
+	
 	private OVManager ovManager;
 	private OVTable ovTable;
 	private CyRootNetwork rootNetwork;
@@ -22,8 +25,9 @@ public class OVConnection {
 	private String mappingColCyto;
 	/** Name of the column from the OVTable that links to the Cytoscape Network */
 	private String mappingColOVTable;
-	/** Map that associates the list of table rows with the network node */
-	private Map<CyRow, List<CyRow>> node2table;
+	/** Map that associates the list of table rows with the network node SUID */
+	private Map<Long, List<CyRow>> node2table;
+	private int nbConnectedTableRows;
 	private OVStyle ovStyle;
 
 	public OVConnection(OVManager ovManager, OVTable ovTable, CyRootNetwork rootNetwork, String mappingColCyto, String mappingColOVTable) {
@@ -39,7 +43,7 @@ public class OVConnection {
 		// We register all OVConnection to the OVManager
 		this.ovManager.addConnection(this);
 		
-		this.updateLinks();
+		this.nbConnectedTableRows = this.updateLinks();
 		
 		this.ovTable.save();
 	}
@@ -68,6 +72,10 @@ public class OVConnection {
 		return mappingColCyto;
 	}
 	
+	public int getNbConnectedTableRows() {
+		return this.nbConnectedTableRows;
+	}
+	
 	private String getSavedConnection() {
 		return DataUtils.escapeComma(this.ovTable.getTitle())
 				+ ","
@@ -77,7 +85,8 @@ public class OVConnection {
 	}
 	
 	public List<CyRow> getLinkedRows(CyRow netRow) {
-		List<CyRow> list = this.node2table.get(netRow); 
+		Long suid = netRow.get(CyNetwork.SUID, Long.class);
+		List<CyRow> list = this.node2table.get(suid); 
 		return (list == null ? new ArrayList<>() : list);
 	}
 	
@@ -113,8 +122,13 @@ public class OVConnection {
 		}
 	}
 	
-	public void updateLinks() {
+	/**
+	 * Update the mapping between the Table and the Network
+	 * @return the number of rows from the table that are connected to the network
+	 */
+	public int updateLinks() {
 		this.node2table = new HashMap<>();
+		int nbConnectedRows=0;
 		
 		// FIRST STEP:
 		// Make the link in the OVTable
@@ -124,7 +138,7 @@ public class OVConnection {
 		CyColumn keyOVCol = this.ovTable.getCyTable().getColumn(mappingColOVTable);
 		
 		if(keyCytoCol == null || keyOVCol == null) {
-			return; // TODO message?
+			return 0; // TODO message?
 		}
 		
 		for(CyRow netRow : nodeTable.getAllRows()) {
@@ -136,8 +150,17 @@ public class OVConnection {
 			for(CyRow tableRow : this.ovTable.getCyTable().getAllRows()) {
 				Object tableKey = getKey(tableRow, keyOVCol);
 				
-				if(netKey.equals(tableKey)) {
+				// If the two keys are not the same type, we compare their toString
+				boolean equals = false;
+				if(keyCytoCol.getType() == keyOVCol.getType()) {
+					equals = netKey.equals(tableKey);
+				} else {
+					equals = netKey.toString().equals(tableKey.toString());
+				}
+				
+				if(equals) {
 					this.addLink(netRow, tableRow);
+					++nbConnectedRows;
 				}
 			}
 		}
@@ -152,34 +175,37 @@ public class OVConnection {
 			}
 			networkTable.getRow(net.getSUID()).set(OVShared.CYNETWORKTABLE_OVCOL, this.getSavedConnection());
 		}
+		
+		return nbConnectedRows;
 	}
 
 	/**
 	 * Update the Connection by reinitializing it with new mapping columns
 	 * @param mappingColCyto
 	 * @param mappingColOVTable
-	 * @return <code>true</code> if the connection has been updated, <code>false</code> if the mapping columns have not changed.
+	 * @return the number of connected rows from the table
 	 */
-	public boolean update(String mappingColCyto, String mappingColOVTable) {
+	public int update(String mappingColCyto, String mappingColOVTable) {
 		// We update only if something has changed
 		if(!mappingColOVTable.equals(this.mappingColOVTable) || !mappingColCyto.equals(this.mappingColCyto)) {
 			this.mappingColOVTable=mappingColOVTable;
 			this.mappingColCyto=mappingColCyto;
 
-			this.updateLinks();
-
-			return true;
+			this.nbConnectedTableRows = this.updateLinks();
+			
+			return this.nbConnectedTableRows;
 		}
 
-		return false;
+		return this.nbConnectedTableRows;
 	}
 
 	public void addLink(CyRow networkNode, CyRow tableRow) {
-		if(!this.node2table.containsKey(networkNode)) {
-			this.node2table.put(networkNode, new ArrayList<>());
+		Long suid = networkNode.get(CyNetwork.SUID, Long.class);
+		if(!this.node2table.containsKey(suid)) {
+			this.node2table.put(suid, new ArrayList<>());
 		}
 
-		List<CyRow> tableRows = this.node2table.get(networkNode);
+		List<CyRow> tableRows = this.node2table.get(suid);
 		tableRows.add(tableRow);
 	}
 	
@@ -244,6 +270,10 @@ public class OVConnection {
 			networkTable.getRow(network.getSUID()).set(OVShared.CYNETWORKTABLE_STYLECOL, "");
 		}
 		
+		// We erase the Style
+		RemoveFilterTaskFactory factory = new RemoveFilterTaskFactory(ovManager);
+		this.ovManager.executeTask(factory.createTaskIterator());
+		
 		// If it was the last network of the collection ...
 		if(this.getConnectedNetworks().size() == 0) {
 			// We delete the style columns in the node table
@@ -254,6 +284,10 @@ public class OVConnection {
 			this.ovManager.removeConnection(this);
 			
 			this.ovTable.save();
+		}
+		
+		if(this.ovManager.getOVCytoPanel() != null) {
+			this.ovManager.getOVCytoPanel().update();
 		}
 	}
 

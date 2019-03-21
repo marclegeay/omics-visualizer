@@ -278,6 +278,33 @@ public class OVTable {
 		tableColumnModel.addColumn(tableColumn);
 	}
 	
+	public List<CyRow> getAllRows(boolean filtered) {
+		if(!filtered) {
+			return this.cyTable.getAllRows();
+		} else {
+			List<CyRow> filteredRows = new ArrayList<>();
+			
+			for(CyRow row : this.cyTable.getAllRows()) {
+				if(this.isFiltered(row)) {
+					filteredRows.add(row);
+				}
+			}
+			
+			return filteredRows;
+		}
+	}
+	
+	public List<CyRow> getSelectedRows() {
+		List<CyRow> selectedRows = new ArrayList<>();
+		
+		List<Object> selectedKeys = ((OVTableModel)this.jTable.getModel()).getDisplayedRowKeys();
+		for(int i : this.jTable.getSelectedRows()) {
+			selectedRows.add(this.cyTable.getRow(selectedKeys.get(i)));
+		}
+		
+		return selectedRows;
+	}
+	
 	public void filter(List<Object> filteredRowKeys) {
 		this.tableModel.filter(filteredRowKeys);
 	}

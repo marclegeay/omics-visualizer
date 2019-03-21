@@ -1,34 +1,44 @@
 package dk.ku.cpr.OmicsVisualizer.internal.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParsePosition;
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
 import org.cytoscape.model.CyNetwork;
@@ -44,38 +54,48 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 import dk.ku.cpr.OmicsVisualizer.internal.task.StringCommandTaskFactory;
 
-public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserver, ActionListener, CaretListener {
+public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObserver, ActionListener {
 	private static final long serialVersionUID = 8015437684470645491L;
 
-	private OVManager ovManager;
+	private static final int defaultConfidence = 40;
+	
 	private OVTable ovTable;
 
 	private List<OVSpecies> speciesList;
 
-	private JTextField querySpecies;
 	private JComboBox<OVSpecies> selectSpecies;
 	private JComboBox<String> selectQuery;
+	
+	private JSlider confidenceSlider;
+	private JTextField confidenceValue;
+	private boolean ignore = false;
+	NumberFormat formatter = new DecimalFormat("#0.00");
+	
 	private JCheckBox filteredOnly;
+	private JCheckBox selectedOnly;
 
+	private JButton closeButton;
 	private JButton retrieveButton;
 
 	private CyNetwork retrievedNetwork;
 
 	public OVRetrieveStringNetworkWindow(OVManager ovManager) {
-		super("Retrieve a STRING Network");
-		this.ovManager=ovManager;
+		super(ovManager, "Retrieve a STRING Network");
 		this.ovTable=null;
-
-		this.querySpecies = new JTextField();
-		this.querySpecies.setToolTipText("You can type here the name of a species to search it quickly in the dropdown list below.");
-		this.querySpecies.addCaretListener(this);
 
 		this.speciesList = new ArrayList<>();
 		this.selectSpecies = new JComboBox<>();
 
 		this.selectQuery = new JComboBox<>();
+		
+		this.confidenceSlider = new JSlider();
+		this.confidenceValue = new JTextField();
 
 		this.filteredOnly = new JCheckBox("Only filtered rows", true);
+		this.selectedOnly = new JCheckBox("Only selected rows", true);
+
+		this.closeButton = new JButton("Close");
+		this.closeButton.addActionListener(this);
 
 		this.retrieveButton = new JButton("Retrieve network");
 		this.retrieveButton.addActionListener(this);
@@ -84,37 +104,113 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 		TaskIterator ti = factory.createTaskIterator();
 		this.ovManager.executeSynchronousTask(ti);
 
+//		this.init();
+	}
+	
+	private JPanel createConfidenceSlider() {
+		JPanel confidencePanel = new JPanel(new GridBagLayout());
+		confidencePanel.setOpaque(!LookAndFeelUtil.isAquaLAF());
+		MyGridBagConstraints c = new MyGridBagConstraints();
 
-		// We make sure that the JFrame is always on top, only when Cytoscape is on top
-		JFrame me = this;
-		if(this.ovManager.getOVCytoPanel().getTopLevelAncestor() instanceof JFrame) {
-			JFrame ancestor = (JFrame)this.ovManager.getOVCytoPanel().getTopLevelAncestor();
-
-			ancestor.addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowDeactivated(WindowEvent e) {
-					super.windowDeactivated(e);
-
-					me.setAlwaysOnTop(false);
-				}
-
-				@Override
-				public void windowActivated(WindowEvent e) {
-					super.windowActivated(e);
-
-					me.setAlwaysOnTop(true);
-				}
-
-				@Override
-				public void windowGainedFocus(WindowEvent e) {
-					super.windowGainedFocus(e);
-
-					me.toFront();
-				}
-			});
+		Font labelFont;
+		{
+			c.setAnchor("W").expandVertical();//.setInsets(0,5,0,5);
+			JLabel confidenceLabel = new JLabel("Confidence (score) cutoff:");
+			labelFont = confidenceLabel.getFont();
+//			confidenceLabel.setFont(new Font(labelFont.getFontName(), Font.BOLD, labelFont.getSize()));
+			confidencePanel.add(confidenceLabel, c);
 		}
 
-		this.init();
+		{
+			this.confidenceSlider = new JSlider();
+			Dictionary<Integer, JLabel> labels = new Hashtable<Integer, JLabel>();
+			Font valueFont = new Font(labelFont.getFontName(), Font.BOLD, labelFont.getSize()-4);
+			for (int value = 0; value <= 100; value += 10) {
+				double labelValue = (double)value/100.0;
+				JLabel label = new JLabel(formatter.format(labelValue));
+				label.setFont(valueFont);
+				labels.put(value, label);
+			}
+			confidenceSlider.setLabelTable(labels);
+			confidenceSlider.setPaintLabels(true);
+			confidenceSlider.setValue(OVRetrieveStringNetworkWindow.defaultConfidence);
+
+			confidenceSlider.addChangeListener(new ChangeListener() {
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					if (ignore) return;
+					ignore = true;
+					int value = confidenceSlider.getValue();
+					confidenceValue.setText(formatter.format(((double)value)/100.0));
+					ignore = false;
+				}
+			});
+			// c.anchor("southwest").expandHoriz().insets(0,5,0,5);
+			c.nextCol().expandHorizontal();//.setInsets(0,5,0,5);
+			confidencePanel.add(confidenceSlider, c);
+		}
+
+		{
+			confidenceValue = new JTextField(4);
+			confidenceValue.setHorizontalAlignment(JTextField.RIGHT);
+			confidenceValue.setText(new DecimalFormat("#0.00").format(((double)OVRetrieveStringNetworkWindow.defaultConfidence)/100.0));
+			c.nextCol().noExpand().setAnchor("C");//.setInsets(0,5,0,5);
+			confidencePanel.add(confidenceValue, c);
+
+			confidenceValue.addActionListener(new AbstractAction() {
+				private static final long serialVersionUID = 6284825408676836773L;
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					textFieldValueChanged();
+				}
+			});
+
+			confidenceValue.addFocusListener(new FocusAdapter() {
+				@Override
+				public void focusLost(FocusEvent e) {
+					textFieldValueChanged();
+				}
+			});
+
+		}
+		return confidencePanel;
+	}
+	
+	private void textFieldValueChanged() {
+		if (ignore) return;
+		ignore = true;
+		String text = confidenceValue.getText();
+		Number n = formatter.parse(text, new ParsePosition(0));
+		double val = 0.0;
+		if (n == null) {
+			try {
+				val = Double.valueOf(confidenceValue.getText());
+			} catch (NumberFormatException nfe) {
+				val = inputError();
+			}
+		} else if (n.doubleValue() > 1.0 || n.doubleValue() < 0.0) {
+			val = inputError();
+		} else {
+			val = n.doubleValue();
+		}
+
+		val = val*100.0;
+		confidenceSlider.setValue((int)val);
+		ignore = false;
+	}
+
+	private double inputError() {
+		confidenceValue.setBackground(Color.RED);
+		JOptionPane.showMessageDialog(null, 
+				                          "Please enter a confence cutoff between 0.0 and 1.0", 
+											            "Alert", JOptionPane.ERROR_MESSAGE);
+		confidenceValue.setBackground(UIManager.getColor("TextField.background"));
+
+		// Reset the value to correspond to the current slider setting
+		double val = ((double)confidenceSlider.getValue())/100.0;
+		confidenceValue.setText(formatter.format(val));
+		return val;
 	}
 	
 	@Override
@@ -128,6 +224,10 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 					this.selectQuery.addItem(colName);
 				}
 			}
+			
+			this.confidenceSlider.setValue(defaultConfidence);
+			
+			init();
 		}
 		
 		super.setVisible(b);
@@ -154,13 +254,22 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 
 		selectPanel.add(new JLabel("Protein identifier column:"), c.nextRow());
 		selectPanel.add(this.selectQuery, c.nextCol());
+		
+		selectPanel.add(this.createConfidenceSlider(), c.nextRow().useNCols(2).setInsets(MyGridBagConstraints.DEFAULT_INSET, 0, MyGridBagConstraints.DEFAULT_INSET, 0));
+		c.useNCols(1).setInsets(MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET);
 
 		// TODO Version 1.0: Without filters
 		//		selectPanel.add(this.filteredOnly, c.nextRow().useNCols(2));
 		//		c.useNCols(1);
+		
+		if(!this.ovTable.getSelectedRows().isEmpty()) {
+			selectPanel.add(this.selectedOnly, c.nextRow().useNCols(2));
+			c.useNCols(1);
+		}
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
+		buttonPanel.add(this.closeButton);
 		buttonPanel.add(this.retrieveButton);
 
 		mainPanel.add(selectPanel, BorderLayout.CENTER);
@@ -170,7 +279,6 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 
 		this.pack();
 		this.setLocationRelativeTo(this.ovManager.getOVCytoPanel().getTopLevelAncestor());
-		this.setResizable(false);
 		
 		JComboBoxDecorator.originalDimension = this.selectSpecies.getPreferredSize();
 	}
@@ -222,10 +330,14 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 
 			// We retrieve the list for the query
 			Set<String> queryTerms = new HashSet<>();
-			for(CyRow row : this.ovTable.getCyTable().getAllRows()) {
-				if(!this.filteredOnly.isSelected() || this.ovTable.isFiltered(row)) {
-					queryTerms.add(row.get(queryCol, colType).toString());
-				}
+			List<CyRow> tableRows;
+			if(this.selectedOnly.isSelected()) {
+				tableRows = this.ovTable.getSelectedRows();
+			} else {
+				tableRows = this.ovTable.getAllRows(this.filteredOnly.isSelected());
+			}
+			for(CyRow row : tableRows) {
+				queryTerms.add(row.get(queryCol, colType).toString());
 			}
 
 			// We set the arguments for the STRING command
@@ -234,6 +346,7 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 			Map<String, Object> args = new HashMap<>();
 			args.put("query", query);
 			args.put("taxonID", taxonID);
+			args.put("cutoff", this.confidenceValue.getText());
 			args.put("limit", "0");
 
 			// We call the STRING command
@@ -243,24 +356,8 @@ public class OVRetrieveStringNetworkWindow extends JFrame implements TaskObserve
 
 			// The task is executed in background, we don't want the window to be displayed
 			this.setVisible(false);
-		}
-	}
-
-	@Override
-	public void caretUpdate(CaretEvent e) {
-		if(e.getSource() == this.querySpecies) {
-			OVSpecies selectedSpecies = (OVSpecies) this.selectSpecies.getSelectedItem();
-			this.selectSpecies.removeAllItems();
-			for(OVSpecies spe : this.speciesList) {
-				if(spe.getQueryString().contains(this.querySpecies.getText().toLowerCase())) {
-					this.selectSpecies.addItem(spe);
-				}
-			}
-			// We always display at leat one species
-			if(this.selectSpecies.getItemCount() == 0) {
-				this.selectSpecies.addItem(selectedSpecies);
-			}
-			this.selectSpecies.setSelectedItem(selectedSpecies);
+		} else if(e.getSource() == this.closeButton) {
+			this.setVisible(false);
 		}
 	}
 

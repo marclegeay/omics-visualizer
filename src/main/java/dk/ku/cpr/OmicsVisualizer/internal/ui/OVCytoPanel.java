@@ -189,7 +189,7 @@ SelectedNodesAndEdgesListener {
 	}
 
 	public String getTitle() {
-		return "Omics Visualizer Table";
+		return "Omics Visualizer Tables";
 	}
 
 	public Icon getIcon() {
@@ -269,7 +269,7 @@ SelectedNodesAndEdgesListener {
 
 	public OVConnectWindow getConnectWindow() {
 		if(this.connectWindow == null) {
-			this.connectWindow = new OVConnectWindow(this, this.ovManager);
+			this.connectWindow = new OVConnectWindow(this.ovManager);
 		}
 
 		return this.connectWindow;
@@ -277,7 +277,7 @@ SelectedNodesAndEdgesListener {
 
 	public OVStyleWindow getStyleWindow() {
 		if(this.styleWindow == null) {
-			this.styleWindow = new OVStyleWindow(this, this.ovManager);
+			this.styleWindow = new OVStyleWindow(this.ovManager);
 		}
 
 		return this.styleWindow;

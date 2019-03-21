@@ -18,6 +18,7 @@ import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.session.events.SessionAboutToBeSavedListener;
 import org.cytoscape.session.events.SessionLoadedListener;
+import org.cytoscape.work.ServiceProperties;
 import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.swing.GUITunableHandlerFactory;
 import org.osgi.framework.BundleContext;
@@ -67,7 +68,7 @@ public class CyActivator extends AbstractCyActivator {
 						TABLE,
 						streamUtil
 						);
-				ImportAttributeOVTableReaderFactory factory = new ImportAttributeOVTableReaderFactory(filter, serviceRegistrar);
+				ImportAttributeOVTableReaderFactory factory = new ImportAttributeOVTableReaderFactory(filter, ovManager);
 				Properties props = new Properties();
 				props.setProperty("readerDescription", "Attribute Table file reader");
 				props.setProperty("readerId", "attributeOVTableReader");
@@ -88,7 +89,7 @@ public class CyActivator extends AbstractCyActivator {
 						"pdf", "jpg", "jpeg", "gif", "png", "svg", "tiff", "ttf", "mp3", "mp4", "mpg", "mpeg",
 						"exe", "dmg", "iso", "cys");
 
-				ImportAttributeOVTableReaderFactory factory = new ImportAttributeOVTableReaderFactory(filter, serviceRegistrar);
+				ImportAttributeOVTableReaderFactory factory = new ImportAttributeOVTableReaderFactory(filter, ovManager);
 				Properties props = new Properties();
 				props.setProperty("readerDescription", "Attribute Table file reader");
 				props.setProperty("readerId", "attributeOVTableReader_txt");

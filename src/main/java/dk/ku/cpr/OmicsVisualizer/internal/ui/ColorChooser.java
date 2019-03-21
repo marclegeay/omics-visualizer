@@ -8,12 +8,12 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class ColorChooser extends JFrame implements ChangeListener, ActionListener {
+public class ColorChooser extends JDialog implements ChangeListener, ActionListener {
 	private static final long serialVersionUID = -7368462609341478480L;
 
 	private JColorChooser colorChooser;
@@ -24,6 +24,8 @@ public class ColorChooser extends JFrame implements ChangeListener, ActionListen
 	private Color previousColor;
 
 	public ColorChooser() {
+		this.setModal(true);
+		
 		this.colorChooser = new JColorChooser();
 		this.colorChooser.getSelectionModel().addChangeListener(this);
 

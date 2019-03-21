@@ -27,6 +27,8 @@ public class OVShared {
 //	public static final String PROPERTY_MAPPING_CY_OV = OV_PREFIX+"CyNetwork_to_OV";
 	public static final String PROPERTY_FILTER = OV_PREFIX+"filter";
 	
+	public static final String MAPPING_STYLE_IDENTIFIER="NODE_CUSTOMGRAPHICS_4"; // Same CUSTOMGRAPHICS as stringApp displays enrichment
+	
 	public static final String CYNETWORKTABLE_OVCOL = "OVTable";
 	public static final String CYNETWORKTABLE_STYLECOL="OVStyle";
 

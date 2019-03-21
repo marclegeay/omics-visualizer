@@ -293,13 +293,17 @@ NetworkAddedListener {
 					table.disconnect(net);
 				}
 			}
-			this.ovCytoPanel.update();
+			if(this.ovCytoPanel != null) {
+				this.ovCytoPanel.update();
+			}
 		}
 	}
 
 	@Override
 	public void handleEvent(NetworkDestroyedEvent e) {
-		this.ovCytoPanel.update();
+		if(this.ovCytoPanel != null) {
+			this.ovCytoPanel.update();
+		}
 	}
 
 	@Override
@@ -316,8 +320,10 @@ NetworkAddedListener {
 		if(ovCon != null) {
 			ovCon.connectNetwork(newNetwork);
 		}
-		
-		this.ovCytoPanel.update();
+
+		if(this.ovCytoPanel != null) {
+			this.ovCytoPanel.update();
+		}
 	}
 	
 

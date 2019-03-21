@@ -31,14 +31,19 @@ import org.cytoscape.io.CyFileFilter;
 import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.work.TaskIterator;
 
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
+
 
 public class ImportAttributeOVTableReaderFactory extends AbstractTableReaderFactory {
+	
+	private OVManager ovManager;
 	
 	/**
 	 * Creates a new ImportAttributeTableReaderFactory object.
 	 */
-	public ImportAttributeOVTableReaderFactory(final CyFileFilter filter, final CyServiceRegistrar serviceRegistrar) {
-		super(filter, serviceRegistrar);
+	public ImportAttributeOVTableReaderFactory(final CyFileFilter filter, final OVManager ovManager) {
+		super(filter, ovManager.getServiceRegistrar());
+		this.ovManager=ovManager;
 	}
 
 	@Override
@@ -46,6 +51,6 @@ public class ImportAttributeOVTableReaderFactory extends AbstractTableReaderFact
 		int lastIndex = inputName.lastIndexOf('.');
 		String fileFormat = lastIndex == -1 ? "" : inputName.substring(lastIndex);
 		
-		return new TaskIterator(new ImportAttributeOVTableReaderTask(inputStream, fileFormat, inputName, serviceRegistrar));
+		return new TaskIterator(new ImportAttributeOVTableReaderTask(inputStream, fileFormat, inputName, ovManager));
 	}
 }

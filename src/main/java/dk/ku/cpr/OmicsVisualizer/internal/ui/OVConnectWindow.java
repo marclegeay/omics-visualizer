@@ -7,13 +7,12 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -31,16 +30,16 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 
-public class OVConnectWindow extends JFrame implements ActionListener {
+public class OVConnectWindow extends OVWindow implements ActionListener {
 	private static final long serialVersionUID = -5328093228061621675L;
 
 	private static final String CHOOSE ="--- Choose ---";
 
 	private OVCytoPanel cytoPanel;
-	private OVManager ovManager;
 	private OVTable ovTable;
 
 	private CyNetworkManager netManager;
+	private CyRootNetworkManager rootNetManager;
 
 	private JComboBox<String> selectNetwork;
 	private JComboBox<String> selectColNetwork;
@@ -49,13 +48,13 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 
 	private JButton closeButton;
 
-	public OVConnectWindow(OVCytoPanel cytoPanel, OVManager ovManager) {
-		super();
+	public OVConnectWindow(OVManager ovManager) {
+		super(ovManager);
 
-		this.cytoPanel=cytoPanel;
-		this.ovManager=ovManager;
+		this.cytoPanel=ovManager.getOVCytoPanel();
 
 		this.netManager = this.ovManager.getNetworkManager();
+		this.rootNetManager = this.ovManager.getService(CyRootNetworkManager.class);
 
 		this.selectNetwork = new JComboBox<>();
 		this.selectNetwork.addActionListener(this);
@@ -74,38 +73,6 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 
 		this.closeButton = new JButton("Close");
 		this.closeButton.addActionListener(this);
-
-		this.setResizable(false);
-
-
-		// We make sure that the JFrame is always on top, only when Cytoscape is on top
-		JFrame me = this;
-		if(this.cytoPanel.getTopLevelAncestor() instanceof JFrame) {
-			JFrame ancestor = (JFrame)this.cytoPanel.getTopLevelAncestor();
-
-			ancestor.addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowDeactivated(WindowEvent e) {
-					super.windowDeactivated(e);
-
-					me.setAlwaysOnTop(false);
-				}
-
-				@Override
-				public void windowActivated(WindowEvent e) {
-					super.windowActivated(e);
-
-					me.setAlwaysOnTop(true);
-				}
-				
-				@Override
-				public void windowGainedFocus(WindowEvent e) {
-					super.windowGainedFocus(e);
-					
-					me.toFront();
-				}
-			});
-		}
 	}
 
 	public void update(OVTable ovTable) {
@@ -118,8 +85,13 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 		this.selectNetwork.removeActionListener(this);
 		this.selectNetwork.removeAllItems();
 		this.selectNetwork.addItem(CHOOSE);
+		
+		Set<String> networkCollectionNames = new HashSet<>();
 		for(CyNetwork net : this.netManager.getNetworkSet()) {
-			this.selectNetwork.addItem(net.toString());
+			networkCollectionNames.add(this.rootNetManager.getRootNetwork(net).toString());
+		}
+		for(String netColName : networkCollectionNames) {
+			this.selectNetwork.addItem(netColName);
 		}
 		// Now that the list is complete, we can re-add the event listener
 		this.selectNetwork.addActionListener(this);
@@ -148,7 +120,7 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 		MyGridBagConstraints c = new MyGridBagConstraints();
 		c.expandHorizontal();
 
-		addPanel.add(new JLabel("Select Network:"), c);
+		addPanel.add(new JLabel("Select Network Collection:"), c);
 		addPanel.add(this.selectNetwork, c.nextCol());
 		
 		if(this.selectNetwork.getSelectedItem().equals(OVConnectWindow.CHOOSE)) {
@@ -186,9 +158,7 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 		listNetworkPanel.setBorder(LookAndFeelUtil.createTitledBorder("Connected Network Collections"));
 
 		int nbCons = this.ovTable.getConnections().size();
-		if(nbCons == 0) {
-			listNetworkPanel.add(new JLabel("None"), BorderLayout.CENTER);
-		} else {
+		if(nbCons > 0) {
 			JPanel listPanel = new JPanel();
 			listPanel.setOpaque(!LookAndFeelUtil.isAquaLAF());
 			listPanel.setLayout(new GridLayout(nbCons, 1));
@@ -210,7 +180,9 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 		buttonPanel.add(this.closeButton);
 
 		mainPanel.add(addNetworkPanel, BorderLayout.NORTH);
-		mainPanel.add(listNetworkPanel, BorderLayout.CENTER);
+		if(nbCons > 0) {
+			mainPanel.add(listNetworkPanel, BorderLayout.CENTER);
+		}
 		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
 		this.setContentPane(mainPanel);
@@ -270,6 +242,10 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 				this.selectColNetwork.setEnabled(true);
 				this.selectColTable.setEnabled(true);
 				this.connectButton.setEnabled(true);
+				
+				if(rootNet.getDefaultNodeTable().getColumn("query term") != null) {
+					this.selectColNetwork.setSelectedItem("query term");
+				}
 			}
 		} else if (e.getSource() == this.connectButton && this.connectButton.isEnabled()) {
 			String rootNetName = (String) this.selectNetwork.getSelectedItem();
@@ -292,11 +268,23 @@ public class OVConnectWindow extends JFrame implements ActionListener {
 			}
 
 			if(rootNetName != null) {
-				this.ovTable.connect(
+				ovCon = this.ovTable.connect(
 						(String) this.selectNetwork.getSelectedItem(),
 						(String) this.selectColNetwork.getSelectedItem(),
 						(String) this.selectColTable.getSelectedItem()
 						);
+				
+				if(ovCon.getNbConnectedTableRows() == 0) {
+					JOptionPane.showMessageDialog(null, "Error: No table row is connected to the network.", "Error", JOptionPane.ERROR_MESSAGE);
+					ovCon.disconnect();
+					return;
+				} else {
+					int totalNbRows = this.ovTable.getAllRows(true).size();
+					
+					if((((double) ovCon.getNbConnectedTableRows())/totalNbRows) < OVConnection.MINIMUM_CONNECTED_ROWS) {
+						JOptionPane.showMessageDialog(null, "Warning: Less than " + (int)(OVConnection.MINIMUM_CONNECTED_ROWS*100) + "% of the table rows are connected to the network.", "Warning", JOptionPane.WARNING_MESSAGE);
+					}
+				}
 			}
 			
 			this.update(this.ovTable);

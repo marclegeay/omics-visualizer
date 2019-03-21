@@ -9,8 +9,6 @@ import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,13 +22,11 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
 import org.cytoscape.application.CyApplicationManager;
@@ -50,8 +46,9 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVStyle;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVStyle.ChartType;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ApplyStyleTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveStyleTaskFactory;
 
-public class OVStyleWindow extends JFrame implements ActionListener {
+public class OVStyleWindow extends OVWindow implements ActionListener {
 	private static final long serialVersionUID = 6606921043986517714L;
 
 	private static final String NO_LABEL = "--- NONE ---";
@@ -81,15 +78,17 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 	private static int MAXIMUM_COLOR_NUMBERS = 50;
 
 	private OVCytoPanel cytoPanel;
-	private OVManager ovManager;
 
 	private OVTable ovTable;
 
 	private OVConnection ovCon;
 
+	private JButton cancelButton;
+
 	private JComboBox<String> selectNetwork;
 	private JComboBox<String> selectCopyNetwork;
 	private JButton copyButton;
+	private JButton deleteButton;
 	private SelectValuesPanel selectValues;
 	private JCheckBox filteredCheck;
 	private JComboBox<ChartType> selectChartType;
@@ -104,38 +103,52 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 	private JTextField rangeZero;
 	private JTextField rangeMax;
 	private ColorPanel[] colorPanels;
-	private JButton[] colorButtons;
 	private Object[] discreteValues;
 	private JCheckBox transposeCheck;
 	private JButton backButton;
 	private JButton resetButton;
 	private JButton drawButton;
 
-	public OVStyleWindow(OVCytoPanel cytoPanel, OVManager ovManager) {
-		super();
+	public OVStyleWindow(OVManager ovManager) {
+		super(ovManager);
 
-		this.cytoPanel=cytoPanel;
-		this.ovManager=ovManager;
+		this.cytoPanel=ovManager.getOVCytoPanel();
 
 		this.ovTable=null;
 
+		// Both panels
+		this.cancelButton = new JButton("Cancel");
+		this.cancelButton.addActionListener(this);
+
 		// Panel 1
 		this.selectNetwork = new JComboBox<>();
+		this.selectNetwork.setToolTipText("Select the Network Collection for which you want to apply the style.");
 		this.selectNetwork.addActionListener(this);
 
 		this.selectCopyNetwork = new JComboBox<>();
+		this.selectCopyNetwork.setToolTipText("<html>If you want to copy a style from another Network Collection,<br>select the name of the Network Collection here and then click on the button below.</html>");
 
 		this.copyButton = new JButton("Copy Style");
 		this.copyButton.addActionListener(this);
+
+		this.deleteButton = new JButton("Delete Style");
+		this.deleteButton.addActionListener(this);
+		this.deleteButton.setForeground(Color.RED);
 
 		this.selectValues = new SelectValuesPanel(this);
 
 		this.filteredCheck = new JCheckBox("Apply style only to filtered rows", true);
 
 		this.selectChartType = new JComboBox<>();
+		this.selectChartType.addActionListener(this);
 		for(ChartType ct : ChartType.values()) {
 			this.selectChartType.addItem(ct);
 		}
+		this.selectChartType.setToolTipText("<html>"
+				+ "Select the type of Chart you want to draw.<br>"
+				+ "<b>Donut Charts</b> can have several rings, thus you can select several values columns.<br>"
+				+ "<b>Pie Charts</b> can have only one values column."
+				+ "</html>");
 
 		this.selectChartLabels = new JComboBox<>();
 
@@ -160,41 +173,11 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		this.colorChooser = new ColorChooser();
 
 		this.transposeCheck = new JCheckBox("Transpose data");
+		
+		LookAndFeelUtil.equalizeSize(this.cancelButton, this.nextButton, this.backButton, this.drawButton);
 
 		// We show Panel1 first, obviously
 		this.displayPanel1();
-
-		this.setResizable(false);
-
-
-		// We make sure that the JFrame is always on top, only when Cytoscape is on top
-		JFrame me = this;
-		if(this.cytoPanel.getTopLevelAncestor() instanceof JFrame) {
-			JFrame ancestor = (JFrame)this.cytoPanel.getTopLevelAncestor();
-
-			ancestor.addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowDeactivated(WindowEvent e) {
-					super.windowDeactivated(e);
-
-					me.setAlwaysOnTop(false);
-				}
-
-				@Override
-				public void windowActivated(WindowEvent e) {
-					super.windowActivated(e);
-
-					me.setAlwaysOnTop(true);
-				}
-
-				@Override
-				public void windowGainedFocus(WindowEvent e) {
-					super.windowGainedFocus(e);
-
-					me.toFront();
-				}
-			});
-		}
 	}
 
 	private void displayPanel1() {
@@ -203,49 +186,64 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new GridBagLayout());
-//		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		mainPanel.setBorder(LookAndFeelUtil.createPanelBorder());
 
 		MyGridBagConstraints c = new MyGridBagConstraints();
 		c.expandHorizontal().setAnchor("C");
 
-		mainPanel.add(new JLabel("Define Style for:"), c);
-		mainPanel.add(this.selectNetwork, c.nextCol());
+		JPanel definePanel = new JPanel();
+		definePanel.setBorder(LookAndFeelUtil.createTitledBorder("Define Style for"));
+		definePanel.setLayout(new GridBagLayout());
+		MyGridBagConstraints c2 = new MyGridBagConstraints();
+		definePanel.add(this.selectNetwork, c2.expandHorizontal());
 
-		JPanel copyButtonPanel = new JPanel();
-		copyButtonPanel.setOpaque(!LookAndFeelUtil.isAquaLAF());
-		copyButtonPanel.setLayout(new FlowLayout());
-		copyButtonPanel.add(this.copyButton);
+		mainPanel.add(definePanel, c.expandBoth());
 
-		mainPanel.add(new JLabel("Copy Style from:"), c.nextRow());
-		mainPanel.add(this.selectCopyNetwork, c.nextCol());
-		mainPanel.add(copyButtonPanel, c.nextRow().useNCols(2));
-		mainPanel.add(new JSeparator(), c.nextRow());
-		c.useNCols(1); // reset the default value
+		JPanel managePanel = new JPanel();
+		managePanel.setBorder(LookAndFeelUtil.createTitledBorder("Manage Style"));
+		managePanel.setLayout(new GridBagLayout());
+		c2 = new MyGridBagConstraints();
+		if(this.selectCopyNetwork.getItemCount() > 1) { // We display it only if there are more than one network
+			managePanel.add(this.selectCopyNetwork, c2.expandHorizontal());
+			managePanel.add(this.copyButton, c2.nextCol());
+			c2.nextRow();
+		}
+
+		managePanel.add(this.deleteButton, c2.useNCols(2).noExpand().setAnchor("C"));
+
+		mainPanel.add(managePanel, c.nextCol());
+
+		JPanel stylePanel = new JPanel();
+		stylePanel.setBorder(LookAndFeelUtil.createTitledBorder("Style properties"));
+		stylePanel.setLayout(new GridBagLayout());
+		c2 = new MyGridBagConstraints();
+		c2.expandHorizontal().setAnchor("C");
+
+		stylePanel.add(new JLabel("Select Chart Type:"), c2);
+		stylePanel.add(this.selectChartType, c2.nextCol());
 
 		// This JLabel must be displayed in the top-left corner
-		// We add 5px on top because otherwise the JLabel is not aligned with the center of the first JComboBox
-		mainPanel.add(new JLabel("Select Values:"), c.nextRow().setAnchor("NW").setInsets(5, 0, 0, 0));
-		//reset constraint
-		c.setAnchor("C").setInsets(0, 0, 0, 0);
-		mainPanel.add(this.selectValues, c.nextCol());
+		// We add the default margin on top and left because otherwise the JLabel is not aligned with the center of the first JComboBox
+		stylePanel.add(new JLabel("Select Values:"), c2.nextRow().setAnchor("NW").setInsets(MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, 0, 0));
+		// reset constraint
+		c2.setAnchor("C").setInsets(MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET);
+		stylePanel.add(this.selectValues, c2.nextCol());
 
 		// TODO Version 1.0: Without filters
-//		mainPanel.add(this.filteredCheck, c.nextRow().useNCols(2));
-//		c.useNCols(1);
+		//		stylePanel.add(this.filteredCheck, c2.nextRow().useNCols(2));
+		//		c2.useNCols(1);
 
-		mainPanel.add(new JLabel("Select Chart Type:"), c.nextRow());
-		mainPanel.add(this.selectChartType, c.nextCol());
-
-		mainPanel.add(new JLabel("Select Labels:"), c.nextRow());
-		mainPanel.add(this.selectChartLabels, c.nextCol());
+		stylePanel.add(new JLabel("Select Labels:"), c2.nextRow());
+		stylePanel.add(this.selectChartLabels, c2.nextCol());
 
 		// TODO Version 1.0: Without Discrete Mapping
-//		mainPanel.add(new JLabel("Mapping:"), c.nextRow());
-//		mainPanel.add(this.selectDiscreteContinuous, c.nextCol());
+		//		stylePanel.add(new JLabel("Mapping:"), c2.nextRow());
+		//		stylePanel.add(this.selectDiscreteContinuous, c2.nextCol());
+
+		mainPanel.add(stylePanel, c.nextRow().useNCols(2));
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
+		buttonPanel.add(this.cancelButton);
 		buttonPanel.add(this.nextButton);
 
 		this.setContentPane(new JPanel());
@@ -267,8 +265,8 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 		}
 
 		JPanel mainPanel = new JPanel();
-//		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		mainPanel.setBorder(LookAndFeelUtil.createPanelBorder());
+		//		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		mainPanel.setBorder(LookAndFeelUtil.createTitledBorder("Color properties"));
 
 		List<String> colNames = this.selectValues.getValues();
 		Class<?> valueType = this.selectValues.getValueType();
@@ -323,6 +321,8 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 							int val=0;
 							if(Val != null) {
 								val = Val.intValue();
+							} else {
+								continue; // We do not take missing values into account
 							}
 
 							if(val < min) {
@@ -374,6 +374,8 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 							long val=0;
 							if(Val != null) {
 								val = Val.longValue();
+							} else {
+								continue; // We do not take missing values into account
 							}
 
 							if(val < min) {
@@ -425,6 +427,8 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 							double val=0.0;
 							if(Val != null) {
 								val = Val.doubleValue();
+							} else {
+								continue; // We do not take missing values into account
 							}
 
 							if(val < min) {
@@ -470,36 +474,33 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 			c.expandHorizontal();
 
 			this.colorPanels = new ColorPanel[3];
-			this.colorButtons = new JButton[3];
 
 			this.rangeMax = new JTextField(String.valueOf(rangeMax));
-			this.colorPanels[0] = new ColorPanel(colorMax, this);
-			this.colorButtons[0] = new JButton("Pick color");
-			this.colorButtons[0].addActionListener(this);
-			mainPanel.add(this.rangeMax, c.nextRow());
+			this.colorPanels[0] = new ColorPanel(colorMax, this, this.colorChooser);
+			mainPanel.add(new JLabel("Max:"), c.nextRow());
+			mainPanel.add(this.rangeMax, c.nextCol());
 			mainPanel.add(this.colorPanels[0], c.nextCol().expandBoth());
-			mainPanel.add(this.colorButtons[0], c.nextCol().expandHorizontal());
+			c.expandHorizontal();
 
 			this.rangeZero = new JTextField(String.valueOf(rangeZero));
-			this.colorPanels[1] = new ColorPanel(colorZero, this);
-			this.colorButtons[1] = new JButton("Pick color");
-			this.colorButtons[1].addActionListener(this);
-			mainPanel.add(this.rangeZero, c.nextRow());
+			this.colorPanels[1] = new ColorPanel(colorZero, this, this.colorChooser);
+			mainPanel.add(new JLabel("Middle:"), c.nextRow());
+			mainPanel.add(this.rangeZero, c.nextCol());
 			mainPanel.add(this.colorPanels[1], c.nextCol().expandBoth());
-			mainPanel.add(this.colorButtons[1], c.nextCol().expandHorizontal());
+			c.expandHorizontal();
 
 			this.rangeMin = new JTextField(String.valueOf(rangeMin));
-			this.colorPanels[2] = new ColorPanel(colorMin, this);
-			this.colorButtons[2] = new JButton("Pick color");
-			this.colorButtons[2].addActionListener(this);
-			mainPanel.add(this.rangeMin, c.nextRow());
+			this.colorPanels[2] = new ColorPanel(colorMin, this, this.colorChooser);
+			mainPanel.add(new JLabel("Min:"), c.nextRow());
+			mainPanel.add(this.rangeMin, c.nextCol());
 			mainPanel.add(this.colorPanels[2], c.nextCol().expandBoth());
-			mainPanel.add(this.colorButtons[2], c.nextCol().expandHorizontal());
+			c.expandHorizontal();
 
 			if(this.selectChartType.getSelectedItem().equals(ChartType.CIRCOS)) {
 				// Only CIRCOS can have several layouts
 				mainPanel.add(transposeCheck, c.nextRow().useNCols(3));
 			}
+			mainPanel.add(resetButton, c.nextRow().useNCols(3).noExpand().setAnchor("E"));
 
 		} else { // Discrete mapping
 			Set<Object> values = new HashSet<>();
@@ -537,10 +538,11 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 				}
 			}
 
-			mainPanel.setLayout(new BorderLayout());
+			mainPanel.setLayout(new GridBagLayout());
+			MyGridBagConstraints c = new MyGridBagConstraints();
+			c.expandHorizontal();
 
 			this.colorPanels = new ColorPanel[values.size()];
-			this.colorButtons = new JButton[values.size()];
 			// To be sure that values and colors are well associated, we do not use toArray() but we copy each value
 			this.discreteValues = new Object[values.size()];
 
@@ -564,31 +566,29 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 				this.discreteValues[i] = val;
 
-				this.colorPanels[i] = new ColorPanel(color, this);
-				this.colorButtons[i] = new JButton("Pick color");
-				this.colorButtons[i].addActionListener(this);
+				this.colorPanels[i] = new ColorPanel(color, this, this.colorChooser);
 
 				valuesList.add(new JLabel(val.toString()), clist.nextRow());
 				valuesList.add(this.colorPanels[i], clist.nextCol().expandBoth());
-				valuesList.add(this.colorButtons[i], clist.nextCol().expandHorizontal());
 
 				++i;
 			}
 			JScrollPane valuesScroll = new JScrollPane(valuesList);
 			valuesScroll.setBorder(null);
 
-			mainPanel.add(valuesScroll, BorderLayout.CENTER);
+			mainPanel.add(valuesScroll, c);
 			if(this.selectChartType.getSelectedItem().equals(ChartType.CIRCOS)) {
 				// Only CIRCOS can have several layers
-				mainPanel.add(transposeCheck, BorderLayout.SOUTH);
+				mainPanel.add(transposeCheck, c.nextRow());
 			}
+			mainPanel.add(resetButton, c.nextRow().noExpand().setAnchor("E"));
 		}
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
 
 		buttonPanel.add(this.backButton);
-		buttonPanel.add(this.resetButton);
+		buttonPanel.add(this.cancelButton);
 		buttonPanel.add(this.drawButton);
 
 		this.setContentPane(new JPanel());
@@ -719,16 +719,16 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 		// TODO Version 1.0: Without Discrete Mapping
 		this.selectDiscreteContinuous.setSelectedItem(OVStyleWindow.CONTINUOUS);
-//		Class<?> valueType = this.selectValues.getValueType();
-//		if(valueType == String.class || valueType == Boolean.class) {
-//			// No choice but discrete mapping
-//			this.oldDC = (String) this.selectDiscreteContinuous.getSelectedItem();
-//			this.selectDiscreteContinuous.setSelectedItem(OVStyleWindow.DISCRETE);
-//			this.selectDiscreteContinuous.setEnabled(false);
-//		} else if(!this.selectDiscreteContinuous.isEnabled()) {
-//			this.selectDiscreteContinuous.setEnabled(true);
-//			this.selectDiscreteContinuous.setSelectedItem(this.oldDC);
-//		}
+		//		Class<?> valueType = this.selectValues.getValueType();
+		//		if(valueType == String.class || valueType == Boolean.class) {
+		//			// No choice but discrete mapping
+		//			this.oldDC = (String) this.selectDiscreteContinuous.getSelectedItem();
+		//			this.selectDiscreteContinuous.setSelectedItem(OVStyleWindow.DISCRETE);
+		//			this.selectDiscreteContinuous.setEnabled(false);
+		//		} else if(!this.selectDiscreteContinuous.isEnabled()) {
+		//			this.selectDiscreteContinuous.setEnabled(true);
+		//			this.selectDiscreteContinuous.setSelectedItem(this.oldDC);
+		//		}
 	}
 
 	private void updateStyle(OVStyle ovStyle) {
@@ -824,7 +824,16 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == this.selectNetwork) {
+		if(e.getSource() == this.cancelButton) {
+			this.setVisible(false);
+		} else if(e.getSource() == this.deleteButton) {
+			if(JOptionPane.showConfirmDialog(this, "You are about to delete this style applied to the network \"" + this.ovCon.getCollectionNetworkName() + "\".", "Style deletion confirmation", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
+				RemoveStyleTaskFactory factory = new RemoveStyleTaskFactory(this.ovManager, this.ovCon);
+				this.ovManager.executeSynchronousTask(factory.createTaskIterator());
+				
+				this.updateStyle(this.ovCon.getStyle());
+			}
+		} else if(e.getSource() == this.selectNetwork) {
 			this.changedNetwork();
 		} else if(e.getSource() == this.copyButton) {
 			for(OVConnection ovCon : this.ovManager.getConnections(this.ovTable)) {
@@ -833,6 +842,8 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 					break;
 				}
 			}
+		} else if(e.getSource() == this.selectChartType) {
+			this.selectValues.addButton.setEnabled(((ChartType)this.selectChartType.getSelectedItem()) == ChartType.CIRCOS);
 		} else if(e.getSource() == this.nextButton) {
 			if(!this.selectValues.allSameType()) {
 				JOptionPane.showMessageDialog(null,
@@ -911,15 +922,6 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 			this.ovManager.executeTask(factory.createTaskIterator());
 
 			this.setVisible(false);
-		} else if(this.colorButtons != null) {
-			// We have to identify which colorButton was clicked
-			for(int i=0; i<this.colorButtons.length; ++i) {
-				if(e.getSource() == this.colorButtons[i]) {
-					this.colorChooser.show(this.colorPanels[i]);
-
-					break;
-				}
-			}
 		}
 	}
 
@@ -962,7 +964,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 		public SelectValuesPanel(OVStyleWindow ovStyleWindow) {
 			this.ovStyleWindow = ovStyleWindow;
-			
+
 			this.setOpaque(!LookAndFeelUtil.isAquaLAF());
 
 			this.selects = new ArrayList<>();
@@ -981,9 +983,10 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 				for(String colName : ovTable.getColNames()) {
 					Class<?> colType = ovTable.getColType(colName);
 					// We don't want OVCol, neither do we want List columns
-					// TODO Version 1.0: Without Discrete Mapping (so without String columns)
+					// TODO Version 1.0: Without Discrete Mapping (so without String nor Boolean columns)
 					if(!OVShared.isOVCol(colName) && colType != List.class
-							&& colType != String.class) {
+							&& colType != String.class
+							&& colType != Boolean.class) {
 						selectItems.add(new ChartValues(colName, colType));
 						this.selectItemStringValues.add(colName);
 					}
@@ -1031,7 +1034,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 			this.setLayout(new GridBagLayout());
 			MyGridBagConstraints c = new MyGridBagConstraints();
-			c.expandHorizontal();
+			c.expandHorizontal().setInsets(0, 0, 0, 0);
 
 			this.add(this.selects.get(0), c);
 			this.add(this.buttons.get(0), c.nextCol());
@@ -1157,6 +1160,7 @@ public class OVStyleWindow extends JFrame implements ActionListener {
 
 				mainPanel.setLayout(new GridBagLayout());
 				MyGridBagConstraints c = new MyGridBagConstraints();
+				c.setInsets(0, 0, 0, 0);
 
 				mainPanel.add(new JLabel(cValue.getColName()), c.expandHorizontal());
 

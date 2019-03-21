@@ -11,7 +11,6 @@ import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -29,10 +28,8 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.operators.Operator;
 import dk.ku.cpr.OmicsVisualizer.internal.task.FilterTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveFilterTaskFactory;
 
-public class OVFilterWindow extends JFrame implements ActionListener {
+public class OVFilterWindow extends OVWindow implements ActionListener {
 	private static final long serialVersionUID = -7306443854568361953L;
-
-	private OVManager ovManager;
 
 	private OVTable ovTable;
 
@@ -46,8 +43,7 @@ public class OVFilterWindow extends JFrame implements ActionListener {
 	private JButton removeButton;
 
 	public OVFilterWindow(OVManager ovManager) {
-		super();
-		this.ovManager=ovManager;
+		super(ovManager);
 	}
 	
 	private void init() {

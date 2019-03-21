@@ -12,6 +12,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.util.swing.LookAndFeelUtil;
@@ -24,7 +25,7 @@ public class OVConnectPanel extends JPanel implements ActionListener {
 
 	private OVConnectWindow connectWindow;
 	
-	private OVConnection con;
+	private OVConnection ovCon;
 	
 //	private JPanel mainPanel;
 	
@@ -37,15 +38,11 @@ public class OVConnectPanel extends JPanel implements ActionListener {
 	public OVConnectPanel(OVConnectWindow connectWindow, OVConnection con) {
 		super();
 		this.connectWindow = connectWindow;
-		this.con=con;
+		this.ovCon=con;
 		
 		// GUI initialization
-
-//		this.mainPanel = new JPanel();
-////		this.mainPanel.setBorder(BorderFactory.createTitledBorder(this.con.getCollectionNetworkName()));
-//		this.mainPanel.setBorder(LookAndFeelUtil.createTitledBorder(this.con.getCollectionNetworkName()));
-//		this.mainPanel.setLayout(new BorderLayout());
-		this.setBorder(LookAndFeelUtil.createTitledBorder(this.con.getCollectionNetworkName()));
+		this.initBorder();
+		
 		this.setOpaque(!LookAndFeelUtil.isAquaLAF());
 		this.setLayout(new BorderLayout());
 		
@@ -91,47 +88,68 @@ public class OVConnectPanel extends JPanel implements ActionListener {
 	}
 	
 	public void update() {
-		if(this.con.getRootNetwork() == null) {
+		if(this.ovCon.getRootNetwork() == null) {
 			this.setVisible(false);
 			return;
 		}
 
-//		this.mainPanel.setBorder(BorderFactory.createTitledBorder(this.con.getCollectionNetworkName()));
-		this.setBorder(LookAndFeelUtil.createTitledBorder(this.con.getCollectionNetworkName()));
+		this.initBorder();
 		
 		this.selectColNetwork.removeAllItems();
-		for(CyColumn col : this.con.getBaseNetwork().getDefaultNodeTable().getColumns()) {
+		for(CyColumn col : this.ovCon.getBaseNetwork().getDefaultNodeTable().getColumns()) {
 			this.selectColNetwork.addItem(col.getName());
 		}
-		this.selectColNetwork.setSelectedItem(this.con.getMappingColCyto());
+		this.selectColNetwork.setSelectedItem(this.ovCon.getMappingColCyto());
 		
 		this.selectColTable.removeAllItems();
-		for(String col : this.con.getOVTable().getColNames()) {
+		for(String col : this.ovCon.getOVTable().getColNames()) {
 			if(!OVShared.isOVCol(col)) {
 				this.selectColTable.addItem(col);
 			}
 		}
-		this.selectColTable.setSelectedItem(this.con.getMappingColOVTable());
+		this.selectColTable.setSelectedItem(this.ovCon.getMappingColOVTable());
 		
 		this.setVisible(true);
+	}
+	
+	private void initBorder() {
+		this.setBorder(LookAndFeelUtil.createTitledBorder("<html><b>"+this.ovCon.getCollectionNetworkName()+"</b></html>"));
+		((TitledBorder)this.getBorder()).setTitleJustification(TitledBorder.CENTER);
+		((TitledBorder)this.getBorder()).setTitleFont(getFont());
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == this.updateButton) {
-			this.con.update(
+			String oldColNetwork = this.ovCon.getMappingColCyto();
+			String oldColTable = this.ovCon.getMappingColOVTable();
+			
+			int nbLinks = this.ovCon.update(
 					(String) this.selectColNetwork.getSelectedItem(),
 					(String) this.selectColTable.getSelectedItem()
 			);
+			
+			if(nbLinks == 0) {
+				JOptionPane.showMessageDialog(null, "No row from the table is connected to the network.\nThe previous connection will be restored.",  "Error", JOptionPane.ERROR_MESSAGE);
+				this.ovCon.update(oldColNetwork, oldColTable);
+				this.selectColNetwork.setSelectedItem(oldColNetwork);
+				this.selectColTable.setSelectedItem(oldColTable);
+			} else {
+				int totalNbRows = this.ovCon.getOVTable().getAllRows(true).size();
+				
+				if((((double) nbLinks)/totalNbRows) < OVConnection.MINIMUM_CONNECTED_ROWS) {
+					JOptionPane.showMessageDialog(null, "Warning: Less than " + (int)(OVConnection.MINIMUM_CONNECTED_ROWS*100) + "% of the table rows are connected to the network.", "Warning", JOptionPane.WARNING_MESSAGE);
+				}
+			}
 		} else if(e.getSource() == this.disconnectButton) {
 			int response = JOptionPane.showConfirmDialog(null,
-					"You are disconnecting \""+this.con.getOVTable().getTitle()+"\" and \""+this.con.getCollectionNetworkName()+"\".",
+					"You are disconnecting \""+this.ovCon.getOVTable().getTitle()+"\" and \""+this.ovCon.getCollectionNetworkName()+"\".",
 					"Confirmation",
 					JOptionPane.OK_CANCEL_OPTION);
 			
 			if(response == JOptionPane.OK_OPTION) {
-				this.con.disconnect();
-				this.connectWindow.update(this.con.getOVTable());
+				this.ovCon.disconnect();
+				this.connectWindow.update(this.ovCon.getOVTable());
 			}
 		}
 	}

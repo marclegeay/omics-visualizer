@@ -20,6 +20,8 @@ public class MyGridBagConstraints extends GridBagConstraints {
 		anchors.put("W",	LAST_LINE_END);
 	}
 	
+	static int DEFAULT_INSET=5; // By default we have 5px of margins
+	
 	public MyGridBagConstraints() {
 		reset();
 	}
@@ -29,7 +31,7 @@ public class MyGridBagConstraints extends GridBagConstraints {
 		gridwidth=gridheight=1;
 		fill=GridBagConstraints.NONE;
 		ipadx=ipady=0;
-		insets.set(0, 0, 0, 0);
+		insets.set(DEFAULT_INSET, DEFAULT_INSET, DEFAULT_INSET, DEFAULT_INSET);
 		anchor=GridBagConstraints.CENTER;
 		weightx=weighty=0.0;
 		
@@ -56,7 +58,7 @@ public class MyGridBagConstraints extends GridBagConstraints {
 		return this;
 	}
 	
-	public MyGridBagConstraints expandVertial() {
+	public MyGridBagConstraints expandVertical() {
 		weightx=0.0;
 		weighty=1.0;
 		fill=GridBagConstraints.VERTICAL;

@@ -189,6 +189,7 @@ public class ApplyStyleTask extends AbstractTask {
 		}
 
 
+		taskMonitor.setStatusMessage("Adding the VisualMappingFunction");
 		// Finally we draw
 		VisualMappingManager vmm = this.ovManager.getService(VisualMappingManager.class);
 		// The connected network has been automatically selected when the window was opened
@@ -196,18 +197,11 @@ public class ApplyStyleTask extends AbstractTask {
 		if(netView != null) {
 			VisualMappingFunctionFactory passthroughFactory = this.ovManager.getService(VisualMappingFunctionFactory.class, "(mapping.type=passthrough)");
 			VisualLexicon lex = this.ovManager.getService(RenderingEngineManager.class).getDefaultVisualLexicon();
-			// Set up the passthrough mapping for the label
-			//				if (show) {
-			VisualProperty<?> customGraphics = lex.lookup(CyNode.class, "NODE_CUSTOMGRAPHICS_4"); // Same CUSTOMGRAPHICS as stringApp displays enrichment
+			VisualProperty<?> customGraphics = lex.lookup(CyNode.class, OVShared.MAPPING_STYLE_IDENTIFIER); 
 			PassthroughMapping<?,?> pMapping = (PassthroughMapping<?,?>) passthroughFactory.createVisualMappingFunction(OVShared.CYNODETABLE_STYLECOL, String.class, customGraphics);
 			vmm.getVisualStyle(netView).addVisualMappingFunction(pMapping);
-			//				} else {
-			//					stringStyle
-			//							.removeVisualMappingFunction(lex.lookup(CyNode.class, "NODE_CUSTOMGRAPHICS_4"));
-			//				}
 			netView.updateView();
 		}
-		//*/
 
 	}
 
