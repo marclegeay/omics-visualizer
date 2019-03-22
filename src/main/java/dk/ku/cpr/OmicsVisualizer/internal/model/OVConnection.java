@@ -12,7 +12,7 @@ import org.cytoscape.model.CyTable;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 
-import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveStyleTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveViualizationTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 
 public class OVConnection {
@@ -28,7 +28,7 @@ public class OVConnection {
 	/** Map that associates the list of table rows with the network node SUID */
 	private Map<Long, List<CyRow>> node2table;
 	private int nbConnectedTableRows;
-	private OVStyle ovStyle;
+	private OVVisualization ovViz;
 
 	public OVConnection(OVManager ovManager, OVTable ovTable, CyRootNetwork rootNetwork, String mappingColCyto, String mappingColOVTable) {
 		super();
@@ -38,7 +38,7 @@ public class OVConnection {
 		this.mappingColCyto = mappingColCyto;
 		this.mappingColOVTable = mappingColOVTable;
 		this.node2table = new HashMap<>();
-		this.ovStyle=null;
+		this.ovViz=null;
 		
 		// We register all OVConnection to the OVManager
 		this.ovManager.addConnection(this);
@@ -90,13 +90,13 @@ public class OVConnection {
 		return (list == null ? new ArrayList<>() : list);
 	}
 	
-	public void setStyle(OVStyle ovStyle) {
-		this.ovStyle=ovStyle;
-		this.updateStyle();
+	public void setVisualization(OVVisualization ovViz) {
+		this.ovViz=ovViz;
+		this.updateVisualization();
 	}
 	
-	public OVStyle getStyle() {
-		return this.ovStyle;
+	public OVVisualization getVisualization() {
+		return this.ovViz;
 	}
 	
 	private Object getKey(CyRow row, CyColumn keyCol) {
@@ -107,18 +107,18 @@ public class OVConnection {
 		}
 	}
 	
-	public void updateStyle() {
-		String savedStyle = "";
-		if(this.ovStyle != null) {
-			savedStyle = this.ovStyle.save();
+	public void updateVisualization() {
+		String savedViz = "";
+		if(this.ovViz != null) {
+			savedViz = this.ovViz.save();
 		}
 		
 		for(CyNetwork net : this.rootNetwork.getSubNetworkList()) {
 			CyTable networkTable = net.getDefaultNetworkTable();
-			if(networkTable.getColumn(OVShared.CYNETWORKTABLE_STYLECOL) == null) {
-				networkTable.createColumn(OVShared.CYNETWORKTABLE_STYLECOL, String.class, false);
+			if(networkTable.getColumn(OVShared.CYNETWORKTABLE_VIZCOL) == null) {
+				networkTable.createColumn(OVShared.CYNETWORKTABLE_VIZCOL, String.class, false);
 			}
-			networkTable.getRow(net.getSUID()).set(OVShared.CYNETWORKTABLE_STYLECOL, savedStyle);
+			networkTable.getRow(net.getSUID()).set(OVShared.CYNETWORKTABLE_VIZCOL, savedViz);
 		}
 	}
 	
@@ -238,15 +238,15 @@ public class OVConnection {
 		networkTable.getRow(network.getSUID()).set(OVShared.CYNETWORKTABLE_OVCOL, this.getSavedConnection());
 		
 		
-		// Style :
-		if(networkTable.getColumn(OVShared.CYNETWORKTABLE_STYLECOL) == null) {
-			networkTable.createColumn(OVShared.CYNETWORKTABLE_STYLECOL, String.class, false);
+		// Visualization :
+		if(networkTable.getColumn(OVShared.CYNETWORKTABLE_VIZCOL) == null) {
+			networkTable.createColumn(OVShared.CYNETWORKTABLE_VIZCOL, String.class, false);
 		}
-		String savedStyle = "";
-		if(this.ovStyle != null) {
-			savedStyle = this.ovStyle.save();
+		String savedViz = "";
+		if(this.ovViz != null) {
+			savedViz = this.ovViz.save();
 		}
-		networkTable.getRow(network.getSUID()).set(OVShared.CYNETWORKTABLE_STYLECOL, savedStyle);
+		networkTable.getRow(network.getSUID()).set(OVShared.CYNETWORKTABLE_VIZCOL, savedViz);
 	}
 
 	public void disconnect() {
@@ -266,19 +266,19 @@ public class OVConnection {
 		if(networkTable.getColumn(OVShared.CYNETWORKTABLE_OVCOL) != null) {
 			networkTable.getRow(network.getSUID()).set(OVShared.CYNETWORKTABLE_OVCOL, "");
 		}
-		if(networkTable.getColumn(OVShared.CYNETWORKTABLE_STYLECOL) != null) {
-			networkTable.getRow(network.getSUID()).set(OVShared.CYNETWORKTABLE_STYLECOL, "");
+		if(networkTable.getColumn(OVShared.CYNETWORKTABLE_VIZCOL) != null) {
+			networkTable.getRow(network.getSUID()).set(OVShared.CYNETWORKTABLE_VIZCOL, "");
 		}
 		
-		// We erase the Style
-		if(this.getStyle() != null) {
-			RemoveStyleTaskFactory factory = new RemoveStyleTaskFactory(ovManager, this);
+		// We erase the Visualization
+		if(this.getVisualization() != null) {
+			RemoveViualizationTaskFactory factory = new RemoveViualizationTaskFactory(ovManager, this);
 			this.ovManager.executeTask(factory.createTaskIterator());
 		}
 		
 		// If it was the last network of the collection ...
 		if(this.getConnectedNetworks().size() == 0) {
-			// We delete the style columns in the node table
+			// We delete the visualization columns in the node table
 			OVShared.deleteOVColumns(this.getBaseNetwork().getDefaultNodeTable());
 			
 			// We forget about this connection

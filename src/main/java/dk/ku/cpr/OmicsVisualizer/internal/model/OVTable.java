@@ -400,11 +400,11 @@ public class OVTable {
 					if(splittedLink.length == 3 && splittedLink[0].equals(this.getTitle())) {
 						OVConnection ovCon = this.connect(net.toString(), splittedLink[1], splittedLink[2]);
 						
-						// We try to load the Style
-						if(ovCon != null && netTable.getColumn(OVShared.CYNETWORKTABLE_STYLECOL) != null) {
-							String style = netTable.getRow(net.getSUID()).get(OVShared.CYNETWORKTABLE_STYLECOL, String.class);
-							if(style != null && !style.isEmpty()) {
-								ovCon.setStyle(OVStyle.load(style));
+						// We try to load the Visualization
+						if(ovCon != null && netTable.getColumn(OVShared.CYNETWORKTABLE_VIZCOL) != null) {
+							String viz = netTable.getRow(net.getSUID()).get(OVShared.CYNETWORKTABLE_VIZCOL, String.class);
+							if(viz != null && !viz.isEmpty()) {
+								ovCon.setVisualization(OVVisualization.load(viz));
 							}
 						}
 					}

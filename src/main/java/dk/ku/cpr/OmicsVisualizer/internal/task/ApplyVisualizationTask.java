@@ -21,15 +21,15 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVColorContinuous;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
-import dk.ku.cpr.OmicsVisualizer.internal.model.OVStyle;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization;
 
-public class ApplyStyleTask extends AbstractTask {
+public class ApplyVisualizationTask extends AbstractTask {
 
 	private OVManager ovManager;
 	private OVConnection ovCon;
 	private boolean onlyFiltered;
 
-	public ApplyStyleTask(OVManager ovManager, OVConnection ovCon, boolean onlyFiltered) {
+	public ApplyVisualizationTask(OVManager ovManager, OVConnection ovCon, boolean onlyFiltered) {
 		super();
 		this.ovManager = ovManager;
 		this.ovCon = ovCon;
@@ -44,16 +44,16 @@ public class ApplyStyleTask extends AbstractTask {
 
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
-		taskMonitor.setTitle("Apply style to Network");
+		taskMonitor.setTitle("Apply visualization to Network");
 
 		// First we erase all previous charts
 		taskMonitor.setStatusMessage("Cleaning previous data");
 		CyTable nodeTable = this.ovCon.getBaseNetwork().getDefaultNodeTable();
 		OVShared.deleteOVColumns(nodeTable);
-		nodeTable.createColumn(OVShared.CYNODETABLE_STYLECOL, String.class, false);
+		nodeTable.createColumn(OVShared.CYNODETABLE_VIZCOL, String.class, false);
 
-		OVStyle ovStyle = this.ovCon.getStyle();
-		if(ovStyle == null) {
+		OVVisualization ovViz = this.ovCon.getVisualization();
+		if(ovViz == null) {
 			return;
 		}
 
@@ -63,7 +63,7 @@ public class ApplyStyleTask extends AbstractTask {
 		double nbNodes = this.ovCon.getBaseNetwork().getNodeCount() * 1.0;
 		int i=0;
 		// Then we fill the columns
-		taskMonitor.setStatusMessage("Computing style for each node");
+		taskMonitor.setStatusMessage("Computing visualization for each node");
 		for(CyNode node : this.ovCon.getBaseNetwork().getNodeList()) {
 			progress = (i++)/nbNodes;
 			taskMonitor.setProgress(progress);
@@ -75,16 +75,16 @@ public class ApplyStyleTask extends AbstractTask {
 					continue;
 				}
 				
-				for(String colName : ovStyle.getValues()) {
-					Object val = tableRow.get(colName, ovStyle.getValuesType());
+				for(String colName : ovViz.getValues()) {
+					Object val = tableRow.get(colName, ovViz.getValuesType());
 					
 					// Missing values are treated as 0 (or "")
 					if(val == null) {
-						if(ovStyle.getValuesType() == Integer.class) {
+						if(ovViz.getValuesType() == Integer.class) {
 							val = new Integer(0);
-						} else if(ovStyle.getValuesType() == Long.class) {
+						} else if(ovViz.getValuesType() == Long.class) {
 							val = new Long(0);
-						} else if(ovStyle.getValuesType() == Double.class) {
+						} else if(ovViz.getValuesType() == Double.class) {
 							val = new Double(0.0);
 						} else {
 							val = "";
@@ -92,16 +92,16 @@ public class ApplyStyleTask extends AbstractTask {
 					}
 					
 					// If we have a continuous mapping, we have to change the value to center them in rangeZero
-					if(ovStyle.getColors() instanceof OVColorContinuous) {
-						double zero = ((OVColorContinuous) ovStyle.getColors()).getRangeZero();
+					if(ovViz.getColors() instanceof OVColorContinuous) {
+						double zero = ((OVColorContinuous) ovViz.getColors()).getRangeZero();
 						Double newVal=null;
 						
 						// We subtract the zero value to center it
-						if(ovStyle.getValuesType() == Integer.class) {
+						if(ovViz.getValuesType() == Integer.class) {
 							newVal = ((Integer)val) - zero;
-						} else if(ovStyle.getValuesType() == Long.class) {
+						} else if(ovViz.getValuesType() == Long.class) {
 							newVal = ((Long)val) - zero;
-						} else if(ovStyle.getValuesType() == Double.class) {
+						} else if(ovViz.getValuesType() == Double.class) {
 							newVal = ((Double)val) - zero;
 						}
 						
@@ -114,9 +114,9 @@ public class ApplyStyleTask extends AbstractTask {
 						}
 						
 						// And then we cast back the value to its original type
-						if(ovStyle.getValuesType() == Integer.class) {
+						if(ovViz.getValuesType() == Integer.class) {
 							val = newVal.intValue();
-						} else if(ovStyle.getValuesType() == Long.class) {
+						} else if(ovViz.getValuesType() == Long.class) {
 							val = newVal.longValue();
 						} else { // Double, no cast needed
 							val = newVal;
@@ -125,8 +125,8 @@ public class ApplyStyleTask extends AbstractTask {
 					
 					nodeValues.add(val);
 				}
-				if(ovStyle.getLabel() != null) {
-					nodeLabels += tableRow.get(ovStyle.getLabel(), this.ovCon.getOVTable().getColType(ovStyle.getLabel()));
+				if(ovViz.getLabel() != null) {
+					nodeLabels += tableRow.get(ovViz.getLabel(), this.ovCon.getOVTable().getColType(ovViz.getLabel()));
 					nodeLabels += ",";
 				}
 			}
@@ -135,26 +135,26 @@ public class ApplyStyleTask extends AbstractTask {
 				continue;
 			}
 
-			int ncol = ovStyle.getValues().size();
+			int ncol = ovViz.getValues().size();
 			int nrow = nodeValues.size() / ncol;
 
 			List<String> attributeList = new ArrayList<>();
 
 			List<List<Object>> styleValues = new ArrayList<>();
 
-			int ncolValues = (ovStyle.isTranspose() ? nrow : ncol);
-			int nrowValues = (ovStyle.isTranspose() ? ncol : nrow);
+			int ncolValues = (ovViz.isTranspose() ? nrow : ncol);
+			int nrowValues = (ovViz.isTranspose() ? ncol : nrow);
 			for(int c=0; c<ncolValues; ++c) {
-				String colName = OVShared.CYNODETABLE_STYLECOL_VALUES+(c+1);
+				String colName = OVShared.CYNODETABLE_VIZCOL_VALUES+(c+1);
 				attributeList.add(colName);
 				// We create the column if this one does not exist yet
-				createOVListColumn(nodeTable, colName, ovStyle.getValuesType());
+				createOVListColumn(nodeTable, colName, ovViz.getValuesType());
 
 				List<Object> colValues = new ArrayList<>();
 				for(int r=0; r<nrowValues; ++r) {
 					int index = 0;
 
-					if(ovStyle.isTranspose()) {
+					if(ovViz.isTranspose()) {
 						index = c*ncol+r;
 					} else {
 						index = r*ncol+c;
@@ -166,15 +166,15 @@ public class ApplyStyleTask extends AbstractTask {
 				styleValues.add(colValues);
 			}
 
-			String nodeStyle = ovStyle.toEnhancedGraphics(styleValues);
-			if(ovStyle.isContinuous()) {
+			String nodeStyle = ovViz.toEnhancedGraphics(styleValues);
+			if(ovViz.isContinuous()) {
 				// Only continuous mapping needs attributes
 				nodeStyle += " attributelist=\"" + String.join(",", attributeList) + "\"";
 			}
 
 
 			if(nodeLabels.length()>0) {
-				if(ovStyle.isTranspose()) {
+				if(ovViz.isTranspose()) {
 					nodeLabels = "showlabels=\"false\" labelcircles=east circlelabels=\"" + nodeLabels.substring(0, nodeLabels.length()-1) + "\"";
 				} else {
 					nodeLabels = "labellist=\"" + nodeLabels.substring(0, nodeLabels.length()-1) + "\" showlabels=\"true\"";
@@ -185,7 +185,7 @@ public class ApplyStyleTask extends AbstractTask {
 
 			nodeStyle += " " + nodeLabels;
 
-			nodeTable.getRow(node.getSUID()).set(OVShared.CYNODETABLE_STYLECOL, nodeStyle);
+			nodeTable.getRow(node.getSUID()).set(OVShared.CYNODETABLE_VIZCOL, nodeStyle);
 		}
 
 
@@ -197,8 +197,8 @@ public class ApplyStyleTask extends AbstractTask {
 		if(netView != null) {
 			VisualMappingFunctionFactory passthroughFactory = this.ovManager.getService(VisualMappingFunctionFactory.class, "(mapping.type=passthrough)");
 			VisualLexicon lex = this.ovManager.getService(RenderingEngineManager.class).getDefaultVisualLexicon();
-			VisualProperty<?> customGraphics = lex.lookup(CyNode.class, OVShared.MAPPING_STYLE_IDENTIFIER); 
-			PassthroughMapping<?,?> pMapping = (PassthroughMapping<?,?>) passthroughFactory.createVisualMappingFunction(OVShared.CYNODETABLE_STYLECOL, String.class, customGraphics);
+			VisualProperty<?> customGraphics = lex.lookup(CyNode.class, OVShared.MAPPING_VIZ_IDENTIFIER); 
+			PassthroughMapping<?,?> pMapping = (PassthroughMapping<?,?>) passthroughFactory.createVisualMappingFunction(OVShared.CYNODETABLE_VIZCOL, String.class, customGraphics);
 			vmm.getVisualStyle(netView).addVisualMappingFunction(pMapping);
 			netView.updateView();
 		}

@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
-import dk.ku.cpr.OmicsVisualizer.internal.model.OVStyle.ChartType;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
 
 public class OVColorContinuous implements OVColor, Serializable {
 	private static final long serialVersionUID = -5770168065992750255L;

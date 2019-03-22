@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import dk.ku.cpr.OmicsVisualizer.internal.model.OVStyle.ChartType;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
 
 public class OVColorDiscrete implements OVColor, Serializable {
 	private static final long serialVersionUID = 482988419184312110L;

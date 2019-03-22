@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.Base64;
 import java.util.List;
 
-public class OVStyle implements Serializable {
+public class OVVisualization implements Serializable {
 	private static final long serialVersionUID = 3816461719599891386L;
 	
 	private ChartType type;
@@ -20,7 +20,7 @@ public class OVStyle implements Serializable {
 	private String label;
 	private boolean transpose;
 	
-	public OVStyle(ChartType type, List<String> values, Class<?> valuesType, boolean onlyFiltered, OVColor colors, String label, boolean transpose) {
+	public OVVisualization(ChartType type, List<String> values, Class<?> valuesType, boolean onlyFiltered, OVColor colors, String label, boolean transpose) {
 		super();
 		this.type=type;
 		this.values=values;
@@ -88,7 +88,7 @@ public class OVStyle implements Serializable {
 		return Base64.getEncoder().encodeToString(baos.toByteArray());
 	}
 	
-	public static OVStyle load(String str) {
+	public static OVVisualization load(String str) {
 		if(str == null) {
 			return null;
 		}
@@ -108,7 +108,7 @@ public class OVStyle implements Serializable {
 			return null;
 		}
 		
-		return (o instanceof OVStyle) ? (OVStyle)o : null;
+		return (o instanceof OVVisualization) ? (OVVisualization)o : null;
 	}
 
 	public enum ChartType implements Serializable {

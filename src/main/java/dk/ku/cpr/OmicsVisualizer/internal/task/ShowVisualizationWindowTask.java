@@ -9,11 +9,11 @@ import org.cytoscape.work.TaskMonitor;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
 
-public class ShowStyleWindowTask extends AbstractTask {
+public class ShowVisualizationWindowTask extends AbstractTask {
 	
 	private OVManager ovManager;
 
-	public ShowStyleWindowTask(OVManager ovManager) {
+	public ShowVisualizationWindowTask(OVManager ovManager) {
 		super();
 		this.ovManager = ovManager;
 	}
@@ -31,8 +31,8 @@ public class ShowStyleWindowTask extends AbstractTask {
 		
 		OVCytoPanel ovPanel = this.ovManager.getOVCytoPanel();
 		if(ovPanel != null) {
-			ovPanel.getStyleWindow().setTable(ovPanel.getDisplayedTable());
-			ovPanel.getStyleWindow().setVisible(true);
+			ovPanel.getVisualizationWindow().setTable(ovPanel.getDisplayedTable());
+			ovPanel.getVisualizationWindow().setVisible(true);
 		}
 	}
 

@@ -27,13 +27,13 @@ public class OVShared {
 //	public static final String PROPERTY_MAPPING_CY_OV = OV_PREFIX+"CyNetwork_to_OV";
 	public static final String PROPERTY_FILTER = OV_PREFIX+"filter";
 	
-	public static final String MAPPING_STYLE_IDENTIFIER="NODE_CUSTOMGRAPHICS_4"; // Same CUSTOMGRAPHICS as stringApp displays enrichment
+	public static final String MAPPING_VIZ_IDENTIFIER="NODE_CUSTOMGRAPHICS_4"; // Same CUSTOMGRAPHICS as stringApp displays enrichment
 	
 	public static final String CYNETWORKTABLE_OVCOL = "OVTable";
-	public static final String CYNETWORKTABLE_STYLECOL="OVStyle";
+	public static final String CYNETWORKTABLE_VIZCOL="OVViz";
 
-	public static final String CYNODETABLE_STYLECOL="OVStyle";
-	public static final String CYNODETABLE_STYLECOL_VALUES="OVStyle Values ";
+	public static final String CYNODETABLE_VIZCOL="OVViz";
+	public static final String CYNODETABLE_VIZCOL_VALUES="OVViz Values ";
 	
 	public static final String STRING_CMD_PROTEIN_QUERY = "protein query";
 	public static final String STRING_CMD_LIST_SPECIES = "list species";
@@ -69,7 +69,7 @@ public class OVShared {
 		for(Iterator<CyColumn> cycolIt = cyTable.getColumns().iterator(); cycolIt.hasNext();) {
 			CyColumn cycol = cycolIt.next();
 			
-			if(cycol.getName().startsWith(OVShared.CYNODETABLE_STYLECOL)) {
+			if(cycol.getName().startsWith(OVShared.CYNODETABLE_VIZCOL)) {
 				cyTable.deleteColumn(cycol.getName());
 			}
 		}

@@ -16,11 +16,11 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 
-public class RemoveStyleTask extends AbstractTask {
+public class RemoveVisualizationTask extends AbstractTask {
 	private OVManager ovManager;
 	private OVConnection ovCon;
 
-	public RemoveStyleTask(OVManager ovManager, OVConnection ovCon) {
+	public RemoveVisualizationTask(OVManager ovManager, OVConnection ovCon) {
 		super();
 		this.ovManager = ovManager;
 		this.ovCon = ovCon;
@@ -28,7 +28,7 @@ public class RemoveStyleTask extends AbstractTask {
 
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
-		taskMonitor.setTitle("Remove style");
+		taskMonitor.setTitle("Remove visualization");
 		taskMonitor.setStatusMessage("Network Collection: " + this.ovCon.getCollectionNetworkName());
 		
 		taskMonitor.setStatusMessage("Removing the VisualMappingFunction");
@@ -36,7 +36,7 @@ public class RemoveStyleTask extends AbstractTask {
 		VisualLexicon lex = this.ovManager.getService(RenderingEngineManager.class).getDefaultVisualLexicon();
 		Collection<CyNetworkView> netViews = this.ovManager.getService(CyNetworkViewManager.class).getNetworkViews(this.ovCon.getBaseNetwork());
 		for(CyNetworkView netView : netViews) {
-			vmm.getVisualStyle(netView).removeVisualMappingFunction(lex.lookup(CyNode.class, OVShared.MAPPING_STYLE_IDENTIFIER));
+			vmm.getVisualStyle(netView).removeVisualMappingFunction(lex.lookup(CyNode.class, OVShared.MAPPING_VIZ_IDENTIFIER));
 			netView.updateView();
 		}
 		
@@ -47,7 +47,7 @@ public class RemoveStyleTask extends AbstractTask {
 		
 		// We erase all NetworkTable columns
 		taskMonitor.setStatusMessage("Cleaning network table data");
-		this.ovCon.setStyle(null);
+		this.ovCon.setVisualization(null);
 	}
 
 }

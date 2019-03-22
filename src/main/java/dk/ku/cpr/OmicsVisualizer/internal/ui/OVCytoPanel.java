@@ -101,14 +101,14 @@ SelectedNodesAndEdgesListener {
 	private JButton deleteTableButton=null;
 	private JButton retrieveNetworkButton=null;
 	private JButton connectButton=null;
-	private JButton styleButton=null;
+	private JButton vizButton=null;
 
 	private JPopupMenu columnSelectorPopupMenu=null;
 	private CyColumnSelector columnSelector=null;
 
 	private OVFilterWindow filterWindow=null;
 	private OVConnectWindow connectWindow=null;
-	private OVStyleWindow styleWindow=null;
+	private OVVisualizationWindow vizWindow=null;
 	private OVRetrieveStringNetworkWindow retrieveWindow=null;
 
 	private JPanel toolBarPanel=null;
@@ -275,12 +275,12 @@ SelectedNodesAndEdgesListener {
 		return this.connectWindow;
 	}
 
-	public OVStyleWindow getStyleWindow() {
-		if(this.styleWindow == null) {
-			this.styleWindow = new OVStyleWindow(this.ovManager);
+	public OVVisualizationWindow getVisualizationWindow() {
+		if(this.vizWindow == null) {
+			this.vizWindow = new OVVisualizationWindow(this.ovManager);
 		}
 
-		return this.styleWindow;
+		return this.vizWindow;
 	}
 
 	public OVRetrieveStringNetworkWindow getRetrieveWindow() {
@@ -302,8 +302,8 @@ SelectedNodesAndEdgesListener {
 			if(this.connectWindow != null) {
 				this.connectWindow.setVisible(false);
 			}
-			if(this.styleWindow != null) {
-				this.styleWindow.setVisible(false);
+			if(this.vizWindow != null) {
+				this.vizWindow.setVisible(false);
 			}
 		}
 
@@ -403,12 +403,12 @@ SelectedNodesAndEdgesListener {
 			});
 		}
 		connectButton.setEnabled(this.displayedTable != null && this.ovManager.getNetworkManager().getNetworkSet().size() != 0);
-		if (styleButton == null ) {
-			styleButton = new JButton(IconManager.ICON_PAINT_BRUSH);
-			styleButton.setToolTipText("Apply style to the connected networks...");
-			styleButton(styleButton, iconFont);
+		if (vizButton == null ) {
+			vizButton = new JButton(IconManager.ICON_PAINT_BRUSH);
+			vizButton.setToolTipText("Apply visualization to the connected networks...");
+			styleButton(vizButton, iconFont);
 
-			styleButton.addActionListener(e -> {
+			vizButton.addActionListener(e -> {
 				if(this.displayedTable != null && this.displayedTable.isConnected()) {
 					//					resetCharts();
 
@@ -420,12 +420,12 @@ SelectedNodesAndEdgesListener {
 						return;
 					}
 
-					this.getStyleWindow().setTable(this.displayedTable);
-					this.getStyleWindow().setVisible(true);
+					this.getVisualizationWindow().setTable(this.displayedTable);
+					this.getVisualizationWindow().setVisible(true);
 				}
 			});
 		}
-		styleButton.setEnabled(this.displayedTable != null && this.displayedTable.isConnected());
+		vizButton.setEnabled(this.displayedTable != null && this.displayedTable.isConnected());
 
 		addToolBarComponent(selectButton, ComponentPlacement.RELATED);
 		// TODO Version 1.0: Without filters
@@ -433,7 +433,7 @@ SelectedNodesAndEdgesListener {
 		addToolBarComponent(deleteTableButton, ComponentPlacement.RELATED);
 		addToolBarComponent(retrieveNetworkButton, ComponentPlacement.RELATED);
 		addToolBarComponent(connectButton, ComponentPlacement.RELATED);
-		addToolBarComponent(styleButton, ComponentPlacement.RELATED);
+		addToolBarComponent(vizButton, ComponentPlacement.RELATED);
 
 		if (tableChooser != null) {
 			hToolBarGroup.addGap(0, 20, Short.MAX_VALUE);

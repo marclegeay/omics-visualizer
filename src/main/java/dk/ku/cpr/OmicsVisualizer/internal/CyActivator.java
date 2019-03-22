@@ -37,7 +37,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveFilterTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowConnectWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowFilterWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowRetrieveWindowTaskFactory;
-import dk.ku.cpr.OmicsVisualizer.internal.task.ShowStyleWindowTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.ShowVisualizationWindowTaskFactory;
 
 public class CyActivator extends AbstractCyActivator {
 
@@ -217,16 +217,16 @@ public class CyActivator extends AbstractCyActivator {
 				registerService(context, factory, TaskFactory.class, props);
 			}
 			
-			// Access style
+			// Access visualization
 			{
-				ShowStyleWindowTaskFactory factory = new ShowStyleWindowTaskFactory(ovManager);
+				ShowVisualizationWindowTaskFactory factory = new ShowVisualizationWindowTaskFactory(ovManager);
 				Properties props = new Properties();
 				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
-				props.setProperty(TITLE, "Apply style to the connected networks...");
+				props.setProperty(TITLE, "Apply visualization to the connected networks...");
 				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "style show");
-				props.setProperty(COMMAND_DESCRIPTION, "Show the style window of the current table");
+				props.setProperty(COMMAND, "viz show");
+				props.setProperty(COMMAND_DESCRIPTION, "Show the visualization window of the current table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
