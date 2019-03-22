@@ -92,7 +92,7 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 		this.confidenceValue = new JTextField();
 
 		this.filteredOnly = new JCheckBox("Only filtered rows", true);
-		this.selectedOnly = new JCheckBox("Only selected rows", true);
+		this.selectedOnly = new JCheckBox("Only selected rows", false);
 
 		this.closeButton = new JButton("Close");
 		this.closeButton.addActionListener(this);
@@ -262,7 +262,9 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 		//		selectPanel.add(this.filteredOnly, c.nextRow().useNCols(2));
 		//		c.useNCols(1);
 		
+		this.selectedOnly.setSelected(false);
 		if(!this.ovTable.getSelectedRows().isEmpty()) {
+			this.selectedOnly.setSelected(true);
 			selectPanel.add(this.selectedOnly, c.nextRow().useNCols(2));
 			c.useNCols(1);
 		}

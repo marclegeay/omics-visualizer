@@ -13,27 +13,20 @@ public class RemoveFilterTask extends AbstractTask {
 	
 	protected OVCytoPanel ovPanel;
 	
-	public RemoveFilterTask(OVManager ovManager, OVTable ovTable, OVCytoPanel ovPanel) {
+	public RemoveFilterTask(OVManager ovManager, OVTable ovTable) {
 		super();
 		this.ovManager=ovManager;
 		this.ovTable=ovTable;
-		this.ovPanel=ovPanel;
+		this.ovPanel = this.ovManager.getOVCytoPanel();
 		
 		if(this.ovTable==null) {
 			this.ovTable=this.ovManager.getActiveOVTable();
 		}
 		
-		if(this.ovPanel==null) {
-			this.ovPanel = this.ovManager.getOVCytoPanel();
-		}
-	}
-	
-	public RemoveFilterTask(OVManager ovManager, OVTable ovTable) {
-		this(ovManager, ovTable, null);
 	}
 	
 	public RemoveFilterTask(OVManager ovManager) {
-		this(ovManager, null, null);
+		this(ovManager, null);
 	}
 
 	@Override

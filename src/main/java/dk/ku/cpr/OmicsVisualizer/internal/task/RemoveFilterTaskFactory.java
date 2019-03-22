@@ -5,7 +5,6 @@ import org.cytoscape.work.TaskIterator;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
-import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
 
 public class RemoveFilterTaskFactory extends AbstractTaskFactory {
 	private OVManager ovManager;
@@ -22,10 +21,6 @@ public class RemoveFilterTaskFactory extends AbstractTaskFactory {
 
 	public TaskIterator createTaskIterator(OVTable ovTable) {
 		return new TaskIterator(new RemoveFilterTask(this.ovManager, ovTable));
-	}
-
-	public TaskIterator createTaskIterator(OVTable ovTable, OVCytoPanel ovPanel) {
-		return new TaskIterator(new RemoveFilterTask(this.ovManager, ovTable, ovPanel));
 	}
 	
 	@Override

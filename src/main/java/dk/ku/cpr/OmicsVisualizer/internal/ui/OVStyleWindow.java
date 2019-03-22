@@ -22,6 +22,7 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -67,7 +68,7 @@ public class OVStyleWindow extends OVWindow implements ActionListener {
 	private static final Color DEFAULT_ZERO_COLOR_POS = new Color(33,145,140);
 	/** Used when values are only positive */
 	private static final Color DEFAULT_MAX_COLOR_POS = new Color(68,1,84);
-	// With switch colors between POS and NEG values (so that the "low" color is always near 0)
+	// We switch colors between POS and NEG values (so that the "low" color is always near 0)
 	/** Used when values are only negative */
 	private static final Color DEFAULT_MIN_COLOR_NEG = DEFAULT_MAX_COLOR_POS;
 	/** Used when values are only negative */
@@ -80,8 +81,9 @@ public class OVStyleWindow extends OVWindow implements ActionListener {
 	private OVCytoPanel cytoPanel;
 
 	private OVTable ovTable;
-
 	private OVConnection ovCon;
+	
+	private ManageWindow manageWindow;
 
 	private JButton cancelButton;
 
@@ -89,6 +91,7 @@ public class OVStyleWindow extends OVWindow implements ActionListener {
 	private JComboBox<String> selectCopyNetwork;
 	private JButton copyButton;
 	private JButton deleteButton;
+	private JButton manageButton;
 	private SelectValuesPanel selectValues;
 	private JCheckBox filteredCheck;
 	private JComboBox<ChartType> selectChartType;
@@ -115,6 +118,8 @@ public class OVStyleWindow extends OVWindow implements ActionListener {
 		this.cytoPanel=ovManager.getOVCytoPanel();
 
 		this.ovTable=null;
+		
+		this.manageWindow=null;
 
 		// Both panels
 		this.cancelButton = new JButton("Cancel");
@@ -134,6 +139,9 @@ public class OVStyleWindow extends OVWindow implements ActionListener {
 		this.deleteButton = new JButton("Delete Style");
 		this.deleteButton.addActionListener(this);
 		this.deleteButton.setForeground(Color.RED);
+		
+		this.manageButton = new JButton("Manage Style");
+		this.manageButton.addActionListener(this);
 
 		this.selectValues = new SelectValuesPanel(this);
 
@@ -198,19 +206,21 @@ public class OVStyleWindow extends OVWindow implements ActionListener {
 
 		mainPanel.add(definePanel, c.expandBoth());
 
-		JPanel managePanel = new JPanel();
-		managePanel.setBorder(LookAndFeelUtil.createTitledBorder("Manage Style"));
-		managePanel.setLayout(new GridBagLayout());
-		c2 = new MyGridBagConstraints();
-		if(this.selectCopyNetwork.getItemCount() > 1) { // We display it only if there are more than one network
-			managePanel.add(this.selectCopyNetwork, c2.expandHorizontal());
-			managePanel.add(this.copyButton, c2.nextCol());
-			c2.nextRow();
-		}
-
-		managePanel.add(this.deleteButton, c2.useNCols(2).noExpand().setAnchor("C"));
-
-		mainPanel.add(managePanel, c.nextCol());
+//		JPanel managePanel = new JPanel();
+//		managePanel.setBorder(LookAndFeelUtil.createTitledBorder("Manage Style"));
+//		managePanel.setLayout(new GridBagLayout());
+//		c2 = new MyGridBagConstraints();
+//		if(this.selectCopyNetwork.getItemCount() > 1) { // We display it only if there are more than one network
+//			managePanel.add(this.selectCopyNetwork, c2.expandHorizontal());
+//			managePanel.add(this.copyButton, c2.nextCol());
+//			c2.nextRow();
+//		}
+//
+//		managePanel.add(this.deleteButton, c2.useNCols(2).noExpand().setAnchor("C"));
+//
+//		mainPanel.add(managePanel, c.nextCol());
+		mainPanel.add(this.manageButton, c.nextCol().noExpand().setAnchor("C"));
+		c.expandHorizontal();
 
 		JPanel stylePanel = new JPanel();
 		stylePanel.setBorder(LookAndFeelUtil.createTitledBorder("Style properties"));
@@ -827,7 +837,7 @@ public class OVStyleWindow extends OVWindow implements ActionListener {
 		if(e.getSource() == this.cancelButton) {
 			this.setVisible(false);
 		} else if(e.getSource() == this.deleteButton) {
-			if(JOptionPane.showConfirmDialog(this, "You are about to delete this style applied to the network \"" + this.ovCon.getCollectionNetworkName() + "\".", "Style deletion confirmation", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
+			if(JOptionPane.showConfirmDialog(this.manageWindow, "You are about to delete this style applied to the network \"" + this.ovCon.getCollectionNetworkName() + "\".", "Style deletion confirmation", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
 				RemoveStyleTaskFactory factory = new RemoveStyleTaskFactory(this.ovManager, this.ovCon);
 				this.ovManager.executeSynchronousTask(factory.createTaskIterator());
 				
@@ -842,6 +852,11 @@ public class OVStyleWindow extends OVWindow implements ActionListener {
 					break;
 				}
 			}
+		} else if(e.getSource() == this.manageButton) {
+			if(this.manageWindow == null) {
+				this.manageWindow = new ManageWindow(this);
+			}
+			this.manageWindow.setVisible(true);
 		} else if(e.getSource() == this.selectChartType) {
 			this.selectValues.addButton.setEnabled(((ChartType)this.selectChartType.getSelectedItem()) == ChartType.CIRCOS);
 		} else if(e.getSource() == this.nextButton) {
@@ -1200,6 +1215,64 @@ public class OVStyleWindow extends OVWindow implements ActionListener {
 				this.ovStyleWindow.checkValueTypes();
 			}
 
+		}
+	}
+	
+	private class ManageWindow extends JDialog implements ActionListener {
+		private static final long serialVersionUID = 8279040250304152251L;
+		
+		private OVStyleWindow ovStyleWindow;
+		
+		private JButton closeButton;
+
+		public ManageWindow(OVStyleWindow ovStyleWindow) {
+			super(ovStyleWindow, "Manage Style");
+			this.ovStyleWindow = ovStyleWindow;
+			
+			JPanel mainPanel = new JPanel();
+			mainPanel.setLayout(new BorderLayout());
+			
+			JPanel managePanel = new JPanel();
+			managePanel.setBorder(LookAndFeelUtil.createTitledBorder("Manage Style"));
+			managePanel.setLayout(new GridBagLayout());
+			MyGridBagConstraints c = new MyGridBagConstraints();
+			if(selectCopyNetwork.getItemCount() > 1) { // We display it only if there are more than one network
+				managePanel.add(selectCopyNetwork, c.expandHorizontal());
+				managePanel.add(copyButton, c.nextCol());
+				c.nextRow();
+			}
+
+			managePanel.add(deleteButton, c.useNCols(2).noExpand().setAnchor("C"));
+			
+			JPanel buttonPanel = new JPanel();
+			buttonPanel.setLayout(new FlowLayout());
+			closeButton = new JButton("Close");
+			closeButton.addActionListener(this);
+			buttonPanel.add(closeButton);
+			
+			mainPanel.add(managePanel, BorderLayout.CENTER);
+			mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+			
+			this.setContentPane(mainPanel);
+			
+			this.setModal(true);
+		}
+		
+		@Override
+		public void setVisible(boolean b) {
+			if(b) {
+				this.pack();
+				this.setLocationRelativeTo(this.ovStyleWindow);
+			}
+			
+			super.setVisible(b);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(e.getSource() == this.closeButton) {
+				this.setVisible(false);
+			}
 		}
 	}
 }

@@ -84,38 +84,38 @@ SelectedNodesAndEdgesListener {
 
 	private OVManager ovManager;
 
-	private JTable mainTable;
-	private JScrollPane scrollPane;
-	private OVTableModel mainTableModel;
+	private JTable mainTable=null;
+	private JScrollPane scrollPane=null;
+	private OVTableModel mainTableModel=null;
 	private final Font iconFont;
-	private Font iconStringFont;
+	private Font iconStringFont=null;
 	private final Color filterActive;
 	private final Color filterInactive;
 
-	private IconManager iconManager;
+	private IconManager iconManager=null;
 
-	private GlobalTableChooser tableChooser;
+	private GlobalTableChooser tableChooser=null;
 
-	private JButton selectButton;
-	private JButton filterButton;
-	private JButton deleteTableButton;
-	private JButton retrieveNetworkButton;
-	private JButton connectButton;
-	private JButton styleButton;
+	private JButton selectButton=null;
+	private JButton filterButton=null;
+	private JButton deleteTableButton=null;
+	private JButton retrieveNetworkButton=null;
+	private JButton connectButton=null;
+	private JButton styleButton=null;
 
-	private JPopupMenu columnSelectorPopupMenu;
-	private CyColumnSelector columnSelector;
+	private JPopupMenu columnSelectorPopupMenu=null;
+	private CyColumnSelector columnSelector=null;
 
-	private OVFilterWindow filterWindow;
-	private OVConnectWindow connectWindow;
-	private OVStyleWindow styleWindow;
-	private OVRetrieveStringNetworkWindow retrieveWindow;
+	private OVFilterWindow filterWindow=null;
+	private OVConnectWindow connectWindow=null;
+	private OVStyleWindow styleWindow=null;
+	private OVRetrieveStringNetworkWindow retrieveWindow=null;
 
-	private JPanel toolBarPanel;
-	private SequentialGroup hToolBarGroup;
-	private ParallelGroup vToolBarGroup;
+	private JPanel toolBarPanel=null;
+	private SequentialGroup hToolBarGroup=null;
+	private ParallelGroup vToolBarGroup=null;
 
-	private OVTable displayedTable;
+	private OVTable displayedTable=null;
 
 	private final  float ICON_FONT_SIZE = 22.0f;
 

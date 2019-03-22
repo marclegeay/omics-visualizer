@@ -12,7 +12,7 @@ import org.cytoscape.model.CyTable;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 
-import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveFilterTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveStyleTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 
 public class OVConnection {
@@ -271,14 +271,15 @@ public class OVConnection {
 		}
 		
 		// We erase the Style
-		RemoveFilterTaskFactory factory = new RemoveFilterTaskFactory(ovManager);
-		this.ovManager.executeTask(factory.createTaskIterator());
+		if(this.getStyle() != null) {
+			RemoveStyleTaskFactory factory = new RemoveStyleTaskFactory(ovManager, this);
+			this.ovManager.executeTask(factory.createTaskIterator());
+		}
 		
 		// If it was the last network of the collection ...
 		if(this.getConnectedNetworks().size() == 0) {
 			// We delete the style columns in the node table
 			OVShared.deleteOVColumns(this.getBaseNetwork().getDefaultNodeTable());
-			
 			
 			// We forget about this connection
 			this.ovManager.removeConnection(this);
