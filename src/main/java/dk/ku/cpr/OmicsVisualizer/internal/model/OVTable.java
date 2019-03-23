@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
+import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyRow;

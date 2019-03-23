@@ -254,7 +254,7 @@ public class OVConnectWindow extends OVWindow implements ActionListener {
 			OVConnection ovCon = this.ovManager.getConnection(rootNetName);
 			if(ovCon != null) {
 				response = JOptionPane.showConfirmDialog(null,
-						"This network collection is already connected to \""+ovCon.getOVTable().getTitle()+"\". You will disconnect this table if you continue.",
+						"This network collection is already connected to \""+ovCon.getOVTable().getTitle()+"\". You will disconnect \""+ovCon.getOVTable().getTitle()+"\" if you continue.",
 						"Disconnection warning",
 						JOptionPane.OK_CANCEL_OPTION);
 

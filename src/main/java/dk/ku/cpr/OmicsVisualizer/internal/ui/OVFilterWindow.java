@@ -67,7 +67,6 @@ public class OVFilterWindow extends OVWindow implements ActionListener {
 		this.cancelButton.addActionListener(this);
 
 		this.removeButton = new JButton("Remove");
-		this.removeButton.setForeground(Color.RED);
 		this.removeButton.addActionListener(this);
 	}
 

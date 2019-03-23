@@ -23,6 +23,7 @@ public class ColorPanel extends JPanel implements MouseListener {
 		this.setOpaque(false); // To display alpha-colors
 		
 		this.addMouseListener(this);
+		this.setToolTipText("Click here to change the color.");
 	}
 	
 	public ColorPanel(Container parent, ColorChooser colorChooser) {

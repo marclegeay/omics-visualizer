@@ -30,6 +30,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import org.cytoscape.application.CyApplicationManager;
+import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
@@ -84,7 +85,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 	private JButton cancelButton;
 
-	private JComboBox<String> selectNetwork;
+//	private JComboBox<String> selectNetwork;
 //	private JComboBox<String> selectCopyNetwork;
 //	private JButton copyButton;
 	private JButton deleteButton;
@@ -120,13 +121,12 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		this.cancelButton.addActionListener(this);
 
 		// Panel 1
-		this.selectNetwork = new JComboBox<>();
-		this.selectNetwork.setToolTipText("Select the Network Collection for which you want to apply the visualization.");
-		this.selectNetwork.addActionListener(this);
+//		this.selectNetwork = new JComboBox<>();
+//		this.selectNetwork.setToolTipText("Select the Network Collection for which you want to apply the visualization.");
+//		this.selectNetwork.addActionListener(this);
 
 		this.deleteButton = new JButton("Delete Visualization");
 		this.deleteButton.addActionListener(this);
-		this.deleteButton.setForeground(Color.RED);
 
 		this.selectValues = new SelectValuesPanel(this);
 
@@ -144,6 +144,10 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				+ "</html>");
 
 		this.selectChartLabels = new JComboBox<>();
+		this.selectChartLabels.setToolTipText("<html>"
+				+ "Select the column where the label is stored,<br>"
+				+ "or <b>" + OVVisualizationWindow.NO_LABEL + "</b> if you do not want to display labels."
+				+ "</html>");
 
 		this.selectDiscreteContinuous = new JComboBox<>();
 		this.selectDiscreteContinuous.addItem(OVVisualizationWindow.CONTINUOUS);
@@ -168,9 +172,6 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		this.transposeCheck = new JCheckBox("Transpose data");
 		
 		LookAndFeelUtil.equalizeSize(this.cancelButton, this.nextButton, this.backButton, this.drawButton);
-
-		// We show Panel1 first, obviously
-		this.displayPanel1();
 	}
 
 	private void displayPanel1() {
@@ -183,20 +184,20 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		MyGridBagConstraints c = new MyGridBagConstraints();
 		c.expandHorizontal().setAnchor("C");
 
-		JPanel definePanel = new JPanel();
-		definePanel.setBorder(LookAndFeelUtil.createTitledBorder("Define Visualization for"));
-		definePanel.setLayout(new GridBagLayout());
-		MyGridBagConstraints c2 = new MyGridBagConstraints();
-		definePanel.add(this.selectNetwork, c2.expandHorizontal());
+//		JPanel definePanel = new JPanel();
+//		definePanel.setBorder(LookAndFeelUtil.createTitledBorder("Define Visualization for"));
+//		definePanel.setLayout(new GridBagLayout());
+//		MyGridBagConstraints c2 = new MyGridBagConstraints();
+//		definePanel.add(this.selectNetwork, c2.expandHorizontal());
 
-		mainPanel.add(definePanel, c.expandBoth());
-		mainPanel.add(this.deleteButton, c.nextCol().noExpand().setAnchor("C"));
-		c.expandHorizontal();
+//		mainPanel.add(definePanel, c.expandBoth());
+//		mainPanel.add(this.deleteButton, c.nextCol().noExpand().setAnchor("C"));
+//		c.expandHorizontal();
 
 		JPanel chartPanel = new JPanel();
 		chartPanel.setBorder(LookAndFeelUtil.createTitledBorder("Chart properties"));
 		chartPanel.setLayout(new GridBagLayout());
-		c2 = new MyGridBagConstraints();
+		MyGridBagConstraints c2 = new MyGridBagConstraints();
 		c2.expandHorizontal().setAnchor("C");
 
 		chartPanel.add(new JLabel("Select Chart Type:"), c2);
@@ -225,7 +226,10 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
 		buttonPanel.add(this.cancelButton);
+		buttonPanel.add(this.deleteButton);
 		buttonPanel.add(this.nextButton);
+		
+		this.deleteButton.setEnabled(this.ovCon.getVisualization()!=null);
 
 		this.setContentPane(new JPanel());
 		this.setLayout(new BorderLayout());
@@ -259,6 +263,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		}
 
 		this.transposeCheck.setSelected(false);
+		
+		boolean noValue=false;
 
 		if(this.selectDiscreteContinuous.getSelectedItem() == OVVisualizationWindow.CONTINUOUS) {
 			double rangeMin=0.0, rangeZero=0.0, rangeMax=0.0; // enhancedGraphics uses double for ranges
@@ -315,7 +321,9 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 						}
 					}
 
-					if((max <= 0) || (min >= 0)) {
+					if(min > max) { // We have no value
+						noValue=true;
+					} else if((max <= 0) || (min >= 0)) {
 						// The values have the same sign
 						rangeMin = min;
 						rangeMax = max;
@@ -368,7 +376,9 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 						}
 					}
 
-					if((max <= 0) || (min >= 0)) {
+					if(min > max) { // We have no value
+						noValue=true;
+					} else if((max <= 0) || (min >= 0)) {
 						// The values have the same sign
 						rangeMin = min;
 						rangeMax = max;
@@ -421,7 +431,9 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 						}
 					}
 
-					if((max <= 0) || (min >= 0)) {
+					if(min > max) { // We have no value
+						noValue=true;
+					} else if((max <= 0) || (min >= 0)) {
 						// The values have the same sign
 						rangeMin = min;
 						rangeMax = max;
@@ -453,41 +465,45 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			mainPanel.setLayout(new GridBagLayout());
 			MyGridBagConstraints c = new MyGridBagConstraints();
 			c.expandHorizontal();
-
-			this.colorPanels = new ColorPanel[3];
-
-			this.rangeMax = new JTextField(String.valueOf(rangeMax));
-			this.colorPanels[0] = new ColorPanel(colorMax, this, this.colorChooser);
-			mainPanel.add(new JLabel("Max:"), c.nextRow());
-			mainPanel.add(this.rangeMax, c.nextCol());
-			mainPanel.add(this.colorPanels[0], c.nextCol().expandBoth());
-			c.expandHorizontal();
-
-			this.rangeZero = new JTextField(String.valueOf(rangeZero));
-			this.colorPanels[1] = new ColorPanel(colorZero, this, this.colorChooser);
-			mainPanel.add(new JLabel("Middle:"), c.nextRow());
-			mainPanel.add(this.rangeZero, c.nextCol());
-			mainPanel.add(this.colorPanels[1], c.nextCol().expandBoth());
-			c.expandHorizontal();
-
-			this.rangeMin = new JTextField(String.valueOf(rangeMin));
-			this.colorPanels[2] = new ColorPanel(colorMin, this, this.colorChooser);
-			mainPanel.add(new JLabel("Min:"), c.nextRow());
-			mainPanel.add(this.rangeMin, c.nextCol());
-			mainPanel.add(this.colorPanels[2], c.nextCol().expandBoth());
-			c.expandHorizontal();
-
-			if(this.selectChartType.getSelectedItem().equals(ChartType.CIRCOS)) {
-				// Only CIRCOS can have several layouts
-				mainPanel.add(transposeCheck, c.nextRow().useNCols(3));
+			
+			if(noValue) {
+				mainPanel.add(new JLabel("No values"), c.noExpand().setAnchor("C"));
+				c.expandHorizontal();
+			} else {
+				this.colorPanels = new ColorPanel[3];
+	
+				this.rangeMax = new JTextField(String.valueOf(rangeMax));
+				this.colorPanels[0] = new ColorPanel(colorMax, this, this.colorChooser);
+				mainPanel.add(new JLabel("Max:"), c.nextRow());
+				mainPanel.add(this.rangeMax, c.nextCol());
+				mainPanel.add(this.colorPanels[0], c.nextCol().expandBoth());
+				c.expandHorizontal();
+	
+				this.rangeZero = new JTextField(String.valueOf(rangeZero));
+				this.colorPanels[1] = new ColorPanel(colorZero, this, this.colorChooser);
+				mainPanel.add(new JLabel("Middle:"), c.nextRow());
+				mainPanel.add(this.rangeZero, c.nextCol());
+				mainPanel.add(this.colorPanels[1], c.nextCol().expandBoth());
+				c.expandHorizontal();
+	
+				this.rangeMin = new JTextField(String.valueOf(rangeMin));
+				this.colorPanels[2] = new ColorPanel(colorMin, this, this.colorChooser);
+				mainPanel.add(new JLabel("Min:"), c.nextRow());
+				mainPanel.add(this.rangeMin, c.nextCol());
+				mainPanel.add(this.colorPanels[2], c.nextCol().expandBoth());
+				c.expandHorizontal();
+	
+				if(this.selectChartType.getSelectedItem().equals(ChartType.CIRCOS)) {
+					// Only CIRCOS can have several layouts
+					mainPanel.add(transposeCheck, c.nextRow().useNCols(3));
+				}
+				mainPanel.add(resetButton, c.nextRow().useNCols(3).noExpand().setAnchor("E"));
 			}
-			mainPanel.add(resetButton, c.nextRow().useNCols(3).noExpand().setAnchor("E"));
-
 		} else { // Discrete mapping
 			Set<Object> values = new HashSet<>();
 
 			if(!reset && ovViz != null && ovViz.getColors() instanceof OVColorDiscrete) {
-				// There is already a style applied for this, we simply load the information from it
+				// There is already a visualization applied for this, we simply load the information from it
 				OVColorDiscrete colorViz = (OVColorDiscrete) ovViz.getColors();
 
 				values = colorViz.getValues();
@@ -522,47 +538,53 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			mainPanel.setLayout(new GridBagLayout());
 			MyGridBagConstraints c = new MyGridBagConstraints();
 			c.expandHorizontal();
-
-			this.colorPanels = new ColorPanel[values.size()];
-			// To be sure that values and colors are well associated, we do not use toArray() but we copy each value
-			this.discreteValues = new Object[values.size()];
-
-			JPanel valuesList = new JPanel();
-			valuesList.setLayout(new GridBagLayout());
-			MyGridBagConstraints clist = new MyGridBagConstraints();
-			clist.expandHorizontal();
-			int i=0;
-			int nb_values = values.size();
-			for(Object val : values) {
-				Color color = generateRandomColor(i, nb_values);
-
-				if(ovViz != null && ovViz.getColors() instanceof OVColorDiscrete) {
-					OVColorDiscrete colorViz = (OVColorDiscrete) ovViz.getColors();
-					color = colorViz.getColor(val);
-
-					if(color == null) {
-						color = generateRandomColor(i, nb_values);
+			
+			if(values.isEmpty()) {
+				noValue=true;
+				mainPanel.add(new JLabel("No values"), c.noExpand().setAnchor("C"));
+				c.expandHorizontal();
+			} else {
+				this.colorPanels = new ColorPanel[values.size()];
+				// To be sure that values and colors are well associated, we do not use toArray() but we copy each value
+				this.discreteValues = new Object[values.size()];
+	
+				JPanel valuesList = new JPanel();
+				valuesList.setLayout(new GridBagLayout());
+				MyGridBagConstraints clist = new MyGridBagConstraints();
+				clist.expandHorizontal();
+				int i=0;
+				int nb_values = values.size();
+				for(Object val : values) {
+					Color color = generateRandomColor(i, nb_values);
+	
+					if(ovViz != null && ovViz.getColors() instanceof OVColorDiscrete) {
+						OVColorDiscrete colorViz = (OVColorDiscrete) ovViz.getColors();
+						color = colorViz.getColor(val);
+	
+						if(color == null) {
+							color = generateRandomColor(i, nb_values);
+						}
 					}
+	
+					this.discreteValues[i] = val;
+	
+					this.colorPanels[i] = new ColorPanel(color, this, this.colorChooser);
+	
+					valuesList.add(new JLabel(val.toString()), clist.nextRow());
+					valuesList.add(this.colorPanels[i], clist.nextCol().expandBoth());
+	
+					++i;
 				}
-
-				this.discreteValues[i] = val;
-
-				this.colorPanels[i] = new ColorPanel(color, this, this.colorChooser);
-
-				valuesList.add(new JLabel(val.toString()), clist.nextRow());
-				valuesList.add(this.colorPanels[i], clist.nextCol().expandBoth());
-
-				++i;
+				JScrollPane valuesScroll = new JScrollPane(valuesList);
+				valuesScroll.setBorder(null);
+	
+				mainPanel.add(valuesScroll, c);
+				if(this.selectChartType.getSelectedItem().equals(ChartType.CIRCOS)) {
+					// Only CIRCOS can have several layers
+					mainPanel.add(transposeCheck, c.nextRow());
+				}
+				mainPanel.add(resetButton, c.nextRow().noExpand().setAnchor("E"));
 			}
-			JScrollPane valuesScroll = new JScrollPane(valuesList);
-			valuesScroll.setBorder(null);
-
-			mainPanel.add(valuesScroll, c);
-			if(this.selectChartType.getSelectedItem().equals(ChartType.CIRCOS)) {
-				// Only CIRCOS can have several layers
-				mainPanel.add(transposeCheck, c.nextRow());
-			}
-			mainPanel.add(resetButton, c.nextRow().noExpand().setAnchor("E"));
 		}
 
 		JPanel buttonPanel = new JPanel();
@@ -571,6 +593,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		buttonPanel.add(this.backButton);
 		buttonPanel.add(this.cancelButton);
 		buttonPanel.add(this.drawButton);
+		
+		this.drawButton.setEnabled(!noValue);
 
 		this.setContentPane(new JPanel());
 		this.setLayout(new BorderLayout());
@@ -614,12 +638,12 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 		this.setTitle(ovTable, null);
 
-		this.selectNetwork.removeActionListener(this);
-		this.selectNetwork.removeAllItems();
-		for(OVConnection ovCon : this.ovManager.getConnections(this.ovTable)) {
-			this.selectNetwork.addItem(ovCon.getCollectionNetworkName());
-		}
-		this.selectNetwork.addActionListener(this);
+//		this.selectNetwork.removeActionListener(this);
+//		this.selectNetwork.removeAllItems();
+//		for(OVConnection ovCon : this.ovManager.getConnections(this.ovTable)) {
+//			this.selectNetwork.addItem(ovCon.getCollectionNetworkName());
+//		}
+//		this.selectNetwork.addActionListener(this);
 
 		this.selectValues.setTable(ovTable);
 
@@ -632,56 +656,51 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			}
 		}
 
-		// We look for the current displayed network
-		CyApplicationManager appManager = this.ovManager.getService(CyApplicationManager.class);
-		CyRootNetworkManager rootNetManager = this.ovManager.getService(CyRootNetworkManager.class);
-		CyNetwork currentNetwork=appManager.getCurrentNetwork();
-
-		if(currentNetwork != null) {
-			CyRootNetwork currentRoot = rootNetManager.getRootNetwork(currentNetwork);
-			OVConnection currentRootConnection = this.ovManager.getConnection(currentRoot);
-			if(currentRootConnection != null && currentRootConnection.getOVTable().equals(ovTable)) {
-				this.selectNetwork.setSelectedItem(currentRoot.toString());
-			}
-		}
-		if(this.selectNetwork.getSelectedIndex()==0) { // Here it means that the ActionListener was not triggered
-			// So we triger it
-			changedNetwork();
-		}
-
-		this.displayPanel1();
-
-		this.pack();
-		this.setLocationRelativeTo(this.cytoPanel.getTopLevelAncestor());
+//		// We look for the current displayed network
+//		CyApplicationManager appManager = this.ovManager.getService(CyApplicationManager.class);
+//		CyRootNetworkManager rootNetManager = this.ovManager.getService(CyRootNetworkManager.class);
+//		CyNetwork currentNetwork=appManager.getCurrentNetwork();
+//
+//		if(currentNetwork != null) {
+//			CyRootNetwork currentRoot = rootNetManager.getRootNetwork(currentNetwork);
+//			OVConnection currentRootConnection = this.ovManager.getConnection(currentRoot);
+//			if(currentRootConnection != null && currentRootConnection.getOVTable().equals(ovTable)) {
+//				this.selectNetwork.setSelectedItem(currentRoot.toString());
+//			}
+//		}
+//		if(this.selectNetwork.getSelectedIndex()==0) { // Here it means that the ActionListener was not triggered
+//			// So we triger it
+//			changedNetwork();
+//		}
 	}
 
-	private void changedNetwork() {
-		for(OVConnection ovCon : this.ovManager.getConnections(this.ovTable)) {
-			if(ovCon.getCollectionNetworkName().equals(this.selectNetwork.getSelectedItem())) {
-				this.ovCon = ovCon;
-
-				this.setTitle(this.ovTable, this.ovCon.getCollectionNetworkName());
-
-				this.updateVisualization(this.ovCon.getVisualization());
-
-				this.selectValues.setTable(this.ovCon.getOVTable());
-				this.selectValues.setVisualization(this.ovCon.getVisualization());
-
-				// We change the network to the one selected
-				CyApplicationManager appManager = this.ovManager.getService(CyApplicationManager.class);
-				CyRootNetworkManager netRootManager = this.ovManager.getService(CyRootNetworkManager.class);
-				CyNetwork currentNetwork = appManager.getCurrentNetwork();
-				if(currentNetwork != null) {
-					CyRootNetwork currentRoot = netRootManager.getRootNetwork(currentNetwork);
-					if(!this.ovCon.getRootNetwork().equals(currentRoot)) {
-						appManager.setCurrentNetwork(this.ovCon.getBaseNetwork());
-					}
-				}
-
-				break;
-			}
-		}
-	}
+//	private void changedNetwork() {
+//		for(OVConnection ovCon : this.ovManager.getConnections(this.ovTable)) {
+//			if(ovCon.getCollectionNetworkName().equals(this.selectNetwork.getSelectedItem())) {
+//				this.ovCon = ovCon;
+//
+//				this.setTitle(this.ovTable, this.ovCon.getCollectionNetworkName());
+//
+//				this.updateVisualization(this.ovCon.getVisualization());
+//
+//				this.selectValues.setTable(this.ovCon.getOVTable());
+//				this.selectValues.setVisualization(this.ovCon.getVisualization());
+//
+//				// We change the network to the one selected
+//				CyApplicationManager appManager = this.ovManager.getService(CyApplicationManager.class);
+//				CyRootNetworkManager netRootManager = this.ovManager.getService(CyRootNetworkManager.class);
+//				CyNetwork currentNetwork = appManager.getCurrentNetwork();
+//				if(currentNetwork != null) {
+//					CyRootNetwork currentRoot = netRootManager.getRootNetwork(currentNetwork);
+//					if(!this.ovCon.getRootNetwork().equals(currentRoot)) {
+//						appManager.setCurrentNetwork(this.ovCon.getBaseNetwork());
+//					}
+//				}
+//
+//				break;
+//			}
+//		}
+//	}
 
 	private void checkValueTypes() {
 		if(!this.selectValues.allSameType()) {
@@ -790,6 +809,22 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			b=false;
 		}
 
+		
+		// We look for the connection between the current network and the table
+		if(b) {
+			CyNetwork currentNetwork = this.ovManager.getService(CyApplicationManager.class).getCurrentNetwork();
+			this.ovCon = this.ovTable.getConnection(currentNetwork);
+			
+			if(this.ovCon == null) {
+				b = false;
+			} else {
+				this.setTitle(this.ovTable, this.ovCon.getCollectionNetworkName());
+				this.updateVisualization(this.ovCon.getVisualization());
+				
+				this.displayPanel1();
+			}
+		}
+		
 		// If we hide this window, the ColorChooser should be hidden also
 		if(!b) {
 			this.colorChooser.setVisible(false);
@@ -803,14 +838,14 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		if(e.getSource() == this.cancelButton) {
 			this.setVisible(false);
 		} else if(e.getSource() == this.deleteButton) {
-			if(JOptionPane.showConfirmDialog(this, "You are about to delete this visualization applied to the network \"" + this.ovCon.getCollectionNetworkName() + "\".", "Visualization deletion confirmation", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
+			if(JOptionPane.showConfirmDialog(this, "Delete the visualization applied to the network \"" + this.ovCon.getCollectionNetworkName() + "\"?", "Visualization deletion confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 				RemoveViualizationTaskFactory factory = new RemoveViualizationTaskFactory(this.ovManager, this.ovCon);
 				this.ovManager.executeSynchronousTask(factory.createTaskIterator());
 				
 				this.updateVisualization(this.ovCon.getVisualization());
 			}
-		} else if(e.getSource() == this.selectNetwork) {
-			this.changedNetwork();
+//		} else if(e.getSource() == this.selectNetwork) {
+//			this.changedNetwork();
 		} else if(e.getSource() == this.selectChartType) {
 			this.selectValues.addButton.setEnabled(((ChartType)this.selectChartType.getSelectedItem()) == ChartType.CIRCOS);
 		} else if(e.getSource() == this.nextButton) {

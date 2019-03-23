@@ -143,11 +143,11 @@ public class OVConnectPanel extends JPanel implements ActionListener {
 			}
 		} else if(e.getSource() == this.disconnectButton) {
 			int response = JOptionPane.showConfirmDialog(null,
-					"You are disconnecting \""+this.ovCon.getOVTable().getTitle()+"\" and \""+this.ovCon.getCollectionNetworkName()+"\".",
+					"Disconnect \""+this.ovCon.getOVTable().getTitle()+"\" and \""+this.ovCon.getCollectionNetworkName()+"\"?",
 					"Confirmation",
-					JOptionPane.OK_CANCEL_OPTION);
+					JOptionPane.YES_NO_OPTION);
 			
-			if(response == JOptionPane.OK_OPTION) {
+			if(response == JOptionPane.YES_OPTION) {
 				this.ovCon.disconnect();
 				this.connectWindow.update(this.ovCon.getOVTable());
 			}

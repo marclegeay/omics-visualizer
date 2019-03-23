@@ -116,6 +116,7 @@ SelectedNodesAndEdgesListener {
 	private ParallelGroup vToolBarGroup=null;
 
 	private OVTable displayedTable=null;
+	private CyNetwork currentNetwork=null;
 
 	private final  float ICON_FONT_SIZE = 22.0f;
 
@@ -290,8 +291,12 @@ SelectedNodesAndEdgesListener {
 
 		return this.retrieveWindow;
 	}
-
+	
 	public void initPanel(OVTable ovTable) {
+		this.initPanel(ovTable, this.ovManager.getService(CyApplicationManager.class).getCurrentNetwork());
+	}
+
+	public void initPanel(OVTable ovTable, CyNetwork currentNetwork) {
 		this.removeAll();
 
 		if(ovTable==null) {
@@ -425,7 +430,7 @@ SelectedNodesAndEdgesListener {
 				}
 			});
 		}
-		vizButton.setEnabled(this.displayedTable != null && this.displayedTable.isConnected());
+		vizButton.setEnabled(this.displayedTable != null && this.displayedTable.isConnectedTo(currentNetwork));
 
 		addToolBarComponent(selectButton, ComponentPlacement.RELATED);
 		// TODO Version 1.0: Without filters
@@ -470,12 +475,11 @@ SelectedNodesAndEdgesListener {
 		final OVTable table = this.displayedTable;
 
 		String title = "Please confirm this action";
-		String msg = "Are you sure you want to delete this table?";
-		int confirmValue = JOptionPane.showConfirmDialog(this, msg, title, JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE);
+		String msg = "Delete table \""+table.getTitle()+"\"?";
+		int confirmValue = JOptionPane.showConfirmDialog(this, msg, title, JOptionPane.YES_NO_OPTION);
 
 		// if user selects yes delete the table
-		if (confirmValue == JOptionPane.OK_OPTION) {
+		if (confirmValue == JOptionPane.YES_OPTION) {
 			table.disconnectAll();
 
 			final DialogTaskManager taskMgr = ovManager.getService(DialogTaskManager.class);
@@ -705,7 +709,7 @@ SelectedNodesAndEdgesListener {
 					if(ovCon != null) {
 						if(selected) {
 							// If the network is selected, we display it
-							this.initPanel(ovCon.getOVTable());
+							this.initPanel(ovCon.getOVTable(), changedNetwork);
 							// Some nodes may have already been selected before, we only display it
 							ovCon.getOVTable().displaySelectedRows(changedNetwork);
 							// We save the connected OVTable
