@@ -13,15 +13,17 @@ public class OVColorContinuous implements OVColor, Serializable {
 	private Color down;
 	private Color up;
 	private Color zero;
+	private Color missing;
 	private double rangeMin;
 	private double rangeZero;
 	private double rangeMax;
 
-	public OVColorContinuous(Color down, Color up, Color zero, double rangeMin, double rangeMid, double rangeMax) {
+	public OVColorContinuous(Color down, Color up, Color zero, Color missing, double rangeMin, double rangeMid, double rangeMax) {
 		super();
 		this.down = down;
 		this.up = up;
 		this.zero = zero;
+		this.missing = missing;
 		this.rangeMin = rangeMin;
 		this.rangeZero = rangeMid;
 		this.rangeMax = rangeMax;
@@ -49,6 +51,14 @@ public class OVColorContinuous implements OVColor, Serializable {
 
 	public void setZero(Color zero) {
 		this.zero = zero;
+	}
+
+	public Color getMissing() {
+		return missing;
+	}
+
+	public void setMissing(Color missing) {
+		this.missing = missing;
 	}
 
 	public double getRangeMin() {
@@ -83,6 +93,9 @@ public class OVColorContinuous implements OVColor, Serializable {
 		style += "up:" + OVShared.color2String(this.up);
 		style += ",";
 		style += "zero:" + OVShared.color2String(this.zero);
+		// TODO Version 1.0: Without missing values
+//				style += ",";
+//				style += "missing:" + OVShared.color2String(this.missing);
 		style += "\"";
 
 		style += " ";

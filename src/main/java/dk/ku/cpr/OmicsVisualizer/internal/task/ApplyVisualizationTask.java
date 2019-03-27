@@ -59,6 +59,12 @@ public class ApplyVisualizationTask extends AbstractTask {
 
 		double progress = 0.0;
 		taskMonitor.setProgress(progress);
+		
+		Class<?> outputValuesType = ovViz.getValuesType();
+		// A continuous mapping should be Double
+		if(ovViz.getColors() instanceof OVColorContinuous) {
+			outputValuesType = Double.class;
+		}
 
 		double nbNodes = this.ovCon.getBaseNetwork().getNodeCount() * 1.0;
 		int i=0;
@@ -78,49 +84,19 @@ public class ApplyVisualizationTask extends AbstractTask {
 				for(String colName : ovViz.getValues()) {
 					Object val = tableRow.get(colName, ovViz.getValuesType());
 					
-					// Missing values are treated as 0 (or "")
-					if(val == null) {
-						if(ovViz.getValuesType() == Integer.class) {
-							val = new Integer(0);
-						} else if(ovViz.getValuesType() == Long.class) {
-							val = new Long(0);
-						} else if(ovViz.getValuesType() == Double.class) {
-							val = new Double(0.0);
-						} else {
-							val = "";
-						}
-					}
-					
 					// If we have a continuous mapping, we have to change the value to center them in rangeZero
 					if(ovViz.getColors() instanceof OVColorContinuous) {
 						double zero = ((OVColorContinuous) ovViz.getColors()).getRangeZero();
 						Double newVal=null;
 						
-						// We subtract the zero value to center it
-						if(ovViz.getValuesType() == Integer.class) {
-							newVal = ((Integer)val) - zero;
-						} else if(ovViz.getValuesType() == Long.class) {
-							newVal = ((Long)val) - zero;
-						} else if(ovViz.getValuesType() == Double.class) {
-							newVal = ((Double)val) - zero;
+						// We check if we have a missing value
+						if(val == null) {
+							newVal = Double.NaN;
+						} else { // We subtract the zero value to center it
+							newVal = (Double.parseDouble(val.toString())) - zero;
 						}
 						
-						// It should not be List or String with a continuous mapping...
-						// But we make sure it is not null
-						if(newVal == null) {
-							// If it is we do not change the value
-							nodeValues.add(val);
-							continue;
-						}
-						
-						// And then we cast back the value to its original type
-						if(ovViz.getValuesType() == Integer.class) {
-							val = newVal.intValue();
-						} else if(ovViz.getValuesType() == Long.class) {
-							val = newVal.longValue();
-						} else { // Double, no cast needed
-							val = newVal;
-						}
+						val = newVal;
 					}
 					
 					nodeValues.add(val);
@@ -148,7 +124,7 @@ public class ApplyVisualizationTask extends AbstractTask {
 				String colName = OVShared.CYNODETABLE_VIZCOL_VALUES+(c+1);
 				attributeList.add(colName);
 				// We create the column if this one does not exist yet
-				createOVListColumn(nodeTable, colName, ovViz.getValuesType());
+				createOVListColumn(nodeTable, colName, outputValuesType);
 
 				List<Object> colValues = new ArrayList<>();
 				for(int r=0; r<nrowValues; ++r) {
