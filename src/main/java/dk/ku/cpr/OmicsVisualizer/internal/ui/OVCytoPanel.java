@@ -116,7 +116,6 @@ SelectedNodesAndEdgesListener {
 	private ParallelGroup vToolBarGroup=null;
 
 	private OVTable displayedTable=null;
-	private CyNetwork currentNetwork=null;
 
 	private final  float ICON_FONT_SIZE = 22.0f;
 

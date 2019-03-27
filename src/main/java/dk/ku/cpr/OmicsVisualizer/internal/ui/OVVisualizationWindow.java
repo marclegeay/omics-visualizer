@@ -30,11 +30,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import org.cytoscape.application.CyApplicationManager;
-import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyRow;
-import org.cytoscape.model.subnetwork.CyRootNetwork;
-import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.util.swing.LookAndFeelUtil;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVColor;
@@ -43,9 +40,9 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVColorDiscrete;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
-import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ApplyVisualizationTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveViualizationTaskFactory;
 
