@@ -1,10 +1,13 @@
-package dk.ku.cpr.OmicsVisualizer.internal.ui;
+package dk.ku.cpr.OmicsVisualizer.internal.ui.table;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.SwingUtilities;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
 
+import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 
@@ -40,6 +43,10 @@ public class OVTableModel extends AbstractTableModel {
 		}
 	}
 	
+	public CyTable getDataTable() {
+		return this.cyTable;
+	}
+	
 	public void addColumnName(String colName) {
 		this.displayedColumnNames.add(colName);
 	}
@@ -58,7 +65,15 @@ public class OVTableModel extends AbstractTableModel {
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		return this.cyTable.getRow(this.displayedRowKeys.get(rowIndex)).getRaw(this.displayedColumnNames.get(columnIndex));
+		return this.getValueAt(rowIndex, this.displayedColumnNames.get(columnIndex));
+	}
+	
+	public Object getValueAt(int rowIndex, String colName) {
+		return this.cyTable.getRow(this.displayedRowKeys.get(rowIndex)).getRaw(colName);
+	}
+	
+	public CyColumn getColumn(int colIndex) {
+		return this.cyTable.getColumn(this.displayedColumnNames.get(colIndex));
 	}
 
 	@Override
@@ -123,5 +138,47 @@ public class OVTableModel extends AbstractTableModel {
 		this.selectedRowKeys = selectedRowKeys;
 		
 		this.filter(this.filteredRowKeys);
+	}
+
+	@Override
+	public void fireTableStructureChanged() {
+		if (SwingUtilities.isEventDispatchThread()) {
+			super.fireTableStructureChanged();
+		} else {
+			final AbstractTableModel model = (AbstractTableModel) this;
+			SwingUtilities.invokeLater (new Runnable () {
+				public void run() {
+					model.fireTableStructureChanged();
+				}
+			});
+		}
+	}
+
+	@Override
+	public void fireTableDataChanged() {
+		if (SwingUtilities.isEventDispatchThread()) {
+			super.fireTableDataChanged();
+		} else {
+			final AbstractTableModel model = (AbstractTableModel) this;
+			SwingUtilities.invokeLater (new Runnable () {
+				public void run() {
+					model.fireTableDataChanged();
+				}
+			});
+		}
+	}
+
+	@Override
+	public void fireTableChanged (final TableModelEvent event) {
+		if (SwingUtilities.isEventDispatchThread()) {
+			super.fireTableChanged(event);
+		} else {
+			final AbstractTableModel model = (AbstractTableModel) this;
+			SwingUtilities.invokeLater (new Runnable () {
+				public void run() {
+					model.fireTableChanged(event);
+				}
+			});
+		}
 	}
 }

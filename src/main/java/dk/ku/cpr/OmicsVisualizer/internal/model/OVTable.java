@@ -18,15 +18,17 @@ import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 
 import dk.ku.cpr.OmicsVisualizer.internal.properties.OVProperties;
-import dk.ku.cpr.OmicsVisualizer.internal.ui.OVTableColumnModel;
-import dk.ku.cpr.OmicsVisualizer.internal.ui.OVTableModel;
+import dk.ku.cpr.OmicsVisualizer.internal.ui.table.OVBrowserTable;
+import dk.ku.cpr.OmicsVisualizer.internal.ui.table.OVTableColumnModel;
+import dk.ku.cpr.OmicsVisualizer.internal.ui.table.OVTableModel;
+import dk.ku.cpr.OmicsVisualizer.internal.ui.table.OVTableHeaderRenderer;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 
 public class OVTable {
 	private OVManager ovManager;
 	
 	private CyTable cyTable;
-	private JTable jTable;
+	private OVBrowserTable jTable;
 	private OVTableModel tableModel;
 	private OVTableColumnModel tableColumnModel;
 	
@@ -182,22 +184,30 @@ public class OVTable {
 			}
 		}
 
-		tableModel = new OVTableModel(this, colNames);
-		JTable jTable = new JTable(tableModel);
-		tableColumnModel = new OVTableColumnModel(this);
-		
-		for (int i = 0; i < tableModel.getColumnCount(); i++) {
-			TableColumn tableColumn = new TableColumn(i);
-			tableColumn.setHeaderValue(tableModel.getColumnName(i));
-			tableColumnModel.addColumn(tableColumn);
-		}
-		jTable.setColumnModel(tableColumnModel);
-		
-		this.setVisibleColumns(visibleCols);
+		OVBrowserTable jTable = new OVBrowserTable(ovManager);
 
 		jTable.setAutoCreateRowSorter(true);
 		jTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 //		jTable.getColumnModel().addColumnModelListener(this);
+		
+
+		tableModel = new OVTableModel(this, colNames);
+		jTable.setModel(tableModel);
+		
+		tableColumnModel = new OVTableColumnModel(this);
+		jTable.setColumnModel(tableColumnModel);
+		
+		for (int i = 0; i < tableModel.getColumnCount(); i++) {
+			TableColumn tableColumn = new TableColumn(i);
+			tableColumn.setHeaderValue(tableModel.getColumnName(i));
+			tableColumn.setHeaderRenderer(new OVTableHeaderRenderer(this.ovManager));
+			tableColumnModel.addColumn(tableColumn);
+			
+			// We compute the with of the column afterward
+			tableColumn.setPreferredWidth(tableColumn.getHeaderRenderer().getTableCellRendererComponent(jTable, tableColumn.getHeaderValue(), false, false, 0, i).getPreferredSize().width);
+		}
+		
+		this.setVisibleColumns(visibleCols);
 		
 		this.jTable = jTable;
 	}
@@ -275,6 +285,7 @@ public class OVTable {
 		int modelIndex = this.tableColumnModel.getColumnCount();
 		TableColumn tableColumn = new TableColumn(modelIndex);
 		tableColumn.setHeaderValue(this.tableModel.getColumnName(modelIndex));
+		tableColumn.setHeaderRenderer(new OVTableHeaderRenderer(this.ovManager));
 		tableColumnModel.addColumn(tableColumn);
 	}
 	
@@ -299,7 +310,7 @@ public class OVTable {
 		
 		List<Object> selectedKeys = ((OVTableModel)this.jTable.getModel()).getDisplayedRowKeys();
 		for(int i : this.jTable.getSelectedRows()) {
-			selectedRows.add(this.cyTable.getRow(selectedKeys.get(i)));
+			selectedRows.add(this.cyTable.getRow(selectedKeys.get( this.jTable.convertRowIndexToModel(i) )));
 		}
 		
 		return selectedRows;

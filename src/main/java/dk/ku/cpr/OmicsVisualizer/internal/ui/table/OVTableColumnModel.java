@@ -1,4 +1,4 @@
-package dk.ku.cpr.OmicsVisualizer.internal.ui;
+package dk.ku.cpr.OmicsVisualizer.internal.ui.table;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
