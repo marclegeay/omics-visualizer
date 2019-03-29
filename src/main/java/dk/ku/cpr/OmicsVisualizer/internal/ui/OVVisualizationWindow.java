@@ -209,16 +209,14 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		c2.setAnchor("C").setInsets(MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET);
 		chartPanel.add(this.selectValues, c2.nextCol());
 
-		// TODO Version 1.0: Without filters
-		//		stylePanel.add(this.filteredCheck, c2.nextRow().useNCols(2));
-		//		c2.useNCols(1);
+		chartPanel.add(this.filteredCheck, c2.nextRow().useNCols(2));
+		c2.useNCols(1);
 
 		chartPanel.add(new JLabel("Select Labels:"), c2.nextRow());
 		chartPanel.add(this.selectChartLabels, c2.nextCol());
 
-		// TODO Version 1.0: Without Discrete Mapping
-		//		stylePanel.add(new JLabel("Mapping:"), c2.nextRow());
-		//		stylePanel.add(this.selectDiscreteContinuous, c2.nextCol());
+		chartPanel.add(new JLabel("Mapping:"), c2.nextRow());
+		chartPanel.add(this.selectDiscreteContinuous, c2.nextCol());
 
 		mainPanel.add(chartPanel, c.nextRow().useNCols(2));
 
@@ -497,15 +495,14 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				c.expandHorizontal();
 
 				this.colorPanels[3] = new ColorPanel(colorMissing, this, this.colorChooser);
-				// TODO Version 1.0: Without missing values
-				//				mainPanel.add(new JLabel("Missing value:"), c.nextRow());
-				//				// The 'missing value' is not associated with a JTextField, so the height is not the same
-				//				// We put a preferred size so that the height correspond to a JTextField height
-				//				int with = this.colorPanels[3].getPreferredSize().width;
-				//				int height = this.rangeMax.getPreferredSize().height;
-				//				this.colorPanels[3].setPreferredSize(new Dimension(with, height));
-				//				mainPanel.add(this.colorPanels[3], c.nextCol().nextCol().expandBoth());
-				//				c.expandHorizontal();
+				mainPanel.add(new JLabel("Missing value:"), c.nextRow());
+				// The 'missing value' is not associated with a JTextField, so the height is not the same
+				// We put a preferred size so that the height correspond to a JTextField height
+				int with = this.colorPanels[3].getPreferredSize().width;
+				int height = this.rangeMax.getPreferredSize().height;
+				this.colorPanels[3].setPreferredSize(new Dimension(with, height));
+				mainPanel.add(this.colorPanels[3], c.nextCol().nextCol().expandBoth());
+				c.expandHorizontal();
 
 				if(this.selectChartType.getSelectedItem().equals(ChartType.CIRCOS)) {
 					// Only CIRCOS can have several layouts
@@ -726,18 +723,16 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		}
 
 
-		// TODO Version 1.0: Without Discrete Mapping
-		this.selectDiscreteContinuous.setSelectedItem(OVVisualizationWindow.CONTINUOUS);
-		//		Class<?> valueType = this.selectValues.getValueType();
-		//		if(valueType == String.class || valueType == Boolean.class) {
-		//			// No choice but discrete mapping
-		//			this.oldDC = (String) this.selectDiscreteContinuous.getSelectedItem();
-		//			this.selectDiscreteContinuous.setSelectedItem(OVStyleWindow.DISCRETE);
-		//			this.selectDiscreteContinuous.setEnabled(false);
-		//		} else if(!this.selectDiscreteContinuous.isEnabled()) {
-		//			this.selectDiscreteContinuous.setEnabled(true);
-		//			this.selectDiscreteContinuous.setSelectedItem(this.oldDC);
-		//		}
+		Class<?> valueType = this.selectValues.getValueType();
+		if(valueType == String.class || valueType == Boolean.class) {
+			// No choice but discrete mapping
+			this.oldDC = (String) this.selectDiscreteContinuous.getSelectedItem();
+			this.selectDiscreteContinuous.setSelectedItem(OVVisualizationWindow.DISCRETE);
+			this.selectDiscreteContinuous.setEnabled(false);
+		} else if(!this.selectDiscreteContinuous.isEnabled()) {
+			this.selectDiscreteContinuous.setEnabled(true);
+			this.selectDiscreteContinuous.setSelectedItem(this.oldDC);
+		}
 	}
 
 	private void updateVisualization(OVVisualization ovViz) {
@@ -1002,10 +997,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				for(String colName : ovTable.getColNames()) {
 					Class<?> colType = ovTable.getColType(colName);
 					// We don't want OVCol, neither do we want List columns
-					// TODO Version 1.0: Without Discrete Mapping (so without String nor Boolean columns)
-					if(!OVShared.isOVCol(colName) && colType != List.class
-							&& colType != String.class
-							&& colType != Boolean.class) {
+					if(!OVShared.isOVCol(colName) && colType != List.class) {
 						selectItems.add(new ChartValues(colName, colType));
 						this.selectItemStringValues.add(colName);
 					}

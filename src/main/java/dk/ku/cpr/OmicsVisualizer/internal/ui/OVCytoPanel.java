@@ -433,8 +433,7 @@ SelectedNodesAndEdgesListener {
 		vizButton.setEnabled(this.displayedTable != null && this.displayedTable.isConnectedTo(currentNetwork));
 
 		addToolBarComponent(selectButton, ComponentPlacement.RELATED);
-		// TODO Version 1.0: Without filters
-//		addToolBarComponent(filterButton, ComponentPlacement.RELATED);
+		addToolBarComponent(filterButton, ComponentPlacement.RELATED);
 		addToolBarComponent(deleteTableButton, ComponentPlacement.RELATED);
 		addToolBarComponent(retrieveNetworkButton, ComponentPlacement.RELATED);
 		addToolBarComponent(connectButton, ComponentPlacement.RELATED);

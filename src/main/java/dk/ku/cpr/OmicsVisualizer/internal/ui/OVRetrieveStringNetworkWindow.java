@@ -258,9 +258,8 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 		selectPanel.add(this.createConfidenceSlider(), c.nextRow().useNCols(2).setInsets(MyGridBagConstraints.DEFAULT_INSET, 0, MyGridBagConstraints.DEFAULT_INSET, 0));
 		c.useNCols(1).setInsets(MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET);
 
-		// TODO Version 1.0: Without filters
-		//		selectPanel.add(this.filteredOnly, c.nextRow().useNCols(2));
-		//		c.useNCols(1);
+		selectPanel.add(this.filteredOnly, c.nextRow().useNCols(2));
+		c.useNCols(1);
 		
 		this.selectedOnly.setSelected(false);
 		if(!this.ovTable.getSelectedRows().isEmpty()) {
