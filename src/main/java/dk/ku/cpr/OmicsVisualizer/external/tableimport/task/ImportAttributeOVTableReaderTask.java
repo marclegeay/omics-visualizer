@@ -248,7 +248,7 @@ public class ImportAttributeOVTableReaderTask extends AbstractTask implements Cy
 //			return ValidationState.INVALID;
 //		}
 		
-		if (amp.getSelectedColumnCount() < 2){
+		if (amp.getSelectedColumnCount() < 1){
 			try {
 				errMsg.append("Table should have more than one column. Please check the selected delimeters and columns.");
 			} catch (IOException e) {
