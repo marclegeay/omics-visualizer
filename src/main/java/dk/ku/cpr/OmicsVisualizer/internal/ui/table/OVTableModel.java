@@ -81,6 +81,11 @@ public class OVTableModel extends AbstractTableModel {
 		return this.displayedColumnNames.get(col);
 	}
 	
+	@Override
+	public Class<?> getColumnClass(int columnIndex) {
+		return this.getColumn(columnIndex).getType();
+	}
+	
 	public List<String> getAllColumnNames() {
 		return this.displayedColumnNames;
 	}
