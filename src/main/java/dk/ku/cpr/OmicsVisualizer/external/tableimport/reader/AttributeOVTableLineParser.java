@@ -82,7 +82,7 @@ public class AttributeOVTableLineParser extends AbstractLineParser {
 		if (partsLen == 1) {
 			// Modification ML: to avoid empty lines :
 			if ((parts[0] != null) && (parts[0].length() > 0))
-				table.getRow(parts[0]);
+				setAttribute(table, mapping.getDataTypes()[0], primaryKey, mapping.getAttributeNames()[0], parts[0]);
 		} else {
 			final SourceColumnSemantic[] types = mapping.getTypes();
 			
