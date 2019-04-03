@@ -32,6 +32,7 @@ import javax.swing.JTextField;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyRow;
+import org.cytoscape.util.swing.IconManager;
 import org.cytoscape.util.swing.LookAndFeelUtil;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVColor;
@@ -107,6 +108,11 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	private JButton backButton;
 	private JButton resetButton;
 	private JButton drawButton;
+	
+	private IconManager iconManager;
+	
+	private static String ICON_ADD = IconManager.ICON_PLUS;
+	private static String ICON_DEL = IconManager.ICON_MINUS;
 
 	public OVVisualizationWindow(OVManager ovManager) {
 		super(ovManager);
@@ -114,6 +120,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		this.cytoPanel=ovManager.getOVCytoPanel();
 
 		this.ovTable=null;
+		
+		this.iconManager = this.ovManager.getService(IconManager.class);
 
 		// Both panels
 		this.cancelButton = new JButton("Cancel");
@@ -984,7 +992,9 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			this.selects = new ArrayList<>();
 			this.buttons = new ArrayList<>();
 
-			this.addButton = new JButton("add");
+			this.addButton = new JButton(ICON_ADD);
+			Font buttonFont = this.addButton.getFont();
+			this.addButton.setFont(iconManager.getIconFont(buttonFont.getSize()));
 			this.addButton.addActionListener(this);
 
 			this.comboBoxActionListener = new ComboBoxActionListener(this.ovVisualizationWindow);
@@ -1018,7 +1028,9 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			if(ovViz == null) {
 				this.createSelect();
 
-				JButton del = new JButton("del");
+				JButton del = new JButton(ICON_DEL);
+				Font buttonFont = del.getFont();
+				del.setFont(iconManager.getIconFont(buttonFont.getSize()));
 				del.addActionListener(this);
 				this.buttons.add(del);
 			} else {
@@ -1026,7 +1038,9 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 					// We create the JComboBox and select the visualization value
 					this.createSelect().setSelectedIndex(this.selectItemStringValues.indexOf(val));
 
-					JButton del = new JButton("del");
+					JButton del = new JButton(ICON_DEL);
+					Font buttonFont = del.getFont();
+					del.setFont(iconManager.getIconFont(buttonFont.getSize()));
 					del.addActionListener(this);
 					this.buttons.add(del);
 				}
@@ -1078,7 +1092,9 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			select.setSelectedItem(this.selects.get(this.selects.size()-2).getSelectedItem());
 			select.addActionListener(this.comboBoxActionListener);
 
-			JButton del = new JButton("del");
+			JButton del = new JButton(ICON_DEL);
+			Font buttonFont = del.getFont();
+			del.setFont(iconManager.getIconFont(buttonFont.getSize()));
 			del.addActionListener(this);
 			this.buttons.add(del);
 
