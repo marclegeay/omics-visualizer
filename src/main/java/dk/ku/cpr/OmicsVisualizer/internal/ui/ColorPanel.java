@@ -2,6 +2,7 @@ package dk.ku.cpr.OmicsVisualizer.internal.ui;
 
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -24,6 +25,8 @@ public class ColorPanel extends JPanel implements MouseListener {
 		
 		this.addMouseListener(this);
 		this.setToolTipText("Click here to change the color.");
+		
+		this.setPreferredSize(new Dimension(30, 30));
 	}
 	
 	public ColorPanel(Container parent, ColorChooser colorChooser) {

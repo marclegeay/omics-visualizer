@@ -485,31 +485,31 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				this.colorPanels[0] = new ColorPanel(colorMax, this, this.colorChooser);
 				mainPanel.add(new JLabel("Max:"), c.nextRow());
 				mainPanel.add(this.rangeMax, c.nextCol());
-				mainPanel.add(this.colorPanels[0], c.nextCol().expandBoth());
+				mainPanel.add(this.colorPanels[0], c.nextCol().noExpand());
 				c.expandHorizontal();
 
 				this.rangeZero = new JTextField(String.valueOf(rangeZero));
 				this.colorPanels[1] = new ColorPanel(colorZero, this, this.colorChooser);
 				mainPanel.add(new JLabel("Middle:"), c.nextRow());
 				mainPanel.add(this.rangeZero, c.nextCol());
-				mainPanel.add(this.colorPanels[1], c.nextCol().expandBoth());
+				mainPanel.add(this.colorPanels[1], c.nextCol().noExpand());
 				c.expandHorizontal();
 
 				this.rangeMin = new JTextField(String.valueOf(rangeMin));
 				this.colorPanels[2] = new ColorPanel(colorMin, this, this.colorChooser);
 				mainPanel.add(new JLabel("Min:"), c.nextRow());
 				mainPanel.add(this.rangeMin, c.nextCol());
-				mainPanel.add(this.colorPanels[2], c.nextCol().expandBoth());
+				mainPanel.add(this.colorPanels[2], c.nextCol().noExpand());
 				c.expandHorizontal();
 
 				this.colorPanels[3] = new ColorPanel(colorMissing, this, this.colorChooser);
 				mainPanel.add(new JLabel("Missing value:"), c.nextRow());
-				// The 'missing value' is not associated with a JTextField, so the height is not the same
-				// We put a preferred size so that the height correspond to a JTextField height
-				int with = this.colorPanels[3].getPreferredSize().width;
-				int height = this.rangeMax.getPreferredSize().height;
-				this.colorPanels[3].setPreferredSize(new Dimension(with, height));
-				mainPanel.add(this.colorPanels[3], c.nextCol().nextCol().expandBoth());
+//				// The 'missing value' is not associated with a JTextField, so the height is not the same
+//				// We put a preferred size so that the height correspond to a JTextField height
+//				int with = this.colorPanels[3].getPreferredSize().width;
+//				int height = this.rangeMax.getPreferredSize().height;
+//				this.colorPanels[3].setPreferredSize(new Dimension(with, height));
+				mainPanel.add(this.colorPanels[3], c.nextCol().nextCol().noExpand());
 				c.expandHorizontal();
 
 				if(this.selectChartType.getSelectedItem().equals(ChartType.CIRCOS)) {
@@ -568,6 +568,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				this.discreteValues = new Object[values.size()];
 
 				JPanel valuesList = new JPanel();
+				valuesList.setOpaque(!LookAndFeelUtil.isAquaLAF());
 				valuesList.setLayout(new GridBagLayout());
 				MyGridBagConstraints clist = new MyGridBagConstraints();
 				clist.expandHorizontal();
@@ -589,15 +590,18 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 					this.colorPanels[i] = new ColorPanel(color, this, this.colorChooser);
 
-					valuesList.add(new JLabel(val.toString()), clist.nextRow());
-					valuesList.add(this.colorPanels[i], clist.nextCol().expandBoth());
+					valuesList.add(new JLabel(val.toString()), clist.expandHorizontal().nextRow());
+					valuesList.add(this.colorPanels[i], clist.nextCol().noExpand());
 
 					++i;
 				}
 				JScrollPane valuesScroll = new JScrollPane(valuesList);
 				valuesScroll.setBorder(null);
+				valuesScroll.getViewport().setOpaque(!LookAndFeelUtil.isAquaLAF());
+				valuesScroll.setOpaque(!LookAndFeelUtil.isAquaLAF());
 
-				mainPanel.add(valuesScroll, c);
+				mainPanel.add(valuesScroll, c.expandBoth());
+				c.expandHorizontal();
 				if(this.selectChartType.getSelectedItem().equals(ChartType.CIRCOS)) {
 					// Only CIRCOS can have several layers
 					mainPanel.add(transposeCheck, c.nextRow());
