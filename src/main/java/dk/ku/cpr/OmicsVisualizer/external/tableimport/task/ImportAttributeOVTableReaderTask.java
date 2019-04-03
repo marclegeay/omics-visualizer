@@ -189,7 +189,7 @@ public class ImportAttributeOVTableReaderTask extends AbstractTask implements Cy
 		final String primaryKey = OVShared.OVTABLE_COLID_NAME;
 //		final AttributeDataType dataType = readerAMP.getDataTypes()[readerAMP.getKeyIndex()];
 //		final Class<?> keyType;
-		final Class<?> keyType = Integer.class;
+		final Class<?> keyType = OVShared.OVTABLE_COLID_TYPE;
 		
 //		switch (dataType) {
 //			case TYPE_INTEGER:

@@ -338,7 +338,7 @@ public class LoadOVTableReaderTask extends AbstractTask implements CyTableReader
 //		final String pk = keyIndex >= 0 ? readerAMP.getAttributeNames()[keyIndex] : CyTable.SUID;
 //		final Class<?> pkType = keyIndex >= 0 ? String.class : Long.class;
 		final String pk = OVShared.OVTABLE_COLID_NAME;
-		final Class<?> pkType = Integer.class;
+		final Class<?> pkType = OVShared.OVTABLE_COLID_TYPE;
 		
 		tm.setProgress(0.1);
 

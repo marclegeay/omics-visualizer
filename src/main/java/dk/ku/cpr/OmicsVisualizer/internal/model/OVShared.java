@@ -1,7 +1,10 @@
 package dk.ku.cpr.OmicsVisualizer.internal.model;
 
 import java.awt.Color;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.stream.Collectors;
 
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyTable;
@@ -17,6 +20,7 @@ public class OVShared {
 	public static final String CYTOPANEL_NAME = OV_PREFIX+"CytoPanel";
 	
 	public static final String OVTABLE_COLID_NAME = OV_PREFIX+"internalID";
+	public static final Class<Integer> OVTABLE_COLID_TYPE = Integer.class;
 
 	public static final String OVPROPERTY_KEY = "key";
 	public static final String OVPROPERTY_VALUE = "value";
@@ -77,5 +81,25 @@ public class OVShared {
 	
 	public static String color2String(Color color) {
 		return String.format("#%02x%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+	}
+	
+	public static String join(Collection<?> collection, String delimiter) {
+		return collection.stream().map(Object::toString).collect(Collectors.joining(delimiter));
+	}
+	
+	/**
+	 * Class used to compare the OVTable identifiers.
+	 * This class is used to sort the rows after being filtered.
+	 * /!\ It should use the same type as defined by OVShared.OVTABLE_COLID_TYPE /!\
+	 * @author marc
+	 */
+	public static class OVTableIDComparator implements Comparator<Object> {
+		@Override
+		public int compare(Object o1, Object o2) {
+			Integer x = (Integer)o1;
+			Integer y = (Integer)o2;
+			
+			return Integer.compare(x.intValue(), y.intValue());
+		}
 	}
 }
