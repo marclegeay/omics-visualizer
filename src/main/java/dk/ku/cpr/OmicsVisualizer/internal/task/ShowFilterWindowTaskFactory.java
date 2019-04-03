@@ -17,5 +17,10 @@ public class ShowFilterWindowTaskFactory extends AbstractTaskFactory {
 	public TaskIterator createTaskIterator() {
 		return new TaskIterator(new ShowFilterWindowTask(this.ovManager));
 	}
+	
+	@Override
+	public boolean isReady() {
+		return super.isReady() && (this.ovManager.getActiveOVTable() != null);
+	}
 
 }

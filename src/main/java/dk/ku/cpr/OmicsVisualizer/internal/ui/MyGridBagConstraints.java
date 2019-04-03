@@ -9,15 +9,24 @@ public class MyGridBagConstraints extends GridBagConstraints {
 	
 	static Map<String, Integer> anchors = new HashMap<>();
 	static {
-		anchors.put("NW",	FIRST_LINE_START);
-		anchors.put("N",	PAGE_START);
-		anchors.put("NE",	FIRST_LINE_END);
-		anchors.put("W",	LINE_START);
+//		anchors.put("NW",	FIRST_LINE_START);
+//		anchors.put("N",	PAGE_START);
+//		anchors.put("NE",	FIRST_LINE_END);
+//		anchors.put("W",	LINE_START);
+//		anchors.put("C",	CENTER);
+//		anchors.put("E",	LINE_END);
+//		anchors.put("SW",	LAST_LINE_START);
+//		anchors.put("S",	PAGE_END);
+//		anchors.put("W",	LAST_LINE_END);
+		anchors.put("NW",	NORTHWEST);
+		anchors.put("N",	NORTH);
+		anchors.put("NE",	NORTHEAST);
+		anchors.put("W",	WEST);
 		anchors.put("C",	CENTER);
-		anchors.put("E",	LINE_END);
-		anchors.put("SW",	LAST_LINE_START);
-		anchors.put("S",	PAGE_END);
-		anchors.put("W",	LAST_LINE_END);
+		anchors.put("E",	EAST);
+		anchors.put("SW",	SOUTHEAST);
+		anchors.put("S",	SOUTH);
+		anchors.put("W",	WEST);
 	}
 	
 	static int DEFAULT_INSET=5; // By default we have 5px of margins
@@ -90,7 +99,13 @@ public class MyGridBagConstraints extends GridBagConstraints {
 	public MyGridBagConstraints setAnchor(String direction) {
 		Integer anc = anchors.get(direction);
 		
-		anchor = (anc==null ? CENTER : anc);
+		anchor = (anc==null ? GridBagConstraints.CENTER : anc);
+		
+		return this;
+	}
+	
+	public MyGridBagConstraints setAnchor(int a) {
+		anchor = a;
 		
 		return this;
 	}

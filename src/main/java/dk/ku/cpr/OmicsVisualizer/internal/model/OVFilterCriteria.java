@@ -1,11 +1,9 @@
 package dk.ku.cpr.OmicsVisualizer.internal.model;
 
-import java.io.Serializable;
-
 import dk.ku.cpr.OmicsVisualizer.internal.model.operators.Operator;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 
-public class OVFilterCriteria implements Serializable {
+public class OVFilterCriteria extends OVFilter {
 	private static final long serialVersionUID = -8009257438567922908L;
 	
 	private String colName;
@@ -45,15 +43,22 @@ public class OVFilterCriteria implements Serializable {
 	
 	@Override
 	public String toString() {
-		return DataUtils.escapeComma(this.colName)
+		return "("
+				+ DataUtils.escapeComma(this.colName)
 				+ ","
 				+ this.operator.name()
 				+ ","
-				+ DataUtils.escapeComma(DataUtils.escapeBackslash(this.reference));
+				+ DataUtils.escapeComma(DataUtils.escapeBackslash(this.reference))
+				+ ")";
 	}
 	
 	public static OVFilterCriteria valueOf(String str) {
-		String critParts[] = DataUtils.getCSV(str);
+//		System.out.println("OVFilterCriteria::valueOf("+str+")");
+		if(str == null || str.length() < 2) {
+			return null;
+		}
+		
+		String critParts[] = DataUtils.getCSV(str.substring(1, str.length()-1));
 		
 		if((critParts.length < 2) || (critParts.length > 3)) {
 			return null;

@@ -18,7 +18,6 @@ import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.session.events.SessionAboutToBeSavedListener;
 import org.cytoscape.session.events.SessionLoadedListener;
-import org.cytoscape.work.ServiceProperties;
 import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.swing.GUITunableHandlerFactory;
 import org.osgi.framework.BundleContext;
@@ -174,13 +173,13 @@ public class CyActivator extends AbstractCyActivator {
 				registerService(context, factory, TaskFactory.class, props);
 			}
 
-			// Remove filter
+			// Remove filter (Command only)
 			{
 				RemoveFilterTaskFactory factory = new RemoveFilterTaskFactory(ovManager);
 				Properties props = new Properties();
-				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
-				props.setProperty(TITLE, "Remove filter");
-				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
+//				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
+//				props.setProperty(TITLE, "Remove filter");
+//				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "filter remove");
 				props.setProperty(COMMAND_DESCRIPTION, "Removes the filter of the active table");

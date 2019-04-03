@@ -1,6 +1,7 @@
 package dk.ku.cpr.OmicsVisualizer.internal.task;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.cytoscape.model.CyRow;
@@ -9,9 +10,11 @@ import org.cytoscape.work.ProvidesTitle;
 import org.cytoscape.work.TaskMonitor;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVFilter;
-import dk.ku.cpr.OmicsVisualizer.internal.model.OVFilter.OVFilterType;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVFilterSet.OVFilterSetType;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVFilterCriteria;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVFilterSet;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 import dk.ku.cpr.OmicsVisualizer.internal.model.operators.Operator;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
@@ -46,42 +49,19 @@ public class FilterTask extends AbstractTask {
 		this.ovTable = ovTable;
 		this.ovFilter = this.ovTable.getFilter();
 	}
-
-	@Override
-	public void run(TaskMonitor taskMonitor) throws Exception {
-		if(this.ovTable == null) {
-			return;
-		}
-		
-		taskMonitor.setTitle("Filtering the rows of '"+this.ovTable.getTitle()+"' Omics Visualizer table");
-		taskMonitor.setStatusMessage("Apply filter : " + this.ovFilter);
-		
-		if(this.ovFilter == null) {
-			return;
-		}
-
-
-		List<CyRow> filteredRows=null;
-		List<CyRow> workingRows=this.ovTable.getCyTable().getAllRows(); // rows used to apply the criteria
-		if(this.ovFilter.getType() == OVFilterType.ALL) {
-			// We start with all the rows
-			filteredRows = this.ovTable.getCyTable().getAllRows();
-		} else if(this.ovFilter.getType() == OVFilterType.ANY) {
-			// We start with no rows
-			filteredRows = new ArrayList<>();
-		} else {
-			taskMonitor.setStatusMessage("Unknow filter type : " + this.ovFilter.getType());
-			return;
-		}
-		for(OVFilterCriteria crit : this.ovFilter.getCriterias()) {
-			String colName = crit.getColName();
-			Operator operator = crit.getOperator();
-			String strReference = crit.getReference();
+	
+	private List<CyRow> filter(TaskMonitor taskMonitor, OVFilter filter, List<CyRow> workingRows) {
+		if(filter instanceof OVFilterCriteria) {
+			OVFilterCriteria filterCrit = (OVFilterCriteria) filter;
+			
+			String colName = filterCrit.getColName();
+			Operator operator = filterCrit.getOperator();
+			String strReference = filterCrit.getReference();
 			
 			Class<?> colType = this.ovTable.getColType(colName);
 			if(colType == null) {
-				taskMonitor.setStatusMessage("Warning: Column \"" + colName +"\" not found, the criteria will not be applied.");
-				continue;
+				taskMonitor.setStatusMessage("Error: Column \"" + colName + "\" not found, the filter can not be applied.");
+				return null;
 			}
 	
 			Object reference = null;
@@ -105,7 +85,7 @@ public class FilterTask extends AbstractTask {
 	
 					if(reference ==null) {
 						taskMonitor.setStatusMessage("Error: Impossible to parse the value \""+strReference+"\" as a number.");
-						return;
+						return null;
 					}
 				}
 			}
@@ -121,25 +101,76 @@ public class FilterTask extends AbstractTask {
 				}
 			}
 			
-			if(this.ovFilter.getType() == OVFilterType.ALL) {
-				filteredRows = critFilteredRows;
-				workingRows = filteredRows;
-			} else if(this.ovFilter.getType() == OVFilterType.ANY) {
-				filteredRows.addAll(critFilteredRows);
+			return critFilteredRows;
+		} else if(filter instanceof OVFilterSet) {
+			OVFilterSet filterSet = (OVFilterSet) filter;
+			
+			List<CyRow> filteredRows = null;
+			if(filterSet.getType() == OVFilterSetType.ALL) {
+				// We start with all the rows
+				filteredRows = workingRows;
+			} else if(filterSet.getType() == OVFilterSetType.ANY) {
+				// We start with no rows
+				filteredRows = new ArrayList<>();
+			} else {
+				taskMonitor.setStatusMessage("Unknow filter type : " + filterSet.getType());
+				return null;
 			}
+			
+			List<CyRow> subFilteredRows;
+			for(OVFilter subFilter : filterSet.getFilters()) {
+				subFilteredRows = filter(taskMonitor, subFilter, workingRows);
+				
+				if(subFilteredRows == null) {
+					return null;
+				}
+				
+				if(filterSet.getType() == OVFilterSetType.ALL) {
+					filteredRows = subFilteredRows;
+					workingRows = filteredRows;
+				} else if(filterSet.getType() == OVFilterSetType.ANY) {
+					filteredRows.addAll(subFilteredRows);
+				}
+			}
+			
+			return filteredRows;
+		}
+		
+		return null;
+	}
+
+	@Override
+	public void run(TaskMonitor taskMonitor) throws Exception {
+		if(this.ovTable == null) {
+			return;
+		}
+		
+		taskMonitor.setTitle("Filtering the rows of '"+this.ovTable.getTitle()+"' Omics Visualizer table");
+		taskMonitor.setStatusMessage("Apply filter : " + this.ovFilter);
+		
+		if(this.ovFilter == null) {
+			return;
+		}
+		
+		// We apply the filter
+		List<CyRow> filteredRows = filter(taskMonitor, this.ovFilter, this.ovTable.getCyTable().getAllRows());
+		if(filteredRows == null) {
+			return;
 		}
 		
 		// We convert CyRow in keys:
 		List<Object> filteredRowKeys = new ArrayList<>();
 		for(CyRow row : filteredRows) {
-			filteredRowKeys.add(row.getRaw(this.ovTable.getCyTable().getPrimaryKey().getName()));
+			filteredRowKeys.add(row.get(OVShared.OVTABLE_COLID_NAME, OVShared.OVTABLE_COLID_TYPE));
 		}
-		this.ovTable.filter(filteredRowKeys);
+		filteredRowKeys.sort(new OVShared.OVTableIDComparator());
 		
+		this.ovTable.filter(filteredRowKeys);
+
 		// The filter can come from the command, so we assign the filter to the table
 		this.ovTable.setFilter(this.ovFilter);
 		this.ovTable.save();
-		
+
 		if(this.ovPanel != null) {
 			this.ovPanel.update();
 		}

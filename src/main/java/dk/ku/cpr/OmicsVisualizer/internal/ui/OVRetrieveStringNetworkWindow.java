@@ -91,8 +91,9 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 		this.confidenceSlider = new JSlider();
 		this.confidenceValue = new JTextField();
 
-		this.filteredOnly = new JCheckBox("Only filtered rows", true);
 		this.selectedOnly = new JCheckBox("Only selected rows", false);
+		this.selectedOnly.addActionListener(this);
+		this.filteredOnly = new JCheckBox("Only filtered rows", true);
 
 		this.closeButton = new JButton("Close");
 		this.closeButton.addActionListener(this);
@@ -258,9 +259,6 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 		selectPanel.add(this.createConfidenceSlider(), c.nextRow().useNCols(2).setInsets(MyGridBagConstraints.DEFAULT_INSET, 0, MyGridBagConstraints.DEFAULT_INSET, 0));
 		c.useNCols(1).setInsets(MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET);
 
-		selectPanel.add(this.filteredOnly, c.nextRow().useNCols(2));
-		c.useNCols(1);
-		
 		this.selectedOnly.setSelected(false);
 		if(!this.ovTable.getSelectedRows().isEmpty()) {
 			this.selectedOnly.setSelected(true);
@@ -268,6 +266,12 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 			c.useNCols(1);
 		}
 
+		this.filteredOnly.setSelected(true);
+		if(this.ovTable.getFilter() != null) {
+			selectPanel.add(this.filteredOnly, c.nextRow().useNCols(2));
+			c.useNCols(1);
+		}
+		
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
 		buttonPanel.add(this.closeButton);
@@ -317,7 +321,15 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == this.retrieveButton) {
+		if(e.getSource() == this.selectedOnly) {
+			if(this.selectedOnly.isSelected()) {
+				this.filteredOnly.setEnabled(false);
+				this.filteredOnly.setSelected(false);
+			} else {
+				this.filteredOnly.setEnabled(true);
+				this.filteredOnly.setSelected(true);
+			}
+		} else if(e.getSource() == this.retrieveButton) {
 			// We check if the species is OK
 			Object selectedSpecies = this.selectSpecies.getSelectedItem();
 			if(!(selectedSpecies instanceof OVSpecies)) {
@@ -343,10 +355,11 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 
 			// We set the arguments for the STRING command
 			String query = String.join(",", queryTerms);
-			Integer taxonID = ((OVSpecies) this.selectSpecies.getSelectedItem()).getTaxonID();
+			OVSpecies species = (OVSpecies) this.selectSpecies.getSelectedItem();
 			Map<String, Object> args = new HashMap<>();
 			args.put("query", query);
-			args.put("taxonID", taxonID);
+			args.put("taxonID", species.getTaxonID());
+			args.put("species", species.getName());
 			args.put("cutoff", this.confidenceValue.getText());
 			args.put("limit", "0");
 
@@ -376,6 +389,10 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 
 		public Integer getTaxonID() {
 			return this.taxonID;
+		}
+		
+		public String getName() {
+			return this.scientificName; // TODO: it should return the "abbreviatedName" from stringApp
 		}
 
 		public String getQueryString() {
