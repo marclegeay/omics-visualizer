@@ -186,17 +186,17 @@ public class OVConnection {
 	 * @return the number of connected rows from the table
 	 */
 	public int update(String mappingColCyto, String mappingColOVTable) {
-		// We update only if something has changed
-		if(!mappingColOVTable.equals(this.mappingColOVTable) || !mappingColCyto.equals(this.mappingColCyto)) {
+//		// We update only if something has changed
+//		if(!mappingColOVTable.equals(this.mappingColOVTable) || !mappingColCyto.equals(this.mappingColCyto)) {
 			this.mappingColOVTable=mappingColOVTable;
 			this.mappingColCyto=mappingColCyto;
 
 			this.nbConnectedTableRows = this.updateLinks();
 			
 			return this.nbConnectedTableRows;
-		}
-
-		return this.nbConnectedTableRows;
+//		}
+//
+//		return this.nbConnectedTableRows;
 	}
 
 	public void addLink(CyRow networkNode, CyRow tableRow) {
