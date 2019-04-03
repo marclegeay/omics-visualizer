@@ -1,8 +1,4 @@
-# GIT repository of the Cytoscape App Omics Visualiazer
-See:
-- [Cytoscape](https://cytoscape.org/)
-- [Cytoscape App Store](http://apps.cytoscape.org/)
-- [Omics Visualizer](http://apps.cytoscape.org/apps/omicsvisualizer)
+# GIT repository of the Cytoscape App Omics Visualizer
 
 *Omics Visualizer* allows users to import data tables with multiple rows referring to the same network node and to visualize such data onto networks.
 This is particularly useful for visualizing post-translational modification sites or peptides identified in proteomics studies as well as data measured under multiple conditions.
@@ -16,3 +12,7 @@ To connect a table with a network, the user must select the key columns from the
 A slice of the chart is a row from the table, and the color represents the numerical value.
 The charts are drawn by the [enhancedGraphics app](http://apps.cytoscape.org/apps/enhancedgraphics).
 
+See:
+- [Cytoscape](https://cytoscape.org/)
+- [Cytoscape App Store](http://apps.cytoscape.org/)
+- [Omics Visualizer](http://apps.cytoscape.org/apps/omicsvisualizer)
