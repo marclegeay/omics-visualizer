@@ -123,12 +123,13 @@ public class OVConnection {
 	}
 	
 	/**
-	 * Update the mapping between the Table and the Network
+	 * Update the mapping between the Table and the Network.
+	 * Creates a column in the Node Table indicating the number of table rows connected to a node.
 	 * @return the number of rows from the table that are connected to the network
 	 */
 	public int updateLinks() {
 		this.node2table = new HashMap<>();
-		int nbConnectedRows=0;
+		int totalConnectedRows=0;
 		
 		// FIRST STEP:
 		// Make the link in the OVTable
@@ -141,12 +142,17 @@ public class OVConnection {
 			return 0; // TODO message?
 		}
 		
+		if(nodeTable.getColumn(OVShared.CYNODETABLE_CONNECTEDCOUNT) == null) {
+			nodeTable.createColumn(OVShared.CYNODETABLE_CONNECTEDCOUNT, Integer.class, false);
+		}
+		
 		for(CyRow netRow : nodeTable.getAllRows()) {
 			Object netKey = getKey(netRow, keyCytoCol);
 			if(netKey == null) {
 				continue;
 			}
 			
+			Integer nodeConnectedRows=0;
 			for(CyRow tableRow : this.ovTable.getCyTable().getAllRows()) {
 				Object tableKey = getKey(tableRow, keyOVCol);
 				
@@ -160,9 +166,13 @@ public class OVConnection {
 				
 				if(equals) {
 					this.addLink(netRow, tableRow);
-					++nbConnectedRows;
+					++totalConnectedRows;
+					++nodeConnectedRows;
 				}
 			}
+			
+			// We store the number of connected rows to the node in the Node Table so that users can use it in a Cytoscape style
+			netRow.set(OVShared.CYNODETABLE_CONNECTEDCOUNT, nodeConnectedRows);
 		}
 		
 		// SECOND STEP:
@@ -176,7 +186,7 @@ public class OVConnection {
 			networkTable.getRow(net.getSUID()).set(OVShared.CYNETWORKTABLE_OVCOL, this.getSavedConnection());
 		}
 		
-		return nbConnectedRows;
+		return totalConnectedRows;
 	}
 
 	/**

@@ -36,6 +36,7 @@ public class OVShared {
 	public static final String CYNETWORKTABLE_OVCOL = "OVTable";
 	public static final String CYNETWORKTABLE_VIZCOL="OVViz";
 
+	public static final String CYNODETABLE_CONNECTEDCOUNT = "OV Connected rows";
 	public static final String CYNODETABLE_VIZCOL="OVViz";
 	public static final String CYNODETABLE_VIZCOL_VALUES="OVViz Values ";
 	
