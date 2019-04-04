@@ -220,11 +220,23 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 			this.ovTable = this.ovManager.getActiveOVTable();
 			
 			this.selectQuery.removeAllItems();
+			String selectedColumn="";
 			for(String colName : this.ovTable.getColNames()) {
 				if(!OVShared.isOVCol(colName)) {
 					this.selectQuery.addItem(colName);
+					
+					if(colName.toLowerCase().equals("uniprot")) {
+						// If a column name is Uniprot, then we should select it by default
+						selectedColumn = colName;
+					} else if(!selectedColumn.toLowerCase().equals("uniprot") && 
+							colName.toLowerCase().contains("uniprot")) {
+						// else, if we do not already have a column named Uniprot
+						// if it contains Uniprot, we select it
+						selectedColumn = colName;
+					}
 				}
 			}
+			this.selectQuery.setSelectedItem(selectedColumn);
 			
 			this.confidenceSlider.setValue(defaultConfidence);
 			
