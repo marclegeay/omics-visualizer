@@ -110,7 +110,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	private JButton drawButton;
 	
 	private IconManager iconManager;
-	
+
 	private static String ICON_ADD = IconManager.ICON_PLUS;
 	private static String ICON_DEL = IconManager.ICON_MINUS;
 

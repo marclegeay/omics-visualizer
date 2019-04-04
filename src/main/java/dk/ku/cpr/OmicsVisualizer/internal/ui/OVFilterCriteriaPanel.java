@@ -1,8 +1,11 @@
 package dk.ku.cpr.OmicsVisualizer.internal.ui;
 
+import java.awt.Color;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.List;
 
 import javax.swing.JComboBox;
@@ -14,10 +17,17 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 import dk.ku.cpr.OmicsVisualizer.internal.model.operators.Operator;
 
-public class OVFilterCriteriaPanel extends OVFilterPanel implements ActionListener {
+public class OVFilterCriteriaPanel extends OVFilterPanel implements ActionListener, FocusListener {
 	private static final long serialVersionUID = 5410071931920025590L;
 	
-	private static String CHOOSE = "Choose column...";
+	private static final String CHOOSE = "Choose column...";
+	private static final String FIELD_TOOLTIP = "Type the value to compare with.";
+	private static final String FIELD_REGEX_TOOLTIP = "<html>Type the regular expression to matches with.<br>"
+			+ "Example: '\\w+' will matches with a non-empty sequence of word characters. "
+			+ "</html>";
+	
+	private Color defaultComboBoxForegroundColor;
+	private Color defaultTextFieldBackgroundColor;
 	
 	private boolean isInitialized;
 
@@ -36,13 +46,15 @@ public class OVFilterCriteriaPanel extends OVFilterPanel implements ActionListen
 		this.selectColumn = new JComboBox<>();
 		this.selectColumn.addActionListener(this);
 		this.selectColumn.setToolTipText("Choose the column for which the condition should apply.");
+		this.selectColumn.addFocusListener(this);
 
 		this.selectOperator = new JComboBox<>();
 		this.selectOperator.addActionListener(this);
 		this.selectOperator.setToolTipText("Choose the operator used for the comparison.");
 
 		this.fieldValue = new JTextField(10);
-		this.fieldValue.setToolTipText("Type the value to compare with. It can be a regular expression.");
+		this.fieldValue.setToolTipText(FIELD_TOOLTIP);
+		this.fieldValue.addFocusListener(this);
 
 		this.selectValue = new JComboBox<>();
 		this.selectValue.addItem("true");
@@ -58,7 +70,19 @@ public class OVFilterCriteriaPanel extends OVFilterPanel implements ActionListen
 		
 		this.update(false);
 		
+		this.defaultComboBoxForegroundColor = this.selectColumn.getForeground();
+		this.defaultTextFieldBackgroundColor = this.fieldValue.getBackground();
+		
 		this.isInitialized=true;
+	}
+	
+	private void resetFieldValue() {
+		this.fieldValue.setBackground(this.defaultTextFieldBackgroundColor);
+		if(this.selectOperator.getSelectedItem().equals(Operator.MATCHES)) {
+			this.fieldValue.setToolTipText(FIELD_REGEX_TOOLTIP);
+		} else {
+			this.fieldValue.setToolTipText(FIELD_TOOLTIP);
+		}
 	}
 	
 	@Override
@@ -101,7 +125,48 @@ public class OVFilterCriteriaPanel extends OVFilterPanel implements ActionListen
 	}
 	
 	@Override
+	public boolean isFilterValid() {
+		String colName = (String)this.selectColumn.getSelectedItem();
+		
+		if(colName.equals(CHOOSE)) {
+			this.selectColumn.setForeground(Color.RED);
+			return false;
+		}
+		
+		Class<?> colType = this.ovTable.getColType(colName);
+		String reference;
+		
+		if(colType == String.class) {
+			// A string is always well formated
+			return true;
+		} else if(this.isBool) {
+			// A bool is always well formated
+			return true;
+		} else {
+			reference = this.fieldValue.getText();
+		}
+		
+		try {
+			if(colType == Integer.class) {
+				Integer.parseInt(reference);
+			} else if(colType == Long.class) {
+				Long.parseLong(reference);
+			} else if(colType == Double.class) {
+				Double.parseDouble(reference);
+			}
+		} catch(NumberFormatException e) {
+			this.fieldValue.setBackground(Color.RED);
+			this.fieldValue.setToolTipText("The value should be a number!");
+			return false;
+		}
+		
+		return true;
+	}
+	
+	@Override
 	public void update(boolean up) {
+		this.removeAll();
+		
 		this.setLayout(new GridBagLayout());
 		MyGridBagConstraints c = new MyGridBagConstraints();
 		c.expandHorizontal().setAnchor("NW").setInsets(0, 0, 0, 0);
@@ -147,6 +212,7 @@ public class OVFilterCriteriaPanel extends OVFilterPanel implements ActionListen
 				this.fieldValue.setEnabled(false);
 				this.selectValue.setEnabled(false);
 				
+				this.update(true);
 				return;
 			} else {
 				this.selectOperator.setEnabled(true);
@@ -178,15 +244,33 @@ public class OVFilterCriteriaPanel extends OVFilterPanel implements ActionListen
 				this.selectOperator.setSelectedItem(previousSelected);
 			}
 			
+			this.resetFieldValue();
+			
 			this.update(true);
 		} else if(e.getSource() == this.selectOperator) {
 			Operator selectedOperator = (Operator)this.selectOperator.getSelectedItem();
 			if(selectedOperator == null) {
 				return;
 			}
+			
+			this.resetFieldValue();
 
 			this.update(true);
 		}
+	}
+
+	@Override
+	public void focusGained(FocusEvent e) {
+		if(e.getSource() == this.selectColumn) {
+			this.selectColumn.setForeground(this.defaultComboBoxForegroundColor);
+		} else if(e.getSource() == this.fieldValue) {
+			this.resetFieldValue();
+		}
+	}
+
+	@Override
+	public void focusLost(FocusEvent e) {
+		// Do nothing
 	}
 
 }

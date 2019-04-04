@@ -114,6 +114,17 @@ public class OVFilterSetPanel extends OVFilterPanel implements ActionListener {
 		}
 	}
 	
+	@Override
+	public boolean isFilterValid() {
+		boolean valid = true;
+		
+		for(OVFilterPanel subFilterPanel : this.subFilterPanels) {
+			valid &= subFilterPanel.isFilterValid();
+		}
+		
+		return valid;
+	}
+	
 	private void addDelButton() {
 		JButton del = new JButton(ICON_DEL);
 		Font buttonFont = del.getFont();
@@ -143,8 +154,6 @@ public class OVFilterSetPanel extends OVFilterPanel implements ActionListener {
 		this.addDelButton();
 		
 		this.subFilterPanels.add(new OVFilterSetPanel(this, this.ovTable, this.ovManager));
-		
-		// We have to put this after, so that the "checkSubFilter" does not break it
 	}
 	
 	/**
@@ -218,7 +227,6 @@ public class OVFilterSetPanel extends OVFilterPanel implements ActionListener {
 	public void update(boolean up) {
 		this.removeAll();
 		
-		checkSubFilters();
 		init();
 		
 		if(up && this.parent != null) {
@@ -247,6 +255,8 @@ public class OVFilterSetPanel extends OVFilterPanel implements ActionListener {
 				this.delButtons.remove(i);
 				this.subFilterPanels.remove(i);
 
+				checkSubFilters();
+				
 				this.update(true);
 			}
 		}

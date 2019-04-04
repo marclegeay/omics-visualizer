@@ -23,6 +23,13 @@ public abstract class OVFilterPanel extends JPanel {
 	public abstract OVFilter getFilter();
 
 	public abstract void setFilter(OVFilter ovFilter);
+	
+	/**
+	 * Check if the filter is valid.
+	 * If the filter is not valid, the bad formatted components will be changed to highlight the error.
+	 * @return <code>true</code> if the filter is valid, <code>false</code> otherwise.
+	 */
+	public abstract boolean isFilterValid();
 
 	/**
 	 * Update the panel.
