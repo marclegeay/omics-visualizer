@@ -89,7 +89,13 @@ public class PopupMenuHelper {
 				return table.getSelectedRowCount() > 0 && applicationManager.getCurrentNetwork() != null;
 			}
 		});
-		menu.add(mi);
+		
+		// We make sure that the table is connected to the current network before enabling to select nodes
+		final CyApplicationManager applicationManager = this.ovManager.getService(CyApplicationManager.class);
+		final CyNetwork net = applicationManager.getCurrentNetwork();
+		if(this.ovManager.getActiveOVTable().isConnectedTo(net)) {
+			menu.add(mi);
+		}
 		
 		if (menu.getSubElements().length > 0)
 			menu.show(invoker, x, y);
