@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.cytoscape.application.events.SetCurrentNetworkListener;
 import org.cytoscape.application.swing.CytoPanelComponent;
 import org.cytoscape.io.DataCategory;
 import org.cytoscape.io.read.CyTableReader;
@@ -21,7 +22,6 @@ import org.cytoscape.model.events.NetworkAddedEvent;
 import org.cytoscape.model.events.NetworkAddedListener;
 import org.cytoscape.model.events.NetworkDestroyedEvent;
 import org.cytoscape.model.events.NetworkDestroyedListener;
-import org.cytoscape.model.events.RowsSetListener;
 import org.cytoscape.model.events.SelectedNodesAndEdgesListener;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
@@ -186,14 +186,14 @@ NetworkAddedListener {
 		this.ovCytoPanel = panel;
 
 		this.registerService(this.ovCytoPanel, CytoPanelComponent.class, new Properties());
-		this.registerService(this.ovCytoPanel, RowsSetListener.class, new Properties());
+		this.registerService(this.ovCytoPanel, SetCurrentNetworkListener.class, new Properties());
 		this.registerService(this.ovCytoPanel, SelectedNodesAndEdgesListener.class, new Properties());
 	}
 
 	public void unregisterOVCytoPanel() {
 		if(this.ovCytoPanel != null) {
 			this.unregisterService(this.ovCytoPanel, CytoPanelComponent.class);
-			this.unregisterService(this.ovCytoPanel, RowsSetListener.class);
+			this.unregisterService(this.ovCytoPanel, SetCurrentNetworkListener.class);
 			this.unregisterService(this.ovCytoPanel, SelectedNodesAndEdgesListener.class);
 		}
 
