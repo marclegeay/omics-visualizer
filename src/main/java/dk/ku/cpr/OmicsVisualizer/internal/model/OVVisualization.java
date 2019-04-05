@@ -28,7 +28,12 @@ public class OVVisualization implements Serializable {
 		this.onlyFiltered=onlyFiltered;
 		this.colors=colors;
 		this.label=label;
-		this.transpose=transpose;
+		// Only CIRCOS can transpose data
+		if(type.equals(ChartType.CIRCOS)) {
+			this.transpose=transpose;
+		} else {
+			this.transpose=false;
+		}
 	}
 
 	public ChartType getType() {
