@@ -45,7 +45,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ApplyVisualizationTaskFactory;
-import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveViualizationTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveVisualizationTaskFactory;
 
 public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	private static final long serialVersionUID = 6606921043986517714L;
@@ -229,8 +229,9 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		chartPanel.add(new JLabel("Select Labels:"), c2.nextRow());
 		chartPanel.add(this.selectChartLabels, c2.nextCol());
 
-		chartPanel.add(new JLabel("Mapping:"), c2.nextRow());
-		chartPanel.add(this.selectDiscreteContinuous, c2.nextCol());
+		// TODO v1.1: No discrete mapping
+//		chartPanel.add(new JLabel("Mapping:"), c2.nextRow());
+//		chartPanel.add(this.selectDiscreteContinuous, c2.nextCol());
 
 		if(this.ovTable.getFilter() != null) {
 			chartPanel.add(this.filteredCheck, c2.nextRow().useNCols(2));
@@ -520,15 +521,11 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				mainPanel.add(this.colorPanels[2], c.nextCol().noExpand());
 				c.expandHorizontal();
 
+				// TODO v1.1: No missing values
 				this.colorPanels[3] = new ColorPanel(colorMissing, this, this.colorChooser);
-				mainPanel.add(new JLabel("Missing value:"), c.nextRow());
-//				// The 'missing value' is not associated with a JTextField, so the height is not the same
-//				// We put a preferred size so that the height correspond to a JTextField height
-//				int with = this.colorPanels[3].getPreferredSize().width;
-//				int height = this.rangeMax.getPreferredSize().height;
-//				this.colorPanels[3].setPreferredSize(new Dimension(with, height));
-				mainPanel.add(this.colorPanels[3], c.nextCol().nextCol().noExpand());
-				c.expandHorizontal();
+//				mainPanel.add(new JLabel("Missing value:"), c.nextRow());
+//				mainPanel.add(this.colorPanels[3], c.nextCol().nextCol().noExpand());
+//				c.expandHorizontal();
 
 				if(this.selectChartType.getSelectedItem().equals(ChartType.CIRCOS)) {
 					// Only CIRCOS can have several layouts
@@ -710,7 +707,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 		this.selectChartLabels.addItem(OVVisualizationWindow.NO_LABEL);
 		for(String colName : this.ovTable.getColNames()) {
-			if(!OVShared.isOVCol(colName)) {
+			if(!OVShared.isOVCol(colName) && this.ovTable.getColType(colName) != List.class) {
 				this.selectChartLabels.addItem(colName);
 			}
 		}
@@ -896,7 +893,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			this.setVisible(false);
 		} else if(e.getSource() == this.deleteButton) {
 			if(JOptionPane.showConfirmDialog(this, "Delete the visualization applied to the network \"" + this.ovCon.getCollectionNetworkName() + "\"?", "Visualization deletion confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-				RemoveViualizationTaskFactory factory = new RemoveViualizationTaskFactory(this.ovManager, this.ovCon);
+				RemoveVisualizationTaskFactory factory = new RemoveVisualizationTaskFactory(this.ovManager, this.ovCon);
 				this.ovManager.executeSynchronousTask(factory.createTaskIterator());
 
 				this.updateVisualization(this.ovCon.getVisualization());
@@ -1047,7 +1044,10 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				for(String colName : ovTable.getColNames()) {
 					Class<?> colType = ovTable.getColType(colName);
 					// We don't want OVCol, neither do we want List columns
-					if(!OVShared.isOVCol(colName) && colType != List.class) {
+					if(!OVShared.isOVCol(colName) && colType != List.class
+							// TODO v1.1: No discrete mapping, so no String nor Boolean columns
+							&& colType != String.class
+							&& colType != Boolean.class) {
 						selectItems.add(new ChartValues(colName, colType));
 						this.selectItemStringValues.add(colName);
 					}

@@ -12,7 +12,7 @@ import org.cytoscape.model.CyTable;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 
-import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveViualizationTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveVisualizationTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 
 public class OVConnection {
@@ -282,7 +282,7 @@ public class OVConnection {
 		
 		// We erase the Visualization
 		if(this.getVisualization() != null) {
-			RemoveViualizationTaskFactory factory = new RemoveViualizationTaskFactory(ovManager, this);
+			RemoveVisualizationTaskFactory factory = new RemoveVisualizationTaskFactory(ovManager, this);
 			this.ovManager.executeTask(factory.createTaskIterator());
 		}
 		

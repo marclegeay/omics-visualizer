@@ -93,8 +93,9 @@ public class OVColorContinuous implements OVColor, Serializable {
 		style += "up:" + OVShared.color2String(this.up);
 		style += ",";
 		style += "zero:" + OVShared.color2String(this.zero);
-		style += ",";
-		style += "missing:" + OVShared.color2String(this.missing);
+		// TODO v1.1: No missing values
+//		style += ",";
+//		style += "missing:" + OVShared.color2String(this.missing);
 		style += "\"";
 
 		style += " ";
