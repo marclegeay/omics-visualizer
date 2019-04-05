@@ -272,13 +272,15 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 		c.useNCols(1).setInsets(MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET);
 
 		this.selectedOnly.setSelected(false);
+		this.filteredOnly.setSelected(true);
 		if(!this.ovTable.getSelectedRows().isEmpty()) {
 			this.selectedOnly.setSelected(true);
+			this.filteredOnly.setSelected(false);
+			this.filteredOnly.setEnabled(false);
 			selectPanel.add(this.selectedOnly, c.nextRow().useNCols(2));
 			c.useNCols(1);
 		}
 
-		this.filteredOnly.setSelected(true);
 		if(this.ovTable.getFilter() != null) {
 			selectPanel.add(this.filteredOnly, c.nextRow().useNCols(2));
 			c.useNCols(1);
