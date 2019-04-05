@@ -10,6 +10,7 @@ import org.cytoscape.view.model.VisualLexicon;
 import org.cytoscape.view.presentation.RenderingEngineManager;
 import org.cytoscape.view.vizmap.VisualMappingManager;
 import org.cytoscape.work.AbstractTask;
+import org.cytoscape.work.ProvidesTitle;
 import org.cytoscape.work.TaskMonitor;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
@@ -28,7 +29,7 @@ public class RemoveVisualizationTask extends AbstractTask {
 
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
-		taskMonitor.setTitle("Remove visualization");
+		taskMonitor.setTitle(this.getTitle());
 		taskMonitor.setStatusMessage("Network Collection: " + this.ovCon.getCollectionNetworkName());
 		
 		taskMonitor.setStatusMessage("Removing the VisualMappingFunction");
@@ -48,6 +49,11 @@ public class RemoveVisualizationTask extends AbstractTask {
 		// We erase all NetworkTable columns
 		taskMonitor.setStatusMessage("Cleaning network table data");
 		this.ovCon.setVisualization(null);
+	}
+	
+	@ProvidesTitle
+	public String getTitle() {
+		return "Remove visualization";
 	}
 
 }

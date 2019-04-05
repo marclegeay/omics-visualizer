@@ -6,11 +6,11 @@ import org.cytoscape.work.TaskIterator;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 
-public class RemoveViualizationTaskFactory extends AbstractTaskFactory {
+public class RemoveVisualizationTaskFactory extends AbstractTaskFactory {
 	private OVManager ovManager;
 	private OVConnection ovCon;
 
-	public RemoveViualizationTaskFactory(OVManager ovManager, OVConnection ovCon) {
+	public RemoveVisualizationTaskFactory(OVManager ovManager, OVConnection ovCon) {
 		super();
 		this.ovManager = ovManager;
 		this.ovCon = ovCon;
