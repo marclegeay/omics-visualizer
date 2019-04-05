@@ -278,13 +278,14 @@ public class OVConnectWindow extends OVWindow implements ActionListener {
 					JOptionPane.showMessageDialog(null, "Error: No table row is connected to the network.", "Error", JOptionPane.ERROR_MESSAGE);
 					ovCon.disconnect();
 					return;
-				} else {
-					int totalNbRows = this.ovTable.getAllRows(true).size();
-					
-					if((((double) ovCon.getNbConnectedTableRows())/totalNbRows) < OVConnection.MINIMUM_CONNECTED_ROWS) {
-						JOptionPane.showMessageDialog(null, "Warning: Less than " + (int)(OVConnection.MINIMUM_CONNECTED_ROWS*100) + "% of the table rows are connected to the network.", "Warning", JOptionPane.WARNING_MESSAGE);
-					}
 				}
+//				else {
+//					int totalNbRows = this.ovTable.getAllRows(true).size();
+//					
+//					if((((double) ovCon.getNbConnectedTableRows())/totalNbRows) < OVConnection.MINIMUM_CONNECTED_ROWS) {
+//						JOptionPane.showMessageDialog(null, "Warning: Less than " + (int)(OVConnection.MINIMUM_CONNECTED_ROWS*100) + "% of the table rows are connected to the network.", "Warning", JOptionPane.WARNING_MESSAGE);
+//					}
+//				}
 			}
 			
 			this.update(this.ovTable);

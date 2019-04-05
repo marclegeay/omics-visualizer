@@ -132,13 +132,14 @@ public class OVConnectPanel extends JPanel implements ActionListener {
 				this.ovCon.update(oldColNetwork, oldColTable);
 				this.selectColNetwork.setSelectedItem(oldColNetwork);
 				this.selectColTable.setSelectedItem(oldColTable);
-			} else {
-				int totalNbRows = this.ovCon.getOVTable().getAllRows(true).size();
-				
-				if((((double) nbLinks)/totalNbRows) < OVConnection.MINIMUM_CONNECTED_ROWS) {
-					JOptionPane.showMessageDialog(null, "Warning: Less than " + (int)(OVConnection.MINIMUM_CONNECTED_ROWS*100) + "% of the table rows are connected to the network.", "Warning", JOptionPane.WARNING_MESSAGE);
-				}
 			}
+//			else {
+//				int totalNbRows = this.ovCon.getOVTable().getAllRows(true).size();
+//				
+//				if((((double) nbLinks)/totalNbRows) < OVConnection.MINIMUM_CONNECTED_ROWS) {
+//					JOptionPane.showMessageDialog(null, "Warning: Less than " + (int)(OVConnection.MINIMUM_CONNECTED_ROWS*100) + "% of the table rows are connected to the network.", "Warning", JOptionPane.WARNING_MESSAGE);
+//				}
+//			}
 		} else if(e.getSource() == this.disconnectButton) {
 			int response = JOptionPane.showConfirmDialog(null,
 					"Disconnect \""+this.ovCon.getOVTable().getTitle()+"\" and \""+this.ovCon.getCollectionNetworkName()+"\"?",
