@@ -53,6 +53,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	private static final String NO_LABEL = "--- NONE ---";
 	private static final String CONTINUOUS = "Continuous";
 	private static final String DISCRETE = "Discrete";
+	private static final String ROW = "row";
+	private static final String COL = "column";
 
 	/** Used when values are positive and negative */
 	private static final Color DEFAULT_MIN_COLOR = new Color(33,102,172);
@@ -104,7 +106,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	private JTextField rangeMax;
 	private ColorPanel[] colorPanels;
 	private Object[] discreteValues;
-	private JCheckBox transposeCheck;
+	private JComboBox<String> selectRing;
 	private JButton backButton;
 	private JButton resetButton;
 	private JButton drawButton;
@@ -176,7 +178,14 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 		this.colorChooser = new ColorChooser();
 
-		this.transposeCheck = new JCheckBox("Transpose data");
+		this.selectRing = new JComboBox<>();
+		this.selectRing.setToolTipText("<html>"
+				+ "Select what a ring of the donut chart should represent.<br>"
+				+ "<b>" + OVVisualizationWindow.COL + "</b> means that the number of column values that you selected defines the number of rings.<br>"
+				+ "<b>" + OVVisualizationWindow.ROW + "</b> means that the number of rows connected to the node defines the number of rings."
+				+ "</html>");
+		this.selectRing.addItem(OVVisualizationWindow.COL);
+		this.selectRing.addItem(OVVisualizationWindow.ROW);
 
 		LookAndFeelUtil.equalizeSize(this.cancelButton, this.nextButton, this.backButton, this.drawButton);
 	}
@@ -217,14 +226,16 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		c2.setAnchor("C").setInsets(MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET);
 		chartPanel.add(this.selectValues, c2.nextCol());
 
-		chartPanel.add(this.filteredCheck, c2.nextRow().useNCols(2));
-		c2.useNCols(1);
-
 		chartPanel.add(new JLabel("Select Labels:"), c2.nextRow());
 		chartPanel.add(this.selectChartLabels, c2.nextCol());
 
 		chartPanel.add(new JLabel("Mapping:"), c2.nextRow());
 		chartPanel.add(this.selectDiscreteContinuous, c2.nextCol());
+
+		if(this.ovTable.getFilter() != null) {
+			chartPanel.add(this.filteredCheck, c2.nextRow().useNCols(2));
+			c2.useNCols(1);
+		}
 
 		mainPanel.add(chartPanel, c.nextRow().useNCols(2));
 
@@ -267,7 +278,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			valueRows.addAll(this.ovCon.getLinkedRows(netRow));
 		}
 
-		this.transposeCheck.setSelected(false);
+		this.selectRing.setSelectedIndex(0);
 
 		boolean noValue=false;
 
@@ -292,7 +303,11 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				colorMax = colorViz.getUp();
 				colorMissing = colorViz.getMissing();
 
-				this.transposeCheck.setSelected(ovViz.isTranspose());
+				if(ovViz.isTranspose()) {
+					this.selectRing.setSelectedItem(OVVisualizationWindow.ROW);
+				} else {
+					this.selectRing.setSelectedItem(OVVisualizationWindow.COL);
+				}
 
 				vizLoaded=true;
 			}
@@ -482,6 +497,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				this.colorPanels = new ColorPanel[4];
 
 				this.rangeMax = new JTextField(String.valueOf(rangeMax));
+				this.rangeMax.setHorizontalAlignment(JTextField.RIGHT);
 				this.colorPanels[0] = new ColorPanel(colorMax, this, this.colorChooser);
 				mainPanel.add(new JLabel("Max:"), c.nextRow());
 				mainPanel.add(this.rangeMax, c.nextCol());
@@ -489,6 +505,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				c.expandHorizontal();
 
 				this.rangeZero = new JTextField(String.valueOf(rangeZero));
+				this.rangeZero.setHorizontalAlignment(JTextField.RIGHT);
 				this.colorPanels[1] = new ColorPanel(colorZero, this, this.colorChooser);
 				mainPanel.add(new JLabel("Middle:"), c.nextRow());
 				mainPanel.add(this.rangeZero, c.nextCol());
@@ -496,6 +513,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				c.expandHorizontal();
 
 				this.rangeMin = new JTextField(String.valueOf(rangeMin));
+				this.rangeMin.setHorizontalAlignment(JTextField.RIGHT);
 				this.colorPanels[2] = new ColorPanel(colorMin, this, this.colorChooser);
 				mainPanel.add(new JLabel("Min:"), c.nextRow());
 				mainPanel.add(this.rangeMin, c.nextCol());
@@ -514,7 +532,14 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 				if(this.selectChartType.getSelectedItem().equals(ChartType.CIRCOS)) {
 					// Only CIRCOS can have several layouts
-					mainPanel.add(transposeCheck, c.nextRow().useNCols(3));
+					JPanel ringPanel = new JPanel();
+					ringPanel.setOpaque(!LookAndFeelUtil.isAquaLAF());
+					ringPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+					
+					ringPanel.add(new JLabel("Ring is: "));
+					ringPanel.add(this.selectRing);
+					
+					mainPanel.add(ringPanel, c.nextRow().useNCols(3));
 				}
 				mainPanel.add(resetButton, c.nextRow().useNCols(3).noExpand().setAnchor("E"));
 			}
@@ -527,7 +552,11 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 				values = colorViz.getValues();
 
-				this.transposeCheck.setSelected(ovViz.isTranspose());
+				if(ovViz.isTranspose()) {
+					this.selectRing.setSelectedItem(OVVisualizationWindow.ROW);
+				} else {
+					this.selectRing.setSelectedItem(OVVisualizationWindow.COL);
+				}
 			} else {
 				// We look for the values in the data
 				for(CyRow row : valueRows) {
@@ -604,7 +633,14 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				c.expandHorizontal();
 				if(this.selectChartType.getSelectedItem().equals(ChartType.CIRCOS)) {
 					// Only CIRCOS can have several layers
-					mainPanel.add(transposeCheck, c.nextRow());
+					JPanel ringPanel = new JPanel();
+					ringPanel.setOpaque(!LookAndFeelUtil.isAquaLAF());
+					ringPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+					
+					ringPanel.add(new JLabel("Ring is: "));
+					ringPanel.add(this.selectRing);
+					
+					mainPanel.add(ringPanel, c.nextRow());
 				}
 				mainPanel.add(resetButton, c.nextRow().noExpand().setAnchor("E"));
 			}
@@ -940,7 +976,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 					this.filteredCheck.isSelected(),
 					colors,
 					label,
-					this.transposeCheck.isSelected());
+					this.selectRing.getSelectedItem().equals(OVVisualizationWindow.ROW));
 
 			this.ovCon.setVisualization(ovViz);
 
