@@ -727,7 +727,7 @@ public class PreviewTablePanel extends JPanel {
 		
 		// Modification ML: We use CSVReader for every CSV type
 //		if (delimiters != null && delimiters.contains(TextDelimiter.COMMA.getDelimiter()) && delimiters.size() == 1) {
-		if(delimiters.size() == 1) {
+		if(delimiters.size() == 1 && delimiters.get(0).length()==1) {
 			// Only if there is exactly one delimiter and that delimiter is a
 			// comma should you read the file using OpenCSV
 			// New method... Using OpenCSV

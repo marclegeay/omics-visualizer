@@ -116,7 +116,7 @@ public class DefaultAttributeOVTableReader implements TextTableReader {
 				//If the delimiter contains a comma, treat the file as a CSV file.
 				//Modification ML: We use CSVReader for other than COMMA
 //				if (delimiter.contains(TextDelimiter.COMMA.getDelimiter()) && mapping.getDelimiters().size() == 1) {
-				if(mapping.getDelimiters().size()==1) {
+				if(mapping.getDelimiters().size()==1 && mapping.getDelimiters().get(0).length() == 1) {
 					//Use OpenCSV.. New method...
 //					CSVReader reader = new CSVReader(bufRd);
 					CSVReader reader = new CSVReader(bufRd, mapping.getDelimiters().get(0).charAt(0));
