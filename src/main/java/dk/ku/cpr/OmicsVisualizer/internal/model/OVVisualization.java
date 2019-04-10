@@ -15,18 +15,20 @@ public class OVVisualization implements Serializable {
 	private ChartType type;
 	private List<String> values;
 	private Class<?> valuesType;
+	private String paletteName;
 	private boolean onlyFiltered;
 	private OVColor colors;
 	private String label;
 	private boolean transpose;
 	
-	public OVVisualization(ChartType type, List<String> values, Class<?> valuesType, boolean onlyFiltered, OVColor colors, String label, boolean transpose) {
+	public OVVisualization(ChartType type, List<String> values, Class<?> valuesType, boolean onlyFiltered, OVColor colors, String paletteName, String label, boolean transpose) {
 		super();
 		this.type=type;
 		this.values=values;
 		this.valuesType=valuesType;
 		this.onlyFiltered=onlyFiltered;
 		this.colors=colors;
+		this.paletteName=paletteName;
 		this.label=label;
 		// Only CIRCOS can transpose data
 		if(type.equals(ChartType.CIRCOS)) {
@@ -46,6 +48,10 @@ public class OVVisualization implements Serializable {
 	
 	public Class<?> getValuesType() {
 		return this.valuesType;
+	}
+	
+	public String getPaletteName() {
+		return this.paletteName;
 	}
 	
 	public boolean isOnlyFiltered() {

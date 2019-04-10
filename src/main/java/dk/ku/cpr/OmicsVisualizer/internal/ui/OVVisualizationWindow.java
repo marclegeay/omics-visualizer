@@ -32,6 +32,12 @@ import javax.swing.JTextField;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyRow;
+import org.cytoscape.util.color.BrewerType;
+import org.cytoscape.util.color.Palette;
+import org.cytoscape.util.color.PaletteProvider;
+import org.cytoscape.util.color.PaletteProviderManager;
+import org.cytoscape.util.color.PaletteType;
+import org.cytoscape.util.swing.CyColorPaletteChooserFactory;
 import org.cytoscape.util.swing.IconManager;
 import org.cytoscape.util.swing.LookAndFeelUtil;
 
@@ -56,24 +62,24 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	private static final String ROW = "row";
 	private static final String COL = "column";
 
-	/** Used when values are positive and negative */
+	/** Used when no palette is used and values are positive and negative */
 	private static final Color DEFAULT_MIN_COLOR = new Color(33,102,172);
-	/** Used when values are positive and negative */
+	/** Used when no palette is used and values are positive and negative */
 	private static final Color DEFAULT_ZERO_COLOR = Color.WHITE;
-	/** Used when values are positive and negative */
+	/** Used when no palette is used and values are positive and negative */
 	private static final Color DEFAULT_MAX_COLOR = new Color(178,24,43);
-	/** Used when values are only positive */
+	/** Used when no palette is used and values are only positive */
 	private static final Color DEFAULT_MIN_COLOR_POS = new Color(253,231,37);
-	/** Used when values are only positive */
+	/** Used when no palette is used and values are only positive */
 	private static final Color DEFAULT_ZERO_COLOR_POS = new Color(33,145,140);
-	/** Used when values are only positive */
+	/** Used when no palette is used and values are only positive */
 	private static final Color DEFAULT_MAX_COLOR_POS = new Color(68,1,84);
 	// We switch colors between POS and NEG values (so that the "low" color is always near 0)
-	/** Used when values are only negative */
+	/** Used when no palette is used and values are only negative */
 	private static final Color DEFAULT_MIN_COLOR_NEG = DEFAULT_MAX_COLOR_POS;
-	/** Used when values are only negative */
+	/** Used when no palette is used and values are only negative */
 	private static final Color DEFAULT_ZERO_COLOR_NEG = DEFAULT_ZERO_COLOR_POS;
-	/** Used when values are only negative */
+	/** Used when no palette is used and values are only negative */
 	private static final Color DEFAULT_MAX_COLOR_NEG = DEFAULT_MIN_COLOR_POS;
 	/** Default value for missing values */
 	private static final Color DEFAULT_MISSING_COLOR = new Color(190, 190, 190);
@@ -84,6 +90,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 	private OVTable ovTable;
 	private OVConnection ovCon;
+	
+	private PaletteProviderManager paletteProviderManager;
 
 	private JButton cancelButton;
 
@@ -101,6 +109,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	private JButton nextButton;
 
 	private ColorChooser colorChooser;
+	private JButton paletteButton;
 	private JTextField rangeMin;
 	private JTextField rangeZero;
 	private JTextField rangeMax;
@@ -110,6 +119,9 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	private JButton backButton;
 	private JButton resetButton;
 	private JButton drawButton;
+	
+	private Palette palette;
+	private PaletteType paletteType;
 	
 	private IconManager iconManager;
 
@@ -122,6 +134,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		this.cytoPanel=ovManager.getOVCytoPanel();
 
 		this.ovTable=null;
+		
+		this.paletteProviderManager = this.ovManager.getService(PaletteProviderManager.class);
 		
 		this.iconManager = this.ovManager.getService(IconManager.class);
 
@@ -159,6 +173,11 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				+ "</html>");
 
 		this.selectDiscreteContinuous = new JComboBox<>();
+		this.selectDiscreteContinuous.setToolTipText("<html>"
+				+ "Select the type of mapping to apply.<br>"
+				+ "<b>" + OVVisualizationWindow.CONTINUOUS + "</b>: use a gradient color<br>"
+				+ "<b>" + OVVisualizationWindow.DISCRETE + "</b>: choose a color for each value<br>"
+				+ "</html>");
 		this.selectDiscreteContinuous.addItem(OVVisualizationWindow.CONTINUOUS);
 		this.selectDiscreteContinuous.addItem(OVVisualizationWindow.DISCRETE);
 		this.selectDiscreteContinuous.addActionListener(this);
@@ -167,6 +186,13 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		this.nextButton.addActionListener(this);
 
 		// Panel 2
+		this.paletteButton = new JButton("None");
+		this.paletteButton.addActionListener(this);
+		this.paletteButton.setToolTipText("<html>"
+				+ "Change the palette used for the colors.<br>"
+				+ "The colors can be changed individually by clicking on the color."
+				+ "</html>");
+		
 		this.backButton = new JButton("< Back");
 		this.backButton.addActionListener(this);
 
@@ -230,8 +256,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		chartPanel.add(this.selectChartLabels, c2.nextCol());
 
 		// TODO v1.1: No discrete mapping
-//		chartPanel.add(new JLabel("Mapping:"), c2.nextRow());
-//		chartPanel.add(this.selectDiscreteContinuous, c2.nextCol());
+		chartPanel.add(new JLabel("Mapping:"), c2.nextRow());
+		chartPanel.add(this.selectDiscreteContinuous, c2.nextCol());
 
 		if(this.ovTable.getFilter() != null) {
 			chartPanel.add(this.filteredCheck, c2.nextRow().useNCols(2));
@@ -270,6 +296,16 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		//		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		mainPanel.setBorder(LookAndFeelUtil.createTitledBorder("Color properties"));
 
+		mainPanel.setLayout(new GridBagLayout());
+		MyGridBagConstraints c = new MyGridBagConstraints();
+		c.expandHorizontal();
+		
+		JPanel palettePanel = new JPanel();
+		palettePanel.setOpaque(!LookAndFeelUtil.isAquaLAF());
+		palettePanel.setLayout(new FlowLayout());
+		palettePanel.add(new JLabel("Current Palette: "));
+		palettePanel.add(this.paletteButton);
+
 		List<String> colNames = this.selectValues.getValues();
 		Class<?> valueType = this.selectValues.getValueType();
 
@@ -279,8 +315,6 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			valueRows.addAll(this.ovCon.getLinkedRows(netRow));
 		}
 
-		this.selectRing.setSelectedIndex(0);
-
 		boolean noValue=false;
 
 		if(this.selectDiscreteContinuous.getSelectedItem() == OVVisualizationWindow.CONTINUOUS) {
@@ -289,9 +323,10 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			Color colorZero = DEFAULT_ZERO_COLOR;
 			Color colorMax = DEFAULT_MAX_COLOR;
 			Color colorMissing = DEFAULT_MISSING_COLOR;
+			this.paletteType = null;
 
 			boolean vizLoaded=false;
-			if(ovViz != null && ovViz.getColors() instanceof OVColorContinuous) {
+			if(!reset && ovViz != null && ovViz.getColors() instanceof OVColorContinuous) {
 				// There is already a visualization applied for this, we simply load the information from it
 				OVColorContinuous colorViz = (OVColorContinuous) ovViz.getColors();
 
@@ -309,12 +344,16 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				} else {
 					this.selectRing.setSelectedItem(OVVisualizationWindow.COL);
 				}
+				
+				this.palette = this.getPalette(ovViz.getPaletteName());
+				this.paletteType = this.palette.getType();
 
 				vizLoaded=true;
 			}
 
 			if(reset || !vizLoaded) {
 				colorMissing = DEFAULT_MISSING_COLOR;
+				this.paletteType = BrewerType.ANY;
 				
 				// We don't have any information, we infer them from the data
 				// We identify max and min value
@@ -363,6 +402,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 							colorZero = DEFAULT_ZERO_COLOR_POS;
 							colorMax = DEFAULT_MAX_COLOR_POS;
 						}
+						
+						this.paletteType = BrewerType.SEQUENTIAL;
 					} else {
 						// We detect the highest absolute value for the range
 						max = (max >= -min ? max : -min);
@@ -373,6 +414,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 						colorMin = DEFAULT_MIN_COLOR;
 						colorZero = DEFAULT_ZERO_COLOR;
 						colorMax = DEFAULT_MAX_COLOR;
+						
+						this.paletteType = BrewerType.DIVERGING;
 					}
 				} else if(valueType == Long.class) {
 					long min = Long.MAX_VALUE;
@@ -418,6 +461,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 							colorZero = DEFAULT_ZERO_COLOR_POS;
 							colorMax = DEFAULT_MAX_COLOR_POS;
 						}
+						
+						this.paletteType = BrewerType.SEQUENTIAL;
 					} else {
 						// We detect the highest absolute value for the range
 						max = (max >= -min ? max : -min);
@@ -428,6 +473,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 						colorMin = DEFAULT_MIN_COLOR;
 						colorZero = DEFAULT_ZERO_COLOR;
 						colorMax = DEFAULT_MAX_COLOR;
+						
+						this.paletteType = BrewerType.DIVERGING;
 					}
 				} else { // Double
 					double min = Double.POSITIVE_INFINITY;
@@ -473,6 +520,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 							colorZero = DEFAULT_ZERO_COLOR_POS;
 							colorMax = DEFAULT_MAX_COLOR_POS;
 						}
+						
+						this.paletteType = BrewerType.SEQUENTIAL;
 					} else {
 						// We detect the highest absolute value for the range
 						max = (max >= -min ? max : -min);
@@ -483,21 +532,47 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 						colorMin = DEFAULT_MIN_COLOR;
 						colorZero = DEFAULT_ZERO_COLOR;
 						colorMax = DEFAULT_MAX_COLOR;
+						
+						this.paletteType = BrewerType.DIVERGING;
 					}
 				}
 			}
-
-			mainPanel.setLayout(new GridBagLayout());
-			MyGridBagConstraints c = new MyGridBagConstraints();
-			c.expandHorizontal();
+			
+			// We choose a Palette
+			if(this.palette == null || !this.palette.getType().equals(this.paletteType)) {
+				this.palette = this.paletteProviderManager.retrievePalette(this.ovTable.getTitle()+"-"+this.paletteType);
+			}
+			
+			if(this.palette != null) {
+				Color colors[] = this.palette.getColors(9);
+				if(this.paletteType == BrewerType.SEQUENTIAL && rangeMin >= 0) {
+					// Values are all positives
+					// We revert the color range
+					colorMax = colors[8];
+					colorZero = colors[4];
+					colorMin = colors[0];
+				} else {
+					colorMax = colors[0];
+					colorZero = colors[4];
+					colorMin = colors[8];
+				}
+			}
 
 			if(noValue) {
 				mainPanel.add(new JLabel("No values"), c.noExpand().setAnchor("C"));
 				c.expandHorizontal();
 			} else {
+				// First thing, we add the paletteChooser
+				mainPanel.add(palettePanel, c.useNCols(3));
+				c.nextRow().useNCols(1);
+				
 				this.colorPanels = new ColorPanel[4];
 
 				this.rangeMax = new JTextField(String.valueOf(rangeMax));
+				this.rangeMax.setToolTipText("<html>"
+						+ "Maximal value to display.<br>"
+						+ "All values greater than this one will have the same color."
+						+ "</html>");
 				this.rangeMax.setHorizontalAlignment(JTextField.RIGHT);
 				this.colorPanels[0] = new ColorPanel(colorMax, this, this.colorChooser);
 				mainPanel.add(new JLabel("Max:"), c.nextRow());
@@ -506,6 +581,11 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				c.expandHorizontal();
 
 				this.rangeZero = new JTextField(String.valueOf(rangeZero));
+				this.rangeZero.setToolTipText("<html>"
+						+ "Value used to define the middle color.<br>"
+						+ "This value is used to define the color gradient.<br>"
+						+ "By default, this value is the mean between Min and Max."
+						+ "</html>");
 				this.rangeZero.setHorizontalAlignment(JTextField.RIGHT);
 				this.colorPanels[1] = new ColorPanel(colorZero, this, this.colorChooser);
 				mainPanel.add(new JLabel("Middle:"), c.nextRow());
@@ -514,6 +594,10 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				c.expandHorizontal();
 
 				this.rangeMin = new JTextField(String.valueOf(rangeMin));
+				this.rangeMin.setToolTipText("<html>"
+						+ "Minimal value to display.<br>"
+						+ "All values lower than this one will have the same color."
+						+ "</html>");
 				this.rangeMin.setHorizontalAlignment(JTextField.RIGHT);
 				this.colorPanels[2] = new ColorPanel(colorMin, this, this.colorChooser);
 				mainPanel.add(new JLabel("Min:"), c.nextRow());
@@ -541,6 +625,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				mainPanel.add(resetButton, c.nextRow().useNCols(3).noExpand().setAnchor("E"));
 			}
 		} else { // Discrete mapping
+			this.paletteType = BrewerType.QUALITATIVE;
+			
 			Set<Object> values = new HashSet<>();
 
 			if(!reset && ovViz != null && ovViz.getColors() instanceof OVColorDiscrete) {
@@ -554,6 +640,9 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				} else {
 					this.selectRing.setSelectedItem(OVVisualizationWindow.COL);
 				}
+				
+				this.palette = this.getPalette(ovViz.getPaletteName());
+				this.paletteType = this.palette.getType();
 			} else {
 				// We look for the values in the data
 				for(CyRow row : valueRows) {
@@ -580,10 +669,6 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				}
 			}
 
-			mainPanel.setLayout(new GridBagLayout());
-			MyGridBagConstraints c = new MyGridBagConstraints();
-			c.expandHorizontal();
-
 			if(values.isEmpty()) {
 				noValue=true;
 				mainPanel.add(new JLabel("No values"), c.noExpand().setAnchor("C"));
@@ -592,7 +677,32 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				this.colorPanels = new ColorPanel[values.size()];
 				// To be sure that values and colors are well associated, we do not use toArray() but we copy each value
 				this.discreteValues = new Object[values.size()];
+				
+				// We choose a Palette
+				Color colors[]=null;
+				if(this.palette == null || !this.palette.getType().equals(this.paletteType)) {
+					this.palette = this.paletteProviderManager.retrievePalette(this.ovTable.getTitle()+"-"+this.paletteType);
+				}
+				if(this.palette != null) {
+					if(this.palette.getName().equals("Paired colors") && (values.size() <= 6)) {
+						// The paired colors palette is special
+						// There are 11 different colors, but two consecutive colors look alike
+						// So if we need only 6 colors (or less) we will only take the odd colors
 
+						colors = new Color[values.size()];
+						Color paletteColors[] = this.palette.getColors(values.size()*2);
+						for(int i=0; i<values.size(); ++i) {
+							colors[i] = paletteColors[2*i];
+						}
+					} else {
+						colors = this.palette.getColors(values.size());
+					}
+				}
+
+				// First thing, we add the paletteChooser
+				mainPanel.add(palettePanel, c);
+				c.nextRow();
+				
 				JPanel valuesList = new JPanel();
 				valuesList.setOpaque(!LookAndFeelUtil.isAquaLAF());
 				valuesList.setLayout(new GridBagLayout());
@@ -601,14 +711,24 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				int i=0;
 				int nb_values = values.size();
 				for(Object val : values) {
-					Color color = generateRandomColor(i, nb_values);
+					Color color=null;
+					if(colors != null) {
+						color = colors[i];
+					} else {
+						color = generateRandomColor(i, nb_values);
+					}
 
 					if(ovViz != null && ovViz.getColors() instanceof OVColorDiscrete) {
 						OVColorDiscrete colorViz = (OVColorDiscrete) ovViz.getColors();
 						color = colorViz.getColor(val);
 
 						if(color == null) {
-							color = generateRandomColor(i, nb_values);
+							if(colors != null) {
+								color = colors[i];
+							}
+							if(color == null) {
+								color = generateRandomColor(i, nb_values);
+							}
 						}
 					}
 
@@ -632,7 +752,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 					// Only CIRCOS can have several layers
 					JPanel ringPanel = new JPanel();
 					ringPanel.setOpaque(!LookAndFeelUtil.isAquaLAF());
-					ringPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+					ringPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 					
 					ringPanel.add(new JLabel("Ring is: "));
 					ringPanel.add(this.selectRing);
@@ -641,6 +761,12 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				}
 				mainPanel.add(resetButton, c.nextRow().noExpand().setAnchor("E"));
 			}
+		}
+		
+		if(this.palette == null) {
+			this.paletteButton.setText("None");
+		} else {
+			this.paletteButton.setText(this.palette.getName());
 		}
 
 		JPanel buttonPanel = new JPanel();
@@ -660,8 +786,11 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 		this.pack(); // We pack so that getWidth and getHeight are computed
 		// Then we set the size limits ...
-		int prefWidth = this.getWidth()+30; // +30 so that the vertical slide can fit
-		int prefHeight = (int) (this.cytoPanel.getTopLevelAncestor().getHeight() * 0.8); // at most 80% of the Cytoscape window
+		// at most 80% of the Cytoscape window
+		int prefWidth = (int) (this.cytoPanel.getTopLevelAncestor().getWidth() * 0.8);
+		int prefHeight = (int) (this.cytoPanel.getTopLevelAncestor().getHeight() * 0.8);
+		int curWidth = this.getWidth();
+		prefWidth = (prefWidth < curWidth ? prefWidth : curWidth);
 		int curHeight = this.getHeight();
 		prefHeight = (prefHeight < curHeight ? prefHeight : curHeight);
 		this.setPreferredSize(new Dimension(prefWidth, prefHeight));
@@ -711,6 +840,14 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				this.selectChartLabels.addItem(colName);
 			}
 		}
+
+		// Init default palettes
+		PaletteProvider colorBrewer = this.paletteProviderManager.getPaletteProvider("ColorBrewer"); // for QUALITATIVE and DIVERGING
+		PaletteProvider viridis = this.paletteProviderManager.getPaletteProvider("Viridis"); // for SEQUENCING
+		
+		this.paletteProviderManager.savePalette(this.ovTable.getTitle()+"-"+BrewerType.QUALITATIVE, colorBrewer.getPalette("Paired colors"));
+		this.paletteProviderManager.savePalette(this.ovTable.getTitle()+"-"+BrewerType.DIVERGING, colorBrewer.getPalette("Red-Blue"));
+		this.paletteProviderManager.savePalette(this.ovTable.getTitle()+"-"+BrewerType.SEQUENTIAL, viridis.getPalette("Viridis"));
 
 		//		// We look for the current displayed network
 		//		CyApplicationManager appManager = this.ovManager.getService(CyApplicationManager.class);
@@ -855,6 +992,19 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 		return Color.getHSBColor(h, s, b);
 	}
+	
+	private Palette getPalette(String paletteName) {
+		Palette p=null;
+		
+		for(PaletteProvider paletteProvider : this.paletteProviderManager.getPaletteProviders()) {
+			p=paletteProvider.getPalette(paletteName);
+			if(p != null) {
+				return p;
+			}
+		}
+		
+		return p;
+	}
 
 	@Override
 	public void setVisible(boolean b) {
@@ -920,6 +1070,19 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			}
 
 			this.displayPanel2(reset);
+		} else if(e.getSource() == this.paletteButton) {
+			CyColorPaletteChooserFactory paletteChooserFactory = this.ovManager.getService(CyColorPaletteChooserFactory.class);
+			Palette newPalette = paletteChooserFactory.getColorPaletteChooser(this.paletteType, true).showDialog(this, "", this.palette, 3);
+			
+			if(newPalette != null) {
+				this.palette = newPalette;
+				this.paletteButton.setText(this.palette.getName());
+				
+				// We save it
+				this.paletteProviderManager.savePalette(this.ovTable.getTitle()+"-"+this.paletteType, newPalette);
+			}
+			
+			this.displayPanel2(true);
 		} else if(e.getSource() == this.backButton) {
 			this.displayPanel1();
 		} else if(e.getSource() == this.resetButton) {
@@ -972,6 +1135,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 					this.selectValues.getValueType(),
 					this.filteredCheck.isSelected(),
 					colors,
+					this.palette.getIdentifier().toString(),
 					label,
 					this.selectRing.getSelectedItem().equals(OVVisualizationWindow.ROW));
 
@@ -1030,6 +1194,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			this.buttons = new ArrayList<>();
 
 			this.addButton = new JButton(ICON_ADD);
+			this.addButton.setToolTipText("Add a value to visualize.");
 			Font buttonFont = this.addButton.getFont();
 			this.addButton.setFont(iconManager.getIconFont(buttonFont.getSize()));
 			this.addButton.addActionListener(this);
@@ -1046,8 +1211,9 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 					// We don't want OVCol, neither do we want List columns
 					if(!OVShared.isOVCol(colName) && colType != List.class
 							// TODO v1.1: No discrete mapping, so no String nor Boolean columns
-							&& colType != String.class
-							&& colType != Boolean.class) {
+//							&& colType != String.class
+//							&& colType != Boolean.class
+							) {
 						selectItems.add(new ChartValues(colName, colType));
 						this.selectItemStringValues.add(colName);
 					}
@@ -1069,6 +1235,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				this.createSelect();
 
 				JButton del = new JButton(ICON_DEL);
+				del.setToolTipText("Delete this value from the visualization.");
 				Font buttonFont = del.getFont();
 				del.setFont(iconManager.getIconFont(buttonFont.getSize()));
 				del.addActionListener(this);
@@ -1079,6 +1246,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 					this.createSelect().setSelectedIndex(this.selectItemStringValues.indexOf(val));
 
 					JButton del = new JButton(ICON_DEL);
+					del.setToolTipText("Delete this value from the visualization.");
 					Font buttonFont = del.getFont();
 					del.setFont(iconManager.getIconFont(buttonFont.getSize()));
 					del.addActionListener(this);
@@ -1115,6 +1283,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 		private JComboBox<ChartValues> createSelect() {
 			JComboBox<ChartValues> select = new JComboBox<>(this.selectItemChartValues);
+			select.setToolTipText("Select the table columns to visualize.");
 			select.setRenderer(new ComboBoxRenderer());
 			select.addActionListener(this.comboBoxActionListener);
 

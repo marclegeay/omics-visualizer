@@ -10,9 +10,14 @@ import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.colorchooser.ColorChooserComponentFactory;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+/**
+ * This is a re-implementation of the JColorChooser.
+ * This one remembers the recently used colors and the initial color changes.
+ */
 public class ColorChooser extends JDialog implements ChangeListener, ActionListener {
 	private static final long serialVersionUID = -7368462609341478480L;
 
@@ -43,8 +48,9 @@ public class ColorChooser extends JDialog implements ChangeListener, ActionListe
 		this.previousColor = this.colorLabel.getColor();
 		
 		if(this.colorLabel.getColor() != null) {
-			this.colorChooser = new JColorChooser(this.colorLabel.getColor());
-			this.colorChooser.getSelectionModel().addChangeListener(this);
+			// We put a new preview panel, so that the "initial color" will be the current color of the ColorPanel
+			this.colorChooser.setPreviewPanel(ColorChooserComponentFactory.getPreviewPanel());
+			this.colorChooser.setColor(this.colorLabel.getColor());
 		}
 		
 		JPanel mainPanel = new JPanel();
