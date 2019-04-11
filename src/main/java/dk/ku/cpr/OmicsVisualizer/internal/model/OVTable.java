@@ -412,10 +412,18 @@ public class OVTable {
 						OVConnection ovCon = this.connect(net.toString(), splittedLink[1], splittedLink[2]);
 						
 						// We try to load the Visualization
-						if(ovCon != null && netTable.getColumn(OVShared.CYNETWORKTABLE_VIZCOL) != null) {
-							String viz = netTable.getRow(net.getSUID()).get(OVShared.CYNETWORKTABLE_VIZCOL, String.class);
-							if(viz != null && !viz.isEmpty()) {
-								ovCon.setVisualization(OVVisualization.load(viz));
+						if(ovCon != null) {
+							if(netTable.getColumn(OVShared.CYNETWORKTABLE_INNERVIZCOL) != null) {
+								String viz = netTable.getRow(net.getSUID()).get(OVShared.CYNETWORKTABLE_INNERVIZCOL, String.class);
+								if(viz != null && !viz.isEmpty()) {
+									ovCon.setInnerVisualization(OVVisualization.load(viz));
+								}
+							}
+							if(netTable.getColumn(OVShared.CYNETWORKTABLE_OUTERVIZCOL) != null) {
+								String viz = netTable.getRow(net.getSUID()).get(OVShared.CYNETWORKTABLE_OUTERVIZCOL, String.class);
+								if(viz != null && !viz.isEmpty()) {
+									ovCon.setOuterVisualization(OVVisualization.load(viz));
+								}
 							}
 						}
 					}

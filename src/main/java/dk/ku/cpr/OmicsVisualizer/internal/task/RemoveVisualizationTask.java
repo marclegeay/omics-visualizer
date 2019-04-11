@@ -1,6 +1,10 @@
 package dk.ku.cpr.OmicsVisualizer.internal.task;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+
+import javax.swing.JOptionPane;
 
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyTable;
@@ -18,26 +22,48 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 
 public class RemoveVisualizationTask extends AbstractTask {
-	private OVManager ovManager;
-	private OVConnection ovCon;
+	protected OVManager ovManager;
+	protected OVConnection ovCon;
+	protected String type;
 
-	public RemoveVisualizationTask(OVManager ovManager, OVConnection ovCon) {
+	public RemoveVisualizationTask(OVManager ovManager, OVConnection ovCon, String type) {
 		super();
 		this.ovManager = ovManager;
 		this.ovCon = ovCon;
+		this.type = type;
 	}
 
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
 		taskMonitor.setTitle(this.getTitle());
+		
+		// We do some checks before doing anything
+		List<String> availableTypes = Arrays.asList("inner", "outer", "all");
+		if(!availableTypes.contains(this.type)) {
+			taskMonitor.setStatusMessage("Error: The type \"" + this.type + "\" is unknown.\nAvailable types are: " + OVShared.join(availableTypes, ", "));
+			JOptionPane.showMessageDialog(null, "Error: The type of Visualization is unknown.", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		if(this.ovCon == null) {
+			taskMonitor.setStatusMessage("Error: Impossible to identify the Network.");
+			JOptionPane.showMessageDialog(null, "Error: Impossible to identify the Network.", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
 		taskMonitor.setStatusMessage("Network Collection: " + this.ovCon.getCollectionNetworkName());
+		taskMonitor.setStatusMessage("Type: " + this.type);
 		
 		taskMonitor.setStatusMessage("Removing the VisualMappingFunction");
 		VisualMappingManager vmm = this.ovManager.getService(VisualMappingManager.class);
 		VisualLexicon lex = this.ovManager.getService(RenderingEngineManager.class).getDefaultVisualLexicon();
 		Collection<CyNetworkView> netViews = this.ovManager.getService(CyNetworkViewManager.class).getNetworkViews(this.ovCon.getBaseNetwork());
 		for(CyNetworkView netView : netViews) {
-			vmm.getVisualStyle(netView).removeVisualMappingFunction(lex.lookup(CyNode.class, OVShared.MAPPING_VIZ_IDENTIFIER));
+			if(this.type.equals("inner") || this.type.equals("all")) {
+				vmm.getVisualStyle(netView).removeVisualMappingFunction(lex.lookup(CyNode.class, OVShared.MAPPING_INNERVIZ_IDENTIFIER));	
+			}
+			if(this.type.equals("outer") || this.type.equals("all")) {
+				vmm.getVisualStyle(netView).removeVisualMappingFunction(lex.lookup(CyNode.class, OVShared.MAPPING_OUTERVIZ_IDENTIFIER));	
+			}
 			netView.updateView();
 		}
 		
@@ -48,7 +74,12 @@ public class RemoveVisualizationTask extends AbstractTask {
 		
 		// We erase all NetworkTable columns
 		taskMonitor.setStatusMessage("Cleaning network table data");
-		this.ovCon.setVisualization(null);
+		if(this.type.equals("inner") || this.type.equals("all")) {
+			this.ovCon.setInnerVisualization(null);	
+		}
+		if(this.type.equals("outer") || this.type.equals("all")) {
+			this.ovCon.setOuterVisualization(null);	
+		}
 	}
 	
 	@ProvidesTitle

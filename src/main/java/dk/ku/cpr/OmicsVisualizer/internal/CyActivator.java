@@ -30,9 +30,12 @@ import dk.ku.cpr.OmicsVisualizer.external.tableimport.tunable.AttributeDoubleIDM
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.ImportType;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
 import dk.ku.cpr.OmicsVisualizer.internal.task.FilterTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.OperatorListTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveFilterTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveVisualizationTask;
+import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveVisualizationTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowConnectWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowFilterWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowRetrieveWindowTaskFactory;
@@ -215,16 +218,52 @@ public class CyActivator extends AbstractCyActivator {
 				registerService(context, factory, TaskFactory.class, props);
 			}
 			
-			// Access visualization
+			// Access inner visualization
 			{
-				ShowVisualizationWindowTaskFactory factory = new ShowVisualizationWindowTaskFactory(ovManager);
+				ShowVisualizationWindowTaskFactory factory = new ShowVisualizationWindowTaskFactory(ovManager, ChartType.PIE);
 				Properties props = new Properties();
 				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
-				props.setProperty(TITLE, "Apply visualization to the connected networks...");
+				props.setProperty(TITLE, "Change inner Visualization to the connected networks...");
 				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "viz show");
-				props.setProperty(COMMAND_DESCRIPTION, "Show the visualization window of the current table");
+				props.setProperty(COMMAND, "viz show inner");
+				props.setProperty(COMMAND_DESCRIPTION, "Show the inner visualization window of the current table");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+			
+			// Access outer visualization
+			{
+				ShowVisualizationWindowTaskFactory factory = new ShowVisualizationWindowTaskFactory(ovManager, ChartType.CIRCOS);
+				Properties props = new Properties();
+				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
+				props.setProperty(TITLE, "Change outer Visualization to the connected networks...");
+				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(COMMAND, "viz show outer");
+				props.setProperty(COMMAND_DESCRIPTION, "Show the outer visualization window of the current table");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+			
+			// Remove inner visualization (Command-only)
+			{
+				RemoveVisualizationTaskFactory factory = new RemoveVisualizationTaskFactory(ovManager, "inner");
+				Properties props = new Properties();
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(COMMAND, "viz remove inner");
+				props.setProperty(COMMAND_DESCRIPTION, "Remove the inner Visualization of the current network");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+			
+			// Remove outer visualization (Command-only)
+			{
+				RemoveVisualizationTaskFactory factory = new RemoveVisualizationTaskFactory(ovManager, "outer");
+				Properties props = new Properties();
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(COMMAND, "viz remove outer");
+				props.setProperty(COMMAND_DESCRIPTION, "Remove the outer Visualization of the current network");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}

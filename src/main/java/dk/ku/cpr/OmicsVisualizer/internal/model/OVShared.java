@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyTable;
 
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
+
 public class OVShared {
 	public static final String OV_PREFIX = "dk.ku.cpr.OmicsVisualizer.";
 	
@@ -30,15 +32,20 @@ public class OVShared {
 //	public static final String PROPERTY_MAPPING_OV_CY = OV_PREFIX+"OV_to_CyNetwork";
 //	public static final String PROPERTY_MAPPING_CY_OV = OV_PREFIX+"CyNetwork_to_OV";
 	public static final String PROPERTY_FILTER = OV_PREFIX+"filter";
-	
-	public static final String MAPPING_VIZ_IDENTIFIER="NODE_CUSTOMGRAPHICS_4"; // Same CUSTOMGRAPHICS as stringApp displays enrichment
+
+	public static final String MAPPING_INNERVIZ_IDENTIFIER="NODE_CUSTOMGRAPHICS_7";
+	public static final String MAPPING_OUTERVIZ_IDENTIFIER="NODE_CUSTOMGRAPHICS_8";
 	
 	public static final String CYNETWORKTABLE_OVCOL = "OVTable";
-	public static final String CYNETWORKTABLE_VIZCOL="OVViz";
+	public static final String CYNETWORKTABLE_INNERVIZCOL="OVViz PieChart";
+	public static final String CYNETWORKTABLE_OUTERVIZCOL="OVViz DonutChart";
 
 	public static final String CYNODETABLE_CONNECTEDCOUNT = "OV Connected rows";
 	public static final String CYNODETABLE_VIZCOL="OVViz";
-	public static final String CYNODETABLE_VIZCOL_VALUES="OVViz Values ";
+	public static final String CYNODETABLE_INNERVIZCOL=CYNODETABLE_VIZCOL+"Inner";
+	public static final String CYNODETABLE_OUTERVIZCOL=CYNODETABLE_VIZCOL+"Outer";
+	public static final String CYNODETABLE_INNERVIZCOL_VALUES=CYNODETABLE_INNERVIZCOL + " Values ";
+	public static final String CYNODETABLE_OUTERVIZCOL_VALUES=CYNODETABLE_OUTERVIZCOL + " Values ";
 	
 	public static final String STRING_CMD_PROTEIN_QUERY = "protein query";
 	public static final String STRING_CMD_LIST_SPECIES = "list species";
@@ -75,6 +82,28 @@ public class OVShared {
 			CyColumn cycol = cycolIt.next();
 			
 			if(cycol.getName().startsWith(OVShared.CYNODETABLE_VIZCOL)) {
+				cyTable.deleteColumn(cycol.getName());
+			}
+		}
+	}
+
+	/**
+	 * Delete the specific columns in a node table related to a type of visualization
+	 * @param cyTable
+	 * @param vizType
+	 */
+	public static void deleteOVColumns(CyTable cyTable, ChartType vizType) {
+		String prefix;
+		if(vizType.equals(ChartType.CIRCOS)) {
+			prefix = OVShared.CYNODETABLE_OUTERVIZCOL;
+		} else {
+			prefix = OVShared.CYNODETABLE_INNERVIZCOL;
+		}
+		
+		for(Iterator<CyColumn> cycolIt = cyTable.getColumns().iterator(); cycolIt.hasNext();) {
+			CyColumn cycol = cycolIt.next();
+			
+			if(cycol.getName().startsWith(prefix)) {
 				cyTable.deleteColumn(cycol.getName());
 			}
 		}

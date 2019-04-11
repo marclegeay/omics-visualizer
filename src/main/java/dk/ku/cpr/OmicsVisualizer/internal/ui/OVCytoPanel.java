@@ -66,6 +66,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
 import dk.ku.cpr.OmicsVisualizer.internal.task.FilterTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.table.OVTableModel;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.ViewUtil;
@@ -98,14 +99,16 @@ SelectedNodesAndEdgesListener {
 	private JButton deleteTableButton=null;
 	private JButton retrieveNetworkButton=null;
 	private JButton connectButton=null;
-	private JButton vizButton=null;
+	private JButton vizInnerButton=null;
+	private JButton vizOuterButton=null;
 
 	private JPopupMenu columnSelectorPopupMenu=null;
 	private CyColumnSelector columnSelector=null;
 
 	private OVFilterWindow filterWindow=null;
 	private OVConnectWindow connectWindow=null;
-	private OVVisualizationWindow vizWindow=null;
+	private OVVisualizationWindow vizInnerWindow=null;
+	private OVVisualizationWindow vizOuterWindow=null;
 	private OVRetrieveStringNetworkWindow retrieveWindow=null;
 
 	private JPanel toolBarPanel=null;
@@ -274,12 +277,19 @@ SelectedNodesAndEdgesListener {
 		return this.connectWindow;
 	}
 
-	public OVVisualizationWindow getVisualizationWindow() {
-		if(this.vizWindow == null) {
-			this.vizWindow = new OVVisualizationWindow(this.ovManager);
+	public OVVisualizationWindow getVizInnerWindow() {
+		if(this.vizInnerWindow == null) {
+			this.vizInnerWindow = new OVVisualizationWindow(this.ovManager, ChartType.PIE);
 		}
 
-		return this.vizWindow;
+		return this.vizInnerWindow;
+	}
+	public OVVisualizationWindow getVizOuterWindow() {
+		if(this.vizOuterWindow == null) {
+			this.vizOuterWindow = new OVVisualizationWindow(this.ovManager, ChartType.CIRCOS);
+		}
+
+		return this.vizOuterWindow;
 	}
 
 	public OVRetrieveStringNetworkWindow getRetrieveWindow() {
@@ -305,8 +315,8 @@ SelectedNodesAndEdgesListener {
 			if(this.connectWindow != null) {
 				this.connectWindow.setVisible(false);
 			}
-			if(this.vizWindow != null) {
-				this.vizWindow.setVisible(false);
+			if(this.vizInnerWindow != null) {
+				this.vizInnerWindow.setVisible(false);
 			}
 		}
 
@@ -406,12 +416,12 @@ SelectedNodesAndEdgesListener {
 			});
 		}
 		connectButton.setEnabled(this.displayedTable != null && this.ovManager.getNetworkManager().getNetworkSet().size() != 0);
-		if (vizButton == null ) {
-			vizButton = new JButton(IconManager.ICON_PAINT_BRUSH);
-			vizButton.setToolTipText("Apply visualization to the connected networks...");
-			styleButton(vizButton, iconFont);
+		if (vizInnerButton == null ) {
+			vizInnerButton = new JButton(IconManager.ICON_PIE_CHART);
+			vizInnerButton.setToolTipText("Apply a Pie Chart visualization to the connected networks...");
+			styleButton(vizInnerButton, iconFont);
 
-			vizButton.addActionListener(e -> {
+			vizInnerButton.addActionListener(e -> {
 				if(this.displayedTable != null && this.displayedTable.isConnected()) {
 					//					resetCharts();
 
@@ -423,24 +433,48 @@ SelectedNodesAndEdgesListener {
 						return;
 					}
 
-					this.getVisualizationWindow().setTable(this.displayedTable);
-					this.getVisualizationWindow().setVisible(true);
+					this.getVizInnerWindow().setTable(this.displayedTable);
+					this.getVizInnerWindow().setVisible(true);
 				}
 			});
 		}
-		vizButton.setEnabled(this.displayedTable != null && this.displayedTable.isConnectedTo(currentNetwork));
+		vizInnerButton.setEnabled(this.displayedTable != null && this.displayedTable.isConnectedTo(currentNetwork));
+		if (vizOuterButton == null ) {
+			vizOuterButton = new JButton(IconManager.ICON_CIRCLE_O);
+			vizOuterButton.setToolTipText("Apply a Donut Chart visualization to the connected networks...");
+			styleButton(vizOuterButton, iconFont);
+
+			vizOuterButton.addActionListener(e -> {
+				if(this.displayedTable != null && this.displayedTable.isConnected()) {
+					//					resetCharts();
+
+					AvailableCommands availableCommands = (AvailableCommands) this.ovManager.getService(AvailableCommands.class);
+					if (!availableCommands.getNamespaces().contains("enhancedGraphics")) {
+						JOptionPane.showMessageDialog(null,
+								"You need to install enhancedGraphics from the App Manager or Cytoscape App Store.",
+								"Dependency error", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+
+					this.getVizOuterWindow().setTable(this.displayedTable);
+					this.getVizOuterWindow().setVisible(true);
+				}
+			});
+		}
+		vizOuterButton.setEnabled(this.displayedTable != null && this.displayedTable.isConnectedTo(currentNetwork));
 
 		addToolBarComponent(selectButton, ComponentPlacement.RELATED);
 		addToolBarComponent(filterButton, ComponentPlacement.RELATED);
-		addToolBarComponent(deleteTableButton, ComponentPlacement.RELATED);
 		addToolBarComponent(retrieveNetworkButton, ComponentPlacement.RELATED);
 		addToolBarComponent(connectButton, ComponentPlacement.RELATED);
-		addToolBarComponent(vizButton, ComponentPlacement.RELATED);
+		addToolBarComponent(vizInnerButton, ComponentPlacement.RELATED);
+		addToolBarComponent(vizOuterButton, ComponentPlacement.RELATED);
 
 		if (tableChooser != null) {
 			hToolBarGroup.addGap(0, 20, Short.MAX_VALUE);
 			addToolBarComponent(tableChooser, ComponentPlacement.UNRELATED);
 		}
+		addToolBarComponent(deleteTableButton, ComponentPlacement.RELATED);
 
 		toolBarPanel = new JPanel();
 		toolBarPanel.setLayout(new BorderLayout());

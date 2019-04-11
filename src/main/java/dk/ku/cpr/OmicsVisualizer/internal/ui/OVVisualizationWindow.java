@@ -91,6 +91,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	private OVTable ovTable;
 	private OVConnection ovCon;
 	
+	private ChartType chartType;
+	
 	private PaletteProviderManager paletteProviderManager;
 
 	private JButton cancelButton;
@@ -101,8 +103,6 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	private JButton deleteButton;
 	private SelectValuesPanel selectValues;
 	private JCheckBox filteredCheck;
-	private JComboBox<ChartType> selectChartType;
-	private ChartType oldType;
 	private JComboBox<String> selectChartLabels;
 	private JComboBox<String> selectDiscreteContinuous;
 	private String oldDC;
@@ -128,8 +128,9 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	private static String ICON_ADD = IconManager.ICON_PLUS;
 	private static String ICON_DEL = IconManager.ICON_MINUS;
 
-	public OVVisualizationWindow(OVManager ovManager) {
+	public OVVisualizationWindow(OVManager ovManager, ChartType chartType) {
 		super(ovManager);
+		this.chartType=chartType;
 
 		this.cytoPanel=ovManager.getOVCytoPanel();
 
@@ -154,17 +155,6 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		this.selectValues = new SelectValuesPanel(this);
 
 		this.filteredCheck = new JCheckBox("Apply visualization only to filtered rows", true);
-
-		this.selectChartType = new JComboBox<>();
-		this.selectChartType.addActionListener(this);
-		for(ChartType ct : ChartType.values()) {
-			this.selectChartType.addItem(ct);
-		}
-		this.selectChartType.setToolTipText("<html>"
-				+ "Select the type of Chart you want to draw.<br>"
-				+ "<b>Donut Charts</b> can have several rings, thus you can select several values columns.<br>"
-				+ "<b>Pie Charts</b> can have only one values column."
-				+ "</html>");
 
 		this.selectChartLabels = new JComboBox<>();
 		this.selectChartLabels.setToolTipText("<html>"
@@ -242,9 +232,6 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		MyGridBagConstraints c2 = new MyGridBagConstraints();
 		c2.expandHorizontal().setAnchor("C");
 
-		chartPanel.add(new JLabel("Select Chart Type:"), c2);
-		chartPanel.add(this.selectChartType, c2.nextCol());
-
 		// This JLabel must be displayed in the top-left corner
 		// We add the default margin on top and left because otherwise the JLabel is not aligned with the center of the first JComboBox
 		chartPanel.add(new JLabel("Select Values:"), c2.nextRow().setAnchor("NW").setInsets(MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, 0, 0));
@@ -272,7 +259,11 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		buttonPanel.add(this.deleteButton);
 		buttonPanel.add(this.nextButton);
 
-		this.deleteButton.setEnabled(this.ovCon.getVisualization()!=null);
+		if(this.chartType.equals(ChartType.CIRCOS)) {
+			this.deleteButton.setEnabled(this.ovCon.getOuterVisualization()!=null);
+		} else {
+			this.deleteButton.setEnabled(this.ovCon.getInnerVisualization()!=null);
+		}
 
 		this.setContentPane(new JPanel());
 		this.setLayout(new BorderLayout());
@@ -289,7 +280,11 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 		OVVisualization ovViz = null;
 		if(this.ovCon != null) {
-			ovViz = this.ovCon.getVisualization();
+			if(this.chartType.equals(ChartType.CIRCOS)) {
+				ovViz = this.ovCon.getOuterVisualization();
+			} else {
+				ovViz = this.ovCon.getInnerVisualization();
+			}
 		}
 
 		JPanel mainPanel = new JPanel();
@@ -607,11 +602,11 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 				// TODO v1.1: No missing values
 				this.colorPanels[3] = new ColorPanel(colorMissing, this, this.colorChooser);
-//				mainPanel.add(new JLabel("Missing value:"), c.nextRow());
-//				mainPanel.add(this.colorPanels[3], c.nextCol().nextCol().noExpand());
-//				c.expandHorizontal();
+				mainPanel.add(new JLabel("Missing value:"), c.nextRow());
+				mainPanel.add(this.colorPanels[3], c.nextCol().nextCol().noExpand());
+				c.expandHorizontal();
 
-				if(this.selectChartType.getSelectedItem().equals(ChartType.CIRCOS)) {
+				if(this.chartType.equals(ChartType.CIRCOS)) {
 					// Only CIRCOS can have several layouts
 					JPanel ringPanel = new JPanel();
 					ringPanel.setOpaque(!LookAndFeelUtil.isAquaLAF());
@@ -748,7 +743,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 				mainPanel.add(valuesScroll, c.expandBoth());
 				c.expandHorizontal();
-				if(this.selectChartType.getSelectedItem().equals(ChartType.CIRCOS)) {
+				if(this.chartType.equals(ChartType.CIRCOS)) {
 					// Only CIRCOS can have several layers
 					JPanel ringPanel = new JPanel();
 					ringPanel.setOpaque(!LookAndFeelUtil.isAquaLAF());
@@ -918,13 +913,23 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	}
 
 	private void updateVisualization(OVVisualization ovViz) {
-		this.ovCon.setVisualization(ovViz);
+		// First we check if this is a good type
+		if(ovViz != null && !ovViz.getType().equals(this.chartType)) {
+			// If it does not match we do nothing
+			return;
+		}
+		
+		if(this.chartType.equals(ChartType.CIRCOS)) {
+			this.ovCon.setOuterVisualization(ovViz);
+		} else {
+			this.ovCon.setInnerVisualization(ovViz);
+		}
 
 		// We only update the Panel1 information, the information of Panel2 always check for ovViz
 		this.selectValues.setVisualization(ovViz);
 		if(ovViz != null) {
+			
 			this.filteredCheck.setSelected(ovViz.isOnlyFiltered());
-			this.selectChartType.setSelectedItem(ovViz.getType());
 			if(ovViz.getLabel() == null) {
 				this.selectChartLabels.setSelectedItem(OVVisualizationWindow.NO_LABEL);
 			} else {
@@ -935,26 +940,19 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			} else {
 				this.selectDiscreteContinuous.setSelectedItem(OVVisualizationWindow.CONTINUOUS);
 			}
+			
+			this.deleteButton.setEnabled(true);
 		} else {
-			this.selectChartType.setSelectedIndex(0);
 			this.selectChartLabels.setSelectedIndex(0);
 			this.selectDiscreteContinuous.setSelectedIndex(0);
+			
+			this.deleteButton.setEnabled(false);
 		}
 
 		this.visualizationUpdated();
 	}
 
 	private void visualizationUpdated() {
-		if(this.selectValues.getValues().size() > 1) {
-			// If we have more than one value, we authorize only one type of chart
-			this.oldType = (ChartType) this.selectChartType.getSelectedItem();
-			this.selectChartType.setSelectedItem(ChartType.CIRCOS);
-			this.selectChartType.setEnabled(false);
-		} else if(!this.selectChartType.isEnabled()) {
-			this.selectChartType.setEnabled(true);
-			this.selectChartType.setSelectedItem(this.oldType);
-		}
-
 		this.pack();
 		this.setLocationRelativeTo(this.cytoPanel.getTopLevelAncestor());
 	}
@@ -1005,6 +1003,14 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		
 		return p;
 	}
+	
+	private OVVisualization getVisualization() {
+		if(this.chartType.equals(ChartType.CIRCOS)) {
+			return this.ovCon.getOuterVisualization();
+		}
+		
+		return this.ovCon.getInnerVisualization();
+	}
 
 	@Override
 	public void setVisible(boolean b) {
@@ -1023,7 +1029,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				b = false;
 			} else {
 				this.setTitle(this.ovTable, this.ovCon.getCollectionNetworkName());
-				this.updateVisualization(this.ovCon.getVisualization());
+				this.updateVisualization(this.getVisualization());
 
 				this.displayPanel1();
 			}
@@ -1042,16 +1048,15 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		if(e.getSource() == this.cancelButton) {
 			this.setVisible(false);
 		} else if(e.getSource() == this.deleteButton) {
-			if(JOptionPane.showConfirmDialog(this, "Delete the visualization applied to the network \"" + this.ovCon.getCollectionNetworkName() + "\"?", "Visualization deletion confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-				RemoveVisualizationTaskFactory factory = new RemoveVisualizationTaskFactory(this.ovManager, this.ovCon);
+			String type = (this.chartType.equals(ChartType.CIRCOS) ? "outer" : "inner");
+			if(JOptionPane.showConfirmDialog(this, "Delete the " + type + " visualization applied to the network \"" + this.ovCon.getCollectionNetworkName() + "\"?", "Visualization deletion confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				RemoveVisualizationTaskFactory factory = new RemoveVisualizationTaskFactory(this.ovManager, this.ovCon, type);
 				this.ovManager.executeSynchronousTask(factory.createTaskIterator());
 
-				this.updateVisualization(this.ovCon.getVisualization());
+				this.updateVisualization(this.getVisualization());
 			}
 			//		} else if(e.getSource() == this.selectNetwork) {
 			//			this.changedNetwork();
-		} else if(e.getSource() == this.selectChartType) {
-			this.selectValues.addButton.setEnabled(((ChartType)this.selectChartType.getSelectedItem()) == ChartType.CIRCOS);
 		} else if(e.getSource() == this.nextButton) {
 			if(!this.selectValues.allSameType()) {
 				JOptionPane.showMessageDialog(null,
@@ -1064,9 +1069,9 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			// We look if something has changed from the loaded visualization
 			// To know if we have to reset panel2 or not
 			boolean reset = false;
-			if(this.ovCon.getVisualization() != null) {
-				reset = !ovCon.getVisualization().getValues().equals(this.selectValues.getValues());
-				reset |= ovCon.getVisualization().isOnlyFiltered() != this.filteredCheck.isSelected();
+			if(this.getVisualization() != null) {
+				reset = !this.getVisualization().getValues().equals(this.selectValues.getValues());
+				reset |= this.getVisualization().isOnlyFiltered() != this.filteredCheck.isSelected();
 			}
 
 			this.displayPanel2(reset);
@@ -1130,7 +1135,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 			this.selectValues.getValues();
 
-			OVVisualization ovViz = new OVVisualization((ChartType) this.selectChartType.getSelectedItem(),
+			OVVisualization ovViz = new OVVisualization(this.chartType,
 					this.selectValues.getValues(),
 					this.selectValues.getValueType(),
 					this.filteredCheck.isSelected(),
@@ -1139,9 +1144,13 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 					label,
 					this.selectRing.getSelectedItem().equals(OVVisualizationWindow.ROW));
 
-			this.ovCon.setVisualization(ovViz);
+			if(this.chartType.equals(ChartType.CIRCOS)) {
+				this.ovCon.setOuterVisualization(ovViz);
+			} else {
+				this.ovCon.setInnerVisualization(ovViz);
+			}
 
-			ApplyVisualizationTaskFactory factory = new ApplyVisualizationTaskFactory(this.ovManager, this.ovCon, this.filteredCheck.isSelected());
+			ApplyVisualizationTaskFactory factory = new ApplyVisualizationTaskFactory(this.ovManager, this.ovCon, ovViz);
 			this.ovManager.executeTask(factory.createTaskIterator());
 
 			this.setVisible(false);
@@ -1270,13 +1279,22 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			c.expandHorizontal().setInsets(0, 0, 0, 0);
 
 			this.add(this.selects.get(0), c);
-			this.add(this.buttons.get(0), c.nextCol());
+			if(this.ovVisualizationWindow.chartType.equals(ChartType.CIRCOS)) {
+				// Only CIRCOS can have several values
+				this.add(this.buttons.get(0), c.nextCol());
+			}
 			for(int i=1; i<this.selects.size(); ++i) {
 				this.add(this.selects.get(i), c.nextRow());
-				this.add(this.buttons.get(i), c.nextCol());
+				if(this.ovVisualizationWindow.chartType.equals(ChartType.CIRCOS)) {
+					// Only CIRCOS can have several values
+					this.add(this.buttons.get(i), c.nextCol());
+				}
 			}
 
-			this.add(this.addButton, c.nextRow().nextCol());
+			if(this.ovVisualizationWindow.chartType.equals(ChartType.CIRCOS)) {
+				// Only CIRCOS can have several values
+				this.add(this.addButton, c.nextRow().nextCol());
+			}
 
 			this.ovVisualizationWindow.visualizationUpdated();
 		}

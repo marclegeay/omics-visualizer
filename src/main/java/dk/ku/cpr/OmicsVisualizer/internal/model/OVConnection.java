@@ -28,7 +28,8 @@ public class OVConnection {
 	/** Map that associates the list of table rows with the network node SUID */
 	private Map<Long, List<CyRow>> node2table;
 	private int nbConnectedTableRows;
-	private OVVisualization ovViz;
+	private OVVisualization ovInnerViz;
+	private OVVisualization ovOuterViz;
 
 	public OVConnection(OVManager ovManager, OVTable ovTable, CyRootNetwork rootNetwork, String mappingColCyto, String mappingColOVTable) {
 		super();
@@ -38,7 +39,8 @@ public class OVConnection {
 		this.mappingColCyto = mappingColCyto;
 		this.mappingColOVTable = mappingColOVTable;
 		this.node2table = new HashMap<>();
-		this.ovViz=null;
+		this.ovInnerViz=null;
+		this.ovOuterViz=null;
 		
 		// We register all OVConnection to the OVManager
 		this.ovManager.addConnection(this);
@@ -90,13 +92,22 @@ public class OVConnection {
 		return (list == null ? new ArrayList<>() : list);
 	}
 	
-	public void setVisualization(OVVisualization ovViz) {
-		this.ovViz=ovViz;
+	public void setInnerVisualization(OVVisualization ovViz) {
+		this.ovInnerViz=ovViz;
 		this.updateVisualization();
 	}
 	
-	public OVVisualization getVisualization() {
-		return this.ovViz;
+	public OVVisualization getInnerVisualization() {
+		return this.ovInnerViz;
+	}
+	
+	public void setOuterVisualization(OVVisualization ovViz) {
+		this.ovOuterViz=ovViz;
+		this.updateVisualization();
+	}
+	
+	public OVVisualization getOuterVisualization() {
+		return this.ovOuterViz;
 	}
 	
 	private Object getKey(CyRow row, CyColumn keyCol) {
@@ -108,17 +119,26 @@ public class OVConnection {
 	}
 	
 	public void updateVisualization() {
-		String savedViz = "";
-		if(this.ovViz != null) {
-			savedViz = this.ovViz.save();
+		String savedInnerViz = "";
+		String savedOuterViz = "";
+
+		if(this.ovInnerViz != null) {
+			savedInnerViz = this.ovInnerViz.save();
+		}
+		if(this.ovOuterViz != null) {
+			savedOuterViz = this.ovOuterViz.save();
 		}
 		
 		for(CyNetwork net : this.rootNetwork.getSubNetworkList()) {
 			CyTable networkTable = net.getDefaultNetworkTable();
-			if(networkTable.getColumn(OVShared.CYNETWORKTABLE_VIZCOL) == null) {
-				networkTable.createColumn(OVShared.CYNETWORKTABLE_VIZCOL, String.class, false);
+			if(networkTable.getColumn(OVShared.CYNETWORKTABLE_INNERVIZCOL) == null) {
+				networkTable.createColumn(OVShared.CYNETWORKTABLE_INNERVIZCOL, String.class, false);
 			}
-			networkTable.getRow(net.getSUID()).set(OVShared.CYNETWORKTABLE_VIZCOL, savedViz);
+			if(networkTable.getColumn(OVShared.CYNETWORKTABLE_OUTERVIZCOL) == null) {
+				networkTable.createColumn(OVShared.CYNETWORKTABLE_OUTERVIZCOL, String.class, false);
+			}
+			networkTable.getRow(net.getSUID()).set(OVShared.CYNETWORKTABLE_INNERVIZCOL, savedInnerViz);
+			networkTable.getRow(net.getSUID()).set(OVShared.CYNETWORKTABLE_OUTERVIZCOL, savedOuterViz);
 		}
 	}
 	
@@ -249,14 +269,22 @@ public class OVConnection {
 		
 		
 		// Visualization :
-		if(networkTable.getColumn(OVShared.CYNETWORKTABLE_VIZCOL) == null) {
-			networkTable.createColumn(OVShared.CYNETWORKTABLE_VIZCOL, String.class, false);
+		if(networkTable.getColumn(OVShared.CYNETWORKTABLE_INNERVIZCOL) == null) {
+			networkTable.createColumn(OVShared.CYNETWORKTABLE_INNERVIZCOL, String.class, false);
 		}
-		String savedViz = "";
-		if(this.ovViz != null) {
-			savedViz = this.ovViz.save();
+		if(networkTable.getColumn(OVShared.CYNETWORKTABLE_OUTERVIZCOL) == null) {
+			networkTable.createColumn(OVShared.CYNETWORKTABLE_OUTERVIZCOL, String.class, false);
 		}
-		networkTable.getRow(network.getSUID()).set(OVShared.CYNETWORKTABLE_VIZCOL, savedViz);
+		String savedInnerViz = "";
+		String savedOuterViz = "";
+		if(this.ovInnerViz != null) {
+			savedInnerViz = this.ovInnerViz.save();
+		}
+		if(this.ovOuterViz != null) {
+			savedOuterViz = this.ovOuterViz.save();
+		}
+		networkTable.getRow(network.getSUID()).set(OVShared.CYNETWORKTABLE_INNERVIZCOL, savedInnerViz);
+		networkTable.getRow(network.getSUID()).set(OVShared.CYNETWORKTABLE_OUTERVIZCOL, savedOuterViz);
 	}
 
 	public void disconnect() {
@@ -276,12 +304,15 @@ public class OVConnection {
 		if(networkTable.getColumn(OVShared.CYNETWORKTABLE_OVCOL) != null) {
 			networkTable.getRow(network.getSUID()).set(OVShared.CYNETWORKTABLE_OVCOL, "");
 		}
-		if(networkTable.getColumn(OVShared.CYNETWORKTABLE_VIZCOL) != null) {
-			networkTable.getRow(network.getSUID()).set(OVShared.CYNETWORKTABLE_VIZCOL, "");
+		if(networkTable.getColumn(OVShared.CYNETWORKTABLE_INNERVIZCOL) != null) {
+			networkTable.getRow(network.getSUID()).set(OVShared.CYNETWORKTABLE_INNERVIZCOL, "");
+		}
+		if(networkTable.getColumn(OVShared.CYNETWORKTABLE_OUTERVIZCOL) != null) {
+			networkTable.getRow(network.getSUID()).set(OVShared.CYNETWORKTABLE_OUTERVIZCOL, "");
 		}
 		
 		// We erase the Visualization
-		if(this.getVisualization() != null) {
+		if(this.getInnerVisualization() != null) {
 			RemoveVisualizationTaskFactory factory = new RemoveVisualizationTaskFactory(ovManager, this);
 			this.ovManager.executeTask(factory.createTaskIterator());
 		}

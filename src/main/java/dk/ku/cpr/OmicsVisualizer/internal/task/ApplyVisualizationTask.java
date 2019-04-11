@@ -22,18 +22,19 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
 
 public class ApplyVisualizationTask extends AbstractTask {
 
 	private OVManager ovManager;
 	private OVConnection ovCon;
-	private boolean onlyFiltered;
+	private OVVisualization ovViz;
 
-	public ApplyVisualizationTask(OVManager ovManager, OVConnection ovCon, boolean onlyFiltered) {
+	public ApplyVisualizationTask(OVManager ovManager, OVConnection ovCon, OVVisualization ovViz) {
 		super();
 		this.ovManager = ovManager;
 		this.ovCon = ovCon;
-		this.onlyFiltered=onlyFiltered;
+		this.ovViz=ovViz;
 	}
 
 	private void createOVListColumn(CyTable cyTable, String colName, Class<?> valueType) {
@@ -46,23 +47,28 @@ public class ApplyVisualizationTask extends AbstractTask {
 	public void run(TaskMonitor taskMonitor) throws Exception {
 		taskMonitor.setTitle("Apply visualization to Network");
 
+		if(this.ovViz == null) {
+			return;
+		}
+
 		// First we erase all previous charts
 		taskMonitor.setStatusMessage("Cleaning previous data");
 		CyTable nodeTable = this.ovCon.getBaseNetwork().getDefaultNodeTable();
-		OVShared.deleteOVColumns(nodeTable);
-		nodeTable.createColumn(OVShared.CYNODETABLE_VIZCOL, String.class, false);
-
-		OVVisualization ovViz = this.ovCon.getVisualization();
-		if(ovViz == null) {
-			return;
+		OVShared.deleteOVColumns(nodeTable, this.ovViz.getType());
+		String vizCol;
+		if(this.ovViz.getType().equals(ChartType.CIRCOS)) {
+			vizCol = OVShared.CYNODETABLE_OUTERVIZCOL;
+		} else {
+			vizCol = OVShared.CYNODETABLE_INNERVIZCOL;
 		}
+		nodeTable.createColumn(vizCol, String.class, false);
 
 		double progress = 0.0;
 		taskMonitor.setProgress(progress);
 		
-		Class<?> outputValuesType = ovViz.getValuesType();
+		Class<?> outputValuesType = this.ovViz.getValuesType();
 		// A continuous mapping should be Double
-		if(ovViz.getColors() instanceof OVColorContinuous) {
+		if(this.ovViz.getColors() instanceof OVColorContinuous) {
 			outputValuesType = Double.class;
 		}
 
@@ -77,16 +83,16 @@ public class ApplyVisualizationTask extends AbstractTask {
 			ArrayList<Object> nodeValues = new ArrayList<>();
 			String nodeLabels = "";
 			for(CyRow tableRow : this.ovCon.getLinkedRows(nodeTable.getRow(node.getSUID()))) {
-				if(this.onlyFiltered && !this.ovCon.getOVTable().isFiltered(tableRow)) {
+				if(this.ovViz.isOnlyFiltered() && !this.ovCon.getOVTable().isFiltered(tableRow)) {
 					continue;
 				}
 				
-				for(String colName : ovViz.getValues()) {
-					Object val = tableRow.get(colName, ovViz.getValuesType());
+				for(String colName : this.ovViz.getValues()) {
+					Object val = tableRow.get(colName, this.ovViz.getValuesType());
 					
 					// If we have a continuous mapping, we have to change the value to center them in rangeZero
-					if(ovViz.getColors() instanceof OVColorContinuous) {
-						double zero = ((OVColorContinuous) ovViz.getColors()).getRangeZero();
+					if(this.ovViz.getColors() instanceof OVColorContinuous) {
+						double zero = ((OVColorContinuous) this.ovViz.getColors()).getRangeZero();
 						Double newVal=null;
 						
 						// We check if we have a missing value
@@ -101,8 +107,8 @@ public class ApplyVisualizationTask extends AbstractTask {
 					
 					nodeValues.add(val);
 				}
-				if(ovViz.getLabel() != null) {
-					nodeLabels += tableRow.get(ovViz.getLabel(), this.ovCon.getOVTable().getColType(ovViz.getLabel()));
+				if(this.ovViz.getLabel() != null) {
+					nodeLabels += tableRow.get(this.ovViz.getLabel(), this.ovCon.getOVTable().getColType(this.ovViz.getLabel()));
 					nodeLabels += ",";
 				}
 			}
@@ -111,17 +117,22 @@ public class ApplyVisualizationTask extends AbstractTask {
 				continue;
 			}
 
-			int ncol = ovViz.getValues().size();
+			int ncol = this.ovViz.getValues().size();
 			int nrow = nodeValues.size() / ncol;
 
 			List<String> attributeList = new ArrayList<>();
 
 			List<List<Object>> styleValues = new ArrayList<>();
 
-			int ncolValues = (ovViz.isTranspose() ? nrow : ncol);
-			int nrowValues = (ovViz.isTranspose() ? ncol : nrow);
+			int ncolValues = (this.ovViz.isTranspose() ? nrow : ncol);
+			int nrowValues = (this.ovViz.isTranspose() ? ncol : nrow);
 			for(int c=0; c<ncolValues; ++c) {
-				String colName = OVShared.CYNODETABLE_VIZCOL_VALUES+(c+1);
+				String colName;
+				if(this.ovViz.getType().equals(ChartType.CIRCOS)) {
+					colName = OVShared.CYNODETABLE_OUTERVIZCOL_VALUES+(c+1);
+				} else {
+					colName = OVShared.CYNODETABLE_INNERVIZCOL_VALUES+(c+1);
+				}
 				attributeList.add(colName);
 				// We create the column if this one does not exist yet
 				createOVListColumn(nodeTable, colName, outputValuesType);
@@ -130,7 +141,7 @@ public class ApplyVisualizationTask extends AbstractTask {
 				for(int r=0; r<nrowValues; ++r) {
 					int index = 0;
 
-					if(ovViz.isTranspose()) {
+					if(this.ovViz.isTranspose()) {
 						index = c*ncol+r;
 					} else {
 						index = r*ncol+c;
@@ -142,15 +153,15 @@ public class ApplyVisualizationTask extends AbstractTask {
 				styleValues.add(colValues);
 			}
 
-			String nodeStyle = ovViz.toEnhancedGraphics(styleValues);
-			if(ovViz.isContinuous()) {
+			String nodeStyle = this.ovViz.toEnhancedGraphics(styleValues);
+			if(this.ovViz.isContinuous()) {
 				// Only continuous mapping needs attributes
 				nodeStyle += " attributelist=\"" + String.join(",", attributeList) + "\"";
 			}
 
 
 			if(nodeLabels.length()>0) {
-				if(ovViz.isTranspose()) {
+				if(this.ovViz.isTranspose()) {
 					nodeLabels = "showlabels=\"false\" labelcircles=east circlelabels=\"" + nodeLabels.substring(0, nodeLabels.length()-1) + "\"";
 				} else {
 					nodeLabels = "labellist=\"" + nodeLabels.substring(0, nodeLabels.length()-1) + "\" showlabels=\"true\"";
@@ -161,7 +172,7 @@ public class ApplyVisualizationTask extends AbstractTask {
 
 			nodeStyle += " " + nodeLabels;
 
-			nodeTable.getRow(node.getSUID()).set(OVShared.CYNODETABLE_VIZCOL, nodeStyle);
+			nodeTable.getRow(node.getSUID()).set(vizCol, nodeStyle);
 		}
 
 
@@ -173,8 +184,15 @@ public class ApplyVisualizationTask extends AbstractTask {
 		if(netView != null) {
 			VisualMappingFunctionFactory passthroughFactory = this.ovManager.getService(VisualMappingFunctionFactory.class, "(mapping.type=passthrough)");
 			VisualLexicon lex = this.ovManager.getService(RenderingEngineManager.class).getDefaultVisualLexicon();
-			VisualProperty<?> customGraphics = lex.lookup(CyNode.class, OVShared.MAPPING_VIZ_IDENTIFIER); 
-			PassthroughMapping<?,?> pMapping = (PassthroughMapping<?,?>) passthroughFactory.createVisualMappingFunction(OVShared.CYNODETABLE_VIZCOL, String.class, customGraphics);
+			VisualProperty<?> customGraphics;
+			PassthroughMapping<?,?> pMapping;
+			if(this.ovViz.getType().equals(ChartType.CIRCOS)) {
+				customGraphics= lex.lookup(CyNode.class, OVShared.MAPPING_OUTERVIZ_IDENTIFIER);
+				pMapping = (PassthroughMapping<?,?>) passthroughFactory.createVisualMappingFunction(OVShared.CYNODETABLE_OUTERVIZCOL, String.class, customGraphics); 
+			} else {
+				customGraphics= lex.lookup(CyNode.class, OVShared.MAPPING_INNERVIZ_IDENTIFIER); 
+				pMapping = (PassthroughMapping<?,?>) passthroughFactory.createVisualMappingFunction(OVShared.CYNODETABLE_INNERVIZCOL, String.class, customGraphics);
+			}
 			vmm.getVisualStyle(netView).addVisualMappingFunction(pMapping);
 			netView.updateView();
 		}
