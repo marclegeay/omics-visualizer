@@ -15,6 +15,14 @@ import org.cytoscape.model.subnetwork.CySubNetwork;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveVisualizationTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 
+/**
+ * Connection between a CyRootNetwork and a OVTable.
+ * The connection holds the mapping between the table and the network collection, and the inner and outer visualizations of the network collection.
+ * 
+ * @see CyRootNetwork
+ * @see OVTable
+ * @see OVVisualization
+ */
 public class OVConnection {
 	public static final double MINIMUM_CONNECTED_ROWS = 0.5;
 	
@@ -31,6 +39,14 @@ public class OVConnection {
 	private OVVisualization ovInnerViz;
 	private OVVisualization ovOuterViz;
 
+	/**
+	 * Creates a connection between a CyRootNetwork and a OVTable.
+	 * @param ovManager Omics Visualizer Manager
+	 * @param ovTable Table to connect
+	 * @param rootNetwork Network collection to connect
+	 * @param mappingColCyto Name of the column from the network node table that should be used for the mapping
+	 * @param mappingColOVTable Name of the column from the table that should be used for the mapping
+	 */
 	public OVConnection(OVManager ovManager, OVTable ovTable, CyRootNetwork rootNetwork, String mappingColCyto, String mappingColOVTable) {
 		super();
 		this.ovManager=ovManager;
@@ -50,34 +66,67 @@ public class OVConnection {
 		this.ovTable.save();
 	}
 	
+	/**
+	 * Returns the connected table.
+	 * @return The connected table
+	 */
 	public OVTable getOVTable() {
 		return ovTable;
 	}
 	
+	/**
+	 * Returns the connected network collection.
+	 * @return The connected network collection
+	 */
 	public CyRootNetwork getRootNetwork() {
 		return rootNetwork;
 	}
 	
+	/**
+	 * Returns the network collection's name.
+	 * @return The network collection's name
+	 */
 	public String getCollectionNetworkName() {
 		return this.rootNetwork.toString();
 	}
 
+	/**
+	 * Returns the base network from the connected network collection.
+	 * @return The base network
+	 */
 	public CySubNetwork getBaseNetwork() {
 		return this.rootNetwork.getBaseNetwork();
 	}
 
+	/**
+	 * Returns the column name of the node table from the connected network collection.
+	 * This column is used in the mapping.
+	 * @return The column name
+	 */
 	public String getMappingColOVTable() {
 		return mappingColOVTable;
 	}
 
+	/**
+	 * Returns the column name of the connected table used in the mapping.
+	 * @return The column name
+	 */
 	public String getMappingColCyto() {
 		return mappingColCyto;
 	}
 	
+	/**
+	 * Returns the number of mapped rows from the connected table.
+	 * @return The number of mapped rows
+	 */
 	public int getNbConnectedTableRows() {
 		return this.nbConnectedTableRows;
 	}
 	
+	/**
+	 * Returns the String used to be stored in the network table.
+	 * @return The String representing the connection
+	 */
 	private String getSavedConnection() {
 		return DataUtils.escapeComma(this.ovTable.getTitle())
 				+ ","
@@ -86,30 +135,57 @@ public class OVConnection {
 				+ DataUtils.escapeComma(mappingColOVTable);
 	}
 	
+	/**
+	 * Returns the table rows that are mapped to a given network's node table row.
+	 * @param netRow The row from the network's node table
+	 * @return The table rows mapped to the network node
+	 */
 	public List<CyRow> getLinkedRows(CyRow netRow) {
 		Long suid = netRow.get(CyNetwork.SUID, Long.class);
 		List<CyRow> list = this.node2table.get(suid); 
 		return (list == null ? new ArrayList<>() : list);
 	}
 	
+	/**
+	 * Sets the inner Visualization, then save the visualization in the network table.
+	 * @param ovViz The inner Visualization
+	 */
 	public void setInnerVisualization(OVVisualization ovViz) {
 		this.ovInnerViz=ovViz;
 		this.updateVisualization();
 	}
 	
+	/**
+	 * Returns the saved inner Visualization.
+	 * @return The inner Visualization
+	 */
 	public OVVisualization getInnerVisualization() {
 		return this.ovInnerViz;
 	}
 	
+	/**
+	 * Sets the outer Visualization, then save the visualization in the network table.
+	 * @param ovViz The outer Visualization
+	 */
 	public void setOuterVisualization(OVVisualization ovViz) {
 		this.ovOuterViz=ovViz;
 		this.updateVisualization();
 	}
 	
+	/**
+	 * Returns the saved outer Visualization.
+	 * @return The outer Visualization
+	 */
 	public OVVisualization getOuterVisualization() {
 		return this.ovOuterViz;
 	}
 	
+	/**
+	 * Returns the key value of a given row.
+	 * @param row Row containing the key value
+	 * @param keyCol Column containing key values
+	 * @return The key value
+	 */
 	private Object getKey(CyRow row, CyColumn keyCol) {
 		if(keyCol.getListElementType() == null) { // this is not a List element
 			return row.get(keyCol.getName(), keyCol.getType());
@@ -118,6 +194,10 @@ public class OVConnection {
 		}
 	}
 	
+	/**
+	 * Saves inner and outer Visualization.
+	 * @see OVVisualization#save()
+	 */
 	public void updateVisualization() {
 		String savedInnerViz = "";
 		String savedOuterViz = "";
@@ -143,8 +223,8 @@ public class OVConnection {
 	}
 	
 	/**
-	 * Update the mapping between the Table and the Network.
-	 * Creates a column in the Node Table indicating the number of table rows connected to a node.
+	 * Update the mapping between the table and the network.
+	 * Creates a column in the node table indicating the number of table rows connected to a node.
 	 * @return the number of rows from the table that are connected to the network
 	 */
 	public int updateLinks() {
@@ -210,7 +290,7 @@ public class OVConnection {
 	}
 
 	/**
-	 * Update the Connection by reinitializing it with new mapping columns
+	 * Update the Connection by reinitializing it with new mapping columns.
 	 * @param mappingColCyto
 	 * @param mappingColOVTable
 	 * @return the number of connected rows from the table
@@ -229,6 +309,11 @@ public class OVConnection {
 //		return this.nbConnectedTableRows;
 	}
 
+	/**
+	 * Adds a link between two rows: one from network's node table and one from the data table.
+	 * @param networkNode Node from the network's node table
+	 * @param tableRow Node from the data table
+	 */
 	public void addLink(CyRow networkNode, CyRow tableRow) {
 		Long suid = networkNode.get(CyNetwork.SUID, Long.class);
 		if(!this.node2table.containsKey(suid)) {
@@ -239,6 +324,10 @@ public class OVConnection {
 		tableRows.add(tableRow);
 	}
 	
+	/**
+	 * Returns the list of connected network collections.
+	 * @return The list of connected network collections
+	 */
 	private List<CyNetwork> getConnectedNetworks() {
 		List<CyNetwork> connectedNetwork = new ArrayList<>();
 		
@@ -254,6 +343,10 @@ public class OVConnection {
 		return connectedNetwork;
 	}
 	
+	/**
+	 * Saves the connection information into the network table.
+	 * @param network The network where to save the information
+	 */
 	public void connectNetwork(CyNetwork network) {
 		if(!this.rootNetwork.containsNetwork(network)) {
 			return;
@@ -287,12 +380,20 @@ public class OVConnection {
 		networkTable.getRow(network.getSUID()).set(OVShared.CYNETWORKTABLE_OUTERVIZCOL, savedOuterViz);
 	}
 
+	/**
+	 * Erase the connection between the connected table and all the networks from the connected network collection.
+	 */
 	public void disconnect() {
 		for(CyNetwork net : this.rootNetwork.getSubNetworkList()) {
 			this.disconnectNetwork(net);
 		}
 	}
 	
+	/**
+	 * Disconnect a specific network from the connected network collection.
+	 * It erases the visualizations and all Omics Visualizer specific columns from the different network tables.
+	 * @param network The network to be disconnected
+	 */
 	public void disconnectNetwork(CyNetwork network) {
 		// We make sure that the network is in the collection of the OVConnection
 		if(!this.rootNetwork.containsNetwork(network)) {
@@ -333,6 +434,7 @@ public class OVConnection {
 		}
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if(o == null) {
 			return false;

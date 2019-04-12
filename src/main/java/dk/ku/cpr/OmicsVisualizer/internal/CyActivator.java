@@ -34,7 +34,6 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
 import dk.ku.cpr.OmicsVisualizer.internal.task.FilterTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.OperatorListTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveFilterTaskFactory;
-import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveVisualizationTask;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveVisualizationTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowConnectWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowFilterWindowTaskFactory;

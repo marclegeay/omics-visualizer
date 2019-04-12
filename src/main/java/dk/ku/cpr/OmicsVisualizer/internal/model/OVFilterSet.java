@@ -5,33 +5,60 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * A set of filters.
+ * It is a list of filters, and a logical operator (AND or OR).
+ */
 public class OVFilterSet extends OVFilter {
 	private static final long serialVersionUID = -3110109155399467175L;
 	
 	private OVFilterSetType type;
 	private List<OVFilter> filters;
 	
+	/**
+	 * Creates an empty set of filters.
+	 */
 	public OVFilterSet() {
 		type=OVFilterSetType.ALL;
 		filters=new ArrayList<>();
 	}
 	
+	/**
+	 * Returns the logical operator.
+	 * @return the type of set
+	 */
 	public OVFilterSetType getType() {
 		return type;
 	}
 
+	/**
+	 * Sets the type of set, i.e. the logical operator.
+	 * @param type The type of set
+	 */
 	public void setType(OVFilterSetType type) {
 		this.type = type;
 	}
 
+	/**
+	 * Returns the set of filters.
+	 * @return The set of filters
+	 */
 	public List<OVFilter> getFilters() {
 		return filters;
 	}
 	
+	/**
+	 * Adds a filter to the set.
+	 * @param filter The filter to add
+	 */
 	public void addFilter(OVFilter filter) {
 		this.filters.add(filter);
 	}
 	
+	/**
+	 * Remove a filter from the set
+	 * @param filter The filter to remove
+	 */
 	public void removeFilter(OVFilter filter) {
 		this.filters.remove(filter);
 	}
@@ -51,6 +78,21 @@ public class OVFilterSet extends OVFilter {
 		return str;
 	}
 	
+	/**
+	 * Returns the filter represented by the String.
+	 * The String must respect the following format:<br>
+	 * AND set: 
+	 * {<code>filter_1</code>,<code>filter_2</code>,...,<code>filter_n</code>}<br>
+	 * OR set: 
+	 * [<code>filter_1</code>,<code>filter_2</code>,...,<code>filter_n</code>]<br>
+	 * Please note that there should not have any space before nor after the commas.
+	 * 
+	 * @param str The filter to parse
+	 * @return The parsed filter
+	 * 
+	 * @see OVFilter#valueOf(String)
+	 * @see OVFilterCriteria#valueOf(String)
+	 */
 	public static OVFilterSet valueOf(String str) {
 //		System.out.println("OVFilterSet::valueOf("+str+")");
 		if(str == null) {
@@ -135,13 +177,25 @@ public class OVFilterSet extends OVFilter {
 		return filter;
 	}
 
+	/**
+	 * Type of filter set.
+	 * It represents a logical operator (AND or OR).
+	 */
 	public enum OVFilterSetType {
+		/**
+		 * Value representing a logicial AND.
+		 * All the filters of the set should return <code>true</code> so that a row is filtered.
+		 */
 		ALL("All (AND)"),
+		/**
+		 * Value representing a logicial OR.
+		 * At least one filter from the set should return <code>true</code> so that a row is filtered.
+		 */
 		ANY("Any (OR)");
 		
 		private String display;
 		
-		OVFilterSetType(String display) {
+		private OVFilterSetType(String display) {
 			this.display=display;
 		}
 		

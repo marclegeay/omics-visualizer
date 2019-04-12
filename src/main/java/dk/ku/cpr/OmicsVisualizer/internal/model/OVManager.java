@@ -40,6 +40,13 @@ import dk.ku.cpr.OmicsVisualizer.external.io.read.GenericReaderManager;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowOVPanelTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
 
+/**
+ * Omics Visualizer Manager.
+ * This class gives access to the Cytoscape service registrar, and stores the list of tables and connections.
+ * @see CyServiceRegistrar
+ * @see OVTable
+ * @see OVConnection
+ */
 public class OVManager
 implements SessionLoadedListener,
 SessionAboutToBeSavedListener,
@@ -60,6 +67,10 @@ NetworkAddedListener {
 	
 	private GenericReaderManager<InputStreamTaskFactory, CyTableReader> readerManager;
 
+	/**
+	 * Creates a Manager.
+	 * @param serviceRegistrar The Cytoscape service registrar
+	 */
 	public OVManager(CyServiceRegistrar serviceRegistrar) {
 		this.serviceRegistrar=serviceRegistrar;
 		this.showPanelFactory=new ShowOVPanelTaskFactory(this);
@@ -76,6 +87,10 @@ NetworkAddedListener {
 		initOVTables();
 	}
 
+	/**
+	 * Detects the Omics Visualizer tables from the list of all Cytoscape tables.
+	 * @see OVTable
+	 */
 	public void initOVTables() {
 		CyTableManager tblManager = this.getService(CyTableManager.class);
 		Set<CyTable> tables = tblManager.getAllTables(true);
@@ -91,9 +106,9 @@ NetworkAddedListener {
 	}
 
 	/**
-	 * Get the connection for a given CyRootNetwork
-	 * @param rootNetwork
-	 * @return <code>null</code> if the network is connected to no OVTable, the OVConnection otherwise
+	 * Returns the connection for a given network collection (represented by its root network).
+	 * @param rootNetwork The root network of the network collection
+	 * @return <code>null</code> if the network is not connected, the connection otherwise
 	 */
 	public OVConnection getConnection(CyRootNetwork rootNetwork) {
 		if(rootNetwork == null) {
@@ -110,9 +125,9 @@ NetworkAddedListener {
 	}
 
 	/**
-	 * Get the connection for a given CyRootNetwork
-	 * @param rootNetworkName name of the CyRootNetwork
-	 * @return <code>null</code> if the network is connected to no OVTable, the OVConnection otherwise
+	 * Returns the connection for a given network collection (represented by its root network).
+	 * @param rootNetworkName name of the root network of the network collection
+	 * @return <code>null</code> if the network is not connected, the connection otherwise
 	 */
 	public OVConnection getConnection(String rootNetworkName) {
 		for(OVConnection ovCon : this.ovCons) {
@@ -124,9 +139,9 @@ NetworkAddedListener {
 	}
 
 	/**
-	 * Get the connections for a given OVTable
-	 * @param table
-	 * @return the list of OVConnection (can be empty)
+	 * Returns the connections for a given table.
+	 * @param table The Omics Visualizer table
+	 * @return the list of connections (can be empty)
 	 */
 	public List<OVConnection> getConnections(OVTable table) {
 		List<OVConnection> list = new ArrayList<>();
@@ -139,49 +154,98 @@ NetworkAddedListener {
 	}
 
 	/**
-	 * This method should only be used by the constructor of OVConnection !
-	 * @param ovCon
+	 * <b style="color:red">This method should only be used by the constructor of OVConnection !</b><br>
+	 * <br>
+	 * Adds a connection to the list of connections.
+	 * @param ovCon The connection to add
 	 */
 	public void addConnection(OVConnection ovCon) {
 		this.ovCons.add(ovCon);
 	}
 
 	/**
-	 * This method should only be used by the disconnect() method of OVConnection !
-	 * @param ovCon
+	 * <b style="color:red">This method should only be used by the disconnect() method of OVConnection !</b><br>
+	 * <br>
+	 * Removes a connection from the list of connections.
+	 * @param ovCon The connection to remove
 	 */
 	public void removeConnection(OVConnection ovCon) {
 		this.ovCons.remove(ovCon);
 	}
 
+	/**
+	 * Returns the Cytoscape service registrar.
+	 * @return The service registrar
+	 */
 	public CyServiceRegistrar getServiceRegistrar() {
 		return this.serviceRegistrar;
 	}
 
+	/**
+	 * Returns the specific queried service.
+	 * @param clazz The class defining the type of service desired.
+	 * @return A reference to a service of type <code>clazz</code>.
+	 * 
+	 * @throws RuntimeException If the requested service can't be found.
+	 */
 	public <T> T getService(Class<? extends T> clazz) {
 		return this.serviceRegistrar.getService(clazz);
 	}
 
+	/**
+	 * A method that attempts to get a service of the specified type and that passes the specified filter.
+	 * If an appropriate service is not found, an exception will be thrown.
+	 * @param clazz The class defining the type of service desired.
+	 * @param filter The string defining the filter the service must pass. See OSGi's service filtering syntax for more detail.
+	 * @return A reference to a service of type <code>serviceClass</code> that passes the specified filter.
+	 * 
+	 * @throws RuntimeException If the requested service can't be found.
+	 */
 	public <T> T getService(Class<? extends T> clazz, String filter) {
 		return this.serviceRegistrar.getService(clazz, filter);
 	}
 
+	/**
+	 * Registers an object as an OSGi service with the specified service interface and properties.
+	 * @param service The object to be registered as a service.
+	 * @param clazz The service interface the object should be registered as.
+	 * @param props The service properties.
+	 */
 	public void registerService(Object service, Class<?> clazz, Properties props) {
 		this.serviceRegistrar.registerService(service, clazz, props);
 	}
 
+	/**
+	 * This method registers an object as an OSGi service for all interfaces that the object implements and with the specified properties.
+	 * Note that this method will NOT register services for any packages with names that begin with "java", which is an effort to avoid registering meaningless services for core Java APIs.
+	 * @param service The object to be registered as a service for all interfaces that the object implements.
+	 * @param props The service properties.
+	 */
 	public void registerAllServices(CyProperty<Properties> service, Properties props) {
 		this.serviceRegistrar.registerAllServices(service, props);
 	}
 
+	/**
+	 * This method unregisters an object as an OSGi service for the specified service interface.
+	 * @param service The object to be unregistered as a service.
+	 * @param clazz The service interface the object should be unregistered as.
+	 */
 	public void unregisterService(Object service, Class<?> clazz) {
 		this.serviceRegistrar.unregisterService(service, clazz);
 	}
 
+	/**
+	 * This method unregisters an object as all OSGi service interfaces that the object implements.
+	 * @param service The object to be unregistered for services it provides.
+	 */
 	public void unregisterAllServices(Object service) {
 		this.serviceRegistrar.unregisterAllServices(service);
 	}
 
+	/**
+	 * Registers the Omics Visualizer panel as a service.
+	 * @param panel The panel to register.
+	 */
 	public void registerOVCytoPanel(OVCytoPanel panel) {
 		this.ovCytoPanel = panel;
 
@@ -190,6 +254,10 @@ NetworkAddedListener {
 		this.registerService(this.ovCytoPanel, SelectedNodesAndEdgesListener.class, new Properties());
 	}
 
+	/**
+	 * Unregisters the Omics Visualizer panel.
+	 * The panel is not stored anymore afterwards.
+	 */
 	public void unregisterOVCytoPanel() {
 		if(this.ovCytoPanel != null) {
 			this.unregisterService(this.ovCytoPanel, CytoPanelComponent.class);
@@ -200,32 +268,70 @@ NetworkAddedListener {
 		this.ovCytoPanel = null;
 	}
 
+	/**
+	 * Returns the Cytoscape network manager.
+	 * @return The network manager.
+	 */
 	public CyNetworkManager getNetworkManager() {
 		return this.netManager;
 	}
 
+	/**
+	 * Returns the Cytoscape table manager.
+	 * @return The table manager.
+	 */
 	public CyTableManager getTableManager() {
 		return this.tableManager;
 	}
 	
+	/**
+	 * Adds a reader factory with the specific properties.
+	 * @param factory The reader factory to add.
+	 * @param props The properties of the reader factory.
+	 */
 	public void addReaderFactory(InputStreamTaskFactory factory, Properties props) {
 		this.readerManager.addInputStreamTaskFactory(factory, props);
 	}
 	
+	/**
+	 * Returns the appropriate reader for the given file.
+	 * @param uri URI of the file to read
+	 * @param inputName Name of the file to read
+	 * @return The reader, <code>null</code> if the file cannot be read.
+	 */
 	public CyTableReader getReader(URI uri, String inputName) {
 		return this.readerManager.getReader(uri, inputName);
 	}
 
+	/**
+	 * Adds an Omics Visualizer table to the list of tables.
+	 * @param table The table to add.
+	 */
 	public void addOVTable(OVTable table) {
 		this.ovTables.add(table);
 	}
+	/**
+	 * Adds an Cytoscape table to the list of Omics Visualier tables.
+	 * The CyTable is transformed into an OVTable before being added.
+	 * @param cyTable The Cytoscape table to add.
+	 * @see OVTable
+	 * @see OVManager#addOVTable(OVTable)
+	 */
 	public void addOVTable(CyTable cyTable) {
 		this.addOVTable(new OVTable(this, cyTable));
 	}
+	/**
+	 * Removes an Omics Visualizer table from the list of tables.
+	 * @param table The table to remove.
+	 */
 	public void removeOVTable(OVTable table) {
 		this.ovTables.remove(table);
 		table.deleteProperties();
 	}
+	/**
+	 * Returns the list of all Omics Visualizer tables.
+	 * @return
+	 */
 	public List<OVTable> getOVTables() {
 		return this.ovTables;
 	}
@@ -242,26 +348,43 @@ NetworkAddedListener {
 		return null;
 	}
 
+	/**
+	 * Returns the Omics Visualizer panel.
+	 * @return The panel.
+	 */
 	public OVCytoPanel getOVCytoPanel() {
 		return this.ovCytoPanel;
 	}
 
+	/**
+	 * Creates a task to show the Omics Visualizer panel.
+	 */
 	public void showPanel() {
-		//		SynchronousTaskManager<?> taskM = this.serviceRegistrar.getService(SynchronousTaskManager.class);
-		//		TaskIterator ti = this.showPanelFactory.createTaskIterator();
-		//		taskM.execute(ti);
 		this.executeSynchronousTask(this.showPanelFactory.createTaskIterator());
 	}
 
+	/**
+	 * Executes a list of tasks in a synchronous way.
+	 * @param ti The list of tasks to execute.
+	 */
 	public void executeSynchronousTask(TaskIterator ti) {
 		SynchronousTaskManager<?> taskM = this.serviceRegistrar.getService(SynchronousTaskManager.class);
 		taskM.execute(ti);
 	}
 
+	/**
+	 * Executes a list of tasks in an asynchronous way.
+	 * @param ti The list of tasks to execute.
+	 * @param to The class that listens to the result of the tasks.
+	 */
 	public void executeTask(TaskIterator ti, TaskObserver to) {
 		TaskManager<?, ?> taskM = this.serviceRegistrar.getService(TaskManager.class);
 		taskM.execute(ti, to);
 	}
+	/**
+	 * Executes a list of tasks in an asynchronous way.
+	 * @param ti The list of tasks to execute.
+	 */
 	public void executeTask(TaskIterator ti) {
 		this.executeTask(ti, null);
 	}
@@ -285,6 +408,9 @@ NetworkAddedListener {
 
 	@Override
 	public void handleEvent(NetworkAboutToBeDestroyedEvent e) {
+		// A network is about to be delete
+		// If this network is connected to an OVTable, we disconnect them
+		
 		CyNetwork net = e.getNetwork();
 
 		if(net!= null) {

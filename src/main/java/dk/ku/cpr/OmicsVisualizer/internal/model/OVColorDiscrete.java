@@ -9,23 +9,43 @@ import java.util.Set;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
 
+/**
+ * Discrete mapping of a Visualization.
+ */
 public class OVColorDiscrete implements OVColor, Serializable {
 	private static final long serialVersionUID = 482988419184312110L;
 	
 	private Map<Object, Color> colors;
 	
+	/**
+	 * Creates a Discrete mapping.
+	 * @param colors Mapping of the Color used for each value
+	 */
 	public OVColorDiscrete(Map<Object, Color> colors) {
 		this.colors = colors;
 	}
 	
+	/**
+	 * Returns the Color associated to the value.
+	 * @param value The value to retrieve the Color
+	 * @return The Color associated to the value, or <code>null</code> if the value is not in the mapping
+	 */
 	public Color getColor(Object value) {
 		return this.colors.get(value);
 	}
 	
+	/**
+	 * Returns the set of values present in the mapping.
+	 * @return The set of values from the mapping
+	 */
 	public Set<Object> getValues() {
 		return this.colors.keySet();
 	}
 	
+	/**
+	 * Returns the mapping.
+	 * @return The mapping
+	 */
 	public Map<Object, Color> getMapping() {
 		return this.colors;
 	}

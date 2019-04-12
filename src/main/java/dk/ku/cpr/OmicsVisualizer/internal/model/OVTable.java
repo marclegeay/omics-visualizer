@@ -24,6 +24,11 @@ import dk.ku.cpr.OmicsVisualizer.internal.ui.table.OVTableModel;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.table.OVTableHeaderRenderer;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 
+/**
+ * An Omics Visualizer table.
+ * It is basically a Cytoscape unassigned table, that can be connected to several networks.
+ * @see CyTable
+ */
 public class OVTable {
 	private OVManager ovManager;
 	
@@ -36,6 +41,11 @@ public class OVTable {
 
 	private OVProperties ovProps;
 	
+	/**
+	 * Creates an Omics Visualizer table from a Cytoscape table.
+	 * @param ovManager The Omics Visualizer manager.
+	 * @param cyTable The Cytoscape table.
+	 */
 	public OVTable(OVManager ovManager, CyTable cyTable) {
 		this.ovManager=ovManager;
 		this.cyTable=cyTable;
@@ -51,10 +61,18 @@ public class OVTable {
 		this.save();
 	}
 	
+	/**
+	 * Returns the data table, i.e. the Cytoscape table.
+	 * @return The Cytoscape table.
+	 */
 	public CyTable getCyTable() {
 		return this.cyTable;
 	}
 	
+	/**
+	 * Returns the browsing table.
+	 * @return The browsing table.
+	 */
 	public JTable getJTable() {
 		if(this.jTable == null) {
 			this.createJTable();
@@ -63,10 +81,19 @@ public class OVTable {
 		return this.jTable;
 	}
 	
+	/**
+	 * Returns the list of connections.
+	 * @return The list of connections.
+	 */
 	public List<OVConnection> getConnections() {
 		return this.ovManager.getConnections(this);
 	}
 	
+	/**
+	 * Returns the connection between the table and a given network collection (represented by its root network).
+	 * @param rootNetwork The root network of the network collection.
+	 * @return The connection between the table and the network collection, or <code>null</code> if the network collection is not connected to the table.
+	 */
 	public OVConnection getConnection(CyRootNetwork rootNetwork) {
 		if(rootNetwork == null) {
 			return null;
@@ -80,6 +107,15 @@ public class OVTable {
 		return null;
 	}
 	
+	/**
+	 * Returns the connection between the table and a given network.
+	 * If the network is part of a network collection that is connected to the table, then it will return the connection, <code>null</code> otherwise.
+	 * @param network The network that is connected to the table.
+	 * @return The connection between the table and the network, or <code>null</code> if the network is not connected to the table.
+	 * 
+	 * @see OVTable#getConnection(CyRootNetwork)
+	 * @see OVTable#isConnectedTo(CyNetwork)
+	 */
 	public OVConnection getConnection(CyNetwork network) {
 		if(network == null) {
 			return null;
@@ -89,14 +125,32 @@ public class OVTable {
 		return this.getConnection(manager.getRootNetwork(network));
 	}
 	
+	/**
+	 * Is the table connected to at least one network collection?
+	 * @return <code>true</code> if the table is connected to at least one network collection, <code>false</code> otherwise.
+	 */
 	public boolean isConnected() {
 		return this.getConnections().size()>0;
 	}
 	
+	/**
+	 * Is the table connected to a specific network?
+	 * @param net The network to test the connection.
+	 * @return <code>true</code> if a connection between the network and the table exists, <code>false</code> otherwise.
+	 * 
+	 * @see OVTable#getConnection(CyNetwork)
+	 */
 	public boolean isConnectedTo(CyNetwork net) {
 		return this.getConnection(net) != null;
 	}
 	
+	/**
+	 * Connects the table with a network collection.
+	 * @param rootNetName The root network of the network collection.
+	 * @param mappingColCyto The name of the column from the network's node table used for the mapping.
+	 * @param mappingColOVTable The name of the column from the table used for the mapping.
+	 * @return The connection between the network collection and the table.
+	 */
 	public OVConnection connect(String rootNetName, String mappingColCyto, String mappingColOVTable) {
 		CyRootNetwork linkedRootNetwork=null;
 		CyRootNetworkManager manager = this.ovManager.getService(CyRootNetworkManager.class);
@@ -123,12 +177,23 @@ public class OVTable {
 		return con;
 	}
 	
+	/**
+	 * Disconnect all the network collections.
+	 * 
+	 * @see OVConnection#disconnect()
+	 */
 	public void disconnectAll() {
 		for(OVConnection con : this.getConnections()) {
 			con.disconnect();
 		}
 	}
 	
+	/**
+	 * Disconnect a network.
+	 * @param network The network to disconnect.
+	 * 
+	 * @see OVConnection#disconnectNetwork(CyNetwork)
+	 */
 	public void disconnect(CyNetwork network) {
 		OVConnection con = this.getConnection(network);
 		
@@ -137,6 +202,9 @@ public class OVTable {
 		}
 	}
 
+	/**
+	 * Creates the browsing table.
+	 */
 	private void createJTable() {
 		List<String> colNames = new ArrayList<String>();
 		Collection<CyColumn> cols = this.cyTable.getColumns();
@@ -212,10 +280,21 @@ public class OVTable {
 		this.jTable = jTable;
 	}
 	
+	/**
+	 * Returns the list of the column names.
+	 * The list is ordered as the columns are.
+	 * @return The list of the column names.
+	 */
 	public List<String> getColNames() {
 		return this.tableColumnModel.getColumnNames(false);
 	}
 	
+	/**
+	 * Returns the class of the type of a given column.
+	 * @param colName The name of the column.
+	 * @return The class of the type of the column.
+	 * If the column name does not exists in the table, <code>null</code> is returned.
+	 */
 	public Class<?> getColType(String colName) {
 		CyColumn col = this.cyTable.getColumn(colName);
 		
@@ -226,6 +305,12 @@ public class OVTable {
 		return null;
 	}
 	
+	/**
+	 * Returns the class of the type of elements of a given list column.
+	 * @param colName The name of the list column.
+	 * @return The class of the type of the column.
+	 * If the column name does not exists in the table, or if it is not a list column, <code>null</code> is returned.
+	 */
 	public Class<?> getColListType(String colName) {
 		CyColumn col = this.cyTable.getColumn(colName);
 		
@@ -236,6 +321,12 @@ public class OVTable {
 		return null;
 	}
 	
+	/**
+	 * Returns the list of columns of the Cytoscape table.
+	 * The orders of the columns is the one of the Cytoscape table when it was created.
+	 * The key column is not included.
+	 * @return The list of columns.
+	 */
 	public Collection<CyColumn> getColumns() {
 		Collection<CyColumn> cols = this.cyTable.getColumns();
 		
@@ -251,6 +342,12 @@ public class OVTable {
 		return cols;
 	}
 	
+	/**
+	 * Returns the list of columns of the Cytoscape table.
+	 * The orders of the columns is the one defined by the user.
+	 * The key column is not included.
+	 * @return The list of columns.
+	 */
 	public Collection<CyColumn> getColumnsInOrder() {
 		Collection<CyColumn> cols = new ArrayList<CyColumn>();
 		
@@ -263,6 +360,11 @@ public class OVTable {
 		return cols;
 	}
 
+	/**
+	 * Defines the visible columns.
+	 * If a column is in the set, it will be visible, otherwise it will be hidden.
+	 * @param visibleAttributes The set of visible column names.
+	 */
 	public void setVisibleColumns(Set<String> visibleAttributes) {
 		for (final String name : tableModel.getAllColumnNames()) {
 			int col = tableModel.mapColumnNameToColumnIndex(name);
@@ -273,10 +375,19 @@ public class OVTable {
 		this.save();
 	}
 	
+	/**
+	 * Returns the list of the visible column names.
+	 * @return the list of the visible column names.
+	 */
 	public Collection<String> getVisibleColumns() {
 		return this.tableColumnModel.getColumnNames(true);
 	}
 	
+	/**
+	 * Adds a column at the end of the table.
+	 * @param colName The name of the column.
+	 * @param type The type of the column
+	 */
 	public void addColumn(String colName, Class<?> type) {
 		this.cyTable.createColumn(colName, type, false);
 		
@@ -289,6 +400,11 @@ public class OVTable {
 		tableColumnModel.addColumn(tableColumn);
 	}
 	
+	/**
+	 * Returns the list of the rows, filtered or not.
+	 * @param filtered if <code>true</code> then only the filtered rows will be returned.
+	 * @return The list of the rows.
+	 */
 	public List<CyRow> getAllRows(boolean filtered) {
 		if(!filtered) {
 			return this.cyTable.getAllRows();
@@ -305,6 +421,10 @@ public class OVTable {
 		}
 	}
 	
+	/**
+	 * Returns the list of selected rows.
+	 * @return The list of selected rows.
+	 */
 	public List<CyRow> getSelectedRows() {
 		List<CyRow> selectedRows = new ArrayList<>();
 		
@@ -316,41 +436,69 @@ public class OVTable {
 		return selectedRows;
 	}
 	
+	/**
+	 * Sets the list of filtered rows.
+	 * @param filteredRowKeys List of the keys of the filtered rows.
+	 */
 	public void filter(List<Object> filteredRowKeys) {
 		this.tableModel.filter(filteredRowKeys);
 	}
 	
+	/**
+	 * Removes the filter.
+	 */
 	public void removeFilter() {
 		this.tableModel.removeFilter();
 		this.setFilter(null);
 	}
 	
+	/**
+	 * Checks if a row is filtered or not.
+	 * @param row The row to test.
+	 * @return <code>true</code> if the row is filtered, <code>false</code> if not.
+	 */
 	public boolean isFiltered(CyRow row) {
 		return this.tableModel.isFiltered(row);
 	}
 	
 	/**
 	 * Get the applied filter.
-	 * @return the OVFilter or <code>null</code> if no filter is applied
+	 * @return the filter or <code>null</code> if no filter is applied.
 	 */
 	public OVFilter getFilter() {
 		return this.filter;
 	}
 	
+	/**
+	 * Sets the filter applied to the table.
+	 * @param filter The filter.
+	 */
 	public void setFilter(OVFilter filter) {
 		this.filter=filter;
 		this.save();
 	}
 	
+	/**
+	 * Selects all the rows of the model so that all rows will be displayed.
+	 * @see OVTableModel#setSelectedRowKeys(List)
+	 */
 	public void selectAllRows() {
+		// By "selecting" no rows, the model will display all of them
 		this.tableModel.setSelectedRowKeys(new ArrayList<>());
 	}
 	
+	/**
+	 * Selects the selected rows from a given network.
+	 * @param cyNetwork The network.
+	 * 
+	 * @see OVTableModel#setSelectedRowKeys(List)
+	 */
 	public void displaySelectedRows(CyNetwork cyNetwork) {
 		List<Object> selectedRowKeys = new ArrayList<>();
 		OVConnection ovCon = this.getConnection(cyNetwork);
 		
 		if(ovCon == null) {
+			// The network is not connected to the table, so we display all the rows
 			this.selectAllRows();
 			return;
 		}
@@ -367,10 +515,17 @@ public class OVTable {
 		this.tableModel.setSelectedRowKeys(selectedRowKeys);
 	}
 	
+	/**
+	 * Returns the title of the Cytoscape table.
+	 * @return The title of the table.
+	 */
 	public String getTitle() {
 		return this.cyTable.getTitle();
 	}
 	
+	/**
+	 * Save the table properties.
+	 */
 	public void save() {
 		Collection<String> visibleCols = this.getVisibleColumns();
 		Collection<String> cols = this.getColNames();
@@ -389,6 +544,10 @@ public class OVTable {
 		}
 	}
 	
+	/**
+	 * Load the table.
+	 * It look for a filter, and connected networks to apply the visualizations.
+	 */
 	public void load() {
 		// We first load the filter
 		String filterStr = this.getTableProperty(OVShared.PROPERTY_FILTER, "");
@@ -432,20 +591,44 @@ public class OVTable {
 		}
 	}
 	
+	/**
+	 * Returns the properties of the table.
+	 * @return The table properties.
+	 */
 	public OVProperties getTableOVProperties() {
 		return (this.ovProps == null ? new OVProperties(this.ovManager, OVShared.OVPROPERTY_NAME + this.cyTable.getTitle()) : this.ovProps);
 	}
 	
+	/**
+	 * Returns the value of a given table property.
+	 * @param propName Name of the property.
+	 * @return The value of the property, <code>null</code> if the property is not set.
+	 */
 	public String getTableProperty(String propName) {
 		return this.getTableOVProperties().getProperty(propName);
 	}
+	/**
+	 * Returns the value of a given table property.
+	 * @param propName Name of the property.
+	 * @param propDefaultValue Default value if the property is not set.
+	 * @return The value of the property, <code>popDefaultValue</code> if the property is not set.
+	 */
 	public String getTableProperty(String propName, String propDefaultValue) {
 		return this.getTableOVProperties().getProperty(propName, propDefaultValue);
 	}
+	
+	/**
+	 * Set the value of a table property.
+	 * @param propName Name of the property.
+	 * @param propValue Value of the property.
+	 */
 	public void setTableProperty(String propName, String propValue) {
 		this.getTableOVProperties().setProperty(propName, propValue);
 	}
 	
+	/**
+	 * Delete all the table properties.
+	 */
 	public void deleteProperties() {
 		if(this.ovProps != null) {
 			this.ovProps.delete();
