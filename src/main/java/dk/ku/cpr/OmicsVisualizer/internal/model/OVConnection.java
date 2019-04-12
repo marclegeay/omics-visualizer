@@ -24,8 +24,6 @@ import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
  * @see OVVisualization
  */
 public class OVConnection {
-	public static final double MINIMUM_CONNECTED_ROWS = 0.5;
-	
 	private OVManager ovManager;
 	private OVTable ovTable;
 	private CyRootNetwork rootNetwork;

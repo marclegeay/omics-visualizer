@@ -33,7 +33,7 @@ public class OVShared {
 	/** Name of the table column where the id of each row is stored. */
 	public static final String OVTABLE_COLID_NAME = OV_PREFIX+"internalID";
 	/** Type of the id column.
-	 * @see OVShared#OVTableIDComparator */
+	 * Linked with {@link OVShared#OVTableIDComparator}. */
 	public static final Class<Integer> OVTABLE_COLID_TYPE = Integer.class;
 
 	/** Name of the column from the properties table where the property key is stored. */
@@ -164,8 +164,7 @@ public class OVShared {
 	/**
 	 * Class used to compare the OVTable identifiers.
 	 * This class is used to sort the rows after being filtered.<br>
-	 * <b style="color:red">/!\ It should use the same type as defined by OVShared.OVTABLE_COLID_TYPE /!\</b>
-	 * @see OVShared#OVTABLE_COLID_TYPE
+	 * <b style="color:red">/!\ It should use the same type as defined by {@link OVShared#OVTABLE_COLID_TYPE} /!\</b>
 	 */
 	public static class OVTableIDComparator implements Comparator<Object> {
 		@Override
