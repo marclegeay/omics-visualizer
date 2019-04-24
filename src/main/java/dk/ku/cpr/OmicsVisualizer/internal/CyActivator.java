@@ -35,6 +35,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.task.FilterTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.OperatorListTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveFilterTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveVisualizationTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.RetrieveStringNetworkTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowConnectWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowFilterWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowRetrieveWindowTaskFactory;
@@ -199,6 +200,17 @@ public class CyActivator extends AbstractCyActivator {
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "retrieve show");
 				props.setProperty(COMMAND_DESCRIPTION, "Show the retrieve window of the current table");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+			
+			// Retrieve (Command only)
+			{
+				RetrieveStringNetworkTaskFactory factory = new RetrieveStringNetworkTaskFactory(ovManager);
+				Properties props = new Properties();
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(COMMAND, "retrieve");
+				props.setProperty(COMMAND_DESCRIPTION, "Retrieve a STRING network and connects it to the current table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}

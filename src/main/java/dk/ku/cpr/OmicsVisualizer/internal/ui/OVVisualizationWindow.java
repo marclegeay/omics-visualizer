@@ -761,7 +761,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		if(this.palette == null) {
 			this.paletteButton.setText("None");
 		} else {
-			this.paletteButton.setText(this.palette.getName());
+			this.paletteButton.setText(this.palette.toString());
 		}
 
 		JPanel buttonPanel = new JPanel();

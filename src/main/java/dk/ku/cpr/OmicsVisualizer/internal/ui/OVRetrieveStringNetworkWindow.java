@@ -16,12 +16,9 @@ import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
@@ -42,7 +39,6 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
 import org.cytoscape.model.CyNetwork;
-import org.cytoscape.model.CyRow;
 import org.cytoscape.util.swing.LookAndFeelUtil;
 import org.cytoscape.work.FinishStatus;
 import org.cytoscape.work.ObservableTask;
@@ -52,6 +48,7 @@ import org.cytoscape.work.TaskObserver;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
+import dk.ku.cpr.OmicsVisualizer.internal.task.RetrieveStringNetworkTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.StringCommandTaskFactory;
 
 public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObserver, ActionListener {
@@ -204,7 +201,7 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 	private double inputError() {
 		confidenceValue.setBackground(Color.RED);
 		JOptionPane.showMessageDialog(null, 
-				                          "Please enter a confence cutoff between 0.0 and 1.0", 
+				                          "Please enter a confidence cutoff between 0.0 and 1.0", 
 											            "Alert", JOptionPane.ERROR_MESSAGE);
 		confidenceValue.setBackground(UIManager.getColor("TextField.background"));
 
@@ -350,37 +347,16 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 				JOptionPane.showMessageDialog(this, "Error: Unknown species \""+selectedSpecies+"\".", "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-
-			// We identify the query column
-			String queryCol = (String) this.selectQuery.getSelectedItem();
-			Class<?> colType = this.ovTable.getColType(queryCol);
-
-			// We retrieve the list for the query
-			Set<String> queryTerms = new HashSet<>();
-			List<CyRow> tableRows;
-			if(this.selectedOnly.isSelected()) {
-				tableRows = this.ovTable.getSelectedRows();
-			} else {
-				tableRows = this.ovTable.getAllRows(this.filteredOnly.isSelected());
-			}
-			for(CyRow row : tableRows) {
-				queryTerms.add(row.get(queryCol, colType).toString());
-			}
-
-			// We set the arguments for the STRING command
-			String query = String.join(",", queryTerms);
-			OVSpecies species = (OVSpecies) this.selectSpecies.getSelectedItem();
-			Map<String, Object> args = new HashMap<>();
-			args.put("query", query);
-			args.put("taxonID", species.getTaxonID());
-			args.put("species", species.getName());
-			args.put("cutoff", this.confidenceValue.getText());
-			args.put("limit", "0");
-
-			// We call the STRING command
-			StringCommandTaskFactory factory = new StringCommandTaskFactory(this.ovManager, OVShared.STRING_CMD_PROTEIN_QUERY, args, this);
-			TaskIterator ti = factory.createTaskIterator();
-			this.ovManager.executeTask(ti, this);
+			
+			OVSpecies species = (OVSpecies) selectedSpecies;
+			
+			RetrieveStringNetworkTaskFactory factory = new RetrieveStringNetworkTaskFactory(this.ovManager);
+			this.ovManager.executeTask(factory.createTaskIterator((String)this.selectQuery.getSelectedItem(),
+					this.selectedOnly.isSelected(),
+					this.filteredOnly.isSelected(),
+					species.getTaxonID(),
+					species.getName(),
+					this.confidenceValue.getText()));
 
 			// The task is executed in background, we don't want the window to be displayed
 			this.setVisible(false);
