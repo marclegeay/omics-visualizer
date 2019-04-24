@@ -317,17 +317,12 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 			}
 
 			JComboBoxDecorator.decorate(this.selectSpecies);
-		} else if(task.getClass().getSimpleName().equals("ProteinQueryTask")) {
-			this.retrievedNetwork = task.getResults(CyNetwork.class);
 		}
 	}
 
 	@Override
 	public void allFinished(FinishStatus finishStatus) {
-		// We connect the table we the imported String Network with the "query term" column
-		// This column is a special column that contains the matching query term
-		this.ovTable.connect(this.retrievedNetwork.toString(), "query term", (String)this.selectQuery.getSelectedItem());
-		this.ovManager.getOVCytoPanel().update();
+		// Do nothing
 	}
 
 	@Override

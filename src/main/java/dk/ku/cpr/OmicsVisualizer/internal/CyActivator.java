@@ -31,6 +31,7 @@ import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.ImportType;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
+import dk.ku.cpr.OmicsVisualizer.internal.task.ConnectTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.FilterTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.OperatorListTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveFilterTaskFactory;
@@ -225,6 +226,17 @@ public class CyActivator extends AbstractCyActivator {
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "connect show");
 				props.setProperty(COMMAND_DESCRIPTION, "Show the connect window of the current table");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+			
+			// Connect (Command only)
+			{
+				ConnectTaskFactory factory = new ConnectTaskFactory(ovManager);
+				Properties props = new Properties();
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(COMMAND, "connect");
+				props.setProperty(COMMAND_DESCRIPTION, "Connect the current table with a network");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
