@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -440,7 +441,12 @@ SelectedNodesAndEdgesListener {
 		}
 		vizInnerButton.setEnabled(this.displayedTable != null && this.displayedTable.isConnectedTo(currentNetwork));
 		if (vizOuterButton == null ) {
-			vizOuterButton = new JButton(IconManager.ICON_CIRCLE_O);
+			URL imageURL = OVCytoPanel.class.getResource("/images/donut-chart.png");
+			if(imageURL != null) {
+				vizOuterButton = new JButton(new ImageIcon(imageURL));
+			} else {
+				vizOuterButton = new JButton(IconManager.ICON_CIRCLE_O); // If the image is not present, at least we display a circle
+			}
 			vizOuterButton.setToolTipText("Apply a Donut Chart visualization to the connected networks...");
 			styleButton(vizOuterButton, iconFont);
 
