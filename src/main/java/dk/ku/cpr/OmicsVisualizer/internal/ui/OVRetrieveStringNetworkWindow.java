@@ -38,7 +38,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
-import org.cytoscape.model.CyNetwork;
 import org.cytoscape.util.swing.LookAndFeelUtil;
 import org.cytoscape.work.FinishStatus;
 import org.cytoscape.work.ObservableTask;
@@ -73,8 +72,6 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 
 	private JButton closeButton;
 	private JButton retrieveButton;
-
-	private CyNetwork retrievedNetwork;
 
 	public OVRetrieveStringNetworkWindow(OVManager ovManager) {
 		super(ovManager, "Retrieve a STRING Network");
