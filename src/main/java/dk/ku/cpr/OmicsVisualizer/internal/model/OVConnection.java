@@ -147,10 +147,21 @@ public class OVConnection {
 	/**
 	 * Sets the inner Visualization, then save the visualization in the network table.
 	 * @param ovViz The inner Visualization
+	 * @param update Should the OVConnection be updated after that
+	 */
+	public void setInnerVisualization(OVVisualization ovViz, boolean update) {
+		this.ovInnerViz=ovViz;
+		if(update) {
+			this.updateVisualization();
+		}
+	}
+	
+	/**
+	 * Sets the inner Visualization, then save the visualization in the network table.
+	 * @param ovViz The inner Visualization
 	 */
 	public void setInnerVisualization(OVVisualization ovViz) {
-		this.ovInnerViz=ovViz;
-		this.updateVisualization();
+		this.setInnerVisualization(ovViz, true);
 	}
 	
 	/**
@@ -164,10 +175,21 @@ public class OVConnection {
 	/**
 	 * Sets the outer Visualization, then save the visualization in the network table.
 	 * @param ovViz The outer Visualization
+	 * @param update Should the OVConnection be updated after that
+	 */
+	public void setOuterVisualization(OVVisualization ovViz, boolean update) {
+		this.ovOuterViz=ovViz;
+		if(update) {
+			this.updateVisualization();
+		}
+	}
+	
+	/**
+	 * Sets the outer Visualization, then save the visualization in the network table.
+	 * @param ovViz The outer Visualization
 	 */
 	public void setOuterVisualization(OVVisualization ovViz) {
-		this.ovOuterViz=ovViz;
-		this.updateVisualization();
+		this.setOuterVisualization(ovViz, true);
 	}
 	
 	/**

@@ -105,7 +105,20 @@ public class ApplyVisualizationTask extends AbstractTask {
 						val = newVal;
 					}
 					
-					nodeValues.add(val);
+					if(val != null ) {
+						nodeValues.add(val);
+					} else {
+						if(this.ovViz.getValuesType() == Integer.class) {
+							nodeValues.add(new Integer(0));
+						} else if(this.ovViz.getValuesType() == Long.class) {
+							nodeValues.add(new Long(0));
+						} else if(this.ovViz.getValuesType() == Double.class) {
+							nodeValues.add(new Double(0.0));
+						} else {
+							nodeValues.add("");
+						}
+					}
+					
 				}
 				if(this.ovViz.getLabel() != null) {
 					nodeLabels += tableRow.get(this.ovViz.getLabel(), this.ovCon.getOVTable().getColType(this.ovViz.getLabel()));
@@ -196,6 +209,9 @@ public class ApplyVisualizationTask extends AbstractTask {
 			vmm.getVisualStyle(netView).addVisualMappingFunction(pMapping);
 			netView.updateView();
 		}
+		
+		taskMonitor.setStatusMessage("Updating the Omics Visualizer panel");
+		this.ovManager.getOVCytoPanel().update();
 
 	}
 

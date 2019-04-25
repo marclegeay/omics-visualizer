@@ -58,18 +58,25 @@ import org.cytoscape.model.events.SelectedNodesAndEdgesListener;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.task.destroy.DeleteTableTaskFactory;
+import org.cytoscape.util.color.Palette;
+import org.cytoscape.util.color.PaletteProvider;
+import org.cytoscape.util.color.PaletteProviderManager;
 import org.cytoscape.util.swing.IconManager;
 import org.cytoscape.util.swing.LookAndFeelUtil;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.swing.DialogTaskManager;
 
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVColorContinuous;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVColorDiscrete;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
 import dk.ku.cpr.OmicsVisualizer.internal.task.FilterTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.table.OVTableModel;
+import dk.ku.cpr.OmicsVisualizer.internal.utils.TextIcon;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.ViewUtil;
 
 public class OVCytoPanel extends JPanel
@@ -88,8 +95,9 @@ SelectedNodesAndEdgesListener {
 	private OVTableModel mainTableModel=null;
 	private final Font iconFont;
 	private Font iconStringFont=null;
-	private final Color filterActive;
-	private final Color filterInactive;
+	private Font iconChartsFont=null;
+	private final Color iconActive;
+	private final Color iconInactive;
 
 	private IconManager iconManager=null;
 
@@ -136,9 +144,18 @@ SelectedNodesAndEdgesListener {
 		} catch (IOException e) {
 			this.iconStringFont=null;
 		}
+		
+		try {
+			this.iconChartsFont = Font.createFont(Font.TRUETYPE_FONT, OVCytoPanel.class.getResourceAsStream("/fonts/charts.ttf"));
+			this.iconChartsFont = this.iconChartsFont.deriveFont(ICON_FONT_SIZE);
+		} catch (FontFormatException e) {
+			this.iconChartsFont=null;
+		} catch (IOException e) {
+			this.iconChartsFont=null;
+		}
 
-		filterActive = new Color(0,153,0); // Green
-		filterInactive = Color.BLACK;
+		iconActive = new Color(0,153,0); // Green
+		iconInactive = Color.BLACK;
 
 		this.reload();
 	}
@@ -232,6 +249,74 @@ SelectedNodesAndEdgesListener {
 
 		btn.setMinimumSize(new Dimension(w, h));
 		btn.setPreferredSize(new Dimension(w, h));
+	}
+	
+	private Palette getPalette(String paletteName) {
+		Palette p=null;
+		
+		for(PaletteProvider paletteProvider : this.ovManager.getService(PaletteProviderManager.class).getPaletteProviders()) {
+			p=paletteProvider.getPalette(paletteName);
+			if(p != null) {
+				return p;
+			}
+		}
+		
+		return p;
+	}
+	
+	/**
+	 * Creates an Icon for a given Visualization.
+	 * The Charts Icon is made so that a chart character is followed by the 3 parts of the charts separately.
+	 * @param ovViz The Visualization to create the Icon
+	 * @param chart The letter used in the Charts Font to describe the visualization
+	 * @return The corresponding TextIcon
+	 */
+	protected TextIcon getChartIcon(OVVisualization ovViz, char chart) {
+		int w=(int)ICON_FONT_SIZE;
+		int h=(int)ICON_FONT_SIZE;
+		
+		if(ovViz == null) {
+			return new TextIcon(Character.toString(chart), iconChartsFont, Color.BLACK, w, h);
+		} else {
+			Color textColors[] = {iconActive, iconActive, iconActive};
+			if(ovViz.getColors() instanceof OVColorContinuous) {
+				OVColorContinuous ovColors = (OVColorContinuous) ovViz.getColors();
+				textColors[0] = ovColors.getDown();
+				textColors[1] = ovColors.getZero();
+				textColors[2] = ovColors.getUp();
+			} else {
+				OVColorDiscrete ovColors = (OVColorDiscrete) ovViz.getColors();
+				Object values[] = ovColors.getValues().toArray();
+				Map<Object,Color> colorMapping = ovColors.getMapping();
+				int nbValues = values.length;
+				
+				if(nbValues >= 3) {
+					textColors[0] = colorMapping.get(values[0]);
+					textColors[1] = colorMapping.get(values[nbValues/2]);
+					textColors[2] = colorMapping.get(values[nbValues-1]);
+				} else {
+					Palette p = this.getPalette(ovViz.getPaletteName());
+					if(p == null) {
+						return new TextIcon(Character.toString(chart), iconChartsFont, Color.BLACK, w, h);
+					}
+					Color paletteColors[] = p.getColors(9);
+					
+					if(nbValues == 2) {
+						textColors[0] = colorMapping.get(values[0]);
+						textColors[1] = new Color(190, 190, 190); // Missing values color
+						textColors[2] = colorMapping.get(values[1]);
+					} else if(nbValues == 1) {
+						textColors[0] = colorMapping.get(paletteColors[0]);
+						textColors[1] = colorMapping.get(values[0]);
+						textColors[2] = colorMapping.get(paletteColors[8]);
+					}
+				}
+			}
+			
+			String texts[] = {Character.toString((char) (chart+1)), Character.toString((char) (chart+2)), Character.toString((char) (chart+3))};
+			
+			return new TextIcon(texts, iconChartsFont, textColors, w, h);
+		}
 	}
 
 	private JPopupMenu getColumnSelectorPopupMenu() {
@@ -368,9 +453,9 @@ SelectedNodesAndEdgesListener {
 			});
 		}
 		if(this.displayedTable.getFilter() == null) {
-			styleButton(filterButton, iconFont, filterInactive);
+			styleButton(filterButton, iconFont, iconInactive);
 		} else {
-			styleButton(filterButton, iconFont, filterActive);
+			styleButton(filterButton, iconFont, iconActive);
 		}
 
 		if (deleteTableButton == null) {
@@ -418,9 +503,15 @@ SelectedNodesAndEdgesListener {
 		}
 		connectButton.setEnabled(this.displayedTable != null && this.ovManager.getNetworkManager().getNetworkSet().size() != 0);
 		if (vizInnerButton == null ) {
-			vizInnerButton = new JButton(IconManager.ICON_PIE_CHART);
+			if(this.iconChartsFont == null) {
+				vizInnerButton = new JButton(IconManager.ICON_PIE_CHART);
+				styleButton(vizInnerButton, iconFont);
+			} else {
+				// In the "Charts Font", the character "E" is the pie
+				vizInnerButton = new JButton(this.getChartIcon(null, 'E'));
+				styleButton(vizInnerButton, iconChartsFont);
+			}
 			vizInnerButton.setToolTipText("Apply a Pie Chart visualization to the connected networks...");
-			styleButton(vizInnerButton, iconFont);
 
 			vizInnerButton.addActionListener(e -> {
 				if(this.displayedTable != null && this.displayedTable.isConnected()) {
@@ -440,15 +531,31 @@ SelectedNodesAndEdgesListener {
 			});
 		}
 		vizInnerButton.setEnabled(this.displayedTable != null && this.displayedTable.isConnectedTo(currentNetwork));
+		if(iconChartsFont != null) {
+			OVVisualization ovViz = null;
+			
+			// If the button is enabled, it means that the table is connected to the current network
+			if(vizInnerButton.isEnabled()) {
+				ovViz = this.displayedTable.getConnection(currentNetwork).getInnerVisualization();
+			}
+			
+			vizInnerButton.setIcon(this.getChartIcon(ovViz, 'E'));
+		}
 		if (vizOuterButton == null ) {
-			URL imageURL = OVCytoPanel.class.getResource("/images/donut-chart.png");
-			if(imageURL != null) {
-				vizOuterButton = new JButton(new ImageIcon(imageURL));
+			if(this.iconChartsFont == null) { // We use the image instead of the font
+				URL imageURL = OVCytoPanel.class.getResource("/images/donut-chart.png");
+				if(imageURL != null) {
+					vizOuterButton = new JButton(new ImageIcon(imageURL));
+				} else {
+					vizOuterButton = new JButton(IconManager.ICON_CIRCLE_O); // If the image is not present, at least we display a circle
+				}
+				styleButton(vizOuterButton, iconFont);
 			} else {
-				vizOuterButton = new JButton(IconManager.ICON_CIRCLE_O); // If the image is not present, at least we display a circle
+				// In the "Charts Font", the character "A" is the donut
+				vizOuterButton = new JButton(this.getChartIcon(null, 'A'));
+				styleButton(vizOuterButton, iconChartsFont);
 			}
 			vizOuterButton.setToolTipText("Apply a Donut Chart visualization to the connected networks...");
-			styleButton(vizOuterButton, iconFont);
 
 			vizOuterButton.addActionListener(e -> {
 				if(this.displayedTable != null && this.displayedTable.isConnected()) {
@@ -468,7 +575,17 @@ SelectedNodesAndEdgesListener {
 			});
 		}
 		vizOuterButton.setEnabled(this.displayedTable != null && this.displayedTable.isConnectedTo(currentNetwork));
-
+		if(iconChartsFont != null) {
+			OVVisualization ovViz = null;
+			
+			// If the button is enabled, it means that the table is connected to the current network
+			if(vizOuterButton.isEnabled()) {
+				ovViz = this.displayedTable.getConnection(currentNetwork).getOuterVisualization();
+			}
+			
+			vizOuterButton.setIcon(this.getChartIcon(ovViz, 'A'));
+		}
+		
 		addToolBarComponent(selectButton, ComponentPlacement.RELATED);
 		addToolBarComponent(filterButton, ComponentPlacement.RELATED);
 		addToolBarComponent(retrieveNetworkButton, ComponentPlacement.RELATED);
@@ -704,7 +821,13 @@ SelectedNodesAndEdgesListener {
 			if(ovCon != null) {
 				this.initPanel(ovCon.getOVTable(), newCurrentNetwork);
 				ovCon.getOVTable().displaySelectedRows(newCurrentNetwork);
+			} else {
+				// We display the same table but we update the panel to disable contextual actions
+				this.initPanel(this.displayedTable, newCurrentNetwork);
 			}
+		} else {
+			// We display the same table but we update the panel to disable contextual actions
+			this.initPanel(this.displayedTable, newCurrentNetwork);
 		}
 	}
 

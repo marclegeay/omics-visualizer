@@ -713,7 +713,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 						color = generateRandomColor(i, nb_values);
 					}
 
-					if(ovViz != null && ovViz.getColors() instanceof OVColorDiscrete) {
+					if(!reset && ovViz != null && ovViz.getColors() instanceof OVColorDiscrete) {
 						OVColorDiscrete colorViz = (OVColorDiscrete) ovViz.getColors();
 						color = colorViz.getColor(val);
 
@@ -945,6 +945,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		} else {
 			this.selectChartLabels.setSelectedIndex(0);
 			this.selectDiscreteContinuous.setSelectedIndex(0);
+			this.checkValueTypes();
 			
 			this.deleteButton.setEnabled(false);
 		}

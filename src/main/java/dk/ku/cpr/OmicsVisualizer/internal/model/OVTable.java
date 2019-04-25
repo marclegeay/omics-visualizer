@@ -569,21 +569,21 @@ public class OVTable {
 					
 					if(splittedLink.length == 3 && splittedLink[0].equals(this.getTitle())) {
 						OVConnection ovCon = this.connect(net.toString(), splittedLink[1], splittedLink[2]);
-						
 						// We try to load the Visualization
 						if(ovCon != null) {
 							if(netTable.getColumn(OVShared.CYNETWORKTABLE_INNERVIZCOL) != null) {
 								String viz = netTable.getRow(net.getSUID()).get(OVShared.CYNETWORKTABLE_INNERVIZCOL, String.class);
 								if(viz != null && !viz.isEmpty()) {
-									ovCon.setInnerVisualization(OVVisualization.load(viz));
+									ovCon.setInnerVisualization(OVVisualization.load(viz), false);
 								}
 							}
 							if(netTable.getColumn(OVShared.CYNETWORKTABLE_OUTERVIZCOL) != null) {
 								String viz = netTable.getRow(net.getSUID()).get(OVShared.CYNETWORKTABLE_OUTERVIZCOL, String.class);
 								if(viz != null && !viz.isEmpty()) {
-									ovCon.setOuterVisualization(OVVisualization.load(viz));
+									ovCon.setOuterVisualization(OVVisualization.load(viz), false);
 								}
 							}
+							ovCon.updateVisualization();
 						}
 					}
 				}
