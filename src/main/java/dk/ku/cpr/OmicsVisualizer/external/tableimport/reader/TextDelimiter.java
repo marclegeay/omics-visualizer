@@ -29,11 +29,11 @@ package dk.ku.cpr.OmicsVisualizer.external.tableimport.reader;
  * Define text file delimiters as enum.
  */
 public enum TextDelimiter {
-	TAB("tab", "\\t"),
+	TAB("tab", "\t"),
 	COMMA(",", ","),
 	SEMICOLON(";", ";"),
 	SPACE("space", " "),
-	PIPE("|", "\\|"),
+	PIPE("|", "|"),
 	COLON(":", ":"),
 	SLASH("/", "/"),
 	BACKSLASH("\\", "\\");

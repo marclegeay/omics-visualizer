@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.AttributeDataType;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.SourceColumnSemantic;
@@ -156,6 +157,7 @@ public abstract class AbstractMappingParameters implements MappingParameter{
 	}
 
 	public String getDelimiterRegEx() {
+		// ML : Modified, use of Pattern.quote AND modified the regex
 		StringBuffer delimiterBuffer = new StringBuffer();
 		delimiterBuffer.append("[");
 
@@ -164,10 +166,10 @@ public abstract class AbstractMappingParameters implements MappingParameter{
 				return " += +";
 			}
 
-			delimiterBuffer.append(delimiter);
+			delimiterBuffer.append(Pattern.quote(delimiter));
 		}
 
-		delimiterBuffer.append("]");
+		delimiterBuffer.append("]" + "(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
 
 		return delimiterBuffer.toString();
 	}

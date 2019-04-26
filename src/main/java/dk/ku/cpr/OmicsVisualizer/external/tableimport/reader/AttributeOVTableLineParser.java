@@ -105,8 +105,13 @@ public class AttributeOVTableLineParser extends AbstractLineParser {
 	/**
 	 * Based on the attribute types, map the entry to CyAttributes.<br>
 	 */
-	private void mapAttribute(final CyTable table, final Object key, final String entry, final int index) {
+	private void mapAttribute(final CyTable table, final Object key, String entry, final int index) {
 		final AttributeDataType type = mapping.getDataTypes()[index];
+		
+		// ML : Get rid of starting and ending " if any
+		if(entry.startsWith("\"") && entry.endsWith("\"")) {
+			entry = entry.substring(1, entry.length()-1);
+		}
 
 		try {
 			if (type.isList()) {

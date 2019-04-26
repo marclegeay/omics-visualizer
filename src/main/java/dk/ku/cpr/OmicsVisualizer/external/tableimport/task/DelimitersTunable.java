@@ -31,7 +31,7 @@ public class DelimitersTunable {
 			SEMICOLON.getDelimiter(),
 			SPACE.getDelimiter(),
 			TAB.getDelimiter(),
-			"\t" // to support escape sequences used in command arguments
+			"\t"
 		);
 		delimiters = new ListMultipleSelection<>(values);
 	}

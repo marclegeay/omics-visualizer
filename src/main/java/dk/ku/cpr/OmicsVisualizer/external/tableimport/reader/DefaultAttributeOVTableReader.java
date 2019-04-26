@@ -143,7 +143,7 @@ public class DefaultAttributeOVTableReader implements TextTableReader {
 					} catch (Exception e) { }
 				} else { //Use the "old" method for splitting the lines.
 					String line;
-					String[] parts = null;
+					String[] parts = new String[0];
 					
 					while ((line = bufRd.readLine()) != null) {
 						/*
@@ -153,6 +153,7 @@ public class DefaultAttributeOVTableReader implements TextTableReader {
 							// Do nothing
 						} else if ((lineCount >= startLineNumber) && (line.trim().length() > 0)) {
 							parts = line.split(delimiter);
+							
 							
 //							// If key does not exists, ignore the line.
 //							if (parts.length >= mapping.getKeyIndex() + 1) {
