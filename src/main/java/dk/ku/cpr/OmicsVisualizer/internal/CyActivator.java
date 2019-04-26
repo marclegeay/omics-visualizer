@@ -32,6 +32,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ConnectTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.DisconnectTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.FilterTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.OperatorListTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveFilterTaskFactory;
@@ -236,7 +237,18 @@ public class CyActivator extends AbstractCyActivator {
 				Properties props = new Properties();
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "connect");
-				props.setProperty(COMMAND_DESCRIPTION, "Connect the current table with a network");
+				props.setProperty(COMMAND_DESCRIPTION, "Connect a table with a network");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+			
+			// Disconnect (Command only)
+			{
+				DisconnectTaskFactory factory = new DisconnectTaskFactory(ovManager);
+				Properties props = new Properties();
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(COMMAND, "disconnect");
+				props.setProperty(COMMAND_DESCRIPTION, "Disconnect the table and the network");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
