@@ -110,6 +110,10 @@ SelectedNodesAndEdgesListener {
 	private JButton connectButton=null;
 	private JButton vizInnerButton=null;
 	private JButton vizOuterButton=null;
+	
+	// According to Charts Font
+	private static final char INNER_CHART_LETTER = 'e';
+	private static final char OUTER_CHART_LETTER = 'a';
 
 	private JPopupMenu columnSelectorPopupMenu=null;
 	private CyColumnSelector columnSelector=null;
@@ -508,7 +512,7 @@ SelectedNodesAndEdgesListener {
 				styleButton(vizInnerButton, iconFont);
 			} else {
 				// In the "Charts Font", the character "E" is the pie
-				vizInnerButton = new JButton(this.getChartIcon(null, 'E'));
+				vizInnerButton = new JButton(this.getChartIcon(null, INNER_CHART_LETTER));
 				styleButton(vizInnerButton, iconChartsFont);
 			}
 			vizInnerButton.setToolTipText("Apply a Pie Chart visualization to the connected networks...");
@@ -539,7 +543,7 @@ SelectedNodesAndEdgesListener {
 				ovViz = this.displayedTable.getConnection(currentNetwork).getInnerVisualization();
 			}
 			
-			vizInnerButton.setIcon(this.getChartIcon(ovViz, 'E'));
+			vizInnerButton.setIcon(this.getChartIcon(ovViz, INNER_CHART_LETTER));
 		}
 		if (vizOuterButton == null ) {
 			if(this.iconChartsFont == null) { // We use the image instead of the font
@@ -552,7 +556,7 @@ SelectedNodesAndEdgesListener {
 				styleButton(vizOuterButton, iconFont);
 			} else {
 				// In the "Charts Font", the character "A" is the donut
-				vizOuterButton = new JButton(this.getChartIcon(null, 'A'));
+				vizOuterButton = new JButton(this.getChartIcon(null, OUTER_CHART_LETTER));
 				styleButton(vizOuterButton, iconChartsFont);
 			}
 			vizOuterButton.setToolTipText("Apply a Donut Chart visualization to the connected networks...");
@@ -583,7 +587,7 @@ SelectedNodesAndEdgesListener {
 				ovViz = this.displayedTable.getConnection(currentNetwork).getOuterVisualization();
 			}
 			
-			vizOuterButton.setIcon(this.getChartIcon(ovViz, 'A'));
+			vizOuterButton.setIcon(this.getChartIcon(ovViz, OUTER_CHART_LETTER));
 		}
 		
 		addToolBarComponent(selectButton, ComponentPlacement.RELATED);
