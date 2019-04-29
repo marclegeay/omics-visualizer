@@ -538,7 +538,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				this.palette = this.paletteProviderManager.retrievePalette(this.ovTable.getTitle()+"-"+this.paletteType);
 			}
 			
-			if(this.palette != null) {
+			if(this.palette != null && reset) {
 				Color colors[] = this.palette.getColors(9);
 				if(this.paletteType == BrewerType.SEQUENTIAL && rangeMin >= 0) {
 					// Values are all positives
