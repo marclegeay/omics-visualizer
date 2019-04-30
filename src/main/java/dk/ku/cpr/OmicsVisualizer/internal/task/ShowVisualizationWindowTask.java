@@ -10,6 +10,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVVisualizationWindow;
+import dk.ku.cpr.OmicsVisualizer.internal.utils.ViewUtil;
 
 public class ShowVisualizationWindowTask extends AbstractTask {
 	
@@ -44,7 +45,14 @@ public class ShowVisualizationWindowTask extends AbstractTask {
 			}
 			
 			ovVizWindow.setTable(ovPanel.getDisplayedTable());
-			ovVizWindow.setVisible(true);
+			// JDialog.setVisible blocks the current thread
+			// So we invoke this in an other thread
+			ViewUtil.invokeOnEDT(new Runnable() {
+				@Override
+				public void run() {
+					ovVizWindow.setVisible(true);
+				}
+			});
 		}
 	}
 

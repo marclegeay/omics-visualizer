@@ -8,6 +8,7 @@ import org.cytoscape.work.TaskMonitor;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
+import dk.ku.cpr.OmicsVisualizer.internal.utils.ViewUtil;
 
 public class ShowRetrieveWindowTask extends AbstractTask {
 	
@@ -31,7 +32,14 @@ public class ShowRetrieveWindowTask extends AbstractTask {
 		
 		OVCytoPanel ovPanel = this.ovManager.getOVCytoPanel();
 		if(ovPanel != null) {
-			ovPanel.getRetrieveWindow().setVisible(true);
+			// JDialog.setVisible blocks the current thread
+			// So we invoke this in an other thread
+			ViewUtil.invokeOnEDT(new Runnable() {
+				@Override
+				public void run() {
+					ovPanel.getRetrieveWindow().setVisible(true);
+				}
+			});
 		}
 	}
 
