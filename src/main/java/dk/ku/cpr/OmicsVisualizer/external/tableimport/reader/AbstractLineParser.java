@@ -43,7 +43,7 @@ public abstract class AbstractLineParser {
 						} catch(NumberFormatException nfe) {
 							try {
 								NumberFormat nf = NumberFormat.getInstance(Locale.FRANCE);
-								return nf.parse(s.trim());
+								return nf.parse(s.trim()).doubleValue();
 							} catch (ParseException pe) {
 								value = createInvalidNumberEquation(s.trim(), type);
 							}

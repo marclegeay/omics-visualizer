@@ -23,6 +23,7 @@ import static dk.ku.cpr.OmicsVisualizer.external.tableimport.util.SourceColumnSe
 
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -533,16 +534,19 @@ public final class TypeUtil {
 	private static boolean isDouble(String val) {
 		if (val != null) {
 			val = val.trim();
-			if (isNaN(val))
+			if (isNaN(val)) {
 				return true;
+			}
 			try {
+				System.out.print(Double.parseDouble(val));
 				Double.parseDouble(val);
 			} catch (NumberFormatException e) {
 				// Modification ML: If the parsing failed, we try to parse it the french way (with a comma as decimal separator)
-				try {
-					NumberFormat nf = NumberFormat.getInstance(Locale.FRANCE);
-					nf.parse(val);
-				} catch(ParseException pe) {
+				NumberFormat nf = NumberFormat.getInstance(Locale.FRANCE);
+				ParsePosition parsePosition = new ParsePosition(0);
+				nf.parse(val, parsePosition);
+
+				if(parsePosition.getIndex() != val.length()) {
 					return false;
 				}
 			}
@@ -627,43 +631,6 @@ public final class TypeUtil {
 		}
 		
 		return false;
-	}
-	
-	private static boolean canBeKey(final TableModel model, final int col, final AttributeDataType dataType) {
-		if (dataType != TYPE_STRING && dataType != TYPE_INTEGER && dataType != TYPE_LONG)
-			return false;
-		
-		final int rowCount = Math.min(1000, model.getRowCount());
-		final Set<Object> values = new HashSet<>();
-		
-		for (int row = 0; row < rowCount; row++) {
-			final Object val = model.getValueAt(row, col);
-			
-			if (val == null)
-				return false;
-			
-			if (dataType == TYPE_STRING) {
-				final String s = val.toString();
-				
-				if (values.contains(s))
-					return false;
-				
-				values.add(s);
-			} else {
-				try {
-					final Long n = Long.parseLong(val.toString());
-					
-					if (values.contains(n))
-						return false;
-					
-					values.add(n);
-				} catch (NumberFormatException e) {
-					return false;
-				}
-			}
-		}
-		
-		return true;
 	}
 	
 	public static String[] getCSV(String str) {
