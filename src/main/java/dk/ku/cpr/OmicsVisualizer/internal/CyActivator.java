@@ -42,6 +42,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.task.ShowConnectWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowFilterWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowRetrieveWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowVisualizationWindowTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.VersionTaskFactory;
 
 public class CyActivator extends AbstractCyActivator {
 
@@ -59,6 +60,17 @@ public class CyActivator extends AbstractCyActivator {
 		registerService(context, ovManager, NetworkAboutToBeDestroyedListener.class);
 		registerService(context, ovManager, NetworkDestroyedListener.class);
 		registerService(context, ovManager, NetworkAddedListener.class);
+		
+		// Version (Command only)
+		{
+			VersionTaskFactory factory = new VersionTaskFactory(context.getBundle().getVersion().toString());
+			Properties props = new Properties();
+			props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+			props.setProperty(COMMAND, "version");
+			props.setProperty(COMMAND_DESCRIPTION, "Returns the current version of the app");
+			
+			registerService(context, factory, TaskFactory.class, props);
+		}
 
 		// Register services to load a file
 		{
