@@ -1055,9 +1055,9 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				this.ovManager.executeSynchronousTask(factory.createTaskIterator());
 
 				this.updateVisualization(this.getVisualization());
+				
+				this.ovManager.getOVCytoPanel().update();
 			}
-			//		} else if(e.getSource() == this.selectNetwork) {
-			//			this.changedNetwork();
 		} else if(e.getSource() == this.nextButton) {
 			if(!this.selectValues.allSameType()) {
 				JOptionPane.showMessageDialog(null,
