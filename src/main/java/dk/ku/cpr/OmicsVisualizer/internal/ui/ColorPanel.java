@@ -10,15 +10,26 @@ import java.awt.event.MouseListener;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
+import org.cytoscape.util.color.Palette;
+import org.cytoscape.util.swing.CyColorPaletteChooserFactory;
+
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
+
 public class ColorPanel extends JPanel implements MouseListener {
 	private static final long serialVersionUID = -2950405099490317278L;
 	
+	private Container parent;
 	private Color color;
 	private ColorChooser colorChooser;
+	private OVManager ovManager;
+	private Palette palette;
 	
-	public ColorPanel(Color color, Container parent, ColorChooser colorChooser) {
+	public ColorPanel(Color color, Container parent, ColorChooser colorChooser, OVManager ovManager, Palette palette) {
 		super();
+		this.parent=parent;
 		this.colorChooser=colorChooser;
+		this.ovManager=ovManager;
+		this.palette=palette;
 		this.setColor(color);
 		this.setBorder(BorderFactory.createLineBorder(parent.getBackground()));
 		this.setOpaque(false); // To display alpha-colors
@@ -29,8 +40,8 @@ public class ColorPanel extends JPanel implements MouseListener {
 		this.setPreferredSize(new Dimension(30, 30));
 	}
 	
-	public ColorPanel(Container parent, ColorChooser colorChooser) {
-		this(null, parent, colorChooser);
+	public ColorPanel(Container parent, ColorChooser colorChooser, OVManager ovManager, Palette palette) {
+		this(null, parent, colorChooser, ovManager, palette);
 	}
 	
 	public void setColor(Color color) {
@@ -53,7 +64,12 @@ public class ColorPanel extends JPanel implements MouseListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		this.colorChooser.show(this);
+		if(this.palette != null) {
+			this.setColor(this.ovManager.getService(CyColorPaletteChooserFactory.class).getColorPaletteChooser(this.palette.getType(), false).showDialog(parent, "", this.palette,  this.color, 9));
+		} else {
+			this.colorChooser.show(this);
+		}
+		
 	}
 
 	@Override
