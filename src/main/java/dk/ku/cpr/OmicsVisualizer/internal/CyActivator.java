@@ -43,6 +43,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.task.ShowFilterWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowRetrieveWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowVisualizationWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.VersionTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.VisualizationTaskFactory;
 
 public class CyActivator extends AbstractCyActivator {
 
@@ -278,6 +279,27 @@ public class CyActivator extends AbstractCyActivator {
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
+
+			// Apply inner visualization - Continuous (Command only)
+			{
+				VisualizationTaskFactory factory = new VisualizationTaskFactory(ovManager, true, ChartType.PIE);
+				Properties props = new Properties();
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(COMMAND, "viz apply inner continuous");
+				props.setProperty(COMMAND_DESCRIPTION, "Apply an inner visualization with a continuous mapping.");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+			// Apply inner visualization - Discrete (Command only)
+			{
+				VisualizationTaskFactory factory = new VisualizationTaskFactory(ovManager, false, ChartType.PIE);
+				Properties props = new Properties();
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(COMMAND, "viz apply inner discrete");
+				props.setProperty(COMMAND_DESCRIPTION, "Apply an inner visualization with a discrete mapping.");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
 			
 			// Access outer visualization
 			{
@@ -289,6 +311,27 @@ public class CyActivator extends AbstractCyActivator {
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "viz show outer");
 				props.setProperty(COMMAND_DESCRIPTION, "Show the outer visualization window of the current table");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+
+			// Apply outer visualization - Continuous (Command only)
+			{
+				VisualizationTaskFactory factory = new VisualizationTaskFactory(ovManager, true, ChartType.CIRCOS);
+				Properties props = new Properties();
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(COMMAND, "viz apply outer continuous");
+				props.setProperty(COMMAND_DESCRIPTION, "Apply an outer visualization with a continuous mapping.");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+			// Apply outer visualization - Discrete (Command only)
+			{
+				VisualizationTaskFactory factory = new VisualizationTaskFactory(ovManager, false, ChartType.CIRCOS);
+				Properties props = new Properties();
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(COMMAND, "viz apply outer discrete");
+				props.setProperty(COMMAND_DESCRIPTION, "Apply an outer visualization with a discrete mapping.");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
