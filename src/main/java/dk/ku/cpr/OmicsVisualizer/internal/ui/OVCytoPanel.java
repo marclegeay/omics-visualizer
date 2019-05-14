@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.swing.AbstractButton;
 import javax.swing.DefaultComboBoxModel;
@@ -290,7 +291,7 @@ SelectedNodesAndEdgesListener {
 				textColors[2] = ovColors.getUp();
 			} else {
 				OVColorDiscrete ovColors = (OVColorDiscrete) ovViz.getColors();
-				Object values[] = ovColors.getValues().toArray();
+				Object values[] = (new TreeSet<Object>(ovColors.getValues())).toArray();
 				Map<Object,Color> colorMapping = ovColors.getMapping();
 				int nbValues = values.length;
 				

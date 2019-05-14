@@ -56,6 +56,8 @@ import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveVisualizationTaskFactory;
 public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	private static final long serialVersionUID = 6606921043986517714L;
 
+	private static final int MIN_WIDTH = 400;
+
 	private static final String NO_LABEL = "--- NONE ---";
 	private static final String CONTINUOUS = "Continuous";
 	private static final String DISCRETE = "Discrete";
@@ -796,6 +798,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		int prefHeight = (int) (this.cytoPanel.getTopLevelAncestor().getHeight() * 0.8);
 		int curWidth = this.getWidth();
 		prefWidth = (prefWidth < curWidth ? prefWidth : curWidth);
+		prefWidth = (prefWidth < MIN_WIDTH ? MIN_WIDTH  : prefWidth);
 		int curHeight = this.getHeight();
 		prefHeight = (prefHeight < curHeight ? prefHeight : curHeight);
 		this.setPreferredSize(new Dimension(prefWidth, prefHeight));
