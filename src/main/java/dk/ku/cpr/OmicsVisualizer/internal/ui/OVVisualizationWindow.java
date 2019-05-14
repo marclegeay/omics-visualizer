@@ -86,7 +86,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	/** Used when no palette is used and values are only negative */
 	private static final Color DEFAULT_MAX_COLOR_NEG = DEFAULT_MIN_COLOR_POS;
 	/** Default value for missing values */
-	private static final Color DEFAULT_MISSING_COLOR = new Color(190, 190, 190);
+	public static final Color DEFAULT_MISSING_COLOR = new Color(190, 190, 190);
 
 	private static int MAXIMUM_COLOR_NUMBERS = 50;
 	private static int MAXIMUM_COLOR_DISPLAYED = 12;
@@ -616,7 +616,6 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				mappingPanel.add(this.colorPanels[2], c.nextCol().noExpand());
 				c.expandHorizontal();
 
-				// TODO v1.1: No missing values
 				this.missingValuesColorPanels = new ColorPanel(colorMissing, this, this.colorChooser, this.ovManager, this.palette);
 				mappingPanel.add(new JLabel("Missing value:"), c.nextRow());
 				mappingPanel.add(this.missingValuesColorPanels, c.nextCol().nextCol().noExpand());
@@ -695,19 +694,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 					this.palette = this.paletteProviderManager.retrievePalette(this.ovTable.getTitle()+"-"+this.paletteType);
 				}
 				if(this.palette != null) {
-					if(this.palette.getName().equals("Paired colors") && (values.size() <= 6)) {
-						// The paired colors palette is special
-						// There are 11 different colors, but two consecutive colors look alike
-						// So if we need only 6 colors (or less) we will only take the odd colors
-
-						colors = new Color[values.size()];
-						Color paletteColors[] = this.palette.getColors(values.size()*2);
-						for(int i=0; i<values.size(); ++i) {
-							colors[i] = paletteColors[2*i];
-						}
-					} else {
-						colors = this.palette.getColors(values.size());
-					}
+					colors = this.palette.getColors(values.size());
 				}
 				
 				JPanel valuesList = new JPanel();
@@ -1196,8 +1183,6 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			if(!this.selectChartLabels.getSelectedItem().equals(OVVisualizationWindow.NO_LABEL)) {
 				label = (String) this.selectChartLabels.getSelectedItem();
 			}
-
-			this.selectValues.getValues();
 
 			OVVisualization ovViz = new OVVisualization(this.chartType,
 					this.selectValues.getValues(),
