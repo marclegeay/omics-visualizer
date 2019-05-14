@@ -1,5 +1,7 @@
 package dk.ku.cpr.OmicsVisualizer.internal.task;
 
+import org.cytoscape.application.CyApplicationManager;
+import org.cytoscape.model.CyNetwork;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.ProvidesTitle;
 import org.cytoscape.work.TaskMonitor;
@@ -10,13 +12,6 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 
 public class ConnectTask extends AbstractTask {
 	private OVManager ovManager;
-	
-	@Tunable(description="Name of the Network Collection to connect the table with.",
-			required=true,
-			tooltip="Usually the Network Collection's name is the same as the main Network in the collection, but the name of the collection can be changed separately.",
-			exampleStringValue="String Network",
-			gravity=1.0)
-	public String rootNetName;
 	
 	@Tunable(description="Key column from the Network node table used to map the network with the table.",
 			required=true,
@@ -29,11 +24,6 @@ public class ConnectTask extends AbstractTask {
 			exampleStringValue="Uniprot",
 			gravity=1.0)
 	public String mappingColTable;
-	
-	@Tunable(description="Name of the table to connect with the network collection. (if not used, the active table will be used)",
-			exampleStringValue="Omics Visualizer Table 1",
-			gravity=1.0)
-	public String tableName;
 
 	public ConnectTask(OVManager ovManager) {
 		super();
@@ -49,28 +39,23 @@ public class ConnectTask extends AbstractTask {
 	public void run(TaskMonitor taskMonitor) throws Exception {
 		taskMonitor.setTitle(this.getName());
 		
-		OVTable ovTable = null;
-		
-		if(tableName != null) {
-			for(OVTable tab : this.ovManager.getOVTables()) {
-				if(tab.getTitle().equals(tableName)) {
-					ovTable = tab;
-				}
-			}
-		} else {
-			ovTable = this.ovManager.getActiveOVTable();
-		}
-		
+		OVTable ovTable = this.ovManager.getActiveOVTable();
 		if(ovTable == null) {
 			taskMonitor.setStatusMessage("No active Omics Visualizer table. The task stops here.");
 			return;
 		}
+		
+		CyNetwork network = this.ovManager.getService(CyApplicationManager.class).getCurrentNetwork();
+		if(network == null) {
+			taskMonitor.setStatusMessage("No current network. The task stops here.");
+			return;
+		}
 
-		taskMonitor.setStatusMessage("Connecting " + ovTable.getTitle() + " table with " + rootNetName + ".");
+		taskMonitor.setStatusMessage("Connecting " + ovTable.getTitle() + " table with " + network.toString() + ".");
 		taskMonitor.setStatusMessage("Network key column: " + mappingColNet);
 		taskMonitor.setStatusMessage("Table key column: " + mappingColTable);
 		
-		ovTable.connect(rootNetName, mappingColNet, mappingColTable);
+		ovTable.connect(network, mappingColNet, mappingColTable);
 		
 		if(this.ovManager.getOVCytoPanel() != null) {
 			this.ovManager.getOVCytoPanel().update();

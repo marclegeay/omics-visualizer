@@ -7,8 +7,6 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -20,7 +18,9 @@ import javax.swing.JScrollPane;
 
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
+import org.cytoscape.model.SavePolicy;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.util.swing.LookAndFeelUtil;
@@ -33,7 +33,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 public class OVConnectWindow extends OVWindow implements ActionListener {
 	private static final long serialVersionUID = -5328093228061621675L;
 
-	private static final String CHOOSE ="--- Choose ---";
+	private static CyNetwork CHOOSE = null;
 
 	private OVCytoPanel cytoPanel;
 	private OVTable ovTable;
@@ -41,7 +41,7 @@ public class OVConnectWindow extends OVWindow implements ActionListener {
 	private CyNetworkManager netManager;
 	private CyRootNetworkManager rootNetManager;
 
-	private JComboBox<String> selectNetwork;
+	private JComboBox<CyNetwork> selectNetwork;
 	private JComboBox<String> selectColNetwork;
 	private JComboBox<String> selectColTable;
 	private JButton connectButton;
@@ -50,6 +50,10 @@ public class OVConnectWindow extends OVWindow implements ActionListener {
 
 	public OVConnectWindow(OVManager ovManager) {
 		super(ovManager);
+		
+		// We init the CHOOSE Network
+		CHOOSE = this.ovManager.getService(CyNetworkFactory.class).createNetworkWithPrivateTables(SavePolicy.DO_NOT_SAVE);
+		CHOOSE.getDefaultNetworkTable().getRow(CHOOSE.getSUID()).set(CyNetwork.NAME, "--- Choose ---");
 
 		this.cytoPanel=ovManager.getOVCytoPanel();
 
@@ -86,12 +90,8 @@ public class OVConnectWindow extends OVWindow implements ActionListener {
 		this.selectNetwork.removeAllItems();
 		this.selectNetwork.addItem(CHOOSE);
 		
-		Set<String> networkCollectionNames = new HashSet<>();
 		for(CyNetwork net : this.netManager.getNetworkSet()) {
-			networkCollectionNames.add(this.rootNetManager.getRootNetwork(net).toString());
-		}
-		for(String netColName : networkCollectionNames) {
-			this.selectNetwork.addItem(netColName);
+			this.selectNetwork.addItem(this.rootNetManager.getRootNetwork(net));
 		}
 		// Now that the list is complete, we can re-add the event listener
 		this.selectNetwork.addActionListener(this);
@@ -211,47 +211,52 @@ public class OVConnectWindow extends OVWindow implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == this.selectNetwork) {
-			String rootNetName = (String) this.selectNetwork.getSelectedItem();
-
-			CyRootNetworkManager rootNetManager = this.ovManager.getService(CyRootNetworkManager.class);
-			CyRootNetwork rootNet=null;
-			for(CyNetwork cyNet : this.netManager.getNetworkSet()) {
-				if(rootNetManager.getRootNetwork(cyNet).toString().equals(rootNetName)) {
-					rootNet=rootNetManager.getRootNetwork(cyNet);
+			CyNetwork selectedNetwork = (CyNetwork) this.selectNetwork.getSelectedItem();
+			if(selectedNetwork != null && !selectedNetwork.equals(CHOOSE)) {
+				CyRootNetworkManager rootNetManager = this.ovManager.getService(CyRootNetworkManager.class);
+				CyRootNetwork rootNet=rootNetManager.getRootNetwork(selectedNetwork);
+	
+				OVConnection ovCon = this.ovManager.getConnection(rootNet);
+				if(ovCon != null) {
+					JOptionPane.showMessageDialog(null,
+							"This network collection is already connected to \""+ovCon.getOVTable().getTitle()+"\".",
+							"Warning",
+							JOptionPane.WARNING_MESSAGE);
 				}
-			}
-
-			OVConnection ovCon = this.ovManager.getConnection(rootNet);
-			if(ovCon != null) {
-				JOptionPane.showMessageDialog(null,
-						"This network collection is already connected to \""+ovCon.getOVTable().getTitle()+"\".",
-						"Warning",
-						JOptionPane.WARNING_MESSAGE);
-			}
-
-			if(rootNet == null) {
+	
+				if(rootNet == null) {
+					this.selectColNetwork.setEnabled(false);
+					this.selectColTable.setEnabled(false);
+					this.connectButton.setEnabled(false);
+				} else {
+					this.selectColNetwork.removeAllItems();
+					for(CyColumn col : rootNet.getBaseNetwork().getDefaultNodeTable().getColumns()) {
+						this.selectColNetwork.addItem(col.getName());
+					}
+	
+					this.selectColNetwork.setEnabled(true);
+					this.selectColTable.setEnabled(true);
+					this.connectButton.setEnabled(true);
+					
+					if(rootNet.getDefaultNodeTable().getColumn("query term") != null) {
+						this.selectColNetwork.setSelectedItem("query term");
+					}
+				}
+			} else {
 				this.selectColNetwork.setEnabled(false);
 				this.selectColTable.setEnabled(false);
 				this.connectButton.setEnabled(false);
-			} else {
-				this.selectColNetwork.removeAllItems();
-				for(CyColumn col : rootNet.getBaseNetwork().getDefaultNodeTable().getColumns()) {
-					this.selectColNetwork.addItem(col.getName());
-				}
-
-				this.selectColNetwork.setEnabled(true);
-				this.selectColTable.setEnabled(true);
-				this.connectButton.setEnabled(true);
-				
-				if(rootNet.getDefaultNodeTable().getColumn("query term") != null) {
-					this.selectColNetwork.setSelectedItem("query term");
-				}
 			}
 		} else if (e.getSource() == this.connectButton && this.connectButton.isEnabled()) {
-			String rootNetName = (String) this.selectNetwork.getSelectedItem();
+			CyNetwork selectedNetwork = (CyNetwork) this.selectNetwork.getSelectedItem();
+			if(selectedNetwork == null) {
+				return;
+			}
+			CyRootNetworkManager rootNetManager = this.ovManager.getService(CyRootNetworkManager.class);
+			CyRootNetwork rootNet=rootNetManager.getRootNetwork(selectedNetwork);
 
 			int response = JOptionPane.OK_OPTION;
-			OVConnection ovCon = this.ovManager.getConnection(rootNetName);
+			OVConnection ovCon = this.ovManager.getConnection(rootNet);
 			if(ovCon != null) {
 				response = JOptionPane.showConfirmDialog(null,
 						"This network collection is already connected to \""+ovCon.getOVTable().getTitle()+"\". You will disconnect \""+ovCon.getOVTable().getTitle()+"\" if you continue.",
@@ -267,26 +272,24 @@ public class OVConnectWindow extends OVWindow implements ActionListener {
 				return;
 			}
 
-			if(rootNetName != null) {
-				ovCon = this.ovTable.connect(
-						(String) this.selectNetwork.getSelectedItem(),
-						(String) this.selectColNetwork.getSelectedItem(),
-						(String) this.selectColTable.getSelectedItem()
-						);
-				
-				if(ovCon.getNbConnectedTableRows() == 0) {
-					JOptionPane.showMessageDialog(null, "Error: No table row is connected to the network.", "Error", JOptionPane.ERROR_MESSAGE);
-					ovCon.disconnect();
-					return;
-				}
-//				else {
-//					int totalNbRows = this.ovTable.getAllRows(true).size();
-//					
-//					if((((double) ovCon.getNbConnectedTableRows())/totalNbRows) < OVConnection.MINIMUM_CONNECTED_ROWS) {
-//						JOptionPane.showMessageDialog(null, "Warning: Less than " + (int)(OVConnection.MINIMUM_CONNECTED_ROWS*100) + "% of the table rows are connected to the network.", "Warning", JOptionPane.WARNING_MESSAGE);
-//					}
-//				}
+			ovCon = this.ovTable.connect(
+					selectedNetwork,
+					(String) this.selectColNetwork.getSelectedItem(),
+					(String) this.selectColTable.getSelectedItem()
+					);
+
+			if(ovCon.getNbConnectedTableRows() == 0) {
+				JOptionPane.showMessageDialog(null, "Error: No table row is connected to the network.", "Error", JOptionPane.ERROR_MESSAGE);
+				ovCon.disconnect();
+				return;
 			}
+			//				else {
+			//					int totalNbRows = this.ovTable.getAllRows(true).size();
+			//					
+			//					if((((double) ovCon.getNbConnectedTableRows())/totalNbRows) < OVConnection.MINIMUM_CONNECTED_ROWS) {
+			//						JOptionPane.showMessageDialog(null, "Warning: Less than " + (int)(OVConnection.MINIMUM_CONNECTED_ROWS*100) + "% of the table rows are connected to the network.", "Warning", JOptionPane.WARNING_MESSAGE);
+			//					}
+			//				}
 			
 			this.update(this.ovTable);
 			this.cytoPanel.update();

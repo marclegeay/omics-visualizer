@@ -146,21 +146,14 @@ public class OVTable {
 	
 	/**
 	 * Connects the table with a network collection.
-	 * @param rootNetName The root network of the network collection.
+	 * @param network The network to connect the table with.
 	 * @param mappingColCyto The name of the column from the network's node table used for the mapping.
 	 * @param mappingColOVTable The name of the column from the table used for the mapping.
 	 * @return The connection between the network collection and the table.
 	 */
-	public OVConnection connect(String rootNetName, String mappingColCyto, String mappingColOVTable) {
-		CyRootNetwork linkedRootNetwork=null;
+	public OVConnection connect(CyNetwork network, String mappingColCyto, String mappingColOVTable) {
 		CyRootNetworkManager manager = this.ovManager.getService(CyRootNetworkManager.class);
-		
-		for(CyNetwork net : this.ovManager.getNetworkManager().getNetworkSet()) {
-			CyRootNetwork rootNet = manager.getRootNetwork(net);
-			if(rootNet.toString().equals(rootNetName)) {
-				linkedRootNetwork = rootNet;
-			}
-		}
+		CyRootNetwork linkedRootNetwork = manager.getRootNetwork(network);
 		
 		if(linkedRootNetwork == null) {
 			return null;
@@ -568,7 +561,7 @@ public class OVTable {
 					String splittedLink[] = DataUtils.getCSV(link);
 					
 					if(splittedLink.length == 3 && splittedLink[0].equals(this.getTitle())) {
-						OVConnection ovCon = this.connect(net.toString(), splittedLink[1], splittedLink[2]);
+						OVConnection ovCon = this.connect(net, splittedLink[1], splittedLink[2]);
 						// We try to load the Visualization
 						if(ovCon != null) {
 							if(netTable.getColumn(OVShared.CYNETWORKTABLE_INNERVIZCOL) != null) {

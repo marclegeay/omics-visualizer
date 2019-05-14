@@ -139,7 +139,7 @@ public class RetrieveStringNetworkTask extends AbstractTask implements TaskObser
 				return;
 			}
 			
-			ovTable.connect(retrievedNetwork.toString(), "query term", this.protected_queryColumn);
+			ovTable.connect(retrievedNetwork, "query term", this.protected_queryColumn);
 			
 			if(this.ovManager.getOVCytoPanel() != null) {
 				this.ovManager.getOVCytoPanel().update();

@@ -250,7 +250,7 @@ public class CyActivator extends AbstractCyActivator {
 				Properties props = new Properties();
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "connect");
-				props.setProperty(COMMAND_DESCRIPTION, "Connect a table with a network");
+				props.setProperty(COMMAND_DESCRIPTION, "Connect the current table with the current network");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
