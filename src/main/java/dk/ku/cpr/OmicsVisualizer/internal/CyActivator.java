@@ -34,6 +34,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ConnectTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.DisconnectTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.FilterTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.ListPaletteTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.OperatorListTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveFilterTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveVisualizationTaskFactory;
@@ -42,6 +43,8 @@ import dk.ku.cpr.OmicsVisualizer.internal.task.ShowConnectWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowFilterWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowRetrieveWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowVisualizationWindowTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.TableListTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.TableSetCurrentTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.VersionTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.VisualizationTaskFactory;
 
@@ -151,6 +154,28 @@ public class CyActivator extends AbstractCyActivator {
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "load");
 				props.setProperty(COMMAND_DESCRIPTION, "Load an Omics Visualizer table");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+			
+			// Get table list (Command-only)
+			{
+				TableListTaskFactory factory = new TableListTaskFactory(ovManager);
+				Properties props = new Properties();
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(COMMAND, "table list");
+				props.setProperty(COMMAND_DESCRIPTION, "Get the list of Omics Visualizer tables");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+			
+			// Set current table (Command-only)
+			{
+				TableSetCurrentTaskFactory factory = new TableSetCurrentTaskFactory(ovManager);
+				Properties props = new Properties();
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(COMMAND, "table set current");
+				props.setProperty(COMMAND_DESCRIPTION, "Set the current Omics Visualizer table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -354,6 +379,17 @@ public class CyActivator extends AbstractCyActivator {
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "viz remove outer");
 				props.setProperty(COMMAND_DESCRIPTION, "Remove the outer Visualization of the current network");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+			
+			// List palettes (Command-only)
+			{
+				ListPaletteTaskFactory factory = new ListPaletteTaskFactory(ovManager);
+				Properties props = new Properties();
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(COMMAND, "palette list");
+				props.setProperty(COMMAND_DESCRIPTION, "List available palettes with their provider");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}

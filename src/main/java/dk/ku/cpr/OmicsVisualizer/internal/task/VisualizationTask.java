@@ -45,12 +45,12 @@ public class VisualizationTask extends AbstractTask {
 	protected List<String> listAttributes;
 	protected Class<?> attributesType;
 
-	@Tunable(description="Name of the palette to use as default colors.",
+	@Tunable(description="Name of the palette to use as default colors. (See ov palette list)",
 			exampleStringValue="Red-Blue",
 			gravity=1.0)
 	public String paletteName;
 	
-	@Tunable(description="Name of the palette provider of the palette.",
+	@Tunable(description="Name of the palette provider of the palette. (See ov palette list)",
 			exampleStringValue="ColorBrewer",
 			gravity=1.0)
 	public String paletteProviderName;
