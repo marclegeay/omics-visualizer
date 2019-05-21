@@ -50,7 +50,7 @@ public class OVFilterWindow extends OVWindow implements ActionListener {
 	}
 
 	public void update() {
-//		this.setPreferredSize(null); // We want to recompute the size each time
+		this.setPreferredSize(null); // We want to recompute the size each time
 		
 		JPanel mainPanel = new JPanel();
 //		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -73,16 +73,17 @@ public class OVFilterWindow extends OVWindow implements ActionListener {
 		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 		this.setContentPane(mainPanel);
 		
-//		this.pack(); // We pack so that getWidth and getHeight are computed
+		this.pack(); // We pack so that getWidth and getHeight are computed
 		// Then we set the size limits ...
 		OVCytoPanel ovPanel = this.ovManager.getOVCytoPanel();
 		// at most 80% of the Cytoscape window
-//		int prefWidth = Math.min(this.getWidth()+30, (int) (ovPanel.getTopLevelAncestor().getWidth() * 0.8)); // +30 so that the vertical slide can fit
-		int prefWidth = (int) (ovPanel.getTopLevelAncestor().getWidth() * 0.8);
-		int prefHeight = (int) (ovPanel.getTopLevelAncestor().getHeight() * 0.8);
+		int prefWidth = Math.min(this.getWidth()+30, (int) (ovPanel.getTopLevelAncestor().getWidth() * 0.8)); // +30 so that the vertical slide can fit
+		int prefHeight = Math.min(this.getHeight(), (int) (ovPanel.getTopLevelAncestor().getHeight() * 0.8));
+//		int prefWidth = (int) (ovPanel.getTopLevelAncestor().getWidth() * 0.8);
+//		int prefHeight = (int) (ovPanel.getTopLevelAncestor().getHeight() * 0.8);
 		
-//		int curHeight = this.getHeight();
-//		prefHeight = (prefHeight < curHeight ? prefHeight : curHeight);
+		int curHeight = this.getHeight();
+		prefHeight = (prefHeight < curHeight ? prefHeight : curHeight);
 		this.setPreferredSize(new Dimension(prefWidth, prefHeight));
 
 		this.pack(); // We recompute the size with the new preferences

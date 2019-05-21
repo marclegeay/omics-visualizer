@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.event.ActionEvent;
@@ -22,6 +23,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.GroupLayout;
@@ -33,6 +35,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -591,6 +594,16 @@ SelectedNodesAndEdgesListener {
 			vizOuterButton.setIcon(this.getChartIcon(ovViz, OUTER_CHART_LETTER));
 		}
 		
+		String labelTxt = this.displayedTable.getAllRows(false).size() + " rows";
+		if(this.displayedTable.getFilter() != null) {
+			labelTxt += " ("+this.displayedTable.getAllRows(true).size()+" filtered rows)";
+		}
+		
+		JLabel label = new JLabel(labelTxt);
+		label.setHorizontalAlignment(JLabel.RIGHT);
+		Font labelFont = label.getFont();
+		label.setFont(labelFont.deriveFont((float)(labelFont.getSize() * 0.8)));
+		
 		addToolBarComponent(selectButton, ComponentPlacement.RELATED);
 		addToolBarComponent(filterButton, ComponentPlacement.RELATED);
 		addToolBarComponent(retrieveNetworkButton, ComponentPlacement.RELATED);
@@ -600,7 +613,8 @@ SelectedNodesAndEdgesListener {
 
 		if (tableChooser != null) {
 			hToolBarGroup.addGap(0, 20, Short.MAX_VALUE);
-			addToolBarComponent(tableChooser, ComponentPlacement.UNRELATED);
+			addToolBarComponent(label, ComponentPlacement.RELATED);
+			addToolBarComponent(tableChooser, ComponentPlacement.RELATED);
 		}
 		addToolBarComponent(deleteTableButton, ComponentPlacement.RELATED);
 

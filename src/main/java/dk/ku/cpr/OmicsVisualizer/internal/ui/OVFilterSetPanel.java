@@ -46,7 +46,7 @@ public class OVFilterSetPanel extends OVFilterPanel implements ActionListener {
 		
 		this.iconManager = this.ovManager.getService(IconManager.class);
 		
-		this.setBorder(LookAndFeelUtil.createPanelBorder());
+		//this.setBorder(LookAndFeelUtil.createPanelBorder());
 		
 		this.selectType = new JComboBox<>(OVFilterSetType.values());
 
@@ -204,7 +204,7 @@ public class OVFilterSetPanel extends OVFilterPanel implements ActionListener {
 				this.add(this.subFilterPanels.get(i), c.nextCol().noExpand().setAnchor("NW"));
 			}
 			
-			// We put the same insets for the "add" button so that is is aligne with the "dell" buttons
+			// We put the same insets for the "add" button so that it is aligned with the "dell" buttons
 			c.setInsets(insets.top, insets.left, insets.bottom, insets.right);
 		} else { // 0 or only 1 subFilter
 			if(!this.subFilterPanels.isEmpty()) {
