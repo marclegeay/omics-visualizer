@@ -650,7 +650,7 @@ SelectedNodesAndEdgesListener {
 		}
 	}
 
-	private void removeTable(OVTable ovTable) {
+	public void removeTable(OVTable ovTable) {
 		this.ovManager.removeOVTable(ovTable);
 
 		final GlobalTableComboBoxModel comboBoxModel = (GlobalTableComboBoxModel) tableChooser.getModel();

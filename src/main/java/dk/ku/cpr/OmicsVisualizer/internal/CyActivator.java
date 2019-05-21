@@ -43,6 +43,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.task.ShowConnectWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowFilterWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowRetrieveWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowVisualizationWindowTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.TableDeleteTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.TableListTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.TableSetCurrentTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.VersionTaskFactory;
@@ -176,6 +177,17 @@ public class CyActivator extends AbstractCyActivator {
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "table set current");
 				props.setProperty(COMMAND_DESCRIPTION, "Set the current Omics Visualizer table");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+			
+			// Delete current table (Command-only)
+			{
+				TableDeleteTaskFactory factory = new TableDeleteTaskFactory(ovManager);
+				Properties props = new Properties();
+				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(COMMAND, "table delete");
+				props.setProperty(COMMAND_DESCRIPTION, "Delete the current Omics Visualizer table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
