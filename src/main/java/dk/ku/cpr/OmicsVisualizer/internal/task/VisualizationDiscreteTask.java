@@ -14,7 +14,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 
 public class VisualizationDiscreteTask extends VisualizationTask {
 	
-	@Tunable(description="Comma separated values of mappings value:color.",
+	@Tunable(description="Comma separated values of mappings value:color. Special characters in values must be escaped.",
 			exampleStringValue="A:blue,B:#ffaa00,C:BLACK",
 			gravity=1.0)
 	public String colorMapping;
@@ -33,19 +33,22 @@ public class VisualizationDiscreteTask extends VisualizationTask {
 		
 		Map<String, Color> userMapping = new HashMap<>();
 		if(this.colorMapping != null) {
+			taskMonitor.setStatusMessage("Using user-specified color mapping");
+			
 			String data[] = DataUtils.getCSV(this.colorMapping);
 			for(String map : data) {
-				String map_parts[] = map.split("(?<!\\\\):");
+//				String map_parts[] = map.split("(?<!\\\\):");
+				String map_parts[] = DataUtils.getSV(map, ":");
 				
 				if(map_parts.length == 2) {
 					Color col = parseColor(map_parts[1]);
 					if(col == null) {
-						taskMonitor.setStatusMessage("WARNING: Unknow color \""+map_parts[1]+"\", the palette will be used for the value \""+map_parts[0]+"\".");
+						taskMonitor.setStatusMessage("WARNING: Unknown color \""+map_parts[1]+"\", the palette will be used for the value \""+map_parts[0]+"\".");
 					} else {
 						userMapping.put(map_parts[0], col);
 					}
 				} else {
-					taskMonitor.setStatusMessage("WARNING: Unknow mapping \""+map+"\", it will be ignored.");
+					taskMonitor.setStatusMessage("WARNING: Unknown mapping \""+map+"\", it will be ignored.");
 				}
 			}
 		}
@@ -57,7 +60,7 @@ public class VisualizationDiscreteTask extends VisualizationTask {
 		int i=0;
 		for(Object val : this.values) {
 			if(userMapping.containsKey(val.toString())) {
-				mapping.put(val, userMapping.get(val));
+				mapping.put(val, userMapping.get(val.toString()));
 			} else {
 				mapping.put(val, colors[i]);
 			}

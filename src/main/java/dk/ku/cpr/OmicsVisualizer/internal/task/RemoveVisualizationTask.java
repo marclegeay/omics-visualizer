@@ -20,6 +20,7 @@ import org.cytoscape.work.TaskMonitor;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
 
 public class RemoveVisualizationTask extends AbstractTask {
 	protected OVManager ovManager;
@@ -70,7 +71,13 @@ public class RemoveVisualizationTask extends AbstractTask {
 		// We erase all NodeTable columns
 		taskMonitor.setStatusMessage("Cleaning node table data");
 		CyTable nodeTable = this.ovCon.getBaseNetwork().getDefaultNodeTable();
-		OVShared.deleteOVColumns(nodeTable);
+		if(this.type.equals("inner") || this.type.equals("all")) {
+			OVShared.deleteOVColumns(nodeTable, ChartType.PIE);
+		}
+		if(this.type.equals("outer") || this.type.equals("all")) {
+			OVShared.deleteOVColumns(nodeTable, ChartType.CIRCOS);
+		}
+		
 		
 		// We erase all NetworkTable columns
 		taskMonitor.setStatusMessage("Cleaning network table data");
@@ -80,6 +87,8 @@ public class RemoveVisualizationTask extends AbstractTask {
 		if(this.type.equals("outer") || this.type.equals("all")) {
 			this.ovCon.setOuterVisualization(null);	
 		}
+		
+		this.ovManager.getOVCytoPanel().update();
 	}
 	
 	@ProvidesTitle

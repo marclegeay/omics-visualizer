@@ -286,7 +286,7 @@ public class CyActivator extends AbstractCyActivator {
 				Properties props = new Properties();
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "disconnect");
-				props.setProperty(COMMAND_DESCRIPTION, "Disconnect the table and the network");
+				props.setProperty(COMMAND_DESCRIPTION, "Disconnect the current table and the current network if they are already connected");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -300,7 +300,7 @@ public class CyActivator extends AbstractCyActivator {
 				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "viz show inner");
-				props.setProperty(COMMAND_DESCRIPTION, "Show the inner visualization window of the current table");
+				props.setProperty(COMMAND_DESCRIPTION, "Show the inner visualization (pie charts) window of the current table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -311,7 +311,7 @@ public class CyActivator extends AbstractCyActivator {
 				Properties props = new Properties();
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "viz apply inner continuous");
-				props.setProperty(COMMAND_DESCRIPTION, "Apply an inner visualization with a continuous mapping.");
+				props.setProperty(COMMAND_DESCRIPTION, "Apply an inner visualization (pie charts) with a continuous mapping.");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -321,7 +321,7 @@ public class CyActivator extends AbstractCyActivator {
 				Properties props = new Properties();
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "viz apply inner discrete");
-				props.setProperty(COMMAND_DESCRIPTION, "Apply an inner visualization with a discrete mapping.");
+				props.setProperty(COMMAND_DESCRIPTION, "Apply an inner visualization (pie charts) with a discrete mapping.");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -335,7 +335,7 @@ public class CyActivator extends AbstractCyActivator {
 				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "viz show outer");
-				props.setProperty(COMMAND_DESCRIPTION, "Show the outer visualization window of the current table");
+				props.setProperty(COMMAND_DESCRIPTION, "Show the outer visualization (donuts charts) window of the current table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -346,7 +346,7 @@ public class CyActivator extends AbstractCyActivator {
 				Properties props = new Properties();
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "viz apply outer continuous");
-				props.setProperty(COMMAND_DESCRIPTION, "Apply an outer visualization with a continuous mapping.");
+				props.setProperty(COMMAND_DESCRIPTION, "Apply an outer visualization (donuts charts) with a continuous mapping.");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -356,7 +356,7 @@ public class CyActivator extends AbstractCyActivator {
 				Properties props = new Properties();
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "viz apply outer discrete");
-				props.setProperty(COMMAND_DESCRIPTION, "Apply an outer visualization with a discrete mapping.");
+				props.setProperty(COMMAND_DESCRIPTION, "Apply an outer visualization (donuts charts) with a discrete mapping.");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -367,7 +367,7 @@ public class CyActivator extends AbstractCyActivator {
 				Properties props = new Properties();
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "viz remove inner");
-				props.setProperty(COMMAND_DESCRIPTION, "Remove the inner Visualization of the current network");
+				props.setProperty(COMMAND_DESCRIPTION, "Remove the inner Visualization (pie charts) of the current network");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -378,7 +378,7 @@ public class CyActivator extends AbstractCyActivator {
 				Properties props = new Properties();
 				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(COMMAND, "viz remove outer");
-				props.setProperty(COMMAND_DESCRIPTION, "Remove the outer Visualization of the current network");
+				props.setProperty(COMMAND_DESCRIPTION, "Remove the outer Visualization (donuts charts) of the current network");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}

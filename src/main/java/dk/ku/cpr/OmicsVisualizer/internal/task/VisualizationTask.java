@@ -37,7 +37,7 @@ public class VisualizationTask extends AbstractTask {
 	
 	protected SortedSet<Object> values;
 	
-	@Tunable(description="Comma separated value list of attributes from the table you want to visualize the data.",
+	@Tunable(description="Comma separated value list of attributes from the table you want to visualize the data. Special characters in the attributes must be escaped.",
 			exampleStringValue="experiment A,experiment B,experiment\\,C",
 			gravity=1.0,
 			required=true)
@@ -147,7 +147,7 @@ public class VisualizationTask extends AbstractTask {
 					this.listAttributes.add(att);
 				}
 			} else {
-				taskMonitor.setStatusMessage("ERROR: Unknow table attribute \""+att+"\".");
+				taskMonitor.setStatusMessage("ERROR: Unknown table attribute \""+att+"\".");
 				attOK=false;
 			}
 		}
@@ -227,7 +227,7 @@ public class VisualizationTask extends AbstractTask {
 		
 		this.palette = p;
 		
-		taskMonitor.setStatusMessage("Using palette \""+this.paletteName+"\" from palette provider \""+this.paletteProviderName+"\".");
+		taskMonitor.setStatusMessage("Setting palette \""+this.paletteName+"\" from palette provider \""+this.paletteProviderName+"\".");
 	}
 
 	@Override

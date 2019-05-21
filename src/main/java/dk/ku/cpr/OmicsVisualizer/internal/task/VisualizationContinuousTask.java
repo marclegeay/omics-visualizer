@@ -166,6 +166,10 @@ public class VisualizationContinuousTask extends VisualizationTask {
 		// We init the palette
 		super.initColors(taskMonitor);
 		
+		if(this.colorMin != null && this.colorMid != null && this.colorMax != null) {
+			taskMonitor.setStatusMessage("Using user-specified colors");
+		}
+		
 		Color colMin = parseColor(this.colorMin),
 				colZero = parseColor(this.colorMid),
 				colMax = parseColor(this.colorMax),
@@ -177,38 +181,38 @@ public class VisualizationContinuousTask extends VisualizationTask {
 			// We revert the color range
 			if(colMax == null) {
 				if(this.colorMax != null) {
-					taskMonitor.setStatusMessage("WARNING: Unknow color \""+this.colorMax+"\", using palette instead.");
+					taskMonitor.setStatusMessage("WARNING: Unknown color \""+this.colorMax+"\", using palette instead.");
 				}
 				colMax = colors[8];
 			}
 			if(colZero == null) {
 				if(this.colorMid != null) {
-					taskMonitor.setStatusMessage("WARNING: Unknow color \""+this.colorMid+"\", using palette instead.");
+					taskMonitor.setStatusMessage("WARNING: Unknown color \""+this.colorMid+"\", using palette instead.");
 				}
 				colZero = colors[4];
 			}
 			if(colMin == null) {
 				if(this.colorMin != null) {
-					taskMonitor.setStatusMessage("WARNING: Unknow color \""+this.colorMin+"\", using palette instead.");
+					taskMonitor.setStatusMessage("WARNING: Unknown color \""+this.colorMin+"\", using palette instead.");
 				}
 				colMin = colors[0];
 			}
 		} else {
 			if(colMax == null) {
 				if(this.colorMax != null) {
-					taskMonitor.setStatusMessage("WARNING: Unknow color \""+this.colorMax+"\", using palette instead.");
+					taskMonitor.setStatusMessage("WARNING: Unknown color \""+this.colorMax+"\", using palette instead.");
 				}
 				colMax = colors[0];
 			}
 			if(colZero == null) {
 				if(this.colorMid != null) {
-					taskMonitor.setStatusMessage("WARNING: Unknow color \""+this.colorMid+"\", using palette instead.");
+					taskMonitor.setStatusMessage("WARNING: Unknown color \""+this.colorMid+"\", using palette instead.");
 				}
 				colZero = colors[4];
 			}
 			if(colMin == null) {
 				if(this.colorMin != null) {
-					taskMonitor.setStatusMessage("WARNING: Unknow color \""+this.colorMin+"\", using palette instead.");
+					taskMonitor.setStatusMessage("WARNING: Unknown color \""+this.colorMin+"\", using palette instead.");
 				}
 				colMin = colors[8];
 			}

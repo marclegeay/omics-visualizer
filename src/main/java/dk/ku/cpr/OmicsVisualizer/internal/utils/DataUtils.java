@@ -230,16 +230,20 @@ public class DataUtils {
 			return CyEdge.class;
 		return CyIdentifiable.class;
 	}
-
-	public static String[] getCSV(String str) {
+	
+	public static String[] getSV(String str, String separator) {
 		// Split the string, but allow for protected commas
-		String [] s1 = str.split("(?<!\\\\),");
+		String [] s1 = str.split("(?<!\\\\)" + separator);
 		// Now replace any backslashes.
 		for (int index = 0; index < s1.length; index++) {
 			String s = s1[index];
-			s1[index] = s.replaceAll("\\\\(.)", "$1");
+			s1[index] = s.replaceAll("\\\\("+separator+")", "$1");
 		}
 		return s1;
+	}
+
+	public static String[] getCSV(String str) {
+		return getSV(str, ",");
 	}
 	
 	public static String escapeComma(String str) {

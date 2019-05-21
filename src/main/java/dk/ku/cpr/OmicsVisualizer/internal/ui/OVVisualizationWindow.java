@@ -140,6 +140,9 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	public OVVisualizationWindow(OVManager ovManager, ChartType chartType) {
 		super(ovManager);
 		this.chartType=chartType;
+		
+		// The size calculations some times do not work, so...
+		this.setResizable(true);
 
 		this.cytoPanel=ovManager.getOVCytoPanel();
 
