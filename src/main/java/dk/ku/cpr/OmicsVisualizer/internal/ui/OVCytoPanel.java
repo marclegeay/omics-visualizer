@@ -4,11 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -23,7 +24,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.GroupLayout;
@@ -131,6 +131,7 @@ SelectedNodesAndEdgesListener {
 	private JPanel toolBarPanel=null;
 	private SequentialGroup hToolBarGroup=null;
 	private ParallelGroup vToolBarGroup=null;
+	private JScrollPane toolBarPane;
 
 	private OVTable displayedTable=null;
 
@@ -394,6 +395,23 @@ SelectedNodesAndEdgesListener {
 		return this.retrieveWindow;
 	}
 	
+	private void resizeToolBar() {
+		int viewWidth = toolBarPanel.getWidth();
+		int scrollWidth = toolBarPane.getWidth();
+		
+		if(viewWidth > scrollWidth) {
+			int viewHeight = toolBarPanel.getPreferredSize().height;
+			int scrollBarHeight = toolBarPane.getHorizontalScrollBar().getPreferredSize().height;
+			
+			toolBarPane.setPreferredSize(new Dimension(scrollWidth, viewHeight+scrollBarHeight));
+		} else {
+			int viewHeight = toolBarPanel.getPreferredSize().height;
+			
+			toolBarPane.setPreferredSize(new Dimension(scrollWidth, viewHeight));
+		}
+		this.repaint();
+	}
+	
 	public void initPanel(OVTable ovTable) {
 		this.initPanel(ovTable, this.ovManager.getService(CyApplicationManager.class).getCurrentNetwork());
 	}
@@ -594,9 +612,10 @@ SelectedNodesAndEdgesListener {
 			vizOuterButton.setIcon(this.getChartIcon(ovViz, OUTER_CHART_LETTER));
 		}
 		
-		String labelTxt = this.displayedTable.getAllRows(false).size() + " rows";
+		int totalRows = this.displayedTable.getAllRows(false).size();
+		String labelTxt = totalRows + " rows";
 		if(this.displayedTable.getFilter() != null) {
-			labelTxt += " ("+this.displayedTable.getAllRows(true).size()+" filtered rows)";
+			labelTxt = this.displayedTable.getAllRows(true).size()+" rows ("+totalRows+" before filtering)";
 		}
 		
 		JLabel label = new JLabel(labelTxt);
@@ -622,13 +641,41 @@ SelectedNodesAndEdgesListener {
 		toolBarPanel.setLayout(new BorderLayout());
 		toolBarPanel.setOpaque(!LookAndFeelUtil.isAquaLAF());
 		toolBarPanel.add(toolBar, BorderLayout.CENTER);
+		
+		toolBarPane = new JScrollPane(toolBarPanel);
+		toolBarPane.setBorder(null);
+		toolBarPane.setOpaque(!LookAndFeelUtil.isAquaLAF());
+		toolBarPane.getViewport().setOpaque(!LookAndFeelUtil.isAquaLAF());
+		
+		this.addComponentListener(new ComponentListener() {
+			@Override
+			public void componentShown(ComponentEvent e) {
+				// Do nothing
+			}
+			
+			@Override
+			public void componentResized(ComponentEvent e) {
+				resizeToolBar();
+			}
+			
+			@Override
+			public void componentMoved(ComponentEvent e) {
+				// Do nothing
+			}
+			
+			@Override
+			public void componentHidden(ComponentEvent e) {
+				// Do nothing
+			}
+		});
 
 		// System.out.println("show table: " + showTable);
 		scrollPane = new JScrollPane(currentTable);
 
 		this.setLayout(new BorderLayout());
 		this.add(scrollPane, BorderLayout.CENTER);
-		this.add(toolBarPanel, BorderLayout.NORTH);
+//		this.add(toolBarPanel, BorderLayout.NORTH);
+		this.add(toolBarPane, BorderLayout.NORTH);
 
 		final GlobalTableComboBoxModel comboBoxModel = (GlobalTableComboBoxModel) tableChooser.getModel();
 		comboBoxModel.addAndSetSelectedItem(ovTable);
@@ -638,6 +685,12 @@ SelectedNodesAndEdgesListener {
 
 		this.revalidate();
 		this.repaint();
+		
+		// We compute the size of toolBar
+		SwingUtilities.invokeLater(() -> {
+			this.updateUI();
+			this.resizeToolBar();
+		});
 	}
 
 	public void update() {
