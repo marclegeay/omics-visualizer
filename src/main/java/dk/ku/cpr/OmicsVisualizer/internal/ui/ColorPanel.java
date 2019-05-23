@@ -53,6 +53,10 @@ public class ColorPanel extends JPanel implements MouseListener {
 		return this.color;
 	}
 	
+	public void setPalette(Palette palette) {
+		this.palette = palette;
+	}
+	
 	@Override
 	protected void paintComponent(Graphics g) {
 		// We paint ourself the background

@@ -1138,11 +1138,16 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 					this.colorPanels[1].setColor(colors[4]);
 					this.colorPanels[2].setColor(colors[8]);
 				}
+
+				this.colorPanels[0].setPalette(this.palette);
+				this.colorPanels[1].setPalette(this.palette);
+				this.colorPanels[2].setPalette(this.palette);
 			} else {
 				Color colors[] = this.palette.getColors(this.colorPanels.length);
 				int i=0;
 				for(ColorPanel panel : this.colorPanels) {
 					panel.setColor(colors[i++]);
+					panel.setPalette(this.palette);
 				}
 			}
 		} else if(e.getSource() == this.backButton) {

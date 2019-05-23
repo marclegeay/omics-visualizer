@@ -19,7 +19,7 @@ public class OVFilterRootPanel extends OVFilterSetPanel {
 		super.update(up);
 		
 		if(up && this.parentWindow != null) {
-			this.parentWindow.update();
+			this.parentWindow.update(false);
 		}
 	}
 }

@@ -40,7 +40,7 @@ public class OVFilterWindow extends OVWindow implements ActionListener {
 		this.okButton = new JButton("Apply");
 		this.okButton.addActionListener(this);
 
-		this.cancelButton = new JButton("Cancel");
+		this.cancelButton = new JButton("Close");
 		this.cancelButton.addActionListener(this);
 
 		this.removeButton = new JButton("Remove Filter");
@@ -49,8 +49,7 @@ public class OVFilterWindow extends OVWindow implements ActionListener {
 		LookAndFeelUtil.equalizeSize(this.okButton, this.cancelButton);
 	}
 
-	public void update() {
-		this.setPreferredSize(null); // We want to recompute the size each time
+	public void update(boolean center) {
 		
 		JPanel mainPanel = new JPanel();
 //		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -72,7 +71,8 @@ public class OVFilterWindow extends OVWindow implements ActionListener {
 		mainPanel.add(scrollFilter, BorderLayout.CENTER);
 		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 		this.setContentPane(mainPanel);
-		
+
+		this.setPreferredSize(null); // We want to recompute the size each time
 		this.pack(); // We pack so that getWidth and getHeight are computed
 		// Then we set the size limits ...
 		OVCytoPanel ovPanel = this.ovManager.getOVCytoPanel();
@@ -88,7 +88,7 @@ public class OVFilterWindow extends OVWindow implements ActionListener {
 
 		this.pack(); // We recompute the size with the new preferences
 
-		if(ovPanel != null) {
+		if(ovPanel != null && center) {
 			this.setLocationRelativeTo(ovPanel.getTopLevelAncestor());
 		}
 	}
@@ -111,7 +111,7 @@ public class OVFilterWindow extends OVWindow implements ActionListener {
 
 			this.removeButton.setEnabled(filter!=null);
 
-			this.update();
+			this.update(true);
 		}
 
 		super.setVisible(b);
@@ -137,14 +137,16 @@ public class OVFilterWindow extends OVWindow implements ActionListener {
 			FilterTaskFactory factory = new FilterTaskFactory(this.ovManager);
 			this.ovManager.executeTask(factory.createTaskIterator(this.ovTable));
 
-			this.setVisible(false);
+//			this.setVisible(false);
+			this.setVisible(true);
 		} else if(e.getSource() == this.cancelButton) {
 			this.setVisible(false);
 		} else if(e.getSource() == this.removeButton) {
 			RemoveFilterTaskFactory factory = new RemoveFilterTaskFactory(this.ovManager);
 			this.ovManager.executeTask(factory.createTaskIterator(this.ovTable));
 
-			this.setVisible(false);
+//			this.setVisible(false);
+			this.setVisible(true);
 		}
 	}
 }

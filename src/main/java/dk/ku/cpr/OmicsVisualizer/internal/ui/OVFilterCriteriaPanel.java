@@ -142,6 +142,9 @@ public class OVFilterCriteriaPanel extends OVFilterPanel implements ActionListen
 		} else if(this.isBool) {
 			// A bool is always well formated
 			return true;
+		} else if(((Operator)(this.selectOperator.getSelectedItem())).isUnary()) {
+			// An unary operator is always well formated
+			return true;
 		} else {
 			reference = this.fieldValue.getText();
 		}
