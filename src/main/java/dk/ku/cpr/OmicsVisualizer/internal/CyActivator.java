@@ -1,12 +1,6 @@
 package dk.ku.cpr.OmicsVisualizer.internal;
 
 import static org.cytoscape.io.DataCategory.TABLE;
-import static org.cytoscape.work.ServiceProperties.COMMAND;
-import static org.cytoscape.work.ServiceProperties.COMMAND_DESCRIPTION;
-import static org.cytoscape.work.ServiceProperties.COMMAND_NAMESPACE;
-import static org.cytoscape.work.ServiceProperties.MENU_GRAVITY;
-import static org.cytoscape.work.ServiceProperties.PREFERRED_MENU;
-import static org.cytoscape.work.ServiceProperties.TITLE;
 
 import java.util.Properties;
 
@@ -18,6 +12,7 @@ import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.session.events.SessionAboutToBeSavedListener;
 import org.cytoscape.session.events.SessionLoadedListener;
+import org.cytoscape.work.ServiceProperties;
 import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.swing.GUITunableHandlerFactory;
 import org.osgi.framework.BundleContext;
@@ -70,9 +65,9 @@ public class CyActivator extends AbstractCyActivator {
 		{
 			VersionTaskFactory factory = new VersionTaskFactory(context.getBundle().getVersion().toString());
 			Properties props = new Properties();
-			props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-			props.setProperty(COMMAND, "version");
-			props.setProperty(COMMAND_DESCRIPTION, "Returns the current version of the app");
+			props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+			props.setProperty(ServiceProperties.COMMAND, "version");
+			props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Returns the current version of the app");
 			
 			registerService(context, factory, TaskFactory.class, props);
 		}
@@ -133,18 +128,28 @@ public class CyActivator extends AbstractCyActivator {
 			{
 				LoadOVTableFileTaskFactory factory = new LoadOVTableFileTaskFactory(ovManager);
 
-				Properties props = new Properties();
+				// Apps menu
+				Properties appsProps = new Properties();
 
 				//				props.setProperty(PREFERRED_MENU, "File.Import"); // File.Import.Table
 				//				props.setProperty(MENU_GRAVITY, "5.2");
 				//				props.setProperty(TITLE, "OVTable from File...");
 
-				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
-				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
-				props.setProperty(TITLE, "Import Table from File...");
+				appsProps.setProperty(ServiceProperties.PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
+				appsProps.setProperty(ServiceProperties.MENU_GRAVITY, (++menuGravity).toString());
+				appsProps.setProperty(ServiceProperties.TITLE, "Import Table from File...");
 
-				registerService(context, factory, TaskFactory.class, props);
+				registerService(context, factory, TaskFactory.class, appsProps);
 				//registerService(context, factory, LoadTableFileTaskFactory.class, props);
+				
+				// File > Import menu
+				Properties importProps = new Properties();
+				importProps.setProperty(ServiceProperties.PREFERRED_MENU, "File.Import");
+				importProps.setProperty(ServiceProperties.INSERT_SEPARATOR_BEFORE, "true");
+				importProps.setProperty(ServiceProperties.MENU_GRAVITY, "8");
+				importProps.setProperty(ServiceProperties.TITLE, "Omics Visualizer table from File...");
+
+				registerService(context, factory, TaskFactory.class, importProps);
 			}
 			
 			// Loading a table (Command only)
@@ -152,9 +157,9 @@ public class CyActivator extends AbstractCyActivator {
 				ImportNoGuiOVTableReaderFactory factory = new ImportNoGuiOVTableReaderFactory(ovManager);
 				
 				Properties props = new Properties();
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "load");
-				props.setProperty(COMMAND_DESCRIPTION, "Load an Omics Visualizer table");
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "load");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Load an Omics Visualizer table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -163,9 +168,9 @@ public class CyActivator extends AbstractCyActivator {
 			{
 				TableListTaskFactory factory = new TableListTaskFactory(ovManager);
 				Properties props = new Properties();
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "table list");
-				props.setProperty(COMMAND_DESCRIPTION, "Get the list of Omics Visualizer tables");
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "table list");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Get the list of Omics Visualizer tables");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -174,9 +179,9 @@ public class CyActivator extends AbstractCyActivator {
 			{
 				TableSetCurrentTaskFactory factory = new TableSetCurrentTaskFactory(ovManager);
 				Properties props = new Properties();
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "table set current");
-				props.setProperty(COMMAND_DESCRIPTION, "Set the current Omics Visualizer table");
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "table set current");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Set the current Omics Visualizer table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -185,9 +190,9 @@ public class CyActivator extends AbstractCyActivator {
 			{
 				TableDeleteTaskFactory factory = new TableDeleteTaskFactory(ovManager);
 				Properties props = new Properties();
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "table delete");
-				props.setProperty(COMMAND_DESCRIPTION, "Delete the current Omics Visualizer table");
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "table delete");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Delete the current Omics Visualizer table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -196,9 +201,9 @@ public class CyActivator extends AbstractCyActivator {
 			{
 				OperatorListTaskFactory factory = new OperatorListTaskFactory();
 				Properties props = new Properties();
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "filter list operators");
-				props.setProperty(COMMAND_DESCRIPTION, "List the available operators");
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "filter list operators");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "List the available operators");
 				
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -207,12 +212,12 @@ public class CyActivator extends AbstractCyActivator {
 			{
 				ShowFilterWindowTaskFactory factory = new ShowFilterWindowTaskFactory(ovManager);
 				Properties props = new Properties();
-				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
-				props.setProperty(TITLE, "Filter...");
-				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "filter show");
-				props.setProperty(COMMAND_DESCRIPTION, "Show the filter window of the current table");
+				props.setProperty(ServiceProperties.PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
+				props.setProperty(ServiceProperties.TITLE, "Filter table rows...");
+				props.setProperty(ServiceProperties.MENU_GRAVITY, (++menuGravity).toString());
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "filter show");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Show the filter window of the current table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -221,9 +226,9 @@ public class CyActivator extends AbstractCyActivator {
 			{
 				FilterTaskFactory factory = new FilterTaskFactory(ovManager);
 				Properties props = new Properties();
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "filter");
-				props.setProperty(COMMAND_DESCRIPTION, "Filters the row of an Omics Visualizer table");
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "filter");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Filters the row of an Omics Visualizer table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -235,9 +240,9 @@ public class CyActivator extends AbstractCyActivator {
 //				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
 //				props.setProperty(TITLE, "Remove filter");
 //				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "filter remove");
-				props.setProperty(COMMAND_DESCRIPTION, "Removes the filter of the active table");
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "filter remove");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Removes the filter of the active table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -246,12 +251,12 @@ public class CyActivator extends AbstractCyActivator {
 			{
 				ShowRetrieveWindowTaskFactory factory = new ShowRetrieveWindowTaskFactory(ovManager);
 				Properties props = new Properties();
-				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
-				props.setProperty(TITLE, "Retrieve and connect the table to a String Network...");
-				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "retrieve show");
-				props.setProperty(COMMAND_DESCRIPTION, "Show the retrieve window of the current table");
+				props.setProperty(ServiceProperties.PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
+				props.setProperty(ServiceProperties.TITLE, "Retrieve and connect the table to a String Network...");
+				props.setProperty(ServiceProperties.MENU_GRAVITY, (++menuGravity).toString());
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "retrieve show");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Show the retrieve window of the current table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -260,9 +265,9 @@ public class CyActivator extends AbstractCyActivator {
 			{
 				RetrieveStringNetworkTaskFactory factory = new RetrieveStringNetworkTaskFactory(ovManager);
 				Properties props = new Properties();
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "retrieve");
-				props.setProperty(COMMAND_DESCRIPTION, "Retrieve a STRING network and connects it to the current table");
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "retrieve");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Retrieve a STRING network and connects it to the current table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -271,12 +276,12 @@ public class CyActivator extends AbstractCyActivator {
 			{
 				ShowConnectWindowTaskFactory factory = new ShowConnectWindowTaskFactory(ovManager);
 				Properties props = new Properties();
-				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
-				props.setProperty(TITLE, "Manage table connections...");
-				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "connect show");
-				props.setProperty(COMMAND_DESCRIPTION, "Show the connect window of the current table");
+				props.setProperty(ServiceProperties.PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
+				props.setProperty(ServiceProperties.TITLE, "Manage table connections...");
+				props.setProperty(ServiceProperties.MENU_GRAVITY, (++menuGravity).toString());
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "connect show");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Show the connect window of the current table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -285,9 +290,9 @@ public class CyActivator extends AbstractCyActivator {
 			{
 				ConnectTaskFactory factory = new ConnectTaskFactory(ovManager);
 				Properties props = new Properties();
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "connect");
-				props.setProperty(COMMAND_DESCRIPTION, "Connect the current table with the current network");
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "connect");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Connect the current table with the current network");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -296,9 +301,9 @@ public class CyActivator extends AbstractCyActivator {
 			{
 				DisconnectTaskFactory factory = new DisconnectTaskFactory(ovManager);
 				Properties props = new Properties();
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "disconnect");
-				props.setProperty(COMMAND_DESCRIPTION, "Disconnect the current table and the current network if they are already connected");
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "disconnect");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Disconnect the current table and the current network if they are already connected");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -307,12 +312,12 @@ public class CyActivator extends AbstractCyActivator {
 			{
 				ShowVisualizationWindowTaskFactory factory = new ShowVisualizationWindowTaskFactory(ovManager, ChartType.PIE);
 				Properties props = new Properties();
-				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
-				props.setProperty(TITLE, "Change inner Visualization to the connected networks...");
-				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "viz show inner");
-				props.setProperty(COMMAND_DESCRIPTION, "Show the inner visualization (pie charts) window of the current table");
+				props.setProperty(ServiceProperties.PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
+				props.setProperty(ServiceProperties.TITLE, "Apply a Pie Chart visualization...");
+				props.setProperty(ServiceProperties.MENU_GRAVITY, (++menuGravity).toString());
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "viz show inner");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Show the inner visualization (pie charts) window of the current table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -321,9 +326,9 @@ public class CyActivator extends AbstractCyActivator {
 			{
 				VisualizationTaskFactory factory = new VisualizationTaskFactory(ovManager, true, ChartType.PIE);
 				Properties props = new Properties();
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "viz apply inner continuous");
-				props.setProperty(COMMAND_DESCRIPTION, "Apply an inner visualization (pie charts) with a continuous mapping.");
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "viz apply inner continuous");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Apply an inner visualization (pie charts) with a continuous mapping.");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -331,9 +336,9 @@ public class CyActivator extends AbstractCyActivator {
 			{
 				VisualizationTaskFactory factory = new VisualizationTaskFactory(ovManager, false, ChartType.PIE);
 				Properties props = new Properties();
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "viz apply inner discrete");
-				props.setProperty(COMMAND_DESCRIPTION, "Apply an inner visualization (pie charts) with a discrete mapping.");
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "viz apply inner discrete");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Apply an inner visualization (pie charts) with a discrete mapping.");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -342,12 +347,12 @@ public class CyActivator extends AbstractCyActivator {
 			{
 				ShowVisualizationWindowTaskFactory factory = new ShowVisualizationWindowTaskFactory(ovManager, ChartType.CIRCOS);
 				Properties props = new Properties();
-				props.setProperty(PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
-				props.setProperty(TITLE, "Change outer Visualization to the connected networks...");
-				props.setProperty(MENU_GRAVITY, (++menuGravity).toString());
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "viz show outer");
-				props.setProperty(COMMAND_DESCRIPTION, "Show the outer visualization (donuts charts) window of the current table");
+				props.setProperty(ServiceProperties.PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
+				props.setProperty(ServiceProperties.TITLE, "Apply a Donut Chart visualization...");
+				props.setProperty(ServiceProperties.MENU_GRAVITY, (++menuGravity).toString());
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "viz show outer");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Show the outer visualization (donuts charts) window of the current table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -356,9 +361,9 @@ public class CyActivator extends AbstractCyActivator {
 			{
 				VisualizationTaskFactory factory = new VisualizationTaskFactory(ovManager, true, ChartType.CIRCOS);
 				Properties props = new Properties();
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "viz apply outer continuous");
-				props.setProperty(COMMAND_DESCRIPTION, "Apply an outer visualization (donuts charts) with a continuous mapping.");
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "viz apply outer continuous");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Apply an outer visualization (donuts charts) with a continuous mapping.");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -366,9 +371,9 @@ public class CyActivator extends AbstractCyActivator {
 			{
 				VisualizationTaskFactory factory = new VisualizationTaskFactory(ovManager, false, ChartType.CIRCOS);
 				Properties props = new Properties();
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "viz apply outer discrete");
-				props.setProperty(COMMAND_DESCRIPTION, "Apply an outer visualization (donuts charts) with a discrete mapping.");
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "viz apply outer discrete");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Apply an outer visualization (donuts charts) with a discrete mapping.");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -377,9 +382,9 @@ public class CyActivator extends AbstractCyActivator {
 			{
 				RemoveVisualizationTaskFactory factory = new RemoveVisualizationTaskFactory(ovManager, "inner");
 				Properties props = new Properties();
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "viz remove inner");
-				props.setProperty(COMMAND_DESCRIPTION, "Remove the inner Visualization (pie charts) of the current network");
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "viz remove inner");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Remove the inner Visualization (pie charts) of the current network");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -388,9 +393,9 @@ public class CyActivator extends AbstractCyActivator {
 			{
 				RemoveVisualizationTaskFactory factory = new RemoveVisualizationTaskFactory(ovManager, "outer");
 				Properties props = new Properties();
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "viz remove outer");
-				props.setProperty(COMMAND_DESCRIPTION, "Remove the outer Visualization (donuts charts) of the current network");
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "viz remove outer");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Remove the outer Visualization (donuts charts) of the current network");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
@@ -399,9 +404,9 @@ public class CyActivator extends AbstractCyActivator {
 			{
 				ListPaletteTaskFactory factory = new ListPaletteTaskFactory(ovManager);
 				Properties props = new Properties();
-				props.setProperty(COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(COMMAND, "palette list");
-				props.setProperty(COMMAND_DESCRIPTION, "List available palettes with their provider");
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "palette list");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "List available palettes with their provider");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}

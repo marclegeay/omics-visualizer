@@ -537,7 +537,7 @@ SelectedNodesAndEdgesListener {
 				vizInnerButton = new JButton(this.getChartIcon(null, INNER_CHART_LETTER));
 				styleButton(vizInnerButton, iconChartsFont);
 			}
-			vizInnerButton.setToolTipText("Apply a Pie Chart visualization to the connected networks...");
+			vizInnerButton.setToolTipText("Apply a Pie Chart visualization...");
 
 			vizInnerButton.addActionListener(e -> {
 				if(this.displayedTable != null && this.displayedTable.isConnected()) {
@@ -581,7 +581,7 @@ SelectedNodesAndEdgesListener {
 				vizOuterButton = new JButton(this.getChartIcon(null, OUTER_CHART_LETTER));
 				styleButton(vizOuterButton, iconChartsFont);
 			}
-			vizOuterButton.setToolTipText("Apply a Donut Chart visualization to the connected networks...");
+			vizOuterButton.setToolTipText("Apply a Donut Chart visualization...");
 
 			vizOuterButton.addActionListener(e -> {
 				if(this.displayedTable != null && this.displayedTable.isConnected()) {
