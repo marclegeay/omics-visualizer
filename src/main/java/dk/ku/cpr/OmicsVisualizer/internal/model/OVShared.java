@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyTable;
+import org.cytoscape.work.ServiceProperties;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
 
@@ -20,7 +21,7 @@ public class OVShared {
 	public static final String OV_PREFIX = "dk.ku.cpr.OmicsVisualizer.";
 	
 	/** The menu where store the Omics Visualizer actions. */
-	public static final String OV_PREFERRED_MENU = "Apps.Omics Visualizer";
+	public static final String OV_PREFERRED_MENU = ServiceProperties.APPS_MENU+".Omics Visualizer";
 	/** The namescape of the Omics Visualizer commands. */
 	public static final String OV_COMMAND_NAMESPACE = "ov";
 	

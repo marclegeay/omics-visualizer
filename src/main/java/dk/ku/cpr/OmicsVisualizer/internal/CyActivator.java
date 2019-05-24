@@ -123,26 +123,25 @@ public class CyActivator extends AbstractCyActivator {
 		// Register the available actions
 		{
 			Integer menuGravity=0;
-			// Loading a table:
+			
+			// Loading a table: (Apps menu)
 			// Code from core-task-impl CyActivator
 			{
 				LoadOVTableFileTaskFactory factory = new LoadOVTableFileTaskFactory(ovManager);
 
-				// Apps menu
 				Properties appsProps = new Properties();
-
-				//				props.setProperty(PREFERRED_MENU, "File.Import"); // File.Import.Table
-				//				props.setProperty(MENU_GRAVITY, "5.2");
-				//				props.setProperty(TITLE, "OVTable from File...");
-
 				appsProps.setProperty(ServiceProperties.PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
 				appsProps.setProperty(ServiceProperties.MENU_GRAVITY, (++menuGravity).toString());
 				appsProps.setProperty(ServiceProperties.TITLE, "Import Table from File...");
 
 				registerService(context, factory, TaskFactory.class, appsProps);
 				//registerService(context, factory, LoadTableFileTaskFactory.class, props);
+			}
+			
+			// Loading a table: (File > Import menu)
+			{
+				LoadOVTableFileTaskFactory factory = new LoadOVTableFileTaskFactory(ovManager);
 				
-				// File > Import menu
 				Properties importProps = new Properties();
 				importProps.setProperty(ServiceProperties.PREFERRED_MENU, "File.Import");
 				importProps.setProperty(ServiceProperties.INSERT_SEPARATOR_BEFORE, "true");

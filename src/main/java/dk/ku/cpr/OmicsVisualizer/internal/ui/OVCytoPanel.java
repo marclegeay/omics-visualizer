@@ -53,8 +53,11 @@ import org.cytoscape.application.events.SetCurrentNetworkEvent;
 import org.cytoscape.application.events.SetCurrentNetworkListener;
 import org.cytoscape.application.swing.CyColumnPresentationManager;
 import org.cytoscape.application.swing.CyColumnSelector;
+import org.cytoscape.application.swing.CySwingApplication;
+import org.cytoscape.application.swing.CytoPanel;
 import org.cytoscape.application.swing.CytoPanelComponent2;
 import org.cytoscape.application.swing.CytoPanelName;
+import org.cytoscape.application.swing.CytoPanelState;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.events.SelectedNodesAndEdgesEvent;
@@ -173,11 +176,11 @@ SelectedNodesAndEdgesListener {
 		ViewUtil.invokeOnEDT(() -> {
 			tableChooser = new GlobalTableChooser();
 			tableChooser.addActionListener(this);
-			final Dimension d = new Dimension(400, tableChooser.getPreferredSize().height);
-			tableChooser.setMaximumSize(d);
-			tableChooser.setMinimumSize(d);
-			tableChooser.setPreferredSize(d);
-			tableChooser.setSize(d);
+//			final Dimension d = new Dimension(400, tableChooser.getPreferredSize().height);
+//			tableChooser.setMaximumSize(d);
+//			tableChooser.setMinimumSize(d);
+//			tableChooser.setPreferredSize(d);
+//			tableChooser.setSize(d);
 
 			GlobalTableComboBoxModel tcModel = (GlobalTableComboBoxModel)tableChooser.getModel();
 			for(OVTable table : ovManager.getOVTables()) {
@@ -417,11 +420,29 @@ SelectedNodesAndEdgesListener {
 	}
 
 	public void initPanel(OVTable ovTable, CyNetwork currentNetwork) {
-		this.removeAll();
-
 		if(ovTable==null) {
 			ovTable = this.getLastAddedTable();
 		}
+		
+		if(ovTable == null) {
+			// There was a problem in the import table, we do nothing
+			return;
+		}
+		
+		// We register the panel
+		if(this.ovManager.getOVCytoPanel() == null) {
+			CytoPanel cytoPanel = this.ovManager.getService(CySwingApplication.class).getCytoPanel(CytoPanelName.SOUTH);
+			if (cytoPanel.indexOfComponent(OVShared.CYTOPANEL_NAME) < 0) {
+				this.ovManager.registerOVCytoPanel(this);
+				
+				if (cytoPanel.getState() == CytoPanelState.HIDE)
+					cytoPanel.setState(CytoPanelState.DOCK);
+
+				cytoPanel.setSelectedIndex(cytoPanel.indexOfComponent(OVShared.CYTOPANEL_NAME));
+			}
+		}
+
+		this.removeAll();
 
 		if(!ovTable.equals(this.displayedTable)) {
 			if(this.connectWindow != null) {
