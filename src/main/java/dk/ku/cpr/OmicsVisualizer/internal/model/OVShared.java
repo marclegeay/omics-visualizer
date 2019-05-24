@@ -55,21 +55,24 @@ public class OVShared {
 	/** Name of the visual property where to store the outer visualization. */
 	public static final String MAPPING_OUTERVIZ_IDENTIFIER="NODE_CUSTOMGRAPHICS_8";
 	
+	/** Name of the column namespaces */
+	public static final String OV_COLUMN_NAMESPACE = "Omics Visualizer";
+	
 	/** Name of the column from the network's network table where the connection information is stored. */
 	public static final String CYNETWORKTABLE_OVCOL = "OVTable";
 	/** Name of the column from the network's network table where the inner visualization is stored. */
-	public static final String CYNETWORKTABLE_INNERVIZCOL="OVViz PieChart";
+	public static final String CYNETWORKTABLE_INNERVIZCOL="Viz PieChart";
 	/** Name of the column from the network's network table where the outer visualization is stored. */
-	public static final String CYNETWORKTABLE_OUTERVIZCOL="OVViz DonutChart";
+	public static final String CYNETWORKTABLE_OUTERVIZCOL="Viz DonutChart";
 
 	/** Name of the column from the networks's node table where the number of connected rows is stored. */
-	public static final String CYNODETABLE_CONNECTEDCOUNT = "OV Connected rows";
+	public static final String CYNODETABLE_CONNECTEDCOUNT = "Connected rows";
 	/** Prefix of the name of the columns from the networks's node table where the visualizations are stored. */
-	public static final String CYNODETABLE_VIZCOL="OVViz";
+	public static final String CYNODETABLE_VIZCOL="Viz";
 	/** Name of the column from the networks's node table where the inner visualization is stored. */
-	public static final String CYNODETABLE_INNERVIZCOL=CYNODETABLE_VIZCOL+"Inner";
+	public static final String CYNODETABLE_INNERVIZCOL=CYNODETABLE_VIZCOL+" PieChart";
 	/** Name of the column from the networks's node table where the outer visualization is stored. */
-	public static final String CYNODETABLE_OUTERVIZCOL=CYNODETABLE_VIZCOL+"Outer";
+	public static final String CYNODETABLE_OUTERVIZCOL=CYNODETABLE_VIZCOL+" DonutChart";
 	/** Prefix of the name of the columns from the networks's node table where the inner visualization's values are stored. */
 	public static final String CYNODETABLE_INNERVIZCOL_VALUES=CYNODETABLE_INNERVIZCOL + " Values ";
 	/** Prefix of the name of the columns from the networks's node table where the outer visualization's values are stored. */
@@ -109,11 +112,18 @@ public class OVShared {
 	 * @param cyTable The Cytoscape node table.
 	 */
 	public static void deleteOVColumns(CyTable cyTable) {
-		for(Iterator<CyColumn> cycolIt = cyTable.getColumns().iterator(); cycolIt.hasNext();) {
-			CyColumn cycol = cycolIt.next();
+//		for(Iterator<CyColumn> cycolIt = cyTable.getColumns().iterator(); cycolIt.hasNext();) {
+//			CyColumn cycol = cycolIt.next();
+//			
+//			if(cycol.getName().startsWith(OVShared.CYNODETABLE_VIZCOL)) {
+//				cyTable.deleteColumn(cycol.getName());
+//			}
+//		}
+		for(Iterator<CyColumn> cyColIt = cyTable.getColumns(OV_COLUMN_NAMESPACE).iterator(); cyColIt.hasNext() ; ) {
+			CyColumn cyCol = cyColIt.next();
 			
-			if(cycol.getName().startsWith(OVShared.CYNODETABLE_VIZCOL)) {
-				cyTable.deleteColumn(cycol.getName());
+			if(cyCol != null) {
+				cyTable.deleteColumn(cyCol.getName());
 			}
 		}
 	}
@@ -131,11 +141,18 @@ public class OVShared {
 			prefix = OVShared.CYNODETABLE_INNERVIZCOL;
 		}
 		
-		for(Iterator<CyColumn> cycolIt = cyTable.getColumns().iterator(); cycolIt.hasNext();) {
-			CyColumn cycol = cycolIt.next();
+//		for(Iterator<CyColumn> cycolIt = cyTable.getColumns().iterator(); cycolIt.hasNext();) {
+//			CyColumn cycol = cycolIt.next();
+//			
+//			if(cycol.getName().startsWith(prefix)) {
+//				cyTable.deleteColumn(cycol.getName());
+//			}
+//		}
+		for(Iterator<CyColumn> cyColIt = cyTable.getColumns(OV_COLUMN_NAMESPACE).iterator(); cyColIt.hasNext() ; ) {
+			CyColumn cyCol = cyColIt.next();
 			
-			if(cycol.getName().startsWith(prefix)) {
-				cyTable.deleteColumn(cycol.getName());
+			if(cyCol != null && cyCol.getNameOnly().startsWith(prefix)) {
+				cyTable.deleteColumn(cyCol.getName());
 			}
 		}
 	}

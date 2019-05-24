@@ -38,7 +38,7 @@ public class ShowOVPanelTask extends AbstractTask {
 			
 			OVConnection ovCon = this.ovManager.getConnection(newCurrentRootNetwork);
 			if(ovCon != null) {
-				this.ovManager.getOVCytoPanel().initPanel(ovCon.getOVTable(), currentNetwork);
+				panel.initPanel(ovCon.getOVTable(), currentNetwork);
 				ovCon.getOVTable().displaySelectedRows(currentNetwork);
 			}
 		}

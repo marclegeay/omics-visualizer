@@ -559,9 +559,9 @@ public class OVTable {
 		for(CyNetwork net : this.ovManager.getNetworkManager().getNetworkSet()) {
 			CyTable netTable = net.getDefaultNetworkTable();
 			
-			if(netTable.getColumn(OVShared.CYNETWORKTABLE_OVCOL) != null) {
+			if(netTable.getColumn(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_OVCOL) != null) {
 				// We found a connected network
-				String link = netTable.getRow(net.getSUID()).get(OVShared.CYNETWORKTABLE_OVCOL, String.class);
+				String link = netTable.getRow(net.getSUID()).get(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_OVCOL, String.class);
 				if(link != null && !link.isEmpty()) {
 					String splittedLink[] = DataUtils.getCSV(link);
 					
@@ -569,14 +569,14 @@ public class OVTable {
 						OVConnection ovCon = this.connect(net, splittedLink[1], splittedLink[2]);
 						// We try to load the Visualization
 						if(ovCon != null) {
-							if(netTable.getColumn(OVShared.CYNETWORKTABLE_INNERVIZCOL) != null) {
-								String viz = netTable.getRow(net.getSUID()).get(OVShared.CYNETWORKTABLE_INNERVIZCOL, String.class);
+							if(netTable.getColumn(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_INNERVIZCOL) != null) {
+								String viz = netTable.getRow(net.getSUID()).get(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_INNERVIZCOL, String.class);
 								if(viz != null && !viz.isEmpty()) {
 									ovCon.setInnerVisualization(OVVisualization.load(viz), false);
 								}
 							}
-							if(netTable.getColumn(OVShared.CYNETWORKTABLE_OUTERVIZCOL) != null) {
-								String viz = netTable.getRow(net.getSUID()).get(OVShared.CYNETWORKTABLE_OUTERVIZCOL, String.class);
+							if(netTable.getColumn(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_OUTERVIZCOL) != null) {
+								String viz = netTable.getRow(net.getSUID()).get(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_OUTERVIZCOL, String.class);
 								if(viz != null && !viz.isEmpty()) {
 									ovCon.setOuterVisualization(OVVisualization.load(viz), false);
 								}

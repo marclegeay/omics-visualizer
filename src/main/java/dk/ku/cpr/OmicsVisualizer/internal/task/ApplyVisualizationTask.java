@@ -38,8 +38,8 @@ public class ApplyVisualizationTask extends AbstractTask {
 	}
 
 	private void createOVListColumn(CyTable cyTable, String colName, Class<?> valueType) {
-		if(cyTable.getColumn(colName) == null) {
-			cyTable.createListColumn(colName, valueType, false);
+		if(cyTable.getColumn(OVShared.OV_COLUMN_NAMESPACE, colName) == null) {
+			cyTable.createListColumn(OVShared.OV_COLUMN_NAMESPACE, colName, valueType, false);
 		}
 	}
 
@@ -61,7 +61,7 @@ public class ApplyVisualizationTask extends AbstractTask {
 		} else {
 			vizCol = OVShared.CYNODETABLE_INNERVIZCOL;
 		}
-		nodeTable.createColumn(vizCol, String.class, false);
+		nodeTable.createColumn(OVShared.OV_COLUMN_NAMESPACE, vizCol, String.class, false);
 
 		double progress = 0.0;
 		taskMonitor.setProgress(progress);
@@ -146,7 +146,7 @@ public class ApplyVisualizationTask extends AbstractTask {
 				} else {
 					colName = OVShared.CYNODETABLE_INNERVIZCOL_VALUES+(c+1);
 				}
-				attributeList.add(colName);
+				attributeList.add(OVShared.OV_COLUMN_NAMESPACE+"::"+colName);
 				// We create the column if this one does not exist yet
 				createOVListColumn(nodeTable, colName, outputValuesType);
 
@@ -162,7 +162,7 @@ public class ApplyVisualizationTask extends AbstractTask {
 
 					colValues.add(nodeValues.get(index));
 				}
-				nodeTable.getRow(node.getSUID()).set(colName, colValues);
+				nodeTable.getRow(node.getSUID()).set(OVShared.OV_COLUMN_NAMESPACE, colName, colValues);
 				styleValues.add(colValues);
 			}
 
@@ -185,7 +185,7 @@ public class ApplyVisualizationTask extends AbstractTask {
 
 			nodeStyle += " " + nodeLabels;
 
-			nodeTable.getRow(node.getSUID()).set(vizCol, nodeStyle);
+			nodeTable.getRow(node.getSUID()).set(OVShared.OV_COLUMN_NAMESPACE, vizCol, nodeStyle);
 		}
 
 
@@ -201,10 +201,10 @@ public class ApplyVisualizationTask extends AbstractTask {
 			PassthroughMapping<?,?> pMapping;
 			if(this.ovViz.getType().equals(ChartType.CIRCOS)) {
 				customGraphics= lex.lookup(CyNode.class, OVShared.MAPPING_OUTERVIZ_IDENTIFIER);
-				pMapping = (PassthroughMapping<?,?>) passthroughFactory.createVisualMappingFunction(OVShared.CYNODETABLE_OUTERVIZCOL, String.class, customGraphics); 
+				pMapping = (PassthroughMapping<?,?>) passthroughFactory.createVisualMappingFunction(OVShared.OV_COLUMN_NAMESPACE+"::"+OVShared.CYNODETABLE_OUTERVIZCOL, String.class, customGraphics); 
 			} else {
 				customGraphics= lex.lookup(CyNode.class, OVShared.MAPPING_INNERVIZ_IDENTIFIER); 
-				pMapping = (PassthroughMapping<?,?>) passthroughFactory.createVisualMappingFunction(OVShared.CYNODETABLE_INNERVIZCOL, String.class, customGraphics);
+				pMapping = (PassthroughMapping<?,?>) passthroughFactory.createVisualMappingFunction(OVShared.OV_COLUMN_NAMESPACE+"::"+OVShared.CYNODETABLE_INNERVIZCOL, String.class, customGraphics);
 			}
 			vmm.getVisualStyle(netView).addVisualMappingFunction(pMapping);
 			netView.updateView();
