@@ -16,13 +16,13 @@ import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
-import org.cytoscape.work.undo.UndoSupport;
+//import org.cytoscape.work.undo.UndoSupport;
 
 import dk.ku.cpr.OmicsVisualizer.internal.properties.OVProperties;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.table.OVBrowserTable;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.table.OVTableColumnModel;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.table.OVTableModel;
-import dk.ku.cpr.OmicsVisualizer.internal.undo.ConnectEdit;
+//import dk.ku.cpr.OmicsVisualizer.internal.undo.ConnectEdit;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.table.OVTableHeaderRenderer;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 
@@ -166,7 +166,8 @@ public class OVTable {
 		if(ovCon == null) { // new network collection
 			ovCon = new OVConnection(this.ovManager, this, linkedRootNetwork, mappingColCyto, mappingColOVTable);
 			
-			this.ovManager.getService(UndoSupport.class).postEdit(new ConnectEdit(this.ovManager, ovCon));
+			// TODO v1.2 : Undo
+//			this.ovManager.getService(UndoSupport.class).postEdit(new ConnectEdit(this.ovManager, ovCon));
 		} else {
 			ovCon.update(mappingColCyto, mappingColOVTable);
 		}

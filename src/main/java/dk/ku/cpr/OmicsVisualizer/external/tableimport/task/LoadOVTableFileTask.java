@@ -44,6 +44,7 @@ public class LoadOVTableFileTask extends AbstractLoadOVTableTask {
 
 	@Override
 	public void run(final TaskMonitor taskMonitor) throws Exception {
+		taskMonitor.setTitle("Loading Omics Visualizer Table");
 		loadTable(file.getName(), file.toURI(), true, taskMonitor);
 	}
 }
