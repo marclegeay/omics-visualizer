@@ -132,7 +132,7 @@ public class CyActivator extends AbstractCyActivator {
 				Properties appsProps = new Properties();
 				appsProps.setProperty(ServiceProperties.PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
 				appsProps.setProperty(ServiceProperties.MENU_GRAVITY, (++menuGravity).toString());
-				appsProps.setProperty(ServiceProperties.TITLE, "Import Table from File...");
+				appsProps.setProperty(ServiceProperties.TITLE, "Import table from file");
 
 				registerService(context, factory, TaskFactory.class, appsProps);
 				//registerService(context, factory, LoadTableFileTaskFactory.class, props);
@@ -212,7 +212,7 @@ public class CyActivator extends AbstractCyActivator {
 				ShowFilterWindowTaskFactory factory = new ShowFilterWindowTaskFactory(ovManager);
 				Properties props = new Properties();
 				props.setProperty(ServiceProperties.PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
-				props.setProperty(ServiceProperties.TITLE, "Filter table rows...");
+				props.setProperty(ServiceProperties.TITLE, "Filter table");
 				props.setProperty(ServiceProperties.MENU_GRAVITY, (++menuGravity).toString());
 				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(ServiceProperties.COMMAND, "filter show");
@@ -251,7 +251,7 @@ public class CyActivator extends AbstractCyActivator {
 				ShowRetrieveWindowTaskFactory factory = new ShowRetrieveWindowTaskFactory(ovManager);
 				Properties props = new Properties();
 				props.setProperty(ServiceProperties.PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
-				props.setProperty(ServiceProperties.TITLE, "Retrieve and connect the table to a String Network...");
+				props.setProperty(ServiceProperties.TITLE, "Retrieve STRING network");
 				props.setProperty(ServiceProperties.MENU_GRAVITY, (++menuGravity).toString());
 				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(ServiceProperties.COMMAND, "retrieve show");
@@ -276,7 +276,7 @@ public class CyActivator extends AbstractCyActivator {
 				ShowConnectWindowTaskFactory factory = new ShowConnectWindowTaskFactory(ovManager);
 				Properties props = new Properties();
 				props.setProperty(ServiceProperties.PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
-				props.setProperty(ServiceProperties.TITLE, "Manage table connections...");
+				props.setProperty(ServiceProperties.TITLE, "Manage table connections");
 				props.setProperty(ServiceProperties.MENU_GRAVITY, (++menuGravity).toString());
 				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(ServiceProperties.COMMAND, "connect show");
@@ -312,7 +312,7 @@ public class CyActivator extends AbstractCyActivator {
 				ShowVisualizationWindowTaskFactory factory = new ShowVisualizationWindowTaskFactory(ovManager, ChartType.PIE);
 				Properties props = new Properties();
 				props.setProperty(ServiceProperties.PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
-				props.setProperty(ServiceProperties.TITLE, "Apply a Pie Chart visualization...");
+				props.setProperty(ServiceProperties.TITLE, "Create pie visualization");
 				props.setProperty(ServiceProperties.MENU_GRAVITY, (++menuGravity).toString());
 				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(ServiceProperties.COMMAND, "viz show inner");
@@ -347,7 +347,7 @@ public class CyActivator extends AbstractCyActivator {
 				ShowVisualizationWindowTaskFactory factory = new ShowVisualizationWindowTaskFactory(ovManager, ChartType.CIRCOS);
 				Properties props = new Properties();
 				props.setProperty(ServiceProperties.PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
-				props.setProperty(ServiceProperties.TITLE, "Apply a Donut Chart visualization...");
+				props.setProperty(ServiceProperties.TITLE, "Create donut visualization");
 				props.setProperty(ServiceProperties.MENU_GRAVITY, (++menuGravity).toString());
 				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(ServiceProperties.COMMAND, "viz show outer");

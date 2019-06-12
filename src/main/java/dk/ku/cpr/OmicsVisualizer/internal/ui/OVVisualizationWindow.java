@@ -9,6 +9,8 @@ import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -252,17 +254,16 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 		// This JLabel must be displayed in the top-left corner
 		// We add the default margin on top and left because otherwise the JLabel is not aligned with the center of the first JComboBox
-		chartPanel.add(new JLabel("Select Values:"), c2.nextRow().setAnchor("NW").setInsets(MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, 0, 0));
+		chartPanel.add(new JLabel("Values:"), c2.nextRow().setAnchor("NW").setInsets(MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, 0, 0));
 		// reset constraint
 		c2.setAnchor("C").setInsets(MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET);
 		chartPanel.add(this.selectValues, c2.nextCol());
 
-		chartPanel.add(new JLabel("Select Labels:"), c2.nextRow());
-		chartPanel.add(this.selectChartLabels, c2.nextCol());
-
-		// TODO v1.1: No discrete mapping
 		chartPanel.add(new JLabel("Mapping:"), c2.nextRow());
 		chartPanel.add(this.selectDiscreteContinuous, c2.nextCol());
+
+		chartPanel.add(new JLabel("Labels:"), c2.nextRow());
+		chartPanel.add(this.selectChartLabels, c2.nextCol());
 
 		if(this.ovTable.getFilter() != null) {
 			chartPanel.add(this.filteredCheck, c2.nextRow().useNCols(2));
@@ -1070,15 +1071,24 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				RemoveVisualizationTaskFactory factory = new RemoveVisualizationTaskFactory(this.ovManager, this.ovCon, type);
 				this.ovManager.executeSynchronousTask(factory.createTaskIterator());
 
-				this.updateVisualization(this.getVisualization());
-				
-				this.ovManager.getOVCytoPanel().update();
+//				this.updateVisualization(this.getVisualization());
+//				
+//				this.ovManager.getOVCytoPanel().update();
+				this.setVisible(false);
 			}
 		} else if(e.getSource() == this.nextButton) {
 			if(!this.selectValues.allSameType()) {
 				JOptionPane.showMessageDialog(null,
 						"All the values should have the same type.",
 						"Error: Bad value types",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			
+			if(this.selectValues.getValueType() == SelectValuesPanel.BlankChartValues.class) {
+				JOptionPane.showMessageDialog(null,
+						"You should at least select one value.",
+						"Error: Bad values",
 						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
@@ -1252,7 +1262,9 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		private List<JButton> buttons;
 		private JButton addButton;
 
-		private ComboBoxActionListener comboBoxActionListener;
+		private ComboBoxItemListener comboBoxItemListener;
+		
+		public final ChartValues BLANK = new ChartValues("", BlankChartValues.class);
 
 		public SelectValuesPanel(OVVisualizationWindow ovVisualizationWindow) {
 			this.ovVisualizationWindow = ovVisualizationWindow;
@@ -1268,21 +1280,18 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			this.addButton.setFont(iconManager.getIconFont(buttonFont.getSize()));
 			this.addButton.addActionListener(this);
 
-			this.comboBoxActionListener = new ComboBoxActionListener(this.ovVisualizationWindow);
+			this.comboBoxItemListener = new ComboBoxItemListener(this.ovVisualizationWindow);
 		}
 
 		public void setTable(OVTable ovTable) {
 			if(ovTable != null) {
 				this.selectItemStringValues = new ArrayList<>();
 				List<ChartValues> selectItems = new ArrayList<>();
+				selectItems.add(BLANK);
 				for(String colName : ovTable.getColNames()) {
 					Class<?> colType = ovTable.getColType(colName);
 					// We don't want OVCol, neither do we want List columns
-					if(!OVShared.isOVCol(colName) && colType != List.class
-							// TODO v1.1: No discrete mapping, so no String nor Boolean columns
-//							&& colType != String.class
-//							&& colType != Boolean.class
-							) {
+					if(!OVShared.isOVCol(colName) && colType != List.class) {
 						selectItems.add(new ChartValues(colName, colType));
 						this.selectItemStringValues.add(colName);
 					}
@@ -1312,7 +1321,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			} else {
 				for(String val : ovViz.getValues()) {
 					// We create the JComboBox and select the visualization value
-					this.createSelect().setSelectedIndex(this.selectItemStringValues.indexOf(val));
+					this.createSelect().setSelectedIndex(this.selectItemStringValues.indexOf(val)+1); // +1 because of BLANK
 
 					JButton del = new JButton(ICON_DEL);
 					del.setToolTipText("Delete this value from the visualization.");
@@ -1363,7 +1372,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			JComboBox<ChartValues> select = new JComboBox<>(this.selectItemChartValues);
 			select.setToolTipText("Select the table columns to visualize.");
 			select.setRenderer(new ComboBoxRenderer());
-			select.addActionListener(this.comboBoxActionListener);
+			select.addItemListener(this.comboBoxItemListener);
 
 			this.selects.add(select);
 
@@ -1371,13 +1380,14 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		}
 
 		private void addSelect() {
-			JComboBox<ChartValues> select = this.createSelect();
-			// The select has the first item selected
-			// By default we will select the last ChartValues
-			select.removeActionListener(this.comboBoxActionListener);
-			// this select was added, so the "last" ChartValues is at size()-2
-			select.setSelectedItem(this.selects.get(this.selects.size()-2).getSelectedItem());
-			select.addActionListener(this.comboBoxActionListener);
+//			JComboBox<ChartValues> select = this.createSelect();
+			this.createSelect();
+//			// The select has the first item selected
+//			// By default we will select the last ChartValues
+//			select.removeActionListener(this.comboBoxActionListener);
+//			// this select was added, so the "last" ChartValues is at size()-2
+//			select.setSelectedItem(this.selects.get(this.selects.size()-2).getSelectedItem());
+//			select.addItemListener(this.comboBoxItemListener);
 
 			JButton del = new JButton(ICON_DEL);
 			Font buttonFont = del.getFont();
@@ -1490,6 +1500,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 					type = "ab";
 				} else if(cValue.getColType() == Boolean.class) {
 					type = "y/n";
+				} else if(cValue.getColType() == BlankChartValues.class) {
+					type = "";
 				}
 				JLabel labelType = new JLabel(type);
 				labelType.setFont(new Font("Serif", Font.BOLD, 11)); // See dk.ku.cpr.OmicsVisualizer.internal.tableimport.ui.AttributeEditor :: createDataTypeButton(AttributeDataType)
@@ -1501,19 +1513,25 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			}
 		}
 
-		private class ComboBoxActionListener implements ActionListener {
+		private class ComboBoxItemListener implements ItemListener {
 			private OVVisualizationWindow ovVisualizationWindow;
 
-			public ComboBoxActionListener(OVVisualizationWindow ovVisualizationWindow) {
+			public ComboBoxItemListener(OVVisualizationWindow ovVisualizationWindow) {
 				super();
 				this.ovVisualizationWindow = ovVisualizationWindow;
 			}
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				this.ovVisualizationWindow.checkValueTypes();
+			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange() == ItemEvent.SELECTED) {
+					this.ovVisualizationWindow.checkValueTypes();
+				}
 			}
 
+		}
+		
+		private class BlankChartValues {
+			
 		}
 	}
 }
