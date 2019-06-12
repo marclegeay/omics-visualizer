@@ -39,6 +39,7 @@ import org.cytoscape.work.TaskObserver;
 import dk.ku.cpr.OmicsVisualizer.external.io.read.GenericReaderManager;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowOVPanelTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
+import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 
 /**
  * Omics Visualizer Manager.
@@ -441,10 +442,52 @@ NetworkAddedListener {
 			return;
 		}
 		
+		// We check if the network is a sub-network of a network collection already connected
 		CyRootNetwork newRootNertork = rootNetManager.getRootNetwork(newNetwork);
 		OVConnection ovCon = this.getConnection(newRootNertork);
 		if(ovCon != null) {
 			ovCon.connectNetwork(newNetwork);
+		} else {
+			// We check if the network has OV columns (in case of a clone)
+			CyTable netTable = newNetwork.getDefaultNetworkTable();
+
+			if(netTable.getColumn(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_OVCOL) != null) {
+				// We found a connected table
+				String link = netTable.getRow(newNetwork.getSUID()).get(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_OVCOL, String.class);
+				if(link != null && !link.isEmpty()) {
+					String splittedLink[] = DataUtils.getCSV(link);
+
+					if(splittedLink.length == 3) {
+						// We look for the table
+						OVTable connectedTable=null;
+						for(OVTable ovTable : this.getOVTables()) {
+							if(ovTable.getTitle().equals(splittedLink[0])) {
+								connectedTable = ovTable;
+							}
+						}
+
+						if(connectedTable != null) {
+							ovCon = connectedTable.connect(newNetwork, splittedLink[1], splittedLink[2]);
+							// We try to load the Visualization
+							if(ovCon != null) {
+								if(netTable.getColumn(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_INNERVIZCOL) != null) {
+									String viz = netTable.getRow(newNetwork.getSUID()).get(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_INNERVIZCOL, String.class);
+									if(viz != null && !viz.isEmpty()) {
+										ovCon.setInnerVisualization(OVVisualization.load(viz), false);
+									}
+								}
+								if(netTable.getColumn(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_OUTERVIZCOL) != null) {
+									String viz = netTable.getRow(newNetwork.getSUID()).get(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_OUTERVIZCOL, String.class);
+									if(viz != null && !viz.isEmpty()) {
+										ovCon.setOuterVisualization(OVVisualization.load(viz), false);
+									}
+								}
+								ovCon.updateVisualization();
+							}
+						}
+					}
+				}
+			}
 		}
 
 		if(this.ovCytoPanel != null) {
