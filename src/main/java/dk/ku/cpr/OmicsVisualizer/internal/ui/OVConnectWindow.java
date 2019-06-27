@@ -7,6 +7,8 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -90,8 +92,11 @@ public class OVConnectWindow extends OVWindow implements ActionListener {
 		this.selectNetwork.removeAllItems();
 		this.selectNetwork.addItem(CHOOSE);
 		
+		Set<CyNetwork> rootNets = new HashSet<>();
 		for(CyNetwork net : this.netManager.getNetworkSet()) {
-			this.selectNetwork.addItem(this.rootNetManager.getRootNetwork(net));
+			if(rootNets.add(this.rootNetManager.getRootNetwork(net))) {
+				this.selectNetwork.addItem(this.rootNetManager.getRootNetwork(net));
+			}
 		}
 		// Now that the list is complete, we can re-add the event listener
 		this.selectNetwork.addActionListener(this);
