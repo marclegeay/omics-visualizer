@@ -70,7 +70,7 @@ public class RemoveVisualizationTask extends AbstractTask {
 		
 		// We erase all NodeTable columns
 		taskMonitor.setStatusMessage("Cleaning node table data");
-		CyTable nodeTable = this.ovCon.getBaseNetwork().getDefaultNodeTable();
+		CyTable nodeTable = this.ovCon.getRootNetwork().getSharedNodeTable();
 		if(this.type.equals("inner") || this.type.equals("all")) {
 			OVShared.deleteOVColumns(nodeTable, ChartType.PIE);
 		}

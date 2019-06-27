@@ -139,9 +139,9 @@ public class OVConnection {
 	 * @param netRow The row from the network's node table
 	 * @return The table rows mapped to the network node
 	 */
-	public List<CyRow> getLinkedRows(CyRow netRow) {
-		Long suid = netRow.get(CyNetwork.SUID, Long.class);
-		List<CyRow> list = this.node2table.get(suid); 
+	public List<CyRow> getLinkedRows(CyNode netNode) {
+		Long suid = netNode.getSUID();
+		List<CyRow> list = this.node2table.get(suid);
 		return (list == null ? new ArrayList<>() : list);
 	}
 	
@@ -255,7 +255,7 @@ public class OVConnection {
 		// FIRST STEP:
 		// Make the link in the OVTable
 		//
-		CyTable nodeTable = this.rootNetwork.getBaseNetwork().getDefaultNodeTable();
+		CyTable nodeTable = this.rootNetwork.getSharedNodeTable();
 		CyColumn keyCytoCol = nodeTable.getColumn(mappingColCyto);
 		CyColumn keyOVCol = this.ovTable.getCyTable().getColumn(mappingColOVTable);
 		
@@ -289,7 +289,7 @@ public class OVConnection {
 				}
 				
 				if(equals) {
-					this.addLink(netRow, tableRow);
+					this.addLink(netNode, tableRow);
 					++totalConnectedRows;
 					++nodeConnectedRows;
 				}
@@ -338,8 +338,8 @@ public class OVConnection {
 	 * @param networkNode Node from the network's node table
 	 * @param tableRow Node from the data table
 	 */
-	public void addLink(CyRow networkNode, CyRow tableRow) {
-		Long suid = networkNode.get(CyNetwork.SUID, Long.class);
+	public void addLink(CyNode networkNode, CyRow tableRow) {
+		Long suid = networkNode.getSUID();
 		if(!this.node2table.containsKey(suid)) {
 			this.node2table.put(suid, new ArrayList<>());
 		}
@@ -445,7 +445,7 @@ public class OVConnection {
 		// If it was the last network of the collection ...
 		if(this.getConnectedNetworks().size() == 0) {
 			// We delete the visualization columns in the node table
-			OVShared.deleteOVColumns(this.getBaseNetwork().getDefaultNodeTable());
+			OVShared.deleteOVColumns(this.getRootNetwork().getSharedNodeTable());
 			
 			// We forget about this connection
 			this.ovManager.removeConnection(this);

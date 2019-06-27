@@ -136,7 +136,7 @@ public class PopupMenuHelper {
 						CyTable nodeTable = net.getDefaultNodeTable();
 						for(CyNode node : net.getNodeList()) {
 							Boolean selected = false;
-							for(CyRow tableRow : ovCon.getLinkedRows(nodeTable.getRow(node.getSUID()))) {
+							for(CyRow tableRow : ovCon.getLinkedRows(node)) {
 								selected = selected | selectedTableRows.contains(tableRow);
 							}
 							

@@ -33,6 +33,7 @@ import javax.swing.JTextField;
 
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.util.color.BrewerType;
 import org.cytoscape.util.color.Palette;
@@ -332,8 +333,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 		// We only look at values of rows connected to the network
 		List<CyRow> valueRows = new ArrayList<>();
-		for(CyRow netRow : this.ovCon.getBaseNetwork().getDefaultNodeTable().getAllRows()) {
-			valueRows.addAll(this.ovCon.getLinkedRows(netRow));
+		for(CyNode netNode : this.ovCon.getRootNetwork().getNodeList()) {
+			valueRows.addAll(this.ovCon.getLinkedRows(netNode));
 		}
 
 		boolean noValue=false;

@@ -12,6 +12,7 @@ import javax.swing.table.TableColumn;
 
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
@@ -501,9 +502,11 @@ public class OVTable {
 			return;
 		}
 		
-		for(CyRow nodeRow : cyNetwork.getDefaultNodeTable().getAllRows()) {
+		CyTable nodeTable = cyNetwork.getDefaultNodeTable();
+		for(CyNode node : cyNetwork.getNodeList()) {
+			CyRow nodeRow = nodeTable.getRow(node.getSUID());
 			if(nodeRow.get(CyNetwork.SELECTED, Boolean.class)) {
-				List<CyRow> linkedRows = ovCon.getLinkedRows(nodeRow);
+				List<CyRow> linkedRows = ovCon.getLinkedRows(node);
 				for(CyRow tableRow : linkedRows) {
 					selectedRowKeys.add(tableRow.getRaw(OVShared.OVTABLE_COLID_NAME));
 				}

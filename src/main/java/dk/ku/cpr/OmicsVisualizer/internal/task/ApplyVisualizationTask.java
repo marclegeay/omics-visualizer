@@ -53,7 +53,7 @@ public class ApplyVisualizationTask extends AbstractTask {
 
 		// First we erase all previous charts
 		taskMonitor.setStatusMessage("Cleaning previous data");
-		CyTable nodeTable = this.ovCon.getBaseNetwork().getDefaultNodeTable();
+		CyTable nodeTable = this.ovCon.getRootNetwork().getSharedNodeTable();
 		OVShared.deleteOVColumns(nodeTable, this.ovViz.getType());
 		String vizCol;
 		if(this.ovViz.getType().equals(ChartType.CIRCOS)) {
@@ -72,17 +72,17 @@ public class ApplyVisualizationTask extends AbstractTask {
 			outputValuesType = Double.class;
 		}
 
-		double nbNodes = this.ovCon.getBaseNetwork().getNodeCount() * 1.0;
+		double nbNodes = this.ovCon.getRootNetwork().getNodeCount() * 1.0;
 		int i=0;
 		// Then we fill the columns
 		taskMonitor.setStatusMessage("Computing visualization for each node");
-		for(CyNode node : this.ovCon.getBaseNetwork().getNodeList()) {
+		for(CyNode node : this.ovCon.getRootNetwork().getNodeList()) {
 			progress = (i++)/nbNodes;
 			taskMonitor.setProgress(progress);
 			
 			ArrayList<Object> nodeValues = new ArrayList<>();
 			String nodeLabels = "";
-			for(CyRow tableRow : this.ovCon.getLinkedRows(nodeTable.getRow(node.getSUID()))) {
+			for(CyRow tableRow : this.ovCon.getLinkedRows(node)) {
 				if(this.ovViz.isOnlyFiltered() && !this.ovCon.getOVTable().isFiltered(tableRow)) {
 					continue;
 				}

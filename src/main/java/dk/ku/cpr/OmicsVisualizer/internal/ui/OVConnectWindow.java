@@ -230,18 +230,15 @@ public class OVConnectWindow extends OVWindow implements ActionListener {
 					this.connectButton.setEnabled(false);
 				} else {
 					this.selectColNetwork.removeAllItems();
-					for(CyColumn col : rootNet.getBaseNetwork().getDefaultNodeTable().getColumns()) {
-						// We only add virtual columns: columns that are shared by all networks of the collection
-						if(col.getVirtualColumnInfo().isVirtual()) {
-							this.selectColNetwork.addItem(col.getName());
-						}
+					for(CyColumn col : rootNet.getSharedNodeTable().getColumns()) {
+						this.selectColNetwork.addItem(col.getName());
 					}
 	
 					this.selectColNetwork.setEnabled(true);
 					this.selectColTable.setEnabled(true);
 					this.connectButton.setEnabled(true);
 					
-					if(rootNet.getDefaultNodeTable().getColumn("query term") != null) {
+					if(rootNet.getSharedNodeTable().getColumn("query term") != null) {
 						this.selectColNetwork.setSelectedItem("query term");
 					}
 				}
