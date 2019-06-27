@@ -231,7 +231,10 @@ public class OVConnectWindow extends OVWindow implements ActionListener {
 				} else {
 					this.selectColNetwork.removeAllItems();
 					for(CyColumn col : rootNet.getBaseNetwork().getDefaultNodeTable().getColumns()) {
-						this.selectColNetwork.addItem(col.getName());
+						// We only add virtual columns: columns that are shared by all networks of the collection
+						if(col.getVirtualColumnInfo().isVirtual()) {
+							this.selectColNetwork.addItem(col.getName());
+						}
 					}
 	
 					this.selectColNetwork.setEnabled(true);
@@ -271,7 +274,7 @@ public class OVConnectWindow extends OVWindow implements ActionListener {
 			if(response != JOptionPane.OK_OPTION) {
 				return;
 			}
-
+			
 			ovCon = this.ovTable.connect(
 					selectedNetwork,
 					(String) this.selectColNetwork.getSelectedItem(),

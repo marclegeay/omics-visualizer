@@ -95,7 +95,10 @@ public class OVConnectPanel extends JPanel implements ActionListener {
 		
 		this.selectColNetwork.removeAllItems();
 		for(CyColumn col : this.ovCon.getBaseNetwork().getDefaultNodeTable().getColumns()) {
-			this.selectColNetwork.addItem(col.getName());
+			// We only add virtual columns: columns that are shared by all networks of the collection
+			if(col.getVirtualColumnInfo().isVirtual()) {
+				this.selectColNetwork.addItem(col.getName());
+			}
 		}
 		this.selectColNetwork.setSelectedItem(this.ovCon.getMappingColCyto());
 		

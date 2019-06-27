@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
@@ -266,8 +267,11 @@ public class OVConnection {
 			nodeTable.createColumn(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNODETABLE_CONNECTEDCOUNT, Integer.class, false);
 		}
 		
-		for(CyRow netRow : nodeTable.getAllRows()) {
+		//for(CyRow netRow : nodeTable.getAllRows()) {
+		for(CyNode netNode : this.rootNetwork.getNodeList()) {
+			CyRow netRow = this.rootNetwork.getRow(netNode);
 			Object netKey = getKey(netRow, keyCytoCol);
+
 			if(netKey == null) {
 				continue;
 			}
