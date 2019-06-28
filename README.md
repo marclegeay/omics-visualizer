@@ -16,3 +16,4 @@ See:
 - [Cytoscape](https://cytoscape.org/)
 - [Cytoscape App Store](http://apps.cytoscape.org/)
 - [Omics Visualizer](http://apps.cytoscape.org/apps/omicsvisualizer)
+- [Training](https://jensenlab.org/training/omicsvisualizer/)
