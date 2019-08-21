@@ -659,12 +659,7 @@ SelectedNodesAndEdgesListener {
 				this.getLegendWindow().setVisible(true);
 			});
 		}
-		boolean legendEnabled = false;
-		if(this.displayedTable != null && this.displayedTable.getConnection(currentNetwork) != null) {
-			legendEnabled |= this.displayedTable.getConnection(currentNetwork).getInnerVisualization() != null;
-			legendEnabled |= this.displayedTable.getConnection(currentNetwork).getOuterVisualization() != null;
-		}
-		legendButton.setEnabled(legendEnabled);
+		legendButton.setEnabled(this.displayedTable != null && this.displayedTable.getConnection(currentNetwork) != null);
 		
 		int totalRows = this.displayedTable.getAllRows(false).size();
 		String labelTxt = totalRows + " rows";

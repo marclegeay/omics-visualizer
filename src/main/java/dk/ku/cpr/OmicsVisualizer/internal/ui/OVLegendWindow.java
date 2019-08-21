@@ -276,6 +276,27 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 		this.add(mainPanel, BorderLayout.CENTER);
 		this.add(buttonPanel, BorderLayout.SOUTH);
 		
+		// ------------------
+		// Check availability
+		// ------------------
+		
+		// Everything (except Close and Hide) should be disabled if there is no Viz
+		boolean enabled = this.ovCon.getInnerVisualization() != null || this.ovCon.getOuterVisualization() != null;
+		this.title.setEnabled(enabled);
+		this.font.setEnabled(enabled);
+		this.fontSize.setEnabled(enabled);
+		this.position.setEnabled(enabled);
+		this.alignmentH.setEnabled(enabled);
+		this.alignmentV.setEnabled(enabled);
+		this.orientation.setEnabled(enabled);
+		
+		this.showButton.setEnabled(enabled);
+		this.clearButton.setEnabled(enabled);
+		
+		// -----------------
+		// Pack and position
+		// -----------------
+		
 		this.pack();
 		this.setLocationRelativeTo(ovManager.getService(CySwingApplication.class).getJFrame());
 	}
