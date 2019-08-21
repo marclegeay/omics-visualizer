@@ -1,6 +1,7 @@
 package dk.ku.cpr.OmicsVisualizer.internal.model;
 
 import java.awt.Color;
+import java.awt.GraphicsEnvironment;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -22,7 +23,7 @@ public class OVShared {
 	
 	/** The menu where store the Omics Visualizer actions. */
 	public static final String OV_PREFERRED_MENU = ServiceProperties.APPS_MENU+".Omics Visualizer";
-	/** The namescape of the Omics Visualizer commands. */
+	/** The namespace of the Omics Visualizer commands. */
 	public static final String OV_COMMAND_NAMESPACE = "ov";
 	
 	/** The prefix of a table name if no name was given by the user. */
@@ -30,6 +31,9 @@ public class OVShared {
 	
 	/** Identifier of the Omics Visualizer panel. */
 	public static final String CYTOPANEL_NAME = OV_PREFIX+"CytoPanel";
+	
+	/** Identifier of the Omics Visualizer legend Annotation */
+	public static final String OVLEGEND_ANNOTATION_NAME = "OmicsVisualizerLegend";
 	
 	/** Name of the table column where the id of each row is stored. */
 	public static final String OVTABLE_COLID_NAME = OV_PREFIX+"internalID";
@@ -64,6 +68,8 @@ public class OVShared {
 	public static final String CYNETWORKTABLE_INNERVIZCOL="Viz PieChart";
 	/** Name of the column from the network's network table where the outer visualization is stored. */
 	public static final String CYNETWORKTABLE_OUTERVIZCOL="Viz DonutChart";
+	/** Name of the column from the network's network table where the legend is stored. */
+	public static final String CYNETWORKTABLE_LEGEND="Legend";
 
 	/** Name of the column from the networks's node table where the number of connected rows is stored. */
 	public static final String CYNODETABLE_CONNECTEDCOUNT = "Connected rows";
@@ -177,6 +183,10 @@ public class OVShared {
 	 */
 	public static String join(Collection<?> collection, String delimiter) {
 		return collection.stream().map(Object::toString).collect(Collectors.joining(delimiter));
+	}
+	
+	public static String[] getAvailableFontNames() {
+		return GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
 	}
 	
 	/**

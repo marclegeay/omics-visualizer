@@ -103,7 +103,7 @@ public class OVTable {
 		}
 		
 		for(OVConnection con : this.getConnections()) {
-			if(con.getRootNetwork() == rootNetwork) {
+			if(rootNetwork.equals(con.getRootNetwork())) {
 				return con;
 			}
 		}
@@ -547,7 +547,7 @@ public class OVTable {
 	
 	/**
 	 * Load the table.
-	 * It look for a filter, and connected networks to apply the visualizations.
+	 * It look for a filter, and connected networks to apply the visualizations and legend.
 	 */
 	public void load() {
 		// We first load the filter
@@ -570,7 +570,7 @@ public class OVTable {
 					
 					if(splittedLink.length == 3 && splittedLink[0].equals(this.getTitle())) {
 						OVConnection ovCon = this.connect(net, splittedLink[1], splittedLink[2]);
-						// We try to load the Visualization
+						// We try to load the Visualization and Legend
 						if(ovCon != null) {
 							if(netTable.getColumn(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_INNERVIZCOL) != null) {
 								String viz = netTable.getRow(net.getSUID()).get(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_INNERVIZCOL, String.class);
@@ -585,6 +585,13 @@ public class OVTable {
 								}
 							}
 							ovCon.updateVisualization();
+							
+							if(netTable.getColumn(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_LEGEND) != null) {
+								String legend = netTable.getRow(net.getSUID()).get(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_LEGEND, String.class);
+								if(legend != null && !legend.isEmpty()) {
+									ovCon.setLegend(OVLegend.load(legend));
+								}
+							}
 						}
 					}
 				}

@@ -117,6 +117,7 @@ SelectedNodesAndEdgesListener {
 	private JButton connectButton=null;
 	private JButton vizInnerButton=null;
 	private JButton vizOuterButton=null;
+	private JButton legendButton=null;
 	
 	// According to Charts Font
 	private static final char INNER_CHART_LETTER = 'e';
@@ -129,6 +130,7 @@ SelectedNodesAndEdgesListener {
 	private OVConnectWindow connectWindow=null;
 	private OVVisualizationWindow vizInnerWindow=null;
 	private OVVisualizationWindow vizOuterWindow=null;
+	private OVLegendWindow legendWindow=null;
 	private OVRetrieveStringNetworkWindow retrieveWindow=null;
 
 	private JPanel toolBarPanel=null;
@@ -390,6 +392,14 @@ SelectedNodesAndEdgesListener {
 		return this.vizOuterWindow;
 	}
 
+	public OVLegendWindow getLegendWindow() {
+		if(this.legendWindow == null) {
+			this.legendWindow = new OVLegendWindow(this.ovManager);
+		}
+
+		return this.legendWindow;
+	}
+
 	public OVRetrieveStringNetworkWindow getRetrieveWindow() {
 		if(this.retrieveWindow == null) {
 			this.retrieveWindow = new OVRetrieveStringNetworkWindow(this.ovManager);
@@ -426,6 +436,12 @@ SelectedNodesAndEdgesListener {
 		
 		if(ovTable == null) {
 			// There was a problem in the import table, we do nothing
+			return;
+		}
+		
+		if(!this.ovManager.getOVTables().contains(ovTable)) {
+			// Bug? When we load a session from a current session where OVTable are present
+			// Sometimes the old OVTable remains
 			return;
 		}
 		
@@ -632,6 +648,23 @@ SelectedNodesAndEdgesListener {
 			
 			vizOuterButton.setIcon(this.getChartIcon(ovViz, OUTER_CHART_LETTER));
 		}
+		if (legendButton == null ) {
+
+			legendButton = new JButton(IconManager.ICON_MAP_O);
+			legendButton.setToolTipText("Generate legend...");
+			styleButton(legendButton, iconFont);
+
+			legendButton.addActionListener(e -> {
+				this.getLegendWindow().init(this.displayedTable.getConnection(currentNetwork));
+				this.getLegendWindow().setVisible(true);
+			});
+		}
+		boolean legendEnabled = false;
+		if(this.displayedTable != null && this.displayedTable.getConnection(currentNetwork) != null) {
+			legendEnabled |= this.displayedTable.getConnection(currentNetwork).getInnerVisualization() != null;
+			legendEnabled |= this.displayedTable.getConnection(currentNetwork).getOuterVisualization() != null;
+		}
+		legendButton.setEnabled(legendEnabled);
 		
 		int totalRows = this.displayedTable.getAllRows(false).size();
 		String labelTxt = totalRows + " rows";
@@ -650,6 +683,7 @@ SelectedNodesAndEdgesListener {
 		addToolBarComponent(connectButton, ComponentPlacement.RELATED);
 		addToolBarComponent(vizInnerButton, ComponentPlacement.RELATED);
 		addToolBarComponent(vizOuterButton, ComponentPlacement.RELATED);
+		addToolBarComponent(legendButton, ComponentPlacement.RELATED);
 
 		if (tableChooser != null) {
 			hToolBarGroup.addGap(0, 20, Short.MAX_VALUE);
@@ -690,7 +724,6 @@ SelectedNodesAndEdgesListener {
 			}
 		});
 
-		// System.out.println("show table: " + showTable);
 		scrollPane = new JScrollPane(currentTable);
 
 		this.setLayout(new BorderLayout());
@@ -730,8 +763,7 @@ SelectedNodesAndEdgesListener {
 			table.disconnectAll();
 
 			final DialogTaskManager taskMgr = ovManager.getService(DialogTaskManager.class);
-			final DeleteTableTaskFactory deleteTableTaskFactory =
-					ovManager.getService(DeleteTableTaskFactory.class);
+			final DeleteTableTaskFactory deleteTableTaskFactory = ovManager.getService(DeleteTableTaskFactory.class);
 
 			taskMgr.execute(deleteTableTaskFactory.createTaskIterator(table.getCyTable()));
 			removeTable(table);

@@ -13,6 +13,7 @@ import org.cytoscape.model.CyTable;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 
+import dk.ku.cpr.OmicsVisualizer.internal.task.HideLegendTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveVisualizationTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 
@@ -37,6 +38,7 @@ public class OVConnection {
 	private int nbConnectedTableRows;
 	private OVVisualization ovInnerViz;
 	private OVVisualization ovOuterViz;
+	private OVLegend ovLegend;
 
 	/**
 	 * Creates a connection between a CyRootNetwork and a OVTable.
@@ -56,6 +58,7 @@ public class OVConnection {
 		this.node2table = new HashMap<>();
 		this.ovInnerViz=null;
 		this.ovOuterViz=null;
+		this.ovLegend=null;
 		
 		// We register all OVConnection to the OVManager
 		this.ovManager.addConnection(this);
@@ -199,6 +202,28 @@ public class OVConnection {
 	 */
 	public OVVisualization getOuterVisualization() {
 		return this.ovOuterViz;
+	}
+	
+	public void setLegend(OVLegend ovLegend) {
+		this.ovLegend=ovLegend;
+
+		// We save the legend
+		String savedLegend = "";
+		if(this.ovLegend != null) {
+			savedLegend = this.ovLegend.save();
+		}
+		
+		for(CyNetwork net : this.rootNetwork.getSubNetworkList()) {
+			CyTable networkTable = net.getDefaultNetworkTable();
+			if(networkTable.getColumn(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_LEGEND) == null) {
+				networkTable.createColumn(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_LEGEND, String.class, false);
+			}
+			networkTable.getRow(net.getSUID()).set(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_LEGEND, savedLegend);
+		}
+	}
+	
+	public OVLegend getLegend() {
+		return this.ovLegend;
 	}
 	
 	/**
@@ -402,6 +427,16 @@ public class OVConnection {
 		}
 		networkTable.getRow(network.getSUID()).set(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_INNERVIZCOL, savedInnerViz);
 		networkTable.getRow(network.getSUID()).set(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_OUTERVIZCOL, savedOuterViz);
+		
+		// Legend :
+		String savedLegend = "";
+		if(this.ovLegend != null) {
+			savedLegend = this.ovLegend.save();
+		}
+		if(networkTable.getColumn(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_LEGEND) == null) {
+			networkTable.createColumn(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_LEGEND, String.class, false);
+		}
+		networkTable.getRow(network.getSUID()).set(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_LEGEND, savedLegend);
 	}
 
 	/**
@@ -435,10 +470,19 @@ public class OVConnection {
 		if(networkTable.getColumn(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_OUTERVIZCOL) != null) {
 			networkTable.getRow(network.getSUID()).set(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_OUTERVIZCOL, "");
 		}
+		if(networkTable.getColumn(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_LEGEND) != null) {
+			networkTable.getRow(network.getSUID()).set(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_LEGEND, "");
+		}
 		
-		// We erase the Visualization
-		if(this.getInnerVisualization() != null) {
+		// We erase the Visualizations
+		if(this.getInnerVisualization() != null || this.getOuterVisualization() != null) {
 			RemoveVisualizationTaskFactory factory = new RemoveVisualizationTaskFactory(ovManager, this);
+			this.ovManager.executeTask(factory.createTaskIterator());
+		}
+		
+		// We erase the Legend
+		if(this.getLegend() != null) {
+			HideLegendTaskFactory factory = new HideLegendTaskFactory(ovManager);
 			this.ovManager.executeTask(factory.createTaskIterator());
 		}
 		

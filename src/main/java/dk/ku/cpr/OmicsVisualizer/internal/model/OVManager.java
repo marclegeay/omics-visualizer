@@ -100,7 +100,7 @@ NetworkAddedListener {
 				this.addOVTable(new OVTable(this, table));
 			}
 		}
-
+		
 		if(this.ovTables.size() > 0) {
 			this.showPanel();
 		}
