@@ -21,6 +21,8 @@ import static dk.ku.cpr.OmicsVisualizer.external.tableimport.util.SourceColumnSe
 import static dk.ku.cpr.OmicsVisualizer.external.tableimport.util.SourceColumnSemantic.TARGET_ATTR;
 import static dk.ku.cpr.OmicsVisualizer.external.tableimport.util.SourceColumnSemantic.TAXON;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
@@ -222,7 +224,8 @@ public final class TypeUtil {
 		return types;
 	}
 	
-	public static AttributeDataType[] guessDataTypes(final TableModel model) {
+	// ML: Custom decimal format
+	public static AttributeDataType[] guessDataTypes(final TableModel model, Character decimalSeparator) {
 		final AttributeDataType[] dataTypes = new AttributeDataType[model.getColumnCount()];
 		final int rowCount = Math.min(1000, model.getRowCount());
 		
@@ -254,7 +257,8 @@ public final class TypeUtil {
 						dt = TYPE_INTEGER;
 					else if (isLong(val))
 						dt = TYPE_LONG;
-					else if (isDouble(val))
+					// ML: Custom decimal format
+					else if (isDouble(val, decimalSeparator))
 						dt = TYPE_FLOATING;
 					else
 						dt = TYPE_STRING; // Defaults to String!
@@ -272,7 +276,8 @@ public final class TypeUtil {
 						if (!isInteger(val)) {
 							if (isLong(val))
 								dt = TYPE_LONG;
-							else if (isDouble(val))
+							// ML: Custom decimal format
+							else if (isDouble(val, decimalSeparator))
 								dt = TYPE_FLOATING;
 							else
 								dt = TYPE_STRING;
@@ -280,14 +285,16 @@ public final class TypeUtil {
 					} else if (dt == TYPE_LONG) {
 						// Make sure the other rows are also longs (no need to check for integers anymore)...
 						if (!isLong(val)) {
-							if (isDouble(val))
+							// ML: Custom decimal format
+							if (isDouble(val, decimalSeparator))
 								dt = TYPE_FLOATING;
 							else
 								dt = TYPE_STRING;
 						}
 					} else if (dt == TYPE_FLOATING) {
 						// Make sure the other rows are also doubles (no need to check for other numeric types)...
-						if (!isDouble(val)) {
+						// ML: Custom decimal format
+						if (!isDouble(val, decimalSeparator)) {
 							dt = TYPE_STRING;
 						}
 					}
@@ -531,24 +538,38 @@ public final class TypeUtil {
 		return false;
 	}
 	
-	private static boolean isDouble(String val) {
+	// ML: Custom decimal format
+	private static boolean isDouble(String val, Character decimalSeparator) {
 		if (val != null) {
 			val = val.trim();
 			if (isNaN(val)) {
 				return true;
 			}
-			try {
-				System.out.print(Double.parseDouble(val));
-				Double.parseDouble(val);
-			} catch (NumberFormatException e) {
-				// Modification ML: If the parsing failed, we try to parse it the french way (with a comma as decimal separator)
-				NumberFormat nf = NumberFormat.getInstance(Locale.FRANCE);
-				ParsePosition parsePosition = new ParsePosition(0);
-				nf.parse(val, parsePosition);
+			// ML: Custom decimal format
+//			try {
+//				System.out.print(Double.parseDouble(val));
+//				Double.parseDouble(val);
+//			} catch (NumberFormatException e) {
+//				// Modification ML: If the parsing failed, we try to parse it the french way (with a comma as decimal separator)
+//				NumberFormat nf = NumberFormat.getInstance(Locale.FRANCE);
+//				ParsePosition parsePosition = new ParsePosition(0);
+//				nf.parse(val, parsePosition);
+//
+//				if(parsePosition.getIndex() != val.length()) {
+//					return false;
+//				}
+//			}
+			DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+			dfs.setDecimalSeparator(decimalSeparator.charValue());
 
-				if(parsePosition.getIndex() != val.length()) {
-					return false;
-				}
+			DecimalFormat df = new DecimalFormat();
+			df.setDecimalFormatSymbols(dfs);
+			df.setGroupingUsed(false); // We don't use the grouping
+
+			ParsePosition parsePosition = new ParsePosition(0);
+			df.parse(val, parsePosition);
+			if(parsePosition.getIndex() != val.length()) {
+				return false;
 			}
 			
 			// Also check if it ends with 'f' or 'd' (if so, it should be a String!)

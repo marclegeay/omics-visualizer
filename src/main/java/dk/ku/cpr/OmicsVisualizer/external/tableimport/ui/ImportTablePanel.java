@@ -49,6 +49,7 @@ import java.awt.Dialog.ModalityType;
 import java.awt.Insets;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -182,6 +183,14 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 	protected JCheckBox spaceCheckBox;
 	protected JCheckBox otherCheckBox;
 	protected JTextField otherDelimiterTextField;
+	
+	// ML: Custom decimal format separator
+	private JLabel decimalSeparatorLabel;
+	protected ButtonGroup decimalSeparatorButtonGroup;
+	protected JRadioButton commaDecimalSeparatorRadioButton;
+	protected JRadioButton dotDecimalSeparatorRadioButton;
+	protected JRadioButton otherDecimalSeparatorRadioButton;
+	protected JTextField otherDecimalSeparatorTextField;
 	
 	private JCheckBox transferNameCheckBox;
 
@@ -352,6 +361,22 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 		tabCheckBox = new JCheckBox("<html><b><font size=-1 face=Monospaced>TAB<font></b><html>");
 		otherCheckBox = new JCheckBox("Other:");
 		otherDelimiterTextField = new JTextField();
+		
+		// ML: Custom decimal format
+		decimalSeparatorLabel = new JLabel("Decimal separator:");
+		decimalSeparatorLabel.setHorizontalAlignment(JLabel.RIGHT);
+
+		// ML: Custom decimal format
+		commaDecimalSeparatorRadioButton = new JRadioButton("<html><b><font size=+1 face=Monospaced>,<font></b> <font size=-2>(comma)</font><html>");
+		dotDecimalSeparatorRadioButton = new JRadioButton("<html><b><font size=+1 face=Monospaced>.<font></b> <font size=-2>(dot)</font><html>");
+		otherDecimalSeparatorRadioButton = new JRadioButton("Other:");
+		otherDecimalSeparatorTextField = new JTextField();
+		
+		// ML: Custom decimal format
+		decimalSeparatorButtonGroup = new ButtonGroup();
+		decimalSeparatorButtonGroup.add(commaDecimalSeparatorRadioButton);
+		decimalSeparatorButtonGroup.add(dotDecimalSeparatorRadioButton);
+		decimalSeparatorButtonGroup.add(otherDecimalSeparatorRadioButton);
 
 		defaultInteractionTextField = new JTextField();
 
@@ -459,6 +484,47 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 			}
 			@Override
 			public void keyTyped(KeyEvent evt) {
+			}
+		});
+		
+		// ML: Custom decimal format
+		final ChangeListener decimalSeparatorChangeListener = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent evt) {
+				otherDecimalSeparatorTextField.setEnabled(otherDecimalSeparatorRadioButton.isSelected());
+				
+				try {
+					if (!updating)
+						updatePreview();
+				} catch (IOException e) {
+					logger.error("Error on ChangeEvent of radio button " + ((JRadioButton)evt.getSource()).getText(), e);
+				}
+			}
+		};
+		commaDecimalSeparatorRadioButton.addChangeListener(decimalSeparatorChangeListener);
+		dotDecimalSeparatorRadioButton.addChangeListener(decimalSeparatorChangeListener);
+		otherDecimalSeparatorRadioButton.addChangeListener(decimalSeparatorChangeListener);
+		otherDecimalSeparatorTextField.addKeyListener(new KeyListener() {
+			// Only 1 character in the text field
+			public void keyTyped(KeyEvent e) {
+				if(otherDecimalSeparatorTextField.getText().length() >= 1) {
+					e.consume();
+				}
+			}
+
+			@Override
+			public void keyPressed(KeyEvent evt) {
+				// Do nothing
+			}
+
+			@Override
+			public void keyReleased(KeyEvent evt) {
+				try {
+					if (otherDecimalSeparatorRadioButton.isSelected())
+						updatePreview();
+				} catch (IOException e) {
+					logger.error("Error on otherDecimalSeparatorTextField.keyReleased", e);
+				}
 			}
 		});
 
@@ -658,6 +724,43 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 					.addGroup(layout.createParallelGroup(Alignment.CENTER, false)
 							.addComponent(otherCheckBox, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
 							.addComponent(otherDelimiterTextField, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+					)
+					.addComponent(sep, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE);
+			}
+			
+			// ML: Custom decimal format
+			{
+				final JSeparator sep = new JSeparator();
+
+				hGroup
+					.addGroup(layout.createSequentialGroup()
+							.addGroup(layout.createParallelGroup(Alignment.TRAILING, true)
+									.addComponent(decimalSeparatorLabel, PREFERRED_SIZE, lw, PREFERRED_SIZE)
+									.addGap(lw)
+									.addGap(lw)
+									.addGap(lw)
+									.addGap(lw)
+							)
+							.addGroup(layout.createParallelGroup(Alignment.LEADING, true)
+									.addComponent(dotDecimalSeparatorRadioButton, rw, rw, Short.MAX_VALUE)
+									.addComponent(commaDecimalSeparatorRadioButton, rw, rw, Short.MAX_VALUE)
+									.addGroup(layout.createSequentialGroup()
+										.addComponent(otherDecimalSeparatorRadioButton)
+										.addComponent(otherDecimalSeparatorTextField, PREFERRED_SIZE, 80, PREFERRED_SIZE)
+									)
+							)
+					)
+					.addComponent(sep, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE);
+				
+				vGroup
+					.addGroup(layout.createParallelGroup(Alignment.CENTER, false)
+							.addComponent(decimalSeparatorLabel)
+							.addComponent(dotDecimalSeparatorRadioButton)
+					)
+					.addComponent(commaDecimalSeparatorRadioButton)
+					.addGroup(layout.createParallelGroup(Alignment.CENTER, false)
+							.addComponent(otherDecimalSeparatorRadioButton, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+							.addComponent(otherDecimalSeparatorTextField, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
 					)
 					.addComponent(sep, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE);
 			}
@@ -1012,6 +1115,10 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 
 			otherDelimiterTextField.setEnabled(false);
 			
+			// ML: Custom decimal format
+			dotDecimalSeparatorRadioButton.setSelected(true);
+			otherDecimalSeparatorTextField.setEnabled(false);
+			
 			if (importType != NETWORK_IMPORT)
 				updateMappingAttributeComboBox();
 			
@@ -1062,7 +1169,8 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 		if (tempFile != null)
 			tempIs2 = new FileInputStream(tempFile);
 
-		getPreviewPanel().updatePreviewTable(workbook, fileType, "", tempIs2, delimiters, commentChar, startLine - 1);
+		// ML: Custom decimal format
+		getPreviewPanel().updatePreviewTable(workbook, fileType, "", tempIs2, delimiters, commentChar, startLine - 1, getDecimalSeparator());
 
 		if (tempIs2 != null)
 			tempIs2.close();
@@ -1128,6 +1236,13 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 		otherCheckBox.setEnabled(false);
 		otherCheckBox.setSelected(false);
 		otherDelimiterTextField.setEnabled(false);
+		
+		// ML: Custom decimal format
+		decimalSeparatorLabel.setEnabled(false);
+		commaDecimalSeparatorRadioButton.setEnabled(false);
+		dotDecimalSeparatorRadioButton.setEnabled(false);
+		otherDecimalSeparatorRadioButton.setEnabled(false);
+		otherDecimalSeparatorTextField.setEnabled(false);
 
 		getImportAllCheckBox().setEnabled(false);
 	}
@@ -1250,6 +1365,32 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 			delList.add(otherDelimiterTextField.getText());
 
 		return delList;
+	}
+	
+	// ML: Custom decimal format
+	public Character getDecimalSeparator() {
+		Character separator = null;
+		
+		if(commaDecimalSeparatorRadioButton.isSelected()) {
+			separator = ',';
+		}
+		
+		if(dotDecimalSeparatorRadioButton.isSelected()) {
+			separator = '.';
+		}
+		
+		if(otherDecimalSeparatorRadioButton.isSelected()) {
+			String txt = otherDecimalSeparatorTextField.getText().trim();
+			if(txt != null && !txt.isEmpty()) {
+				separator = txt.charAt(0);
+			}
+		}
+		
+		if(separator == null) {
+			separator = AttributeMappingParameters.DEF_DECIMAL_SEPARATOR;
+		}
+		
+		return separator;
 	}
 
 	/**
@@ -1398,8 +1539,11 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 		// Build mapping parameter object.
 		final List<String> del = checkDelimiter();
 		
+		// ML: Custom decimal format
+		Character decimalSeparator = getDecimalSeparator();
+		
 		final AttributeMappingParameters mapping = new AttributeMappingParameters(sourceName, del, listDelimitersCopy,
-				attrNames, dataTypesCopy, typesCopy, namespacesCopy, startLineNumber, commentChar);
+				attrNames, dataTypesCopy, typesCopy, namespacesCopy, startLineNumber, commentChar, decimalSeparator);
 
 		return mapping;
 	}

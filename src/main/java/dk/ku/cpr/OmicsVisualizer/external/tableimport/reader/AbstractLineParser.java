@@ -5,6 +5,8 @@ import static dk.ku.cpr.OmicsVisualizer.external.tableimport.util.AttributeDataT
 import static dk.ku.cpr.OmicsVisualizer.external.tableimport.util.AttributeDataType.TYPE_INTEGER_LIST;
 import static dk.ku.cpr.OmicsVisualizer.external.tableimport.util.AttributeDataType.TYPE_LONG_LIST;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -25,9 +27,14 @@ public abstract class AbstractLineParser {
 	protected AbstractLineParser(final CyServiceRegistrar serviceRegistrar) {
 		this.serviceRegistrar = serviceRegistrar;
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Object parse(final String s, final AttributeDataType type, final String delimiter) {
+	public Object parse(final String s,
+			final AttributeDataType type,
+			final String delimiter,
+			// ML: Add custom decimal format
+			final Character decimalSeparator
+			) {
 		Object value = null;
 		
 		if (s != null && !s.isEmpty() && !"null".equals(s)) {
@@ -36,18 +43,29 @@ public abstract class AbstractLineParser {
 					case TYPE_BOOLEAN:  return Boolean.valueOf(s.trim());
 					case TYPE_INTEGER:  return Integer.valueOf(s.trim());
 					case TYPE_LONG:     return Long.valueOf(s.trim());
-					case TYPE_FLOATING: 
-						// Modification ML: French decimals (with a comma)
+					case TYPE_FLOATING:  // ML: Custom decimal format
+						DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+						dfs.setDecimalSeparator(decimalSeparator.charValue());
+
+						DecimalFormat df = new DecimalFormat();
+						df.setDecimalFormatSymbols(dfs);
+						df.setGroupingUsed(false); // We don't use the grouping
+						
 						try {
-							return Double.valueOf(s.trim());
-						} catch(NumberFormatException nfe) {
-							try {
-								NumberFormat nf = NumberFormat.getInstance(Locale.FRANCE);
-								return nf.parse(s.trim()).doubleValue();
-							} catch (ParseException pe) {
-								value = createInvalidNumberEquation(s.trim(), type);
-							}
+							return df.parse(s.trim()).doubleValue();
+						} catch (ParseException pe) {
+							value = createInvalidNumberEquation(s.trim(), type);
 						}
+//						try {
+//							return Double.valueOf(s.trim());
+//						} catch(NumberFormatException nfe) {
+//							try {
+//								NumberFormat nf = NumberFormat.getInstance(Locale.FRANCE);
+//								return nf.parse(s.trim()).doubleValue();
+//							} catch (ParseException pe) {
+//								value = createInvalidNumberEquation(s.trim(), type);
+//							}
+//						}
 					case TYPE_STRING:   return s.trim();
 	
 					case TYPE_BOOLEAN_LIST:

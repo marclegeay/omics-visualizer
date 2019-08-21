@@ -108,6 +108,13 @@ public class LoadOVTableReaderTask extends AbstractTask implements CyTableReader
 	         context="nongui")
 	public String dataTypeList;
 	
+	// ML: Custom decimal format
+	@Tunable(description="Decimal character used in the decimal format",
+			longDescription="Character that separates the integer-part (characteristic) and the fractional-part (mantissa) of a decimal number. The default value is the dot \".\"",
+			exampleStringValue=".",
+			context="nogui")
+	public Character decimalSeparator;
+	
 	private final CyServiceRegistrar serviceRegistrar;
 
 	public LoadOVTableReaderTask(CyServiceRegistrar serviceRegistrar) {
@@ -179,6 +186,10 @@ public class LoadOVTableReaderTask extends AbstractTask implements CyTableReader
 		tm.setProgress(0.0);
 		tm.setStatusMessage("Loading table...");
 		
+		if(decimalSeparator == null) {
+			decimalSeparator = AttributeMappingParameters.DEF_DECIMAL_SEPARATOR;
+		}
+		
 		List<String> attrNameList = new ArrayList<>();
 		int colCount;
 		String[] attributeNames;
@@ -217,7 +228,9 @@ public class LoadOVTableReaderTask extends AbstractTask implements CyTableReader
 				isStart,
 				delimiters.getSelectedValues(),
 				null,
-				startLoadRowTemp
+				startLoadRowTemp,
+				// ML: Custom decimal format
+				decimalSeparator
 		);
 		
 		colCount = previewPanel.getPreviewTable().getColumnModel().getColumnCount();
@@ -302,9 +315,10 @@ public class LoadOVTableReaderTask extends AbstractTask implements CyTableReader
 //					tunableNamespaces, 0,
 //					namespacesCopy, 0, 
 //					Math.min(tunableNamespaces.length, namespacesCopy.length));
-
+		
+		// ML: Custom decimal format
 		amp = new AttributeMappingParameters(sourceName, delimiters.getSelectedValues(), listDelimiters,
-				attributeNames, dataTypesCopy, typesCopy, namespacesCopy, startLoadRow, null);
+				attributeNames, dataTypesCopy, typesCopy, namespacesCopy, startLoadRow, null, decimalSeparator);
 		
 		if (this.fileType.equalsIgnoreCase(SupportedFileType.EXCEL.getExtension()) ||
 		    this.fileType.equalsIgnoreCase(SupportedFileType.OOXML.getExtension())) {

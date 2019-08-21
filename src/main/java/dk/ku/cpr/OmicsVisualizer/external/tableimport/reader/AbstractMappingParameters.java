@@ -19,6 +19,8 @@ public abstract class AbstractMappingParameters implements MappingParameter{
 	public static final String ID = "name";
 	public static final String DEF_LIST_DELIMITER = PIPE.getDelimiter();
 	private static final String DEF_DELIMITER = TAB.getDelimiter();
+	// ML: Add custom decimal format
+	public static final Character DEF_DECIMAL_SEPARATOR = '.';
 	
 	private String name;
 	protected String[] attributeNames;
@@ -27,6 +29,8 @@ public abstract class AbstractMappingParameters implements MappingParameter{
 	protected String[] namespaces;
 	protected List<String> delimiters;
 	protected String[] listDelimiters;
+	// ML: Add custom decimal format
+	protected Character decimalSeparator;
 	
 	private Map<String, List<String>> attr2id;
 	private Map<String, String> networkTitle2ID;
@@ -43,6 +47,9 @@ public abstract class AbstractMappingParameters implements MappingParameter{
 		this.delimiters.add(DEF_DELIMITER);
 		this.is = is;
 		this.fileType = fileType;
+		
+		// ML: Add custom decimal format
+		this.decimalSeparator = DEF_DECIMAL_SEPARATOR;
 	}
 
 	public AbstractMappingParameters( 
@@ -55,7 +62,8 @@ public abstract class AbstractMappingParameters implements MappingParameter{
 			final String[] namespaces,
 			final boolean caseSensitive
 	) throws Exception {
-		this(name, delimiters, listDelimiters, attrNames, dataTypes, types, namespaces, 0, null);
+		// ML: Add custom decimal format
+		this(name, delimiters, listDelimiters, attrNames, dataTypes, types, namespaces, 0, null, DEF_DECIMAL_SEPARATOR);
 	}
 
 	public AbstractMappingParameters(
@@ -67,7 +75,9 @@ public abstract class AbstractMappingParameters implements MappingParameter{
 			final SourceColumnSemantic[] types,
 			final String[] namespaces,
 			final int startNumber,
-			final String commentChar
+			final String commentChar,
+			// ML: Add custom decimal format
+			final Character decimalSeparator
 	) throws Exception {
 		this.name = name;
 		this.startLineNumber = startNumber;
@@ -75,6 +85,13 @@ public abstract class AbstractMappingParameters implements MappingParameter{
 
 		if (attrNames == null)
 			throw new Exception("attributeNames should not be null.");
+		
+		// ML: Add custom decimal format
+		this.decimalSeparator = decimalSeparator;
+		// The decimal separator should not be null
+		if(this.decimalSeparator == null) {
+			this.decimalSeparator = DEF_DECIMAL_SEPARATOR;
+		}
 		
 		/*
 		 * These values should not be null!
@@ -180,6 +197,11 @@ public abstract class AbstractMappingParameters implements MappingParameter{
 
 	public Map<String, List<String>> getAttributeToIDMap() {
 		return attr2id;
+	}
+
+	// ML: Add custom decimal format
+	public Character getDecimalSeparator() {
+		return this.decimalSeparator;
 	}
 
 	@Override

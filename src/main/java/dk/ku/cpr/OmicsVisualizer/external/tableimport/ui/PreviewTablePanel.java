@@ -144,6 +144,8 @@ public class PreviewTablePanel extends JPanel {
 	private SourceColumnSemantic[] types;
 	private AttributeDataType[] dataTypes;
 	private String[] listDelimiters;
+	// ML: Custom decimal format
+	private Character decimalSeparator;
 	
 	private Set<?> keySet;
 
@@ -438,7 +440,9 @@ public class PreviewTablePanel extends JPanel {
 			final InputStream tempIs,
 			final List<String> delimiters,
 			final String commentLineChar,
-			final int startLine
+			final int startLine,
+			// ML: Custom decimal format
+			final Character decimalSeparator
 	) throws IOException {
 		if (tempIs == null)
 			return;
@@ -451,6 +455,9 @@ public class PreviewTablePanel extends JPanel {
 		this.startLine = startLine;
 
 		updating = true;
+		
+		// ML: Custom decimal format
+		this.decimalSeparator = decimalSeparator;
 		
 		try {
 			getSheetComboBox().removeAllItems();
@@ -501,7 +508,8 @@ public class PreviewTablePanel extends JPanel {
 				else
 					sourceName = "Source Table";
 				
-				dataTypes = TypeUtil.guessDataTypes(newModel);
+				// ML: Custom decimal format
+				dataTypes = TypeUtil.guessDataTypes(newModel, decimalSeparator);
 				types = TypeUtil.guessTypes(importType, newModel, dataTypes, null);
 				listDelimiters = new String[newModel.getColumnCount()];
 				namespaces = TypeUtil.getPreferredNamespaces(types);
@@ -977,7 +985,8 @@ public class PreviewTablePanel extends JPanel {
 		if (newModel.getRowCount() > 0) {
 			final String sheetName = sheet.getSheetName();
 			
-			dataTypes = TypeUtil.guessDataTypes(newModel);
+			// ML: Custom decimal format
+			dataTypes = TypeUtil.guessDataTypes(newModel, decimalSeparator);
 			types = TypeUtil.guessTypes(importType, newModel, dataTypes, null);
 			listDelimiters = new String[newModel.getColumnCount()];
 			namespaces = TypeUtil.getPreferredNamespaces(types);
