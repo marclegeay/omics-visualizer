@@ -44,6 +44,8 @@ import org.cytoscape.util.swing.CyColorPaletteChooserFactory;
 import org.cytoscape.util.swing.IconManager;
 import org.cytoscape.util.swing.LookAndFeelUtil;
 
+import dk.ku.cpr.OmicsVisualizer.internal.model.EGSettings;
+import dk.ku.cpr.OmicsVisualizer.internal.model.EGSettings.ArcStartValues;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVColor;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVColorContinuous;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVColorDiscrete;
@@ -107,11 +109,10 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	
 	private PaletteProviderManager paletteProviderManager;
 
+	// Both panels
 	private JButton cancelButton;
 
-	//	private JComboBox<String> selectNetwork;
-	//	private JComboBox<String> selectCopyNetwork;
-	//	private JButton copyButton;
+	//Panel 1 - chart properties
 	private JButton deleteButton;
 	private SelectValuesPanel selectValues;
 	private JCheckBox filteredCheck;
@@ -120,6 +121,16 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	private String oldDC;
 	private JButton nextButton;
 
+	//Panel 1 - chart settings
+	private JTextField borderWidth;
+	private JTextField borderColor;
+	private JComboBox<String> labelFont;
+	private JTextField labelSize;
+	private JTextField labelColor;
+	private JComboBox<EGSettings.ArcStartValues> arcStart;
+	private JTextField arcWidth;
+	
+	// Panel 2
 	private ColorChooser colorChooser;
 	private JComboBox<String> selectPaletteType;
 	private JButton paletteButton;
@@ -161,11 +172,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		this.cancelButton = new JButton("Cancel");
 		this.cancelButton.addActionListener(this);
 
-		// Panel 1
-		//		this.selectNetwork = new JComboBox<>();
-		//		this.selectNetwork.setToolTipText("Select the Network Collection for which you want to apply the visualization.");
-		//		this.selectNetwork.addActionListener(this);
-
+		// Panel 1 - chart properties
 		this.deleteButton = new JButton("Delete Visualization");
 		this.deleteButton.addActionListener(this);
 
@@ -191,6 +198,18 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 		this.nextButton = new JButton("Next >");
 		this.nextButton.addActionListener(this);
+		
+		// Panel 1 - chart settings
+		this.borderWidth = new JTextField(EGSettings.BORDER_WIDTH_DEFAULT);
+		this.borderColor = new JTextField(EGSettings.BORDER_COLOR_DEFAULT);
+		this.labelFont = new JComboBox<>(OVShared.getAvailableFontNames());
+		this.labelFont.setSelectedItem(EGSettings.LABEL_FONT_DEFAULT);
+		this.labelSize = new JTextField(EGSettings.LABEL_SIZE_DEFAULT);
+		this.labelColor = new JTextField(EGSettings.LABEL_COLOR_DEFAULT);
+		this.arcStart = new JComboBox<>(EGSettings.ArcStartValues.values());
+		this.arcStart.setSelectedItem(EGSettings.ARC_START_DEFAULT);
+		// Only CIRCOS
+		this.arcWidth = new JTextField(EGSettings.ARC_WIDTH_DEFAULT);
 
 		// Panel 2
 		this.selectPaletteType = new JComboBox<>();
@@ -239,16 +258,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		MyGridBagConstraints c = new MyGridBagConstraints();
 		c.expandHorizontal().setAnchor("C");
 
-		//		JPanel definePanel = new JPanel();
-		//		definePanel.setBorder(LookAndFeelUtil.createTitledBorder("Define Visualization for"));
-		//		definePanel.setLayout(new GridBagLayout());
-		//		MyGridBagConstraints c2 = new MyGridBagConstraints();
-		//		definePanel.add(this.selectNetwork, c2.expandHorizontal());
-
-		//		mainPanel.add(definePanel, c.expandBoth());
-		//		mainPanel.add(this.deleteButton, c.nextCol().noExpand().setAnchor("C"));
-		//		c.expandHorizontal();
-
+		// Chart properties
 		JPanel chartPanel = new JPanel();
 		chartPanel.setBorder(LookAndFeelUtil.createTitledBorder("Chart properties"));
 		chartPanel.setLayout(new GridBagLayout());
@@ -274,6 +284,37 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		}
 
 		mainPanel.add(chartPanel, c.nextRow().useNCols(2));
+
+		// Chart settings
+		JPanel chartSettingsPanel = new JPanel();
+		chartSettingsPanel.setBorder(LookAndFeelUtil.createTitledBorder("Chart settings"));
+		chartSettingsPanel.setLayout(new GridBagLayout());
+		c2.reset().expandHorizontal().setAnchor("C");
+
+		chartSettingsPanel.add(new JLabel("Border width:"), c2);
+		chartSettingsPanel.add(this.borderWidth, c2.nextCol());
+		
+		chartSettingsPanel.add(new JLabel("Border color:"), c2.nextRow());
+		chartSettingsPanel.add(this.borderColor, c2.nextCol());
+
+		chartSettingsPanel.add(new JLabel("Label font:"), c2.nextRow());
+		chartSettingsPanel.add(this.labelFont, c2.nextCol());
+
+		chartSettingsPanel.add(new JLabel("Label font size:"), c2.nextRow());
+		chartSettingsPanel.add(this.labelSize, c2.nextCol());
+
+		chartSettingsPanel.add(new JLabel("Label color:"), c2.nextRow());
+		chartSettingsPanel.add(this.labelColor, c2.nextCol());
+
+		chartSettingsPanel.add(new JLabel("Arc start:"), c2.nextRow());
+		chartSettingsPanel.add(this.arcStart, c2.nextCol());
+		
+		if(this.chartType.equals(ChartType.CIRCOS)) {
+			chartSettingsPanel.add(new JLabel("Arc width:"), c2.nextRow());
+			chartSettingsPanel.add(this.arcWidth, c2.nextCol());
+		}
+
+		mainPanel.add(chartSettingsPanel, c.nextRow().useNCols(2));
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
@@ -839,13 +880,6 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 		this.setTitle(ovTable, null);
 
-		//		this.selectNetwork.removeActionListener(this);
-		//		this.selectNetwork.removeAllItems();
-		//		for(OVConnection ovCon : this.ovManager.getConnections(this.ovTable)) {
-		//			this.selectNetwork.addItem(ovCon.getCollectionNetworkName());
-		//		}
-		//		this.selectNetwork.addActionListener(this);
-
 		this.selectValues.setTable(ovTable);
 
 		this.selectChartLabels.removeAllItems();
@@ -864,52 +898,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		this.paletteProviderManager.savePalette(this.ovTable.getTitle()+"-"+BrewerType.QUALITATIVE, colorBrewer.getPalette("Paired colors"));
 		this.paletteProviderManager.savePalette(this.ovTable.getTitle()+"-"+BrewerType.DIVERGING, colorBrewer.getPalette("Red-Blue"));
 		this.paletteProviderManager.savePalette(this.ovTable.getTitle()+"-"+BrewerType.SEQUENTIAL, viridis.getPalette("Viridis"));
-
-		//		// We look for the current displayed network
-		//		CyApplicationManager appManager = this.ovManager.getService(CyApplicationManager.class);
-		//		CyRootNetworkManager rootNetManager = this.ovManager.getService(CyRootNetworkManager.class);
-		//		CyNetwork currentNetwork=appManager.getCurrentNetwork();
-		//
-		//		if(currentNetwork != null) {
-		//			CyRootNetwork currentRoot = rootNetManager.getRootNetwork(currentNetwork);
-		//			OVConnection currentRootConnection = this.ovManager.getConnection(currentRoot);
-		//			if(currentRootConnection != null && currentRootConnection.getOVTable().equals(ovTable)) {
-		//				this.selectNetwork.setSelectedItem(currentRoot.toString());
-		//			}
-		//		}
-		//		if(this.selectNetwork.getSelectedIndex()==0) { // Here it means that the ActionListener was not triggered
-		//			// So we triger it
-		//			changedNetwork();
-		//		}
 	}
-
-	//	private void changedNetwork() {
-	//		for(OVConnection ovCon : this.ovManager.getConnections(this.ovTable)) {
-	//			if(ovCon.getCollectionNetworkName().equals(this.selectNetwork.getSelectedItem())) {
-	//				this.ovCon = ovCon;
-	//
-	//				this.setTitle(this.ovTable, this.ovCon.getCollectionNetworkName());
-	//
-	//				this.updateVisualization(this.ovCon.getVisualization());
-	//
-	//				this.selectValues.setTable(this.ovCon.getOVTable());
-	//				this.selectValues.setVisualization(this.ovCon.getVisualization());
-	//
-	//				// We change the network to the one selected
-	//				CyApplicationManager appManager = this.ovManager.getService(CyApplicationManager.class);
-	//				CyRootNetworkManager netRootManager = this.ovManager.getService(CyRootNetworkManager.class);
-	//				CyNetwork currentNetwork = appManager.getCurrentNetwork();
-	//				if(currentNetwork != null) {
-	//					CyRootNetwork currentRoot = netRootManager.getRootNetwork(currentNetwork);
-	//					if(!this.ovCon.getRootNetwork().equals(currentRoot)) {
-	//						appManager.setCurrentNetwork(this.ovCon.getBaseNetwork());
-	//					}
-	//				}
-	//
-	//				break;
-	//			}
-	//		}
-	//	}
 
 	private void checkValueTypes() {
 		if(!this.selectValues.allSameType()) {
@@ -962,11 +951,39 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				this.selectDiscreteContinuous.setSelectedItem(OVVisualizationWindow.CONTINUOUS);
 			}
 			
+			EGSettings egSettings = ovViz.getEGSettings();
+			
+			if(egSettings != null) {
+				this.borderWidth.setText(egSettings.get(EGSettings.BORDER_WIDTH));
+				this.borderColor.setText(egSettings.get(EGSettings.BORDER_COLOR));
+				this.labelFont.setSelectedItem(egSettings.get(EGSettings.LABEL_FONT));
+				this.labelSize.setText(egSettings.get(EGSettings.LABEL_SIZE));
+				this.labelColor.setText(egSettings.get(EGSettings.LABEL_COLOR));
+				this.arcStart.setSelectedItem(ArcStartValues.valueOfEG(egSettings.get(EGSettings.ARC_START)));
+				this.arcWidth.setText(egSettings.get(EGSettings.ARC_WIDTH));
+			} else {
+				this.borderWidth.setText(EGSettings.BORDER_WIDTH_DEFAULT);
+				this.borderColor.setText(EGSettings.BORDER_COLOR_DEFAULT);
+				this.labelFont.setSelectedItem(EGSettings.LABEL_FONT_DEFAULT);
+				this.labelSize.setText(EGSettings.LABEL_SIZE_DEFAULT);
+				this.labelColor.setText(EGSettings.LABEL_COLOR_DEFAULT);
+				this.arcStart.setSelectedItem(EGSettings.ARC_START_DEFAULT);
+				this.arcWidth.setText(EGSettings.ARC_WIDTH_DEFAULT);
+			}
+			
 			this.deleteButton.setEnabled(true);
 		} else {
 			this.selectChartLabels.setSelectedIndex(0);
 			this.selectDiscreteContinuous.setSelectedIndex(0);
 			this.checkValueTypes();
+			
+			this.borderWidth.setText(EGSettings.BORDER_WIDTH_DEFAULT);
+			this.borderColor.setText(EGSettings.BORDER_COLOR_DEFAULT);
+			this.labelFont.setSelectedItem(EGSettings.LABEL_FONT_DEFAULT);
+			this.labelSize.setText(EGSettings.LABEL_SIZE_DEFAULT);
+			this.labelColor.setText(EGSettings.LABEL_COLOR_DEFAULT);
+			this.arcStart.setSelectedItem(EGSettings.ARC_START_DEFAULT);
+			this.arcWidth.setText(EGSettings.ARC_WIDTH_DEFAULT);
 			
 			this.deleteButton.setEnabled(false);
 		}
@@ -1208,8 +1225,18 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			if(!this.selectChartLabels.getSelectedItem().equals(OVVisualizationWindow.NO_LABEL)) {
 				label = (String) this.selectChartLabels.getSelectedItem();
 			}
+			
+			EGSettings egSettings = new EGSettings();
+			egSettings.set(EGSettings.BORDER_WIDTH, this.borderWidth.getText());
+			egSettings.set(EGSettings.BORDER_COLOR, this.borderColor.getText());
+			egSettings.set(EGSettings.LABEL_FONT, (String) this.labelFont.getSelectedItem());
+			egSettings.set(EGSettings.LABEL_SIZE, this.labelSize.getText());
+			egSettings.set(EGSettings.LABEL_COLOR, this.labelColor.getText());
+			egSettings.set(EGSettings.ARC_START, ((ArcStartValues)this.arcStart.getSelectedItem()).toEnhancedGraphics());
+			egSettings.set(EGSettings.ARC_WIDTH, this.arcWidth.getText());
 
 			OVVisualization ovViz = new OVVisualization(this.chartType,
+					egSettings,
 					this.selectValues.getValues(),
 					this.selectValues.getValueType(),
 					this.filteredCheck.isSelected(),
@@ -1384,14 +1411,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		}
 
 		private void addSelect() {
-//			JComboBox<ChartValues> select = this.createSelect();
 			this.createSelect();
-//			// The select has the first item selected
-//			// By default we will select the last ChartValues
-//			select.removeActionListener(this.comboBoxActionListener);
-//			// this select was added, so the "last" ChartValues is at size()-2
-//			select.setSelectedItem(this.selects.get(this.selects.size()-2).getSelectedItem());
-//			select.addItemListener(this.comboBoxItemListener);
 
 			JButton del = new JButton(ICON_DEL);
 			Font buttonFont = del.getFont();

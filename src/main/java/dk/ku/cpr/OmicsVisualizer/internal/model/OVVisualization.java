@@ -16,6 +16,7 @@ public class OVVisualization implements Serializable {
 	private static final long serialVersionUID = 3816461719599891386L;
 	
 	private ChartType type;
+	private EGSettings egSettings;
 	private List<String> values;
 	private Class<?> valuesType;
 	private String paletteName;
@@ -27,6 +28,7 @@ public class OVVisualization implements Serializable {
 	/**
 	 * Creates a visualization.
 	 * @param type The type of chart.
+	 * @param egSettings The enhancedGraphics settings
 	 * @param values The list of the table column names used to fetch the data.
 	 * @param valuesType The type of the values.
 	 * @param onlyFiltered Should the visualization apply to the filtered rows (<code>true</code>) or all the rows (<code>false</code>)?
@@ -35,9 +37,10 @@ public class OVVisualization implements Serializable {
 	 * @param label Name of the table column that should be used to label data. <code>null</code> if no label should be used.
 	 * @param transpose Should the data matrix be transposed before visualization?
 	 */
-	public OVVisualization(ChartType type, List<String> values, Class<?> valuesType, boolean onlyFiltered, OVColor colors, String paletteName, String label, boolean transpose) {
+	public OVVisualization(ChartType type, EGSettings egSettings, List<String> values, Class<?> valuesType, boolean onlyFiltered, OVColor colors, String paletteName, String label, boolean transpose) {
 		super();
 		this.type=type;
+		this.egSettings=egSettings;
 		this.values=values;
 		this.valuesType=valuesType;
 		this.onlyFiltered=onlyFiltered;
@@ -58,6 +61,14 @@ public class OVVisualization implements Serializable {
 	 */
 	public ChartType getType() {
 		return type;
+	}
+	
+	/**
+	 * Returns the enhancedGraphics settings.
+	 * @return The enhancedGraphics settings.
+	 */
+	public EGSettings getEGSettings() {
+		return egSettings;
 	}
 	
 	/**
@@ -132,6 +143,16 @@ public class OVVisualization implements Serializable {
 	public String toEnhancedGraphics(List<List<Object>> values) {
 		String style = this.type.getStyle();
 		
+		for(String key : egSettings.getKeys()) {
+			if(this.type.equals(ChartType.CIRCOS) || !key.equals(EGSettings.ARC_WIDTH)) {
+				// ARC_WIDTH is only for CIRCOS
+
+				style += " ";
+				style += key;
+				style += "=\"" + egSettings.get(key) + "\"";
+			}
+		}
+		
 		style += " ";
 		style += this.colors.toEnhancedGraphics(values, this.type);
 		
@@ -191,7 +212,7 @@ public class OVVisualization implements Serializable {
 	 */
 	public enum ChartType implements Serializable {
 		/** Donut chart. */
-		CIRCOS("Donut Chart", "circoschart: firstarc=1.0 arcwidth=0.4"),
+		CIRCOS("Donut Chart", "circoschart: firstarc=1.0"),
 		/** Pie chart. */
 		PIE("Pie Chart", "piechart:");
 

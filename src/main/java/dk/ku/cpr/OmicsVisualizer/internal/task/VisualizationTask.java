@@ -17,6 +17,7 @@ import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.Tunable;
 
+import dk.ku.cpr.OmicsVisualizer.internal.model.EGSettings;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVColor;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
@@ -30,6 +31,7 @@ public class VisualizationTask extends AbstractTask {
 	protected OVManager ovManager;
 	protected OVConnection ovCon;
 	protected ChartType chartType;
+	protected EGSettings egSettings;
 
 	protected String defaultPaletteProviderName;
 	protected String defaultPaletteName;
@@ -70,6 +72,12 @@ public class VisualizationTask extends AbstractTask {
 			exampleStringValue="false",
 			gravity=1.0)
 	public boolean transpose=false;
+	
+	@Tunable(description="Comma separated list of enhancedGraphics settings. Here is how the string should be formatted: \"setting1:value1,setting2:value2\"",
+			exampleStringValue="bordercolor:white,arcstart:0",
+			required=false,
+			gravity=1.0)
+	public String chartSettings="";
 	
 	public VisualizationTask(OVManager ovManager, ChartType chartType) {
 		this.ovManager=ovManager;
@@ -196,6 +204,16 @@ public class VisualizationTask extends AbstractTask {
 			taskMonitor.setStatusMessage("WARNING: No row.");
 			return false;
 		}
+		
+		this.egSettings = new EGSettings();
+		for(String setting : this.chartSettings.split(",")) {
+			String key_value[] = setting.split(":");
+			if(key_value.length != 2) {
+				taskMonitor.setStatusMessage("WARNING: Cannot parse this enhancedGraphics settings \"" + setting + "\".");
+			} else {
+				this.egSettings.set(key_value[0], key_value[1]);
+			}
+		}
 
 		return true;
 	}
@@ -243,6 +261,7 @@ public class VisualizationTask extends AbstractTask {
 			}
 			
 			OVVisualization ovViz = new OVVisualization(this.chartType,
+					this.egSettings,
 					this.listAttributes,
 					this.attributesType,
 					this.filteredOnly,

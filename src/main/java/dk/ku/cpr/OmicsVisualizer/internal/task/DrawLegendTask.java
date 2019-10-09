@@ -25,6 +25,7 @@ import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.TaskMonitor.Level;
 
+import dk.ku.cpr.OmicsVisualizer.internal.model.EGSettings;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVColorContinuous;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVColorDiscrete;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVLegend;
@@ -412,7 +413,7 @@ public class DrawLegendTask extends AbstractTask {
 			if(outerViz.getValues().size() > 1) {
 				String captionSentence = "";
 				if(outerViz.isTranspose()) { // columns are slices
-					captionSentence = "The slices are orderred, from 3 o'clock then counterclockwise:";
+					captionSentence = "The slices are orderred, from " + EGSettings.ArcStartValues.valueOfEG(outerViz.getEGSettings().get(EGSettings.ARC_START)) + " then counterclockwise:";
 				} else { // columns are rings
 					captionSentence = "The rings are orderred, from inner to outer:";
 				}
