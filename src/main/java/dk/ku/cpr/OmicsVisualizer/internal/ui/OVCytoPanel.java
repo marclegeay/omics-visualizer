@@ -649,13 +649,12 @@ SelectedNodesAndEdgesListener {
 			vizOuterButton.setIcon(this.getChartIcon(ovViz, OUTER_CHART_LETTER));
 		}
 		if (legendButton == null ) {
-
 			legendButton = new JButton(IconManager.ICON_MAP_O);
 			legendButton.setToolTipText("Generate legend...");
 			styleButton(legendButton, iconFont);
 
 			legendButton.addActionListener(e -> {
-				this.getLegendWindow().init(this.displayedTable.getConnection(currentNetwork));
+				this.getLegendWindow().init(this.displayedTable.getConnection(this.ovManager.getService(CyApplicationManager.class).getCurrentNetwork()));
 				this.getLegendWindow().setVisible(true);
 			});
 		}

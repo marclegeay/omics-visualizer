@@ -39,8 +39,8 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.annotations.OVTextAnnotation;
 
 public class DrawLegendTask extends AbstractTask {
 	
-	private OVManager ovManager;
-	private OVLegend ovLegend;
+	protected OVManager ovManager;
+	protected OVLegend ovLegend;
 	
 	private TaskMonitor taskMonitor;
 	
@@ -348,7 +348,7 @@ public class DrawLegendTask extends AbstractTask {
 		double startY = 0.0;
 		
 		// Legend title
-		if(!this.ovLegend.getTitle().isEmpty()) {			
+		if(!this.ovLegend.getTitle().isEmpty()) {
 			OVTextAnnotation legendTitle = new OVTextAnnotation(textFactory, networkView);
 			
 			legendTitle.setPosition(0.0, 0.0);
@@ -406,7 +406,22 @@ public class DrawLegendTask extends AbstractTask {
 			OVGroupAnnotation outerLegend = new OVGroupAnnotation(groupFactory, networkView);
 			
 			// Legend text
-			OVGroupAnnotation caption = createLegendText(outerViz.getValues());
+			List<String> captionTexts = new ArrayList<>();
+			
+			// If we have more than 1 column, we announce the order of the rings/slices
+			if(outerViz.getValues().size() > 1) {
+				String captionSentence = "";
+				if(outerViz.isTranspose()) { // columns are slices
+					captionSentence = "The slices are orderred, from 3 o'clock then counterclockwise:";
+				} else { // columns are rings
+					captionSentence = "The rings are orderred, from inner to outer:";
+				}
+
+				captionTexts.add(captionSentence);
+			}
+			captionTexts.addAll(outerViz.getValues());
+			
+			OVGroupAnnotation caption = createLegendText(captionTexts);
 			caption.setName("outerViz caption");
 			outerLegend.addAnnotation(caption);
 			

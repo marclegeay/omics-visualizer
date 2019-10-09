@@ -25,8 +25,8 @@ public class DrawLegendTaskFactory extends AbstractTaskFactory {
 		if(this.ovLegend != null) {
 			return new TaskIterator(new DrawLegendTask(ovManager, ovLegend));
 		}
-		// TODO Tunable
-		return null;
+		
+		return new TaskIterator(new DrawLegendTunableTask(ovManager));
 	}
 
 }

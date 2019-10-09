@@ -28,7 +28,9 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ConnectTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.DisconnectTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.DrawLegendTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.FilterTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.HideLegendTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ListPaletteTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.OperatorListTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveFilterTaskFactory;
@@ -36,6 +38,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveVisualizationTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RetrieveStringNetworkTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowConnectWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowFilterWindowTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.ShowLegendWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowRetrieveWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowVisualizationWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.TableDeleteTaskFactory;
@@ -406,6 +409,39 @@ public class CyActivator extends AbstractCyActivator {
 				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(ServiceProperties.COMMAND, "palette list");
 				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "List available palettes with their provider");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+			
+			// Show legend dialog
+			{
+				ShowLegendWindowTaskFactory factory = new ShowLegendWindowTaskFactory(ovManager);
+				Properties props = new Properties();
+				props.setProperty(ServiceProperties.PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
+				props.setProperty(ServiceProperties.TITLE, "Manage legend");
+				props.setProperty(ServiceProperties.MENU_GRAVITY, (++menuGravity).toString());
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+			
+			// Draw legend (Command-only)
+			{
+				DrawLegendTaskFactory factory = new DrawLegendTaskFactory(ovManager);
+				Properties props = new Properties();
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "legend draw");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Draw a legend");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+			
+			// Hide legend (Command-only)
+			{
+				HideLegendTaskFactory factory = new HideLegendTaskFactory(ovManager);
+				Properties props = new Properties();
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "legend hide");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Hide a legend");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}

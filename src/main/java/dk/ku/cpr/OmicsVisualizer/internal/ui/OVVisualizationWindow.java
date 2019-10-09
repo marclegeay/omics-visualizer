@@ -93,8 +93,10 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	/** Default value for missing values */
 	public static final Color DEFAULT_MISSING_COLOR = new Color(190, 190, 190);
 
-	private static int MAXIMUM_COLOR_NUMBERS = 50;
-	private static int MAXIMUM_COLOR_DISPLAYED = 12;
+	private static final int MAXIMUM_COLOR_NUMBERS = 50;
+	private static final int MAXIMUM_COLOR_DISPLAYED = 12;
+	
+	private static final int RANGE_COLS = 5; // Numbers of cols in rangeMin/Zero/Max
 
 	private OVCytoPanel cytoPanel;
 
@@ -586,32 +588,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			} else {
 				this.colorPanels = new ColorPanel[3];
 
-				this.rangeMax = new JTextField(String.valueOf(rangeMax));
-				this.rangeMax.setToolTipText("<html>"
-						+ "Maximal value to display.<br>"
-						+ "All values greater than this one will have the same color."
-						+ "</html>");
-				this.rangeMax.setHorizontalAlignment(JTextField.RIGHT);
-				this.colorPanels[0] = new ColorPanel(colorMax, this, this.colorChooser, this.ovManager, this.palette);
-				mappingPanel.add(new JLabel("Max:"), c.nextRow());
-				mappingPanel.add(this.rangeMax, c.nextCol());
-				mappingPanel.add(this.colorPanels[0], c.nextCol().noExpand());
-				c.expandHorizontal();
-
-				this.rangeZero = new JTextField(String.valueOf(rangeZero));
-				this.rangeZero.setToolTipText("<html>"
-						+ "Value used to define the middle color.<br>"
-						+ "This value is used to define the color gradient.<br>"
-						+ "By default, this value is the mean between Min and Max."
-						+ "</html>");
-				this.rangeZero.setHorizontalAlignment(JTextField.RIGHT);
-				this.colorPanels[1] = new ColorPanel(colorZero, this, this.colorChooser, this.ovManager, this.palette);
-				mappingPanel.add(new JLabel("Middle:"), c.nextRow());
-				mappingPanel.add(this.rangeZero, c.nextCol());
-				mappingPanel.add(this.colorPanels[1], c.nextCol().noExpand());
-				c.expandHorizontal();
-
-				this.rangeMin = new JTextField(String.valueOf(rangeMin));
+				this.rangeMin = new JTextField(String.valueOf(rangeMin), RANGE_COLS);
 				this.rangeMin.setToolTipText("<html>"
 						+ "Minimal value to display.<br>"
 						+ "All values lower than this one will have the same color."
@@ -623,8 +600,34 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				mappingPanel.add(this.colorPanels[2], c.nextCol().noExpand());
 				c.expandHorizontal();
 
+				this.rangeZero = new JTextField(String.valueOf(rangeZero), RANGE_COLS);
+				this.rangeZero.setToolTipText("<html>"
+						+ "Value used to define the middle color.<br>"
+						+ "This value is used to define the color gradient.<br>"
+						+ "By default, this value is the mean between Min and Max."
+						+ "</html>");
+				this.rangeZero.setHorizontalAlignment(JTextField.RIGHT);
+				this.colorPanels[1] = new ColorPanel(colorZero, this, this.colorChooser, this.ovManager, this.palette);
+				mappingPanel.add(new JLabel("Middle:"), c.nextCol());
+				mappingPanel.add(this.rangeZero, c.nextCol());
+				mappingPanel.add(this.colorPanels[1], c.nextCol().noExpand());
+				c.expandHorizontal();
+
+				this.rangeMax = new JTextField(String.valueOf(rangeMax), RANGE_COLS);
+				this.rangeMax.setToolTipText("<html>"
+						+ "Maximal value to display.<br>"
+						+ "All values greater than this one will have the same color."
+						+ "</html>");
+				this.rangeMax.setHorizontalAlignment(JTextField.RIGHT);
+				this.colorPanels[0] = new ColorPanel(colorMax, this, this.colorChooser, this.ovManager, this.palette);
+				mappingPanel.add(new JLabel("Max:"), c.nextCol());
+				mappingPanel.add(this.rangeMax, c.nextCol());
+				mappingPanel.add(this.colorPanels[0], c.nextCol().noExpand());
+				c.expandHorizontal();
+
 				this.missingValuesColorPanels = new ColorPanel(colorMissing, this, this.colorChooser, this.ovManager, this.palette);
-				mappingPanel.add(new JLabel("Missing value:"), c.nextRow());
+				mappingPanel.add(new JLabel("Missing value:"), c.nextRow().useNCols(2));
+				c.useNCols(1);
 				mappingPanel.add(this.missingValuesColorPanels, c.nextCol().nextCol().noExpand());
 				c.expandHorizontal();
 
@@ -637,9 +640,9 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 					ringPanel.add(new JLabel("Ring is: "));
 					ringPanel.add(this.selectRing);
 					
-					mappingPanel.add(ringPanel, c.nextRow().useNCols(3));
+					mappingPanel.add(ringPanel, c.nextRow().useNCols(9));
 				}
-				mappingPanel.add(resetButton, c.nextRow().useNCols(3).noExpand().setAnchor("E"));
+				mappingPanel.add(resetButton, c.nextRow().useNCols(9).noExpand().setAnchor("E"));
 			}
 		} else { // Discrete mapping
 			this.paletteType = BrewerType.QUALITATIVE;

@@ -46,6 +46,7 @@ public class ApplyVisualizationTask extends AbstractTask {
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
 		taskMonitor.setTitle("Apply visualization to Network");
+		System.out.println("[ApplyVisualizationTask::run] Apply visualization to Network");
 
 		if(this.ovViz == null) {
 			return;
@@ -53,6 +54,7 @@ public class ApplyVisualizationTask extends AbstractTask {
 
 		// First we erase all previous charts
 		taskMonitor.setStatusMessage("Cleaning previous data");
+		System.out.println("[ApplyVisualizationTask::run] Cleaning previous data");
 		CyTable nodeTable = this.ovCon.getRootNetwork().getSharedNodeTable();
 		OVShared.deleteOVColumns(nodeTable, this.ovViz.getType());
 		String vizCol;
@@ -76,6 +78,7 @@ public class ApplyVisualizationTask extends AbstractTask {
 		int i=0;
 		// Then we fill the columns
 		taskMonitor.setStatusMessage("Computing visualization for each node");
+		System.out.println("[ApplyVisualizationTask::run] Computing visualization for each node " + this.ovCon.getRootNetwork().getNodeList().size());
 		for(CyNode node : this.ovCon.getRootNetwork().getNodeList()) {
 			progress = (i++)/nbNodes;
 			taskMonitor.setProgress(progress);
@@ -177,7 +180,7 @@ public class ApplyVisualizationTask extends AbstractTask {
 				if(this.ovViz.isTranspose()) {
 					nodeLabels = "showlabels=\"false\" labelcircles=east circlelabels=\"" + nodeLabels.substring(0, nodeLabels.length()-1) + "\"";
 				} else {
-					nodeLabels = "labellist=\"" + nodeLabels.substring(0, nodeLabels.length()-1) + "\" showlabels=\"true\"";
+					nodeLabels = "labellist=\"" + nodeLabels.substring(0, nodeLabels.length()-1) + "\" showlabels=\"true\" labelsize=\"12\"";
 				}
 			} else {
 				nodeLabels = "showlabels=\"false\"";
@@ -190,6 +193,7 @@ public class ApplyVisualizationTask extends AbstractTask {
 
 
 		taskMonitor.setStatusMessage("Adding the VisualMappingFunction");
+		System.out.println("[ApplyVisualizationTask::run] Adding the VisualMappingFunction");
 		// Finally we draw
 		VisualMappingManager vmm = this.ovManager.getService(VisualMappingManager.class);
 		// The connected network has been automatically selected when the window was opened
@@ -211,8 +215,10 @@ public class ApplyVisualizationTask extends AbstractTask {
 		}
 		
 		taskMonitor.setStatusMessage("Updating the Omics Visualizer panel");
+		System.out.println("[ApplyVisualizationTask::run] Updating the Omics Visualizer panel");
 		this.ovManager.getOVCytoPanel().update();
 
+		System.out.println("[ApplyVisualizationTask::run] done");
 	}
 
 }
