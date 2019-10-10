@@ -45,6 +45,7 @@ import org.cytoscape.util.swing.IconManager;
 import org.cytoscape.util.swing.LookAndFeelUtil;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.EGSettings;
+import dk.ku.cpr.OmicsVisualizer.internal.model.EGSettings.ArcDirectionValues;
 import dk.ku.cpr.OmicsVisualizer.internal.model.EGSettings.ArcStartValues;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVColor;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVColorContinuous;
@@ -129,6 +130,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	private JTextField labelColor;
 	private JComboBox<EGSettings.ArcStartValues> arcStart;
 	private JTextField arcWidth;
+	private JComboBox<EGSettings.ArcDirectionValues> arcDirection;
 	
 	// Panel 2
 	private ColorChooser colorChooser;
@@ -208,6 +210,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		this.labelColor = new JTextField(EGSettings.LABEL_COLOR_DEFAULT);
 		this.arcStart = new JComboBox<>(EGSettings.ArcStartValues.values());
 		this.arcStart.setSelectedItem(EGSettings.ARC_START_DEFAULT);
+		this.arcDirection = new JComboBox<>(EGSettings.ArcDirectionValues.values());
+		this.arcDirection.setSelectedItem(EGSettings.ARC_DIRECTION_DEFAULT);
 		// Only CIRCOS
 		this.arcWidth = new JTextField(EGSettings.ARC_WIDTH_DEFAULT);
 
@@ -308,6 +312,9 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 		chartSettingsPanel.add(new JLabel("Arc start:"), c2.nextRow());
 		chartSettingsPanel.add(this.arcStart, c2.nextCol());
+
+		chartSettingsPanel.add(new JLabel("Arc direction:"), c2.nextRow());
+		chartSettingsPanel.add(this.arcDirection, c2.nextCol());
 		
 		if(this.chartType.equals(ChartType.CIRCOS)) {
 			chartSettingsPanel.add(new JLabel("Arc width:"), c2.nextRow());
@@ -960,6 +967,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				this.labelSize.setText(egSettings.get(EGSettings.LABEL_SIZE));
 				this.labelColor.setText(egSettings.get(EGSettings.LABEL_COLOR));
 				this.arcStart.setSelectedItem(ArcStartValues.valueOfEG(egSettings.get(EGSettings.ARC_START)));
+				this.arcDirection.setSelectedItem(ArcDirectionValues.valueOfStr(egSettings.get(EGSettings.ARC_DIRECTION)));
 				this.arcWidth.setText(egSettings.get(EGSettings.ARC_WIDTH));
 			} else {
 				this.borderWidth.setText(EGSettings.BORDER_WIDTH_DEFAULT);
@@ -968,6 +976,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				this.labelSize.setText(EGSettings.LABEL_SIZE_DEFAULT);
 				this.labelColor.setText(EGSettings.LABEL_COLOR_DEFAULT);
 				this.arcStart.setSelectedItem(EGSettings.ARC_START_DEFAULT);
+				this.arcDirection.setSelectedItem(EGSettings.ARC_DIRECTION_DEFAULT);
 				this.arcWidth.setText(EGSettings.ARC_WIDTH_DEFAULT);
 			}
 			
@@ -983,6 +992,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			this.labelSize.setText(EGSettings.LABEL_SIZE_DEFAULT);
 			this.labelColor.setText(EGSettings.LABEL_COLOR_DEFAULT);
 			this.arcStart.setSelectedItem(EGSettings.ARC_START_DEFAULT);
+			this.arcDirection.setSelectedItem(EGSettings.ARC_DIRECTION_DEFAULT);
 			this.arcWidth.setText(EGSettings.ARC_WIDTH_DEFAULT);
 			
 			this.deleteButton.setEnabled(false);
@@ -1233,6 +1243,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			egSettings.set(EGSettings.LABEL_SIZE, this.labelSize.getText());
 			egSettings.set(EGSettings.LABEL_COLOR, this.labelColor.getText());
 			egSettings.set(EGSettings.ARC_START, ((ArcStartValues)this.arcStart.getSelectedItem()).toEnhancedGraphics());
+			egSettings.set(EGSettings.ARC_DIRECTION, ((ArcDirectionValues)this.arcDirection.getSelectedItem()).toString());
 			egSettings.set(EGSettings.ARC_WIDTH, this.arcWidth.getText());
 
 			OVVisualization ovViz = new OVVisualization(this.chartType,

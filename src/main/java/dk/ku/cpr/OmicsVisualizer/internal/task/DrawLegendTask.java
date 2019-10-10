@@ -413,7 +413,7 @@ public class DrawLegendTask extends AbstractTask {
 			if(outerViz.getValues().size() > 1) {
 				String captionSentence = "";
 				if(outerViz.isTranspose()) { // columns are slices
-					captionSentence = "The slices are orderred, from " + EGSettings.ArcStartValues.valueOfEG(outerViz.getEGSettings().get(EGSettings.ARC_START)) + " then counterclockwise:";
+					captionSentence = "The slices are orderred, from " + EGSettings.ArcStartValues.valueOfEG(outerViz.getEGSettings().get(EGSettings.ARC_START)) + " then " + outerViz.getEGSettings().get(EGSettings.ARC_DIRECTION) + ":";
 				} else { // columns are rings
 					captionSentence = "The rings are orderred, from inner to outer:";
 				}

@@ -18,6 +18,7 @@ public class EGSettings implements Serializable {
 	public static final String LABEL_SIZE = "labelsize";
 	public static final String ARC_START = "arcstart";
 	public static final String ARC_WIDTH = "arcwidth";
+	public static final String ARC_DIRECTION = "arcdirection";
 
 	public static final String BORDER_WIDTH_DEFAULT = "0.1";
 	public static final String BORDER_COLOR_DEFAULT = "black";
@@ -26,6 +27,7 @@ public class EGSettings implements Serializable {
 	public static final String LABEL_SIZE_DEFAULT = "10";
 	public static final String ARC_START_DEFAULT = ArcStartValues.TWELVE.toEnhancedGraphics();
 	public static final String ARC_WIDTH_DEFAULT = "0.4";
+	public static final String ARC_DIRECTION_DEFAULT = ArcDirectionValues.CLOCKWISE.toString();
 	
 	private Map<String, String> settings;
 	
@@ -40,6 +42,7 @@ public class EGSettings implements Serializable {
 		this.settings.put(LABEL_SIZE, LABEL_SIZE_DEFAULT);
 		this.settings.put(ARC_START, ARC_START_DEFAULT);
 		this.settings.put(ARC_WIDTH, ARC_WIDTH_DEFAULT);
+		this.settings.put(ARC_DIRECTION, ARC_DIRECTION_DEFAULT);
 	}
 	
 	public void set(String setting, String value) {
@@ -52,6 +55,31 @@ public class EGSettings implements Serializable {
 	
 	public Set<String> getKeys() {
 		return this.settings.keySet();
+	}
+	
+	public enum ArcDirectionValues {
+		CLOCKWISE("clockwise"),
+		COUNTERCLOCKWISE("counterclockwise");
+		
+		private String str;
+		
+		private ArcDirectionValues(String str) {
+			this.str=str;
+		}
+		
+		public String toString() {
+			return this.str;
+		}
+		
+		public static ArcDirectionValues valueOfStr(String str) {
+			for(ArcDirectionValues adv : ArcDirectionValues.values()) {
+				if(adv.str.equals(str)) {
+					return adv;
+				}
+			}
+			
+			return ArcDirectionValues.CLOCKWISE;
+		}
 	}
 	
 	public enum ArcStartValues {

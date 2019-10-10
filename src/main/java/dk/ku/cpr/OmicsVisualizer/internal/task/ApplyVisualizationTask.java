@@ -181,7 +181,7 @@ public class ApplyVisualizationTask extends AbstractTask {
 				if(this.ovViz.isTranspose()) {
 					nodeLabels = "showlabels=\"false\" labelcircles=east circlelabels=\"" + nodeLabels.substring(0, nodeLabels.length()-1) + "\"";
 				} else {
-					nodeLabels = "labellist=\"" + nodeLabels.substring(0, nodeLabels.length()-1) + "\" showlabels=\"true\" labelsize=\"12\"";
+					nodeLabels = "labellist=\"" + nodeLabels.substring(0, nodeLabels.length()-1) + "\" showlabels=\"true\"";
 				}
 			} else {
 				nodeLabels = "showlabels=\"false\"";
