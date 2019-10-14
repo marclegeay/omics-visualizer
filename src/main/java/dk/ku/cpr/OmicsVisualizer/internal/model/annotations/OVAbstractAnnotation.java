@@ -6,8 +6,6 @@ import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.presentation.annotations.Annotation;
 import org.cytoscape.view.presentation.annotations.AnnotationFactory;
 
-import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
-
 public abstract class OVAbstractAnnotation<T extends Annotation> {
 	protected AnnotationFactory<T> factory;
 	protected CyNetworkView networkView;
@@ -85,10 +83,6 @@ public abstract class OVAbstractAnnotation<T extends Annotation> {
 	public String getName() {
 		if(name == null) {
 			name = "";
-		}
-		
-		if(!name.startsWith(OVShared.OVLEGEND_ANNOTATION_NAME)) {
-			name = OVShared.OVLEGEND_ANNOTATION_NAME+" "+name;
 		}
 		
 		return name;

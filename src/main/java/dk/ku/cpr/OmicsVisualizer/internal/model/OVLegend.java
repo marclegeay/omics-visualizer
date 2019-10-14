@@ -48,6 +48,14 @@ public class OVLegend implements Serializable {
 	public void setVisible(boolean visible) {
 		this.visible = visible;
 	}
+	
+	public void setInnerVisualization(OVVisualization innerViz) {
+		this.innerViz=innerViz;
+	}
+	
+	public void setOuterVisualization(OVVisualization outerViz) {
+		this.outerViz=outerViz;
+	}
 
 	public boolean isDrawInner() {
 		return this.innerViz != null;

@@ -51,12 +51,14 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVColor;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVColorContinuous;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVColorDiscrete;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVLegend;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ApplyVisualizationTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.DrawLegendTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveVisualizationTaskFactory;
 
 public class OVVisualizationWindow extends OVWindow implements ActionListener {
@@ -121,6 +123,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	private JComboBox<String> selectDiscreteContinuous;
 	private String oldDC;
 	private JButton nextButton;
+	
+	private JButton showChartSettings;
 
 	//Panel 1 - chart settings
 	private JTextField borderWidth;
@@ -201,6 +205,9 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		this.nextButton = new JButton("Next >");
 		this.nextButton.addActionListener(this);
 		
+		this.showChartSettings = new JButton("Show chart settings");
+		this.showChartSettings.addActionListener(this);
+		
 		// Panel 1 - chart settings
 		this.borderWidth = new JTextField(EGSettings.BORDER_WIDTH_DEFAULT);
 		this.borderColor = new JTextField(EGSettings.BORDER_COLOR_DEFAULT);
@@ -251,8 +258,12 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 		LookAndFeelUtil.equalizeSize(this.cancelButton, this.nextButton, this.backButton, this.drawButton);
 	}
-
+	
 	private void displayPanel1() {
+		this.displayPanel1(false);
+	}
+
+	private void displayPanel1(boolean showSettings) {
 		this.setPreferredSize(null); // We want to recompute the size each time
 
 
@@ -289,39 +300,46 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 		mainPanel.add(chartPanel, c.nextRow().useNCols(2));
 
-		// Chart settings
-		JPanel chartSettingsPanel = new JPanel();
-		chartSettingsPanel.setBorder(LookAndFeelUtil.createTitledBorder("Chart settings"));
-		chartSettingsPanel.setLayout(new GridBagLayout());
-		c2.reset().expandHorizontal().setAnchor("C");
+		if(showSettings) {
+			// Chart settings
+			JPanel chartSettingsPanel = new JPanel();
+			chartSettingsPanel.setBorder(LookAndFeelUtil.createTitledBorder("Chart settings"));
+			chartSettingsPanel.setLayout(new GridBagLayout());
+			c2.reset().expandHorizontal().setAnchor("C");
 
-		chartSettingsPanel.add(new JLabel("Border width:"), c2);
-		chartSettingsPanel.add(this.borderWidth, c2.nextCol());
-		
-		chartSettingsPanel.add(new JLabel("Border color:"), c2.nextRow());
-		chartSettingsPanel.add(this.borderColor, c2.nextCol());
+			chartSettingsPanel.add(new JLabel("Border width:"), c2);
+			chartSettingsPanel.add(this.borderWidth, c2.nextCol());
 
-		chartSettingsPanel.add(new JLabel("Label font:"), c2.nextRow());
-		chartSettingsPanel.add(this.labelFont, c2.nextCol());
+			chartSettingsPanel.add(new JLabel("Border color:"), c2.nextRow());
+			chartSettingsPanel.add(this.borderColor, c2.nextCol());
 
-		chartSettingsPanel.add(new JLabel("Label font size:"), c2.nextRow());
-		chartSettingsPanel.add(this.labelSize, c2.nextCol());
+			chartSettingsPanel.add(new JLabel("Label font:"), c2.nextRow());
+			chartSettingsPanel.add(this.labelFont, c2.nextCol());
 
-		chartSettingsPanel.add(new JLabel("Label color:"), c2.nextRow());
-		chartSettingsPanel.add(this.labelColor, c2.nextCol());
+			chartSettingsPanel.add(new JLabel("Label font size:"), c2.nextRow());
+			chartSettingsPanel.add(this.labelSize, c2.nextCol());
 
-		chartSettingsPanel.add(new JLabel("Arc start:"), c2.nextRow());
-		chartSettingsPanel.add(this.arcStart, c2.nextCol());
+			chartSettingsPanel.add(new JLabel("Label color:"), c2.nextRow());
+			chartSettingsPanel.add(this.labelColor, c2.nextCol());
 
-		chartSettingsPanel.add(new JLabel("Arc direction:"), c2.nextRow());
-		chartSettingsPanel.add(this.arcDirection, c2.nextCol());
-		
-		if(this.chartType.equals(ChartType.CIRCOS)) {
-			chartSettingsPanel.add(new JLabel("Arc width:"), c2.nextRow());
-			chartSettingsPanel.add(this.arcWidth, c2.nextCol());
+			chartSettingsPanel.add(new JLabel("Arc start:"), c2.nextRow());
+			chartSettingsPanel.add(this.arcStart, c2.nextCol());
+
+			chartSettingsPanel.add(new JLabel("Arc direction:"), c2.nextRow());
+			chartSettingsPanel.add(this.arcDirection, c2.nextCol());
+
+			if(this.chartType.equals(ChartType.CIRCOS)) {
+				chartSettingsPanel.add(new JLabel("Arc width:"), c2.nextRow());
+				chartSettingsPanel.add(this.arcWidth, c2.nextCol());
+			}
+
+			mainPanel.add(chartSettingsPanel, c.nextRow().useNCols(2));
+		} else {
+			JPanel showPanel = new JPanel();
+			showPanel.add(this.showChartSettings);
+			
+			mainPanel.add(showPanel, c.nextRow().useNCols(2));
 		}
-
-		mainPanel.add(chartSettingsPanel, c.nextRow().useNCols(2));
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
@@ -1102,6 +1120,20 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				RemoveVisualizationTaskFactory factory = new RemoveVisualizationTaskFactory(this.ovManager, this.ovCon, type);
 				this.ovManager.executeSynchronousTask(factory.createTaskIterator());
 
+				OVLegend legend = this.ovCon.getLegend();
+				if(legend != null && legend.isVisible()) {
+					if(JOptionPane.showConfirmDialog(this, "Update the legend?", "Update legend", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+						if(this.chartType.equals(ChartType.CIRCOS)) {
+							legend.setOuterVisualization(null);
+						} else { // PIE
+							legend.setInnerVisualization(null);
+						}
+						
+						DrawLegendTaskFactory legendFactory = new DrawLegendTaskFactory(ovManager, legend);
+						ovManager.executeTask(legendFactory.createTaskIterator());
+					}
+				}
+				
 //				this.updateVisualization(this.getVisualization());
 //				
 //				this.ovManager.getOVCytoPanel().update();
@@ -1133,6 +1165,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			}
 
 			this.displayPanel2(reset);
+		} else if(e.getSource() == this.showChartSettings) {
+			this.displayPanel1(true);
 		} else if(e.getSource() == this.paletteButton) {
 			PaletteType pType = this.paletteType;
 			Object pTypeSelected = this.selectPaletteType.getSelectedItem();
@@ -1264,6 +1298,20 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 			ApplyVisualizationTaskFactory factory = new ApplyVisualizationTaskFactory(this.ovManager, this.ovCon, ovViz);
 			this.ovManager.executeTask(factory.createTaskIterator());
+			
+			OVLegend legend = this.ovCon.getLegend();
+			if(legend != null && legend.isVisible()) {
+				if(JOptionPane.showConfirmDialog(this, "Update the legend?", "Update legend", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+					if(this.chartType.equals(ChartType.CIRCOS)) {
+						legend.setOuterVisualization(ovViz);
+					} else { // PIE
+						legend.setInnerVisualization(ovViz);
+					}
+					
+					DrawLegendTaskFactory legendFactory = new DrawLegendTaskFactory(ovManager, legend);
+					ovManager.executeTask(legendFactory.createTaskIterator());
+				}
+			}
 
 			this.setVisible(false);
 		}

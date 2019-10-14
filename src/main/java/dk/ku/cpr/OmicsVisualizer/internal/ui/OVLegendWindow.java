@@ -69,17 +69,18 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 		// ---
 		this.closeButton = new JButton("Close");
 		this.closeButton.addActionListener(this);
-		
-		this.showButton = new JButton("Show legend");
+
+		this.showButton = new JButton("Create legend");
 		this.showButton.addActionListener(this);
 		
-		this.hideButton = new JButton("Hide legend");
+		this.hideButton = new JButton("Delete legend");
 		this.hideButton.addActionListener(this);
 		
 		this.clearButton = new JButton("Clear");
 		this.clearButton.addActionListener(this);
-		
-		LookAndFeelUtil.equalizeSize(this.closeButton, this.showButton, this.hideButton, this.clearButton);
+
+		LookAndFeelUtil.equalizeSize(this.closeButton, this.clearButton);
+		LookAndFeelUtil.equalizeSize(this.showButton, this.hideButton);
 		
 		this.setResizable(true);
 	}
@@ -165,6 +166,8 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 		
 		if(!reset && ovCon.getLegend() != null) {
 			OVLegend legend = ovCon.getLegend();
+			
+			this.showButton.setText("Reload legend");
 
 			this.includeInnerViz.setSelected(this.includeInnerViz.isEnabled() && legend.isDrawInner());
 			this.includeOuterViz.setSelected(this.includeOuterViz.isEnabled() && legend.isDrawOuter());
@@ -235,6 +238,8 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 			this.orientation.setSelectedItem(legend.getOrientation());
 		} else {
 			this.initForm();
+			
+			this.showButton.setText("Create legend");
 			
 			// We put the name of the Network as the default title
 			this.title.setText(ovCon.getBaseNetwork().toString());
@@ -365,14 +370,11 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 			
 			this.setVisible(false);
 		} else if(e.getSource() == this.hideButton) {
+			this.ovCon.getLegend().setVisible(false);
 			this.ovCon.setLegend(this.ovCon.getLegend()); // We force the legend to be saved
 			
 			HideLegendTaskFactory legendFactory = new HideLegendTaskFactory(ovManager);
 			ovManager.executeTask(legendFactory.createTaskIterator());
-			
-			this.ovCon.getLegend().setVisible(false);
-			
-			this.setVisible(false);
 		} else if(e.getSource() == this.clearButton) {
 			this.init(this.ovCon, true);
 		} else if(e.getSource() == this.position) {

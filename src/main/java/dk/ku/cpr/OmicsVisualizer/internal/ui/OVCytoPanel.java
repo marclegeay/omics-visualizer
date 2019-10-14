@@ -178,11 +178,6 @@ SelectedNodesAndEdgesListener {
 		ViewUtil.invokeOnEDT(() -> {
 			tableChooser = new GlobalTableChooser();
 			tableChooser.addActionListener(this);
-//			final Dimension d = new Dimension(400, tableChooser.getPreferredSize().height);
-//			tableChooser.setMaximumSize(d);
-//			tableChooser.setMinimumSize(d);
-//			tableChooser.setPreferredSize(d);
-//			tableChooser.setSize(d);
 
 			GlobalTableComboBoxModel tcModel = (GlobalTableComboBoxModel)tableChooser.getModel();
 			for(OVTable table : ovManager.getOVTables()) {
@@ -785,8 +780,6 @@ SelectedNodesAndEdgesListener {
 		if (table == displayedTable || table == null)
 			return;
 
-		//		serviceRegistrar.getService(CyApplicationManager.class).setCurrentTable(table);
-		//		showSelectedTable();
 		initPanel(table);
 	}
 

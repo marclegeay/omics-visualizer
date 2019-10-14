@@ -413,9 +413,9 @@ public class DrawLegendTask extends AbstractTask {
 			if(outerViz.getValues().size() > 1) {
 				String captionSentence = "";
 				if(outerViz.isTranspose()) { // columns are slices
-					captionSentence = "The slices are orderred, from " + EGSettings.ArcStartValues.valueOfEG(outerViz.getEGSettings().get(EGSettings.ARC_START)) + " then " + outerViz.getEGSettings().get(EGSettings.ARC_DIRECTION) + ":";
+					captionSentence = "The slices are ordered, from " + EGSettings.ArcStartValues.valueOfEG(outerViz.getEGSettings().get(EGSettings.ARC_START)) + " then " + outerViz.getEGSettings().get(EGSettings.ARC_DIRECTION) + ":";
 				} else { // columns are rings
-					captionSentence = "The rings are orderred, from inner to outer:";
+					captionSentence = "The rings are ordered, from inner to outer:";
 				}
 
 				captionTexts.add(captionSentence);
@@ -532,8 +532,13 @@ public class DrawLegendTask extends AbstractTask {
 		root.setName(OVShared.OVLEGEND_ANNOTATION_NAME);
 		root.setPosition(rootX, rootY);
 		
+		taskMonitor.setStatusMessage("Adding the annotation to the network...");
+		
 		// We add the group to the Cytoscape Annotations
 		annotManager.addAnnotation(root.getAnnotation());
+		
+		taskMonitor.setStatusMessage("Fitting view to the network...");
+		this.networkView.fitContent();
 	}
 
 }
