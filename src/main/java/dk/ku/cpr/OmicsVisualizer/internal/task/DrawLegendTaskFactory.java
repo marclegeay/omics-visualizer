@@ -10,20 +10,22 @@ public class DrawLegendTaskFactory extends AbstractTaskFactory {
 	
 	private OVManager ovManager;
 	private OVLegend ovLegend;
+	private boolean updateView;
 	
-	public DrawLegendTaskFactory(OVManager ovManager, OVLegend ovLegend) {
+	public DrawLegendTaskFactory(OVManager ovManager, OVLegend ovLegend, boolean updateView) {
 		this.ovManager=ovManager;
 		this.ovLegend=ovLegend;
+		this.updateView=updateView;
 	}
 	
 	public DrawLegendTaskFactory(OVManager ovManager) {
-		this(ovManager, null);
+		this(ovManager, null, true);
 	}
 
 	@Override
 	public TaskIterator createTaskIterator() {
 		if(this.ovLegend != null) {
-			return new TaskIterator(new DrawLegendTask(ovManager, ovLegend));
+			return new TaskIterator(new DrawLegendTask(ovManager, ovLegend, updateView));
 		}
 		
 		return new TaskIterator(new DrawLegendTunableTask(ovManager));

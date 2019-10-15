@@ -1129,7 +1129,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 							legend.setInnerVisualization(null);
 						}
 						
-						DrawLegendTaskFactory legendFactory = new DrawLegendTaskFactory(ovManager, legend);
+						// We update the view of the network only when creating, not deleting a legend
+						DrawLegendTaskFactory legendFactory = new DrawLegendTaskFactory(ovManager, legend, false);
 						ovManager.executeTask(legendFactory.createTaskIterator());
 					}
 				}
@@ -1295,10 +1296,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			} else {
 				this.ovCon.setInnerVisualization(ovViz);
 			}
-
-			ApplyVisualizationTaskFactory factory = new ApplyVisualizationTaskFactory(this.ovManager, this.ovCon, ovViz);
-			this.ovManager.executeTask(factory.createTaskIterator());
 			
+			boolean updateLegend=false;
 			OVLegend legend = this.ovCon.getLegend();
 			if(legend != null && legend.isVisible()) {
 				if(JOptionPane.showConfirmDialog(this, "Update the legend?", "Update legend", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
@@ -1308,9 +1307,17 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 						legend.setInnerVisualization(ovViz);
 					}
 					
-					DrawLegendTaskFactory legendFactory = new DrawLegendTaskFactory(ovManager, legend);
-					ovManager.executeTask(legendFactory.createTaskIterator());
+					updateLegend=true;
 				}
+			}
+
+			ApplyVisualizationTaskFactory factory = new ApplyVisualizationTaskFactory(this.ovManager, this.ovCon, ovViz);
+			this.ovManager.executeTask(factory.createTaskIterator());
+			
+			if(updateLegend) {
+				// We update the view of the network when we create a legend, not when we update it
+				DrawLegendTaskFactory legendFactory = new DrawLegendTaskFactory(ovManager, legend, false);
+				ovManager.executeTask(legendFactory.createTaskIterator());
 			}
 
 			this.setVisible(false);

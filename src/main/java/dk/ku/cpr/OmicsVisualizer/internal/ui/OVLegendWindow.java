@@ -49,6 +49,9 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 	private JButton showButton;
 	private JButton hideButton;
 	private JButton clearButton;
+	
+	private static final String CREATE_TEXT = "Create legend";
+	private static final String RELOAD_TEXT = "Reload legend";
 
 	public OVLegendWindow(OVManager ovManager) {
 		super(ovManager, "Legend");
@@ -70,7 +73,7 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 		this.closeButton = new JButton("Close");
 		this.closeButton.addActionListener(this);
 
-		this.showButton = new JButton("Create legend");
+		this.showButton = new JButton(CREATE_TEXT);
 		this.showButton.addActionListener(this);
 		
 		this.hideButton = new JButton("Delete legend");
@@ -167,7 +170,7 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 		if(!reset && ovCon.getLegend() != null) {
 			OVLegend legend = ovCon.getLegend();
 			
-			this.showButton.setText("Reload legend");
+			this.showButton.setText(RELOAD_TEXT);
 
 			this.includeInnerViz.setSelected(this.includeInnerViz.isEnabled() && legend.isDrawInner());
 			this.includeOuterViz.setSelected(this.includeOuterViz.isEnabled() && legend.isDrawOuter());
@@ -239,7 +242,7 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 		} else {
 			this.initForm();
 			
-			this.showButton.setText("Create legend");
+			this.showButton.setText(CREATE_TEXT);
 			
 			// We put the name of the Network as the default title
 			this.title.setText(ovCon.getBaseNetwork().toString());
@@ -365,7 +368,8 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 			
 			this.ovCon.setLegend(legend);
 			
-			DrawLegendTaskFactory legendFactory = new DrawLegendTaskFactory(ovManager, legend);
+			// We update the network view if we create the legend, not if we reload it
+			DrawLegendTaskFactory legendFactory = new DrawLegendTaskFactory(ovManager, legend, this.showButton.getText().equals(CREATE_TEXT));
 			ovManager.executeTask(legendFactory.createTaskIterator());
 			
 			this.setVisible(false);

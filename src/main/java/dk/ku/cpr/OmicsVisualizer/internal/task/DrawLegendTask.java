@@ -42,6 +42,7 @@ public class DrawLegendTask extends AbstractTask {
 	
 	protected OVManager ovManager;
 	protected OVLegend ovLegend;
+	protected boolean updateView;
 	
 	private TaskMonitor taskMonitor;
 	
@@ -59,9 +60,10 @@ public class DrawLegendTask extends AbstractTask {
 	private static final float MARGIN_RATIO = 0.3f;
 	private static final float TICK_RATIO = 0.2f;
 	
-	public DrawLegendTask(OVManager ovManager, OVLegend ovLegend) {
+	public DrawLegendTask(OVManager ovManager, OVLegend ovLegend, boolean updateView) {
 		this.ovManager=ovManager;
 		this.ovLegend=ovLegend;
+		this.updateView=updateView;
 	}
 	
 	private double getMargin() {
@@ -532,13 +534,15 @@ public class DrawLegendTask extends AbstractTask {
 		root.setName(OVShared.OVLEGEND_ANNOTATION_NAME);
 		root.setPosition(rootX, rootY);
 		
-		taskMonitor.setStatusMessage("Adding the annotation to the network...");
 		
 		// We add the group to the Cytoscape Annotations
+		taskMonitor.setStatusMessage("Adding the annotation to the network...");
 		annotManager.addAnnotation(root.getAnnotation());
 		
-		taskMonitor.setStatusMessage("Fitting view to the network...");
-		this.networkView.fitContent();
+		if(this.updateView) {
+			taskMonitor.setStatusMessage("Fitting view to the network...");
+			this.networkView.fitContent();
+		}
 	}
 
 }

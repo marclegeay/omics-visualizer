@@ -54,9 +54,14 @@ public class DrawLegendTunableTask extends DrawLegendTask {
 			required=false,
 			gravity=1.0)
 	public String orientation = OVLegendOrientation.HORIZONTAL.name();
+	
+	@Tunable(description="Should the view of the network be fitted to the content after the legend is added. Default: true.",
+			required=false,
+			gravity=1.0)
+	public boolean fitView = true;
 
 	public DrawLegendTunableTask(OVManager ovManager) {
-		super(ovManager, null);
+		super(ovManager, null, true);
 	}
 
 	public void run(TaskMonitor taskMonitor) throws Exception {
@@ -104,6 +109,8 @@ public class DrawLegendTunableTask extends DrawLegendTask {
 		
 		this.ovLegend = new OVLegend(innerViz, outerViz, title, fontName, fontSize, OVLegendPosition.valueOf(position), OVLegendOrientation.valueOf(orientation));
 		ovCon.setLegend(this.ovLegend);
+		
+		this.updateView = this.fitView;
 		
 		super.run(taskMonitor);
 	}
