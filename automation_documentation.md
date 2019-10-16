@@ -47,6 +47,22 @@ Last update: 2019-10-16
 
 Connect the current table with the current network
 
+### Arguments
+
+`mappingColNet` **(required)** *String*
+
+Key column from the Network node table used to map the network with the table
+
+`mappingColTable` **(required)** *String*
+
+Key column from the Omics Visualizer table used to map the table with the network
+
+### Example
+
+`ov connect mappingColNet="gene name" mappingColTable="name"`
+
+This will link the active OV table with the current network. The OV table must have a column named `name` and the node table from the network must have a column named `gene name`. Those two columns are used to link the two tables.
+
 ## Connect show
 
 `ov connect show`
