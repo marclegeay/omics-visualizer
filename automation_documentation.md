@@ -93,7 +93,7 @@ Filters the row of an Omics Visualizer table
    criteria = (colName,operator,value)  
    
    where 'colName' is the name of the column (commas in colName should be escaped by being preceeded a backslash)  
-   'operator' is the name of the operation applied, the list of operators is available with the command [ov filter list operators](#filter-list-operators)  
+   'operator' is the name of the operation applied, the list of operators is available with the command [`ov filter list operators`](#filter-list-operators)  
    'value' if necessary, is the value to compare with. Careful with the regex and escaped characters.
 
 - `tableName` (optional) *String*
