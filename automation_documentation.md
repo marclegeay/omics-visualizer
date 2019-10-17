@@ -176,18 +176,18 @@ Draw a legend
 
    The position of the legend.  
    Must be one of:  
-   - `'NORTH'` the legend will be on top of the network, centered
-   - `'NORTH_LEFT'` the legend will be on top of the network, aligned left
-   - `'NORTH_RIGHT'` the legend will be on top of the network, aligned right
-   - `'SOUTH'` the legend will be at the bottom of the network, centered
-   - `'SOUTH_LEFT'` the legend will be at the bottom of the network, aligned left
-   - `'SOUTH_RIGHT'` the legend will be at the bottom of the network, aligned right
-   - `'EAST'` the legend will be on the right of the network, aligned with the middle
-   - `'EAST_TOP'` the legend will be on the right of the network, aligned top
-   - `'EAST_BOTTOM'` the legend will be on the right of the network, aligned bottom
-   - `'WEST'` the legend will be on the left of the network, aligned with the middle
-   - `'WEST_TOP'` the legend will be on the left of the network, aligned top
-   - `'WEST_BOTTOM'` the legend will be on the left of the network, aligned bottom
+   - `"NORTH"` the legend will be on top of the network, centered
+   - `"NORTH_LEFT"` the legend will be on top of the network, aligned left
+   - `"NORTH_RIGHT"` the legend will be on top of the network, aligned right
+   - `"SOUTH"` the legend will be at the bottom of the network, centered
+   - `"SOUTH_LEFT"` the legend will be at the bottom of the network, aligned left
+   - `"SOUTH_RIGHT"` the legend will be at the bottom of the network, aligned right
+   - `"EAST"` the legend will be on the right of the network, aligned with the middle
+   - `"EAST_TOP"` the legend will be on the right of the network, aligned top
+   - `"EAST_BOTTOM"` the legend will be on the right of the network, aligned bottom
+   - `"WEST"` the legend will be on the left of the network, aligned with the middle
+   - `"WEST_TOP"` the legend will be on the left of the network, aligned top
+   - `"WEST_BOTTOM"` the legend will be on the left of the network, aligned bottom
    
 - `title` (optional) *String* Default: the network name
 
