@@ -2,7 +2,7 @@
 
 Omics Visualizer version 1.2
 
-Last update: 2019-10-16
+Last update: 2019-10-17
 
 ## List of commands
 
@@ -49,13 +49,13 @@ Connect the current table with the current network
 
 ### Arguments
 
-`mappingColNet` **(required)** *String*
+- `mappingColNet` **(required)** *String*
 
-Key column from the Network node table used to map the network with the table
+   Key column from the Network node table used to map the network with the table
 
-`mappingColTable` **(required)** *String*
+- `mappingColTable` **(required)** *String*
 
-Key column from the Omics Visualizer table used to map the table with the network
+   Key column from the Omics Visualizer table used to map the table with the network
 
 ### Example
 
@@ -81,11 +81,50 @@ Disconnect the current table and the current network if they are already connect
 
 Filters the row of an Omics Visualizer table
 
+### Arguments
+
+- `filter` **(required)** *String*
+
+   The filter is defined by the following non-contextual grammar:  
+   filter = and | or | criteria  
+   and = {filter_list}  
+   or = [filter_list]  
+   filter_list = filter,filter_list | filter  
+   criteria = (colName,operator,value)  
+   
+   where 'colName' is the name of the column (commas in colName should be escaped by being preceeded a backslash)  
+   'operator' is the name of the operation applied, the list of operators is available with the command [ov filter list operators](#filter-list-operators)  
+   'value' if necessary, is the value to compare with. Careful with the regex and escaped characters.
+
+- `tableName` (optional) *String*
+
+   OV table name.  
+   By default the active table is used, if you want to use another one you can specify its name here.
+
+### Example
+
+`ov filter filter="{(p-value,LOWER_EQUALS,0.05),[(ontology,CONTAINS,GO),(ontology,NULL,)]}"`
+
+This will select the rows where the p-value is lower or equals to 0.05 and the ontology is either from the Gene Ontology (contains "GO") or unknown (the value is null).
+
 ## Filter list operators
 
 `ov filter list operators`
 
 List the available operators
+
+The list of current available operators is:
+- `EQUALS` (*String*, *boolean*, *numbers*) the table value should match exactly the reference value
+- `NOT_EQUALS` (*String*, *boolean*, *numbers*) the table value should not match the reference value
+- `CONTAINS` (*String*) a part of the table value should match exactly the reference value
+- `NOT_CONTAIN` (*String*) a part of the table value should match exactly the reference value
+- `MATCHES` (*String*) the table value should match exactly the regular expression from the reference value
+- `LOWER` (*numbers*) the table value should be strictly lower than the reference value
+- `LOWER_EQUALS` (*numbers*) the table value should be lower than or equals to the reference value
+- `GREATER` (*numbers*) the table value should be strictly greater than the reference value
+- `GREATER_EQUALS` (*numbers*) the table value should be greater than or equals to the reference value
+- `NULL` (*String*, *boolean*, *numbers*) the table value should be null
+- `NOT_NULL` (*String*, *boolean*, *numbers*) the table value should not be null
 
 ## Filter remove
 
