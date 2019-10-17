@@ -144,6 +144,62 @@ Show the filter window of the current table
 
 Draw a legend
 
+### Arguments
+
+- `fitView` (optional) *boolean* Default: `true`
+
+   Should the view of the network be fitted to the content after the legend is added.
+   
+- `fontName` (optional) *String* Default: `"SansSerif"`
+
+   The font family.
+
+- `fontSize` (optional) *int* Default: `22`
+
+   The font size.
+   
+- `includeInner` (optional) *boolean* Default: `true` if there is an inner visualization, `false` otherwise
+
+   Should the inner visualization included in the legend?
+- `includeOuter` (optional) *boolean* Default: `true` if there is an outer visualization, `false` otherwise
+
+   Should the outer visualization included in the legend?
+   
+- `orientation` (optional) *String* Default: `"HORIZONTAL"`
+
+   The orientation of the legend.  
+   Must be one of:  
+   - `"HORIZONTAL"`
+   - `"VERTICAL"`
+
+- `position` (optional) *String* Default: `"NORHT_LEFT"`
+
+   The position of the legend.  
+   Must be one of:  
+   - `'NORTH'` the legend will be on top of the network, centered
+   - `'NORTH_LEFT'` the legend will be on top of the network, aligned left
+   - `'NORTH_RIGHT'` the legend will be on top of the network, aligned right
+   - `'SOUTH'` the legend will be at the bottom of the network, centered
+   - `'SOUTH_LEFT'` the legend will be at the bottom of the network, aligned left
+   - `'SOUTH_RIGHT'` the legend will be at the bottom of the network, aligned right
+   - `'EAST'` the legend will be on the right of the network, aligned with the middle
+   - `'EAST_TOP'` the legend will be on the right of the network, aligned top
+   - `'EAST_BOTTOM'` the legend will be on the right of the network, aligned bottom
+   - `'WEST'` the legend will be on the left of the network, aligned with the middle
+   - `'WEST_TOP'` the legend will be on the left of the network, aligned top
+   - `'WEST_BOTTOM'` the legend will be on the left of the network, aligned bottom
+   
+- `title` (optional) *String* Default: the network name
+
+  The title of the legend.  
+  If you don't want any title, you give an empty title.
+
+## Example
+
+`ov legend draw orientation="VERTICAL" position="EAST_TOP" title=""`
+
+This will generate a legend containing all the visualizations (inner and/or outer, if any) with no title. The legend will be drawned vertically at the right of the network, aligned with the top of it.
+
 ## Legend hide
 
 `ov legend hide`
