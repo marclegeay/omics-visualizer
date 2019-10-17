@@ -212,6 +212,53 @@ Hide a legend
 
 Load an Omics Visualizer table
 
+### Arguments
+
+- `dataTypeList` (optional) *String*
+
+   List of column data types ordered by column index (e.g. "string,int,long,double,boolean,intlist" or just "s,i,l,d,b,il")
+   
+- `decimalSeparator` (optional) *Character* Default: `'.'`
+
+   Character that separates the integer-part (characteristic) and the fractional-part (mantissa) of a decimal number.
+   
+- `delimiters` (optional) *String* Default: `","` if CSV, `TAB` otherwise
+
+   Select the delimiters to use to separate columns in the table.  
+   Must be one of:
+   - `","`
+   - `" "`
+   - `"TAB"`
+   - `";"`
+   
+- `delimitersForDataList` (optional) *Character* Default: `'|'`
+
+   The delimiters between elements of list columns in the table.  
+   Must be one of:
+   - `'|'`
+   - `'\'`
+   - `'/'`
+   - `','`
+   
+- `file` **(required)** *String*
+
+  The path to the file that contains the table or network to be imported.
+  
+- `firstRowAsColumnNames` (optional) *boolean* Default: `true`
+
+  Does the first imported row contains column names?
+  
+- `newTableName` (optional) *String*
+
+   The title of the new table.  
+   If no title is given, then a name will be generated, started by "Omics Visualizer Table" followed by a number.
+   
+- `startLoadRow` (optional) *int* Default: `1`
+
+   The first row of the input table to load. This allows the skipping of headers that are not part of the import.
+
+### Example
+
 ## Palette list
 
 `ov palette list`
