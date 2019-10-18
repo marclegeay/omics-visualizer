@@ -321,7 +321,7 @@ Show the retrieve window of the current table
 
 `ov table delete`
 
-Delete the current Omics Visualizer table
+Delete the active Omics Visualizer table
 
 ## Table list
 
@@ -335,6 +335,18 @@ Get the list of Omics Visualizer tables
 
 Set the current Omics Visualizer table
 
+### Argument
+
+- `tableName` **(required)** *String*
+
+   Name of the OV table to set as active
+
+### Example
+
+`ov table set current tableName="myData"`
+
+This sets the OV table named "myData" as the active one.
+
 ## Version
 
 `ov version`
@@ -347,11 +359,117 @@ Returns the current version of the app
 
 Apply an inner visualization (pie charts) with a continuous mapping
 
+### Arguments
+
+- `attributes` **(required)** *String*
+
+  Name of the column that contains the data you want to visualize.
+  
+- `chartSettings` (optional) *String*
+
+  Comma separated list of enhancedGraphics settings.  
+  Here is how the string should be formatted: "setting1:value1,setting2:value2" e.g. "arcstart:0,arcdirection:counterclockwise"
+  
+- `colorMax` (optional) *String*
+
+  Color used in the gradient as the highest value.
+  
+- `colorMid` (optional) *String*
+
+  Color used in the gradient as the middle value.
+  
+- `colorMin` (optional) *String*
+
+  Color used in the gradient as the lowest value.
+  
+- `colorMissing` (optional) *String*
+
+  Color used for missing values.
+  
+- `filteredOnly` (optional) *boolean* Default: `true`
+
+  Use all the data (`false`) or only the filtered one (`true`)?
+  
+- `labels` (optional) *String*
+
+  Column name of the table that should be used to label the data. By default no label is displayed.
+  
+- `paletteName` (optional) *String*
+
+  Name of the palette to use as default colors. (See [ov palette list](#palette-list))
+  
+- `paletteProviderName` (optional) *String*
+
+  Name of the palette provider of the palette. (See [ov palette list](#palette-list))
+  
+- `rangeMax` (optional) *double*
+
+  Maximum value. Above this value, the same color will be applied.
+  
+- `rangeMid` (optional) *double*
+
+  Middle value. The colors will be a gradient from min to mid, and from mid to max.
+  
+- `rangeMin` (optional) *double*
+
+  Minimum value. Below this value, the same color will be applied.
+
+### Examples
+
+`ov viz apply inner continuous attributes="log ratio" rangeMin=-5 rangeMax=5`
+
+This will create a pie chart visualization from the "log ratio" column, using the default palette colors with a range from -5 to 5.
+
+`ov viz apply inner continuous attributes="log ratio" rangeMin=-5 rangeMax=5 paletteName="Purple-Orange" paletteProviderName="ColorBrewer"`
+
+This will create a pie chart visualization from the "log ratio" column, using the specified palette colors with a range from -5 to 5.
+
+`ov viz apply inner continuous attributes="log ratio" rangeMin=-5 rangeMax=5 colorMin="blue" colorMid="white" colorMax="red"`
+
+This will create a pie chart visualization from the "log ratio" column, using the specified colors with a range from -5 to 5.
+
 ## Viz apply inner discrete
 
 `ov viz apply inner discrete`
 
 Apply an inner visualization (pie charts) with a discrete mapping
+
+### Arguments
+
+- `attributes` **(required)** *String*
+
+  Name of the column that contains the data you want to visualize.
+  
+- `chartSettings` (optional) *String*
+
+  Comma separated list of enhancedGraphics settings.  
+  Here is how the string should be formatted: "setting1:value1,setting2:value2" e.g. "arcstart:0,arcdirection:counterclockwise"
+  
+- `colorMapping` (optional) *String*
+
+  Comma separated values of mappings value:color. Special characters in values must be escaped.
+
+- `filteredOnly` (optional) *boolean* Default: `true`
+
+  Use all the data (`false`) or only the filtered one (`true`)?
+  
+- `labels` (optional) *String*
+
+  Column name of the table that should be used to label the data. By default no label is displayed.
+  
+- `paletteName` (optional) *String*
+
+  Name of the palette to use as default colors. (See [ov palette list](#palette-list))
+  
+- `paletteProviderName` (optional) *String*
+
+  Name of the palette provider of the palette. (See [ov palette list](#palette-list))
+
+### Example
+
+`ov viz apply inner discrete attributes="cluster" colorMapping="A:blue,B:orange,C:red"`
+
+  This will create a pie chart visualization with the "cluster" column. The value "A" will be blue, "B" orange and "C" red. If there are more values in the "cluster" column, a default color from the default palette will be assigned.
 
 ## Viz apply outer continuous
 
