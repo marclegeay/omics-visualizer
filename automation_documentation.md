@@ -477,11 +477,117 @@ Apply an inner visualization (pie charts) with a discrete mapping
 
 Apply an outer visualization (donuts charts) with a continuous mapping
 
+### Arguments
+
+- `attributes` **(required)** *String*
+
+  Comma separated value list of attributes from the table you want to visualize the data. Special characters in the attributes must be escaped.
+  
+- `chartSettings` (optional) *String*
+
+  Comma separated list of enhancedGraphics settings.  
+  Here is how the string should be formatted: "setting1:value1,setting2:value2" e.g. "arcstart:0,arcdirection:counterclockwise"
+  
+- `colorMax` (optional) *String*
+
+  Color used in the gradient as the highest value.
+  
+- `colorMid` (optional) *String*
+
+  Color used in the gradient as the middle value.
+  
+- `colorMin` (optional) *String*
+
+  Color used in the gradient as the lowest value.
+  
+- `colorMissing` (optional) *String*
+
+  Color used for missing values.
+  
+- `filteredOnly` (optional) *boolean* Default: `true`
+
+  Use all the data (`false`) or only the filtered one (`true`)?
+  
+- `labels` (optional) *String*
+
+  Column name of the table that should be used to label the data. By default no label is displayed.
+  
+- `paletteName` (optional) *String*
+
+  Name of the palette to use as default colors. (See [ov palette list](#palette-list))
+  
+- `paletteProviderName` (optional) *String*
+
+  Name of the palette provider of the palette. (See [ov palette list](#palette-list))
+  
+- `rangeMax` (optional) *double*
+
+  Maximum value. Above this value, the same color will be applied.
+  
+- `rangeMid` (optional) *double*
+
+  Middle value. The colors will be a gradient from min to mid, and from mid to max.
+  
+- `rangeMin` (optional) *double*
+
+  Minimum value. Below this value, the same color will be applied.
+  
+- `transpose` (optional) *boolean* Default: `false`
+  
+  Should the ring represents a column (`false`) or a row (`true`)?
+
+### Example
+
+`ov viz apply outer continuous attributes="log1,log2,log3" rangeMin=-2 rangeMax=2`
+
+This will create a donut chart visualization with three rings: "log1", "log2", and "log3". The colors are automatically assigned according to the default palette with a range from -2 to 2.
+
 ## Viz apply outer discrete
 
 `ov viz apply outer discrete`
 
 Apply an outer visualization (donuts charts) with a discrete mapping
+
+### Arguments
+
+- `attributes` **(required)** *String*
+
+  Comma separated value list of attributes from the table you want to visualize the data. Special characters in the attributes must be escaped.
+  
+- `chartSettings` (optional) *String*
+
+  Comma separated list of enhancedGraphics settings.  
+  Here is how the string should be formatted: "setting1:value1,setting2:value2" e.g. "arcstart:0,arcdirection:counterclockwise"
+  
+- `colorMapping` (optional) *String*
+
+  Comma separated values of mappings value:color. Special characters in values must be escaped.
+
+- `filteredOnly` (optional) *boolean* Default: `true`
+
+  Use all the data (`false`) or only the filtered one (`true`)?
+  
+- `labels` (optional) *String*
+
+  Column name of the table that should be used to label the data. By default no label is displayed.
+  
+- `paletteName` (optional) *String*
+
+  Name of the palette to use as default colors. (See [ov palette list](#palette-list))
+  
+- `paletteProviderName` (optional) *String*
+
+  Name of the palette provider of the palette. (See [ov palette list](#palette-list))
+  
+- `transpose` (optional) *boolean* Default: `false`
+  
+  Should the ring represents a column (`false`) or a row (`true`)?
+
+### Example
+
+`ov viz apply outer discrete attributes="cluster1,cluster2"`
+
+This will create a donut chart visualization with two rings: the "cluster1" and "cluster2" values. The colors for each value will be automatically generated using the default palette.
 
 ## Viz remove inner
 
