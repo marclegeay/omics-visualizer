@@ -42,9 +42,9 @@ public class RetrieveStringNetworkTunableTask extends RetrieveStringNetworkTask 
 	@Tunable(description="Confidence (score) cutoff.",
 			required=false,
 			tooltip="Enter a value between 0.0 and 1.0 defining the confidence score the STRING network should have. Default: 0.40.",
-			exampleStringValue="Homo sapiens",
+			exampleStringValue="0.4",
 			gravity=1.0)
-	public String cutoff;
+	public Double cutoff;
 
 	public RetrieveStringNetworkTunableTask(OVManager ovManager) {
 		super(ovManager);
@@ -66,7 +66,7 @@ public class RetrieveStringNetworkTunableTask extends RetrieveStringNetworkTask 
 			this.setSpecies(species);
 		}
 		if(cutoff != null) {
-			this.setCutoff(cutoff);
+			this.setCutoff(cutoff.toString());
 		}
 		
 		super.run(taskMonitor);
