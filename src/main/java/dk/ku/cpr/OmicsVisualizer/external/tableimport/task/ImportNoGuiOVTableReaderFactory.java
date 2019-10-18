@@ -45,7 +45,7 @@ public class ImportNoGuiOVTableReaderFactory extends AbstractTaskFactory {
 
 	@Override
 	public TaskIterator createTaskIterator() {
-		final LoadOVTableReaderTask readerTask = new LoadOVTableReaderTask(this.ovManager.getServiceRegistrar());
+		final LoadOVTableReaderTask readerTask = new LoadOVTableReaderTask(this.ovManager);
 		
 		return new TaskIterator(new SelectFileOVTableTask(readerTask, this.ovManager.getServiceRegistrar()),
 				readerTask,

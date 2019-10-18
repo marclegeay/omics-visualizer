@@ -30,13 +30,14 @@ import org.cytoscape.io.read.CyTableReader;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.work.AbstractTask;
+import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.TaskMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 
-class AddImportedTableTask extends AbstractTask {
+class AddImportedTableTask extends AbstractTask implements ObservableTask {
 
 	private static Logger logger = LoggerFactory.getLogger(CyUserLog.NAME);
 
@@ -63,5 +64,11 @@ class AddImportedTableTask extends AbstractTask {
 			else
 				logger.warn("No tables in reader.");
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <R> R getResults(Class<? extends R> type) {
+		return (R) this.reader.getTables()[0].getTitle();
 	}
 }

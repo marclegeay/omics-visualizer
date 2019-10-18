@@ -26,7 +26,6 @@ package dk.ku.cpr.OmicsVisualizer.external.table;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.cytoscape.application.CyUserLog;
@@ -34,18 +33,16 @@ import org.cytoscape.io.read.CyTableReader;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.work.AbstractTask;
-import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.ProvidesTitle;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.Tunable;
 import org.cytoscape.work.TunableValidator;
-import org.cytoscape.work.json.JSONResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 
-public class ImportOVTableDataTask extends AbstractTask implements TunableValidator, ObservableTask {
+public class ImportOVTableDataTask extends AbstractTask implements TunableValidator {
 
 	private static final Logger logger = LoggerFactory.getLogger(CyUserLog.NAME);
 	
@@ -86,7 +83,7 @@ public class ImportOVTableDataTask extends AbstractTask implements TunableValida
 		this.mappedTables = new ArrayList<>();
 		
 		if (byReader) {
-			if (reader != null && reader.getTables() != null) {
+			if (newTableName == null && reader != null && reader.getTables() != null) {
 				newTableName = reader.getTables()[0].getTitle();
 			}
 		} else {
@@ -96,10 +93,11 @@ public class ImportOVTableDataTask extends AbstractTask implements TunableValida
 
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
-		addTable();
+		init();
+		addTable(taskMonitor);
 	}
 	
-	private void addTable(){
+	private void addTable(TaskMonitor taskMonitor){
 		final CyTableManager tableMgr = ovManager.getService(CyTableManager.class);
 		
 		if (byReader) {
@@ -129,19 +127,6 @@ public class ImportOVTableDataTask extends AbstractTask implements TunableValida
 			tableMgr.addTable(globalTable);
 			mappedTables.add(globalTable);
 		}
-	}
-
-	@Override
-	public List<Class<?>> getResultClasses() {	return Arrays.asList(CyTable.class, String.class, JSONResult.class);	}
-	@SuppressWarnings("unchecked")
-	@Override
-	public <R> R getResults(Class<? extends R> type) {
-		if (type.equals(CyTable.class)) 		return (R)"";
-		if (type.equals(String.class)) 		return (R)"";
-		if (type.equals(JSONResult.class)) {
-			@SuppressWarnings("unused")
-			JSONResult res = () -> {		return "{}";	};	}
-		return null;
 	}
 	
 	@Override

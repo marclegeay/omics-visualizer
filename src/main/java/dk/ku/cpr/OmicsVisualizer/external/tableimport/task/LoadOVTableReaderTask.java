@@ -16,7 +16,16 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.cytoscape.io.read.CyTableReader;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableFactory;
-import org.cytoscape.service.util.CyServiceRegistrar;
+import org.cytoscape.util.swing.IconManager;
+import org.cytoscape.view.model.CyNetworkView;
+import org.cytoscape.view.vizmap.VisualStyle;
+import org.cytoscape.work.AbstractTask;
+import org.cytoscape.work.ContainsTunables;
+import org.cytoscape.work.TaskMonitor;
+import org.cytoscape.work.Tunable;
+import org.cytoscape.work.TunableValidator;
+import org.cytoscape.work.util.ListSingleSelection;
+
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.reader.AttributeMappingParameters;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.reader.DefaultAttributeOVTableReader;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.reader.ExcelAttributeOVTableSheetReader;
@@ -28,17 +37,9 @@ import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.AttributeDataType;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.ImportType;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.SourceColumnSemantic;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.TypeUtil;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
-
-import org.cytoscape.util.swing.IconManager;
-import org.cytoscape.view.model.CyNetworkView;
-import org.cytoscape.view.vizmap.VisualStyle;
-import org.cytoscape.work.AbstractTask;
-import org.cytoscape.work.ContainsTunables;
-import org.cytoscape.work.TaskMonitor;
-import org.cytoscape.work.Tunable;
-import org.cytoscape.work.TunableValidator;
-import org.cytoscape.work.util.ListSingleSelection;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 
 /*
  * #%L
@@ -94,13 +95,13 @@ public class LoadOVTableReaderTask extends AbstractTask implements CyTableReader
 	         longDescription="The first row of the input table to load.  This allows the skipping of headers that are not part of the import.",
 	         exampleStringValue="10",
 	         context="both")
-	public int startLoadRow = -1;
+	public int startLoadRow = 1;
 	
 	@Tunable(description="First row used for column names", 
 	         longDescription="If the first imported row contains column names, set this to ```true```.",
 	         exampleStringValue="true",
 	         context="both")
-	public boolean firstRowAsColumnNames;
+	public boolean firstRowAsColumnNames=true;
 	
 	@Tunable(description="List of column data types ordered by column index (e.g. \"string,int,long,double,boolean,intlist\" or just \"s,i,l,d,b,il\")", 
 	         longDescription="List of column data types ordered by column index (e.g. \"string,int,long,double,boolean,intlist\" or just \"s,i,l,d,b,il\")",
@@ -115,10 +116,10 @@ public class LoadOVTableReaderTask extends AbstractTask implements CyTableReader
 			context="nogui")
 	public Character decimalSeparator;
 	
-	private final CyServiceRegistrar serviceRegistrar;
+	private final OVManager ovManager;
 
-	public LoadOVTableReaderTask(CyServiceRegistrar serviceRegistrar) {
-		this.serviceRegistrar = serviceRegistrar;
+	public LoadOVTableReaderTask(OVManager ovManager) {
+		this.ovManager = ovManager;
 		
 		List<String> tempList = new ArrayList<>();
 		tempList.add(TextDelimiter.PIPE.getDelimiter());
@@ -132,9 +133,9 @@ public class LoadOVTableReaderTask extends AbstractTask implements CyTableReader
 			final InputStream is,
 			final String fileType,
 			final String inputName,
-			final CyServiceRegistrar serviceRegistrar
+			final OVManager ovManager
 	) {
-		this(serviceRegistrar);
+		this(ovManager);
 		setInputFile(is, fileType, inputName);
 	}
 	
@@ -143,7 +144,7 @@ public class LoadOVTableReaderTask extends AbstractTask implements CyTableReader
 		this.inputName = inputName;
 		this.isStart = is;
 
-		previewPanel = new PreviewTablePanel(ImportType.TABLE_IMPORT, serviceRegistrar.getService(IconManager.class));
+		previewPanel = new PreviewTablePanel(ImportType.TABLE_IMPORT, ovManager.getService(IconManager.class));
 				
 		try {
 			File tempFile = File.createTempFile("temp", this.fileType);
@@ -328,11 +329,11 @@ public class LoadOVTableReaderTask extends AbstractTask implements CyTableReader
 			final Sheet sheet = workbook.getSheet(sourceName);
 			
 			if (sheet != null) {
-				reader = new ExcelAttributeOVTableSheetReader(sheet, amp, serviceRegistrar);
+				reader = new ExcelAttributeOVTableSheetReader(sheet, amp, ovManager.getServiceRegistrar());
 				loadAnnotation(tm);
 			}
 		} else {
-			reader = new DefaultAttributeOVTableReader(null, amp, this.isEnd, serviceRegistrar); 
+			reader = new DefaultAttributeOVTableReader(null, amp, this.isEnd, ovManager.getServiceRegistrar()); 
 			loadAnnotation(tm);
 		}
 	}
@@ -355,10 +356,23 @@ public class LoadOVTableReaderTask extends AbstractTask implements CyTableReader
 		final Class<?> pkType = OVShared.OVTABLE_COLID_TYPE;
 		
 		tm.setProgress(0.1);
+		
+		// ML: We try to see if tables were imported before, to initialize the numImports
+		for(OVTable table : ovManager.getOVTables()) {
+			if(table.getTitle().startsWith(OVShared.OVTABLE_DEFAULT_NAME)) {
+				int nb = Integer.parseInt(table.getTitle().substring(OVShared.OVTABLE_DEFAULT_NAME.length()));
+				if(nb > numImports) {
+					numImports = nb;
+				}
+			}
+		}
+		if(numImports < ovManager.getOVTables().size()) {
+			numImports = ovManager.getOVTables().size();
+		}
 
 		final CyTable table =
-				serviceRegistrar.getService(CyTableFactory.class).createTable(
-						"Omics Visualizer Table " + Integer.toString(numImports++),
+				ovManager.getService(CyTableFactory.class).createTable(
+						OVShared.OVTABLE_DEFAULT_NAME + Integer.toString(++numImports),
 			             pk, pkType, false, true);
 		
 		cyTables = new CyTable[] { table };

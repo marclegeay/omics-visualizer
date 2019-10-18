@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class SelectFileOVTableTask extends AbstractTask {
 	
 	@Tunable(description="Data table file", 
-	         longDescription="The path to the file that contains the table or network to be imported.",
+	         longDescription="The path to the file that contains the table to be imported.",
 	         exampleStringValue="myFile.csv",
 	         params="fileCategory=table;input=true", 
 	         required=true, 
