@@ -2,7 +2,7 @@
 
 Omics Visualizer version 1.2
 
-Last update: 2019-10-17
+Last update: 2019-10-18
 
 ## List of commands
 
@@ -210,13 +210,15 @@ Hide a legend
 
 `ov load`
 
-Load an Omics Visualizer table
+Load an Omics Visualizer table.  
+Returns the name of the newly imported OV table.
 
 ### Arguments
 
 - `dataTypeList` (optional) *String*
 
-   List of column data types ordered by column index (e.g. "string,int,long,double,boolean,intlist" or just "s,i,l,d,b,il")
+   List of column data types ordered by column index (e.g. "string,int,long,double,boolean,intlist" or just "s,i,l,d,b,il").  
+   If not given, the types will be automatically detected.
    
 - `decimalSeparator` (optional) *Character* Default: `'.'`
 
@@ -228,7 +230,7 @@ Load an Omics Visualizer table
    Must be one of:
    - `","`
    - `" "`
-   - `"TAB"`
+   - `"\t"`
    - `";"`
    
 - `delimitersForDataList` (optional) *Character* Default: `'|'`
@@ -259,6 +261,10 @@ Load an Omics Visualizer table
 
 ### Example
 
+`ov load file="/path/to/myfile.csv" newTableName="myData"`
+
+This loads the file "myfile.csv" into Omics Visualizer and create the corresponding table with the name "myData".
+
 ## Palette list
 
 `ov palette list`
@@ -269,7 +275,41 @@ List available palettes with their provider
 
 `ov retrieve`
 
-Retrieve a STRING network and connects it to the current table
+Retrieve a STRING network and connects it to the active OV table.
+
+### Arguments
+
+- `cutoff` (optional) *Double* Default: 0.4
+
+  Confidence (score) cutoff. Must be between 0.0 and 1.0.
+  
+- `filteredOnly` (optional) *boolean* Default: `true`
+
+  Only filtered rows should be used to the query?
+  
+- `queryColumn` **(required)** *String*
+
+  Column name of the Omics Visualizer Table.
+  
+- `selectedOnly` (optional) *boolean* Default: `false`
+
+  Only selected rows should be used to the query ?
+  
+- `species` (optional) *String*
+  
+  Name of the species to query.
+  
+- `taxonID` (optional) *int*
+
+  Identifier of the species to query.
+
+***Nota Bene:*** `species` and `taxonID` are optional, but at least one of them should be filled.
+
+### Example
+
+`ov retrieve queryColumn="UniProt" taxonID="9606"`
+
+This retrieves a STRING network for the active OV table. The query is made on UniProt values from the OV table for Human (taxon `9606`).
 
 ## Retrieve show
 
