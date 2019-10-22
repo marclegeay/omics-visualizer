@@ -50,9 +50,9 @@ public class CombineReaderAndMappingTask extends AbstractTask implements Tunable
 	private OVManager ovManager;
 
 	
-	public CombineReaderAndMappingTask(final CyTableReader tableReader, final OVManager ovManager) {
+	public CombineReaderAndMappingTask(final CyTableReader tableReader, final String tableName, final OVManager ovManager) {
 		this.tableReader = tableReader;
-		this.importTableDataTask = new ImportOVTableDataTask(tableReader, ovManager);
+		this.importTableDataTask = new ImportOVTableDataTask(tableReader, tableName, ovManager);
 		this.ovManager = ovManager;
 	}
 

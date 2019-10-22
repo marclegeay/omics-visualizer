@@ -57,7 +57,7 @@ abstract class AbstractLoadOVTableTask extends AbstractTask {
 		
 		if (combine) {
 			taskMonitor.setStatusMessage("Importing Data Table...");
-			insertTasksAfterCurrentTask(new CombineReaderAndMappingTask(reader, ovManager));
+			insertTasksAfterCurrentTask(new CombineReaderAndMappingTask(reader, name, ovManager));
 		} else {
 			taskMonitor.setStatusMessage("Loading Data Table...");
 			insertTasksAfterCurrentTask(

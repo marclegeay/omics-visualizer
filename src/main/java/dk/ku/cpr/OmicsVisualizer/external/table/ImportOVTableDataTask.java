@@ -64,10 +64,11 @@ public class ImportOVTableDataTask extends AbstractTask implements TunableValida
 	@ProvidesTitle
 	public String getTitle() {		return "Import Data";	}
 
-	public ImportOVTableDataTask(final CyTableReader reader, final OVManager ovManager) {
+	public ImportOVTableDataTask(final CyTableReader reader, String tableName, final OVManager ovManager) {
 		this.reader = reader;
 		this.ovManager = ovManager;
 		this.byReader = true;
+		this.newTableName=tableName;
 		init();
 	}
 
@@ -89,6 +90,33 @@ public class ImportOVTableDataTask extends AbstractTask implements TunableValida
 		} else {
 			newTableName = globalTable.getTitle();
 		}
+		
+		// We check if the tableName is unique
+		checkName();
+	}
+	
+	private void checkName() {
+		if(newTableName != null) {
+			checkName(0);
+		}
+	}
+	
+	private void checkName(int num) {
+		final CyTableManager tableMgr = ovManager.getService(CyTableManager.class);
+		
+		String tableName = newTableName;
+		if(num > 0) {
+			tableName += " (" + num + ")";
+		}
+
+		for (CyTable table : tableMgr.getGlobalTables()) {
+			if (table.getTitle().equals(tableName)) {
+				checkName(num+1);
+				return;
+			}
+		}
+		
+		newTableName = tableName;
 	}
 
 	@Override
@@ -136,7 +164,7 @@ public class ImportOVTableDataTask extends AbstractTask implements TunableValida
 
 		for (CyTable table : tableMgr.getGlobalTables()) {
 			try {
-				if (table.getTitle().matches(newTableName)) {
+				if (table.getTitle().equals(newTableName)) {
 					errMsg.append(
 							"There already exists a table with name: " + newTableName
 							+ ". Please select another table name.\n");

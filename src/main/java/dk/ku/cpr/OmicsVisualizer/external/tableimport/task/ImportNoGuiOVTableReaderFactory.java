@@ -49,7 +49,7 @@ public class ImportNoGuiOVTableReaderFactory extends AbstractTaskFactory {
 		
 		return new TaskIterator(new SelectFileOVTableTask(readerTask, this.ovManager.getServiceRegistrar()),
 				readerTask,
-				new ImportOVTableDataTask(readerTask, ovManager),
+				new ImportOVTableDataTask(readerTask, null, ovManager),
 				new AddImportedTableTask(readerTask, ovManager));
 	}
 }
