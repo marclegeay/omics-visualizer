@@ -122,6 +122,7 @@ public class RetrieveStringNetworkTask extends AbstractTask implements TaskObser
 		}
 		args.put("cutoff", this.protected_cutoff);
 		args.put("limit", "0");
+		args.put("newNetName", ovTable.getTitle());
 
 		// We call the STRING command
 		StringCommandTaskFactory factory = new StringCommandTaskFactory(this.ovManager, OVShared.STRING_CMD_PROTEIN_QUERY, args, this);
