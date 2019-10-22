@@ -91,7 +91,7 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 	private void initForm() {
 		this.title = new JTextField(OVLegend.DEFAULT_TITLE);
 		this.font = new JComboBox<>(OVShared.getAvailableFontNames());
-		this.font.setSelectedItem(OVLegend.DEFAULT_FONT.getFontName());
+		this.font.setSelectedItem(OVLegend.DEFAULT_FONT.getFamily());
 		this.fontSize = new JTextField(String.valueOf(OVLegend.DEFAULT_FONT_SIZE));
 		this.position = new JComboBox<>(LegendPosition.values());
 		this.position.addActionListener(this);
@@ -274,9 +274,9 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
 		buttonPanel.add(this.closeButton);
-		buttonPanel.add(this.showButton);
-		buttonPanel.add(this.hideButton);
 		buttonPanel.add(this.clearButton);
+		buttonPanel.add(this.hideButton);
+		buttonPanel.add(this.showButton);
 
 		this.setContentPane(new JPanel());
 		this.setLayout(new BorderLayout());
