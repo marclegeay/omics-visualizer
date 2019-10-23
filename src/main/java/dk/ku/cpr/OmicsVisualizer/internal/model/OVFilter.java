@@ -64,6 +64,10 @@ public abstract class OVFilter implements Serializable {
 		return (o instanceof OVFilter) ? (OVFilter)o : null;
 	}
 	
+	/**
+	 * Returns the string representation of the filter.
+	 * @return The filter as a string.
+	 */
 	@Override
 	public abstract String toString();
 	

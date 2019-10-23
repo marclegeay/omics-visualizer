@@ -51,7 +51,6 @@ public class CyActivator extends AbstractCyActivator {
 
 	@Override
 	public void start(BundleContext context) throws Exception {
-		System.out.println("\n\n");
 		System.out.println("[OV] Starting Omics Visualizer App !");
 
 		final CyServiceRegistrar serviceRegistrar = getService(context, CyServiceRegistrar.class);

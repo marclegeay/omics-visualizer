@@ -48,9 +48,6 @@ public class OVShared {
 	/** Prefix of the properties specific to Omics Visualizer. */
 	public static final String OVPROPERTY_NAME = "OmicsVisualizer";
 	
-//	public static final String PROPERTY_LINKED_NETWORK = OV_PREFIX+"linked_network";
-//	public static final String PROPERTY_MAPPING_OV_CY = OV_PREFIX+"OV_to_CyNetwork";
-//	public static final String PROPERTY_MAPPING_CY_OV = OV_PREFIX+"CyNetwork_to_OV";
 	/** Name of the property storing the filter of a table */
 	public static final String PROPERTY_FILTER = OV_PREFIX+"filter";
 
@@ -118,13 +115,6 @@ public class OVShared {
 	 * @param cyTable The Cytoscape node table.
 	 */
 	public static void deleteOVColumns(CyTable cyTable) {
-//		for(Iterator<CyColumn> cycolIt = cyTable.getColumns().iterator(); cycolIt.hasNext();) {
-//			CyColumn cycol = cycolIt.next();
-//			
-//			if(cycol.getName().startsWith(OVShared.CYNODETABLE_VIZCOL)) {
-//				cyTable.deleteColumn(cycol.getName());
-//			}
-//		}
 		for(Iterator<CyColumn> cyColIt = cyTable.getColumns(OV_COLUMN_NAMESPACE).iterator(); cyColIt.hasNext() ; ) {
 			CyColumn cyCol = cyColIt.next();
 			
@@ -147,13 +137,6 @@ public class OVShared {
 			prefix = OVShared.CYNODETABLE_INNERVIZCOL;
 		}
 		
-//		for(Iterator<CyColumn> cycolIt = cyTable.getColumns().iterator(); cycolIt.hasNext();) {
-//			CyColumn cycol = cycolIt.next();
-//			
-//			if(cycol.getName().startsWith(prefix)) {
-//				cyTable.deleteColumn(cycol.getName());
-//			}
-//		}
 		for(Iterator<CyColumn> cyColIt = cyTable.getColumns(OV_COLUMN_NAMESPACE).iterator(); cyColIt.hasNext() ; ) {
 			CyColumn cyCol = cyColIt.next();
 			
@@ -185,6 +168,10 @@ public class OVShared {
 		return collection.stream().map(Object::toString).collect(Collectors.joining(delimiter));
 	}
 	
+	/**
+	 * Returns the list of the font families available on the system.
+	 * @return The list of font families.
+	 */
 	public static String[] getAvailableFontNames() {
 		return GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
 	}

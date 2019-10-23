@@ -204,6 +204,11 @@ public class OVConnection {
 		return this.ovOuterViz;
 	}
 	
+	/**
+	 * Sets the legend associated to this connection.
+	 * @param ovLegend The legend.
+	 * @see OVLegend
+	 */
 	public void setLegend(OVLegend ovLegend) {
 		this.ovLegend=ovLegend;
 
@@ -222,6 +227,11 @@ public class OVConnection {
 		}
 	}
 	
+	/**
+	 * Returns the saved legend.
+	 * @return The legend.
+	 * @see OVLegend
+	 */
 	public OVLegend getLegend() {
 		return this.ovLegend;
 	}
