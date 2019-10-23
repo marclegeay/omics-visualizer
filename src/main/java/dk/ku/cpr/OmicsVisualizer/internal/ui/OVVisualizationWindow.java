@@ -259,6 +259,14 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		LookAndFeelUtil.equalizeSize(this.cancelButton, this.nextButton, this.backButton, this.drawButton);
 	}
 	
+	private void initSelectDiscreteContinuous(boolean includeContinuous) {
+		this.selectDiscreteContinuous.removeAllItems();
+		if(includeContinuous) {
+			this.selectDiscreteContinuous.addItem(CONTINUOUS);
+		}
+		this.selectDiscreteContinuous.addItem(DISCRETE);
+	}
+	
 	private void displayPanel1() {
 		this.displayPanel1(false);
 	}
@@ -939,10 +947,13 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		if(valueType == String.class || valueType == Boolean.class) {
 			// No choice but discrete mapping
 			this.oldDC = (String) this.selectDiscreteContinuous.getSelectedItem();
-			this.selectDiscreteContinuous.setSelectedItem(OVVisualizationWindow.DISCRETE);
-			this.selectDiscreteContinuous.setEnabled(false);
-		} else if(!this.selectDiscreteContinuous.isEnabled()) {
-			this.selectDiscreteContinuous.setEnabled(true);
+//			this.selectDiscreteContinuous.setSelectedItem(OVVisualizationWindow.DISCRETE);
+//			this.selectDiscreteContinuous.setEnabled(false);
+			initSelectDiscreteContinuous(false);
+//		} else if(!this.selectDiscreteContinuous.isEnabled()) {
+//			this.selectDiscreteContinuous.setEnabled(true);
+		} else if (this.selectDiscreteContinuous.getItemCount() == 1) {
+			initSelectDiscreteContinuous(true);
 			this.selectDiscreteContinuous.setSelectedItem(this.oldDC);
 		}
 	}
@@ -1001,7 +1012,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			this.deleteButton.setEnabled(true);
 		} else {
 			this.selectChartLabels.setSelectedIndex(0);
-			this.selectDiscreteContinuous.setSelectedIndex(0);
+//			this.selectDiscreteContinuous.setSelectedIndex(0);
+			this.initSelectDiscreteContinuous(true);
 			this.checkValueTypes();
 			
 			this.borderWidth.setText(EGSettings.BORDER_WIDTH_DEFAULT);
