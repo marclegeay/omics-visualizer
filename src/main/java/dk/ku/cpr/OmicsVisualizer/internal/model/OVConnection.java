@@ -13,7 +13,7 @@ import org.cytoscape.model.CyTable;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CySubNetwork;
 
-import dk.ku.cpr.OmicsVisualizer.internal.task.HideLegendTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.DeleteLegendTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveVisualizationTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 
@@ -492,7 +492,7 @@ public class OVConnection {
 		
 		// We erase the Legend
 		if(this.getLegend() != null) {
-			HideLegendTaskFactory factory = new HideLegendTaskFactory(ovManager);
+			DeleteLegendTaskFactory factory = new DeleteLegendTaskFactory(ovManager);
 			this.ovManager.executeTask(factory.createTaskIterator());
 		}
 		

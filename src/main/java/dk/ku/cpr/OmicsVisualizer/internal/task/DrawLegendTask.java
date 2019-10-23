@@ -329,15 +329,6 @@ public class DrawLegendTask extends AbstractTask {
 				annotManager.removeAnnotation(annot);
 			}
 		}
-
-		// ---------------------------------
-		// We check if the Legend is visible
-		// ---------------------------------
-		
-		if(!this.ovLegend.isVisible()) {
-			taskMonitor.showMessage(Level.WARN, "The legend is not visible, it will not be drawn.");
-			return;
-		}
 		
 		// ----------------------------------
 		// Then we create the specific panels

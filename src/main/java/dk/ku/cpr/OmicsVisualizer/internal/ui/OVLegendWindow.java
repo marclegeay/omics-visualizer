@@ -24,7 +24,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVLegend.OVLegendOrientation;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.task.DrawLegendTaskFactory;
-import dk.ku.cpr.OmicsVisualizer.internal.task.HideLegendTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.DeleteLegendTaskFactory;
 
 public class OVLegendWindow extends OVWindow implements ActionListener {
 	private static final long serialVersionUID = -5817928941762399915L;
@@ -48,7 +48,6 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 	private JButton closeButton;
 	private JButton showButton;
 	private JButton hideButton;
-	private JButton clearButton;
 	
 	private static final String CREATE_TEXT = "Create legend";
 	private static final String RELOAD_TEXT = "Reload legend";
@@ -78,12 +77,8 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 		
 		this.hideButton = new JButton("Delete legend");
 		this.hideButton.addActionListener(this);
-		
-		this.clearButton = new JButton("Clear");
-		this.clearButton.addActionListener(this);
 
-		LookAndFeelUtil.equalizeSize(this.closeButton, this.clearButton);
-		LookAndFeelUtil.equalizeSize(this.showButton, this.hideButton);
+		LookAndFeelUtil.equalizeSize(this.closeButton, this.showButton, this.hideButton);
 		
 		this.setResizable(true);
 	}
@@ -98,6 +93,15 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 		this.alignmentH = new JComboBox<>(LegendHAlignment.values());
 		this.alignmentV = new JComboBox<>(LegendVAlignment.values());
 		this.orientation = new JComboBox<>(OVLegendOrientation.values());
+
+		if(this.position.getSelectedItem().equals(LegendPosition.NORTH)
+				|| this.position.getSelectedItem().equals(LegendPosition.SOUTH)) {
+			this.alignmentH.setVisible(true);
+			this.alignmentV.setVisible(false);
+		} else {
+			this.alignmentH.setVisible(false);
+			this.alignmentV.setVisible(true);
+		}
 	}
 	
 	private JPanel getVizPanel() {
@@ -251,6 +255,8 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 			this.includeOuterViz.setSelected(this.includeOuterViz.isEnabled());
 		}
 		
+		this.hideButton.setEnabled(ovCon != null && ovCon.getLegend() != null);
+		
 		// -----------
 		// Init panels
 		// -----------
@@ -274,7 +280,6 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
 		buttonPanel.add(this.closeButton);
-		buttonPanel.add(this.clearButton);
 		buttonPanel.add(this.hideButton);
 		buttonPanel.add(this.showButton);
 
@@ -299,7 +304,6 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 		this.orientation.setEnabled(enabled);
 		
 		this.showButton.setEnabled(enabled);
-		this.clearButton.setEnabled(enabled);
 		
 		// -----------------
 		// Pack and position
@@ -374,13 +378,14 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 			
 			this.setVisible(false);
 		} else if(e.getSource() == this.hideButton) {
-			this.ovCon.getLegend().setVisible(false);
-			this.ovCon.setLegend(this.ovCon.getLegend()); // We force the legend to be saved
-			
-			HideLegendTaskFactory legendFactory = new HideLegendTaskFactory(ovManager);
-			ovManager.executeTask(legendFactory.createTaskIterator());
-		} else if(e.getSource() == this.clearButton) {
-			this.init(this.ovCon, true);
+			if(JOptionPane.showConfirmDialog(this, "Delete the legend applied to the network \"" + this.ovCon.getCollectionNetworkName() + "\"?", "Legend deletion confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				this.ovCon.setLegend(null);
+				
+				DeleteLegendTaskFactory legendFactory = new DeleteLegendTaskFactory(ovManager);
+				ovManager.executeTask(legendFactory.createTaskIterator());
+				
+				this.setVisible(false);
+			}
 		} else if(e.getSource() == this.position) {
 			if(this.position.getSelectedItem().equals(LegendPosition.NORTH)
 					|| this.position.getSelectedItem().equals(LegendPosition.SOUTH)) {

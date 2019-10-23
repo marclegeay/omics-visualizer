@@ -26,7 +26,6 @@ public class OVLegend implements Serializable {
 	 * The font size is {@link #DEFAULT_FONT_SIZE}. */
 	public static final Font DEFAULT_FONT = Font.decode(Font.SANS_SERIF).deriveFont(Font.PLAIN, DEFAULT_FONT_SIZE);
 	
-	private boolean visible;
 	private OVVisualization innerViz;
 	private OVVisualization outerViz;
 	private String title;
@@ -36,7 +35,7 @@ public class OVLegend implements Serializable {
 	private OVLegendOrientation orientation;
 	
 	/**
-	 * Creates a legend. By default a legend is visible, if you want to create a hidden legend, you should use {@link #setVisible(boolean)} to hide it.
+	 * Creates a legend.
 	 * @param innerViz The inner visualization to put in the legend. <code>null</code> if the visualization should not be in the legend.
 	 * @param outerViz The outer visualization to put in the legend. <code>null</code> if the visualization should not be in the legend.
 	 * @param title The title of the legend. An empty title will not be displayed.
@@ -46,7 +45,6 @@ public class OVLegend implements Serializable {
 	 * @param orientation The orientation of the legend.
 	 */
 	public OVLegend(OVVisualization innerViz, OVVisualization outerViz, String title, String fontName, int fontSize, OVLegendPosition position, OVLegendOrientation orientation) {
-		this.visible=true;
 		this.innerViz=innerViz;
 		this.outerViz=outerViz;
 		this.title=title;
@@ -58,22 +56,6 @@ public class OVLegend implements Serializable {
 		if(Arrays.asList(OVShared.getAvailableFontNames()).contains(fontName)) {
 			this.font = Font.decode(fontName).deriveFont(Font.PLAIN, this.fontSize);
 		}
-	}
-
-	/**
-	 * Returns <code>true</code> if the legend is visible, <code>false</code> otherwise.
-	 * @return <code>true</code> if the legend is visible.
-	 */
-	public boolean isVisible() {
-		return visible;
-	}
-	
-	/**
-	 * Sets if the legend should be visible or not.
-	 * @param visible The visibility of the legend.
-	 */
-	public void setVisible(boolean visible) {
-		this.visible = visible;
 	}
 	
 	/**

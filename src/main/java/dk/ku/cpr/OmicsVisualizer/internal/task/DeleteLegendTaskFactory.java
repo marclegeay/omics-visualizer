@@ -5,18 +5,18 @@ import org.cytoscape.work.TaskIterator;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 
-public class HideLegendTaskFactory extends AbstractTaskFactory {
+public class DeleteLegendTaskFactory extends AbstractTaskFactory {
 	
 	private OVManager ovManager;
 
-	public HideLegendTaskFactory(OVManager ovManager) {
+	public DeleteLegendTaskFactory(OVManager ovManager) {
 		super();
 		this.ovManager = ovManager;
 	}
 
 	@Override
 	public TaskIterator createTaskIterator() {
-		return new TaskIterator(new HideLegendTask(ovManager));
+		return new TaskIterator(new DeleteLegendTask(ovManager));
 	}
 
 }

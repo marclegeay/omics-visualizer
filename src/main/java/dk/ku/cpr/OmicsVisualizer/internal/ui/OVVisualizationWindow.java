@@ -175,7 +175,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		this.iconManager = this.ovManager.getService(IconManager.class);
 
 		// Both panels
-		this.cancelButton = new JButton("Cancel");
+		this.cancelButton = new JButton("Close");
 		this.cancelButton.addActionListener(this);
 
 		// Panel 1 - chart properties
@@ -1133,14 +1133,16 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				this.ovManager.executeSynchronousTask(factory.createTaskIterator());
 
 				OVLegend legend = this.ovCon.getLegend();
-				if(legend != null && legend.isVisible()) {
+				if(legend != null) {
+					// First we update the Legend
+					if(this.chartType.equals(ChartType.CIRCOS)) {
+						legend.setOuterVisualization(null);
+					} else { // PIE
+						legend.setInnerVisualization(null);
+					}
+					
+					// Then we ask if they want to update the legend visualization
 					if(JOptionPane.showConfirmDialog(this, "Update the legend?", "Update legend", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-						if(this.chartType.equals(ChartType.CIRCOS)) {
-							legend.setOuterVisualization(null);
-						} else { // PIE
-							legend.setInnerVisualization(null);
-						}
-						
 						// We update the view of the network only when creating, not deleting a legend
 						DrawLegendTaskFactory legendFactory = new DrawLegendTaskFactory(ovManager, legend, false);
 						ovManager.executeTask(legendFactory.createTaskIterator());
@@ -1311,7 +1313,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			
 			boolean updateLegend=false;
 			OVLegend legend = this.ovCon.getLegend();
-			if(legend != null && legend.isVisible()) {
+			if(legend != null) {
 				if(JOptionPane.showConfirmDialog(this, "Update the legend?", "Update legend", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 					if(this.chartType.equals(ChartType.CIRCOS)) {
 						legend.setOuterVisualization(ovViz);

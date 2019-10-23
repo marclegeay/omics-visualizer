@@ -30,7 +30,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.task.ConnectTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.DisconnectTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.DrawLegendTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.FilterTaskFactory;
-import dk.ku.cpr.OmicsVisualizer.internal.task.HideLegendTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.DeleteLegendTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ListPaletteTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.OperatorListTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveFilterTaskFactory;
@@ -436,7 +436,7 @@ public class CyActivator extends AbstractCyActivator {
 			
 			// Hide legend (Command-only)
 			{
-				HideLegendTaskFactory factory = new HideLegendTaskFactory(ovManager);
+				DeleteLegendTaskFactory factory = new DeleteLegendTaskFactory(ovManager);
 				Properties props = new Properties();
 				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(ServiceProperties.COMMAND, "legend hide");

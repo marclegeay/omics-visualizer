@@ -13,11 +13,11 @@ import org.cytoscape.work.TaskMonitor.Level;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 
-public class HideLegendTask extends AbstractTask {
+public class DeleteLegendTask extends AbstractTask {
 	
 	private OVManager ovManager;
 
-	public HideLegendTask(OVManager ovManager) {
+	public DeleteLegendTask(OVManager ovManager) {
 		super();
 		this.ovManager = ovManager;
 	}
