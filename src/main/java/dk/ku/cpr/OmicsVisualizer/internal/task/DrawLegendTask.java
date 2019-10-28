@@ -103,6 +103,17 @@ public class DrawLegendTask extends AbstractTask {
 			return tickAnnotations;
 		}
 		
+		NumberFormat numberFormatter = new DecimalFormat("#0.00");
+		boolean allInteger = true;
+		for(int t=0; t<tickValues.length; ++t) {
+			if((int)tickValues[t] != tickValues[t]) {
+				allInteger = false;
+			}
+		}
+		if(allInteger) {
+			numberFormatter = new DecimalFormat("#0"); // An integer format
+		}
+		
 		double lastPosition=-Double.MAX_VALUE;
 		double lastWidth=0; // in case of VERTICAL overlap
 		for(int f=0; f<fractions.length; ++f) {
@@ -121,10 +132,9 @@ public class DrawLegendTask extends AbstractTask {
 			double positionShift = 0; // if two legends are too close
 			
 			OVTextAnnotation tickLegend = new OVTextAnnotation(textFactory, networkView);
-			NumberFormat decimalFormatter = new DecimalFormat("#0.00");
 			tickLegend.setFont(this.ovLegend.getFont());
-			tickLegend.setText(decimalFormatter.format(tickValues[f]));
-			tickLegend.setName(decimalFormatter.format(tickValues[f]));
+			tickLegend.setText(numberFormatter.format(tickValues[f]));
+			tickLegend.setName(numberFormatter.format(tickValues[f]));
 			
 			if(this.ovLegend.getOrientation().equals(OVLegendOrientation.HORIZONTAL)) {
 				// The center of the legend should be align with the tick
@@ -406,9 +416,9 @@ public class DrawLegendTask extends AbstractTask {
 			if(outerViz.getValues().size() > 1) {
 				String captionSentence = "";
 				if(outerViz.isTranspose()) { // columns are slices
-					captionSentence = "The slices are ordered, from " + EGSettings.ArcStartValues.valueOfEG(outerViz.getEGSettings().get(EGSettings.ARC_START)) + " then " + outerViz.getEGSettings().get(EGSettings.ARC_DIRECTION) + ":";
+					captionSentence = "Slices (" + outerViz.getEGSettings().get(EGSettings.ARC_DIRECTION) + " starting at " + EGSettings.ArcStartValues.valueOfEG(outerViz.getEGSettings().get(EGSettings.ARC_START)) + "):";
 				} else { // columns are rings
-					captionSentence = "The rings are ordered, from inner to outer:";
+					captionSentence = "Rings (inner to outer):";
 				}
 
 				captionTexts.add(captionSentence);
