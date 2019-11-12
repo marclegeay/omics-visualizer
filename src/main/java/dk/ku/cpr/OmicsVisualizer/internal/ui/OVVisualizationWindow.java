@@ -11,6 +11,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -79,7 +81,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	/** Used when no palette is used and values are positive and negative */
 	private static final Color DEFAULT_MIN_COLOR = new Color(33,102,172);
 	/** Used when no palette is used and values are positive and negative */
-	private static final Color DEFAULT_ZERO_COLOR = Color.WHITE;
+	private static final Color DEFAULT_ZERO_COLOR = new Color(247,247,247);
 	/** Used when no palette is used and values are positive and negative */
 	private static final Color DEFAULT_MAX_COLOR = new Color(178,24,43);
 	/** Used when no palette is used and values are only positive */
@@ -102,6 +104,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	private static final int MAXIMUM_COLOR_DISPLAYED = 12;
 	
 	private static final int RANGE_COLS = 5; // Numbers of cols in rangeMin/Zero/Max
+	private static final int NUMBER_DECIMALS = 2;
 
 	private OVCytoPanel cytoPanel;
 
@@ -265,6 +268,14 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			this.selectDiscreteContinuous.addItem(CONTINUOUS);
 		}
 		this.selectDiscreteContinuous.addItem(DISCRETE);
+	}
+	
+	private static double round(double value, RoundingMode rm) {
+		BigDecimal bd = BigDecimal.valueOf(value);
+		
+		bd = bd.setScale(NUMBER_DECIMALS, rm);
+		
+		return bd.doubleValue();
 	}
 	
 	private void displayPanel1() {
@@ -489,7 +500,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 						// The values have the same sign
 						rangeMin = min;
 						rangeMax = max;
-						rangeZero = (max+min)/2;
+						rangeZero = round((max+min)/2, RoundingMode.HALF_EVEN);
 
 						if(max <= 0) { // Values all negatives
 							colorMin = DEFAULT_MIN_COLOR_NEG;
@@ -548,7 +559,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 						// The values have the same sign
 						rangeMin = min;
 						rangeMax = max;
-						rangeZero = (max+min)/2;
+						rangeZero = round((max+min)/2, RoundingMode.HALF_EVEN);
 
 						if(max <= 0) { // Values all negatives
 							colorMin = DEFAULT_MIN_COLOR_NEG;
@@ -605,9 +616,21 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 						noValue=true;
 					} else if((max <= 0) || (min >= 0)) {
 						// The values have the same sign
+						
+						// We round the values depending on their sign
+						if(max <= 0) {
+							// Negative values
+							min = round(min, RoundingMode.UP);
+							max = round(max, RoundingMode.DOWN);
+						} else {
+							// Positive values
+							min = round(min, RoundingMode.DOWN);
+							max = round(max, RoundingMode.UP);
+						}
+						
 						rangeMin = min;
 						rangeMax = max;
-						rangeZero = (max+min)/2;
+						rangeZero = round((max+min)/2, RoundingMode.HALF_EVEN);
 
 						if(max <= 0) { // Values all negatives
 							colorMin = DEFAULT_MIN_COLOR_NEG;
@@ -621,6 +644,10 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 						
 						this.paletteType = BrewerType.SEQUENTIAL;
 					} else {
+						// We round values
+						min = round(min, RoundingMode.UP);
+						max = round(max, RoundingMode.UP);
+						
 						// We detect the highest absolute value for the range
 						max = (max >= -min ? max : -min);
 						rangeMin = max * -1.0;
