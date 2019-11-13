@@ -2,7 +2,7 @@
 
 Omics Visualizer version 1.2
 
-Last update: 2019-10-18
+Last update: 2019-11-13
 
 ## List of commands
 
@@ -367,7 +367,7 @@ Apply an inner visualization (pie charts) with a continuous mapping
   
 - `chartSettings` (optional) *String*
 
-  Comma separated list of enhancedGraphics settings.  
+  Comma separated list of [enhancedGraphics settings](http://www.rbvi.ucsf.edu/cytoscape/utilities3/enhancedcg.shtml).  
   Here is how the string should be formatted: "setting1:value1,setting2:value2" e.g. "arcstart:0,arcdirection:counterclockwise"
   
 - `colorMax` (optional) *String*
@@ -442,7 +442,7 @@ Apply an inner visualization (pie charts) with a discrete mapping
   
 - `chartSettings` (optional) *String*
 
-  Comma separated list of enhancedGraphics settings.  
+  Comma separated list of [enhancedGraphics settings](http://www.rbvi.ucsf.edu/cytoscape/utilities3/enhancedcg.shtml).  
   Here is how the string should be formatted: "setting1:value1,setting2:value2" e.g. "arcstart:0,arcdirection:counterclockwise"
   
 - `colorMapping` (optional) *String*
@@ -485,7 +485,7 @@ Apply an outer visualization (donuts charts) with a continuous mapping
   
 - `chartSettings` (optional) *String*
 
-  Comma separated list of enhancedGraphics settings.  
+  Comma separated list of [enhancedGraphics settings](http://www.rbvi.ucsf.edu/cytoscape/utilities3/enhancedcg.shtml).  
   Here is how the string should be formatted: "setting1:value1,setting2:value2" e.g. "arcstart:0,arcdirection:counterclockwise"
   
 - `colorMax` (optional) *String*
@@ -556,7 +556,7 @@ Apply an outer visualization (donuts charts) with a discrete mapping
   
 - `chartSettings` (optional) *String*
 
-  Comma separated list of enhancedGraphics settings.  
+  Comma separated list of [enhancedGraphics settings](http://www.rbvi.ucsf.edu/cytoscape/utilities3/enhancedcg.shtml).  
   Here is how the string should be formatted: "setting1:value1,setting2:value2" e.g. "arcstart:0,arcdirection:counterclockwise"
   
 - `colorMapping` (optional) *String*
