@@ -20,6 +20,7 @@ public class OVColorContinuous implements OVColor, Serializable {
 	private double rangeMin;
 	private double rangeZero;
 	private double rangeMax;
+	private boolean missingUsed;
 
 	/**
 	 * Creates a Continuous mapping.
@@ -40,6 +41,7 @@ public class OVColorContinuous implements OVColor, Serializable {
 		this.rangeMin = rangeMin;
 		this.rangeZero = rangeMid;
 		this.rangeMax = rangeMax;
+		this.missingUsed = false;
 	}
 
 	/**
@@ -153,6 +155,14 @@ public class OVColorContinuous implements OVColor, Serializable {
 	public void setRangeMax(double rangeMax) {
 		this.rangeMax = rangeMax;
 	}
+	
+	/**
+	 * Is there missing values in the values?
+	 * @return if missing values are in the values
+	 */
+	public boolean isMissingUsed() {
+		return this.missingUsed;
+	}
 
 	@Override
 	public String toEnhancedGraphics(List<List<Object>> values, ChartType chartType) {
@@ -173,6 +183,15 @@ public class OVColorContinuous implements OVColor, Serializable {
 		
 		if(!values.isEmpty()) {
 			style += " valuelist=\"" + String.join(",", Collections.nCopies(values.get(0).size(), "1")) + "\"";
+		}
+		
+		// We look at missing values
+		System.out.println("[OVColorContinuous::toEnhancedGraphics()] initial missingUsed=" + this.missingUsed);
+		for(List<Object> vals : values) {
+			this.missingUsed |= vals.contains(null);
+			System.out.println("[OVColorContinuous::toEnhancedGraphics()] null missingUsed=" + this.missingUsed);
+			this.missingUsed |= vals.contains(Double.NaN);
+			System.out.println("[OVColorContinuous::toEnhancedGraphics()] NaN missingUsed=" + this.missingUsed);
 		}
 
 		return style;

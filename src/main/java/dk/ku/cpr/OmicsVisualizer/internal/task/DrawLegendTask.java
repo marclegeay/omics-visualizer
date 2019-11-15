@@ -232,6 +232,23 @@ public class DrawLegendTask extends AbstractTask {
 		// We add the gradientBox in the end to have more chances that the box has a greater Z-order
 		legendGroup.addAnnotation(gradientBox);
 		
+		// We add the missing value only if there is in the network
+		System.out.println("[DrawLegendTask::createContinuousLegend] isMissingUsed=" + ovColor.isMissingUsed());
+		if(ovColor.isMissingUsed()) {
+			OVShapeAnnotation box = createBorder(0, legendGroup.getHeight(), fontSize, fontSize);
+			box.setFillColor(ovColor.getMissing());
+			box.setName("missing color box");
+			
+			OVTextAnnotation boxLegend = new OVTextAnnotation(textFactory, networkView);
+			boxLegend.setFont(this.ovLegend.getFont());
+			boxLegend.setText("Missing value");
+			boxLegend.setName("Missing value");
+			boxLegend.setPosition(box.getWidth() + getMargin(), legendGroup.getHeight());
+
+			legendGroup.addAnnotation(box);
+			legendGroup.addAnnotation(boxLegend);
+		}
+		
 		return legendGroup;
 	}
 	
