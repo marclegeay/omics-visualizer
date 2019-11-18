@@ -34,6 +34,11 @@ public class DrawLegendTunableTask extends DrawLegendTask {
 			required=false,
 			gravity=1.0)
 	public String title=null;
+
+	@Tunable(description="Should the title be added to the legend? Default: false.",
+			required=false,
+			gravity=1.0)
+	public boolean showTitle=false;
 	
 	@Tunable(description="The font family.",
 			required=false,
@@ -107,7 +112,7 @@ public class DrawLegendTunableTask extends DrawLegendTask {
 			outerViz=null;
 		}
 		
-		this.ovLegend = new OVLegend(innerViz, outerViz, title, fontName, fontSize, OVLegendPosition.valueOf(position), OVLegendOrientation.valueOf(orientation));
+		this.ovLegend = new OVLegend(innerViz, outerViz, title, showTitle, fontName, fontSize, OVLegendPosition.valueOf(position), OVLegendOrientation.valueOf(orientation));
 		ovCon.setLegend(this.ovLegend);
 		
 		this.updateView = this.fitView;

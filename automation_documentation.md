@@ -189,6 +189,10 @@ Draw a legend
    - `"WEST_TOP"` the legend will be on the left of the network, aligned top
    - `"WEST_BOTTOM"` the legend will be on the left of the network, aligned bottom
    
+- `showTitle` (optional) *boolean* Default: `false`
+
+  Should the title be added to the legend?
+   
 - `title` (optional) *String* Default: the network name
 
   The title of the legend.  

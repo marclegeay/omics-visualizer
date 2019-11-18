@@ -15,9 +15,11 @@ import java.util.Base64;
  */
 public class OVLegend implements Serializable {
 	private static final long serialVersionUID = 7710730183176886983L;
-	
+
 	/** Default title given to a legend. */
 	public static final String DEFAULT_TITLE = "Legend";
+	/** By default, should the title be shown? */
+	public static final boolean DEFAULT_SHOW_TITLE = false;
 	/** Default font size. */
 	public static final int DEFAULT_FONT_SIZE = 22;
 	/** The default font.
@@ -29,6 +31,7 @@ public class OVLegend implements Serializable {
 	private OVVisualization innerViz;
 	private OVVisualization outerViz;
 	private String title;
+	private boolean showTitle;
 	private Font font;
 	private int fontSize;
 	private OVLegendPosition position;
@@ -39,15 +42,17 @@ public class OVLegend implements Serializable {
 	 * @param innerViz The inner visualization to put in the legend. <code>null</code> if the visualization should not be in the legend.
 	 * @param outerViz The outer visualization to put in the legend. <code>null</code> if the visualization should not be in the legend.
 	 * @param title The title of the legend. An empty title will not be displayed.
+	 * @param showTitle Should the title be displayed?
 	 * @param fontName The font family for the legend texts.
 	 * @param fontSize The font size.
 	 * @param position The position of the legend.
 	 * @param orientation The orientation of the legend.
 	 */
-	public OVLegend(OVVisualization innerViz, OVVisualization outerViz, String title, String fontName, int fontSize, OVLegendPosition position, OVLegendOrientation orientation) {
+	public OVLegend(OVVisualization innerViz, OVVisualization outerViz, String title, boolean showTitle, String fontName, int fontSize, OVLegendPosition position, OVLegendOrientation orientation) {
 		this.innerViz=innerViz;
 		this.outerViz=outerViz;
 		this.title=title;
+		this.showTitle=showTitle;
 		this.font=DEFAULT_FONT;
 		this.fontSize=fontSize;
 		this.position=position;
@@ -96,6 +101,14 @@ public class OVLegend implements Serializable {
 	 */
 	public String getTitle() {
 		return title;
+	}
+
+	/**
+	 * Returns if the title of the legend should be shown.
+	 * @return if the title is shown.
+	 */
+	public boolean isTitleShown() {
+		return showTitle;
 	}
 
 	/**

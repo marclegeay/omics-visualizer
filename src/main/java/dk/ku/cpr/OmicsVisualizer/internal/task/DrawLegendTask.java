@@ -368,7 +368,7 @@ public class DrawLegendTask extends AbstractTask {
 		double startY = 0.0;
 		
 		// Legend title
-		if(!this.ovLegend.getTitle().isEmpty()) {
+		if(this.ovLegend.isTitleShown() && !this.ovLegend.getTitle().isEmpty()) {
 			OVTextAnnotation legendTitle = new OVTextAnnotation(textFactory, networkView);
 			
 			legendTitle.setPosition(0.0, 0.0);

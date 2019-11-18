@@ -37,6 +37,7 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 	
 	// Legend panel
 	private JTextField title;
+	private JCheckBox showTitle;
 	private JComboBox<String> font;
 	private JTextField fontSize;
 	private JComboBox<LegendPosition> position;
@@ -85,6 +86,9 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 	
 	private void initForm() {
 		this.title = new JTextField(OVLegend.DEFAULT_TITLE);
+		this.showTitle = new JCheckBox("Show title");
+		this.showTitle.addActionListener(this);
+		this.showTitle.setSelected(OVLegend.DEFAULT_SHOW_TITLE);
 		this.font = new JComboBox<>(OVShared.getAvailableFontNames());
 		this.font.setSelectedItem(OVLegend.DEFAULT_FONT.getFamily());
 		this.fontSize = new JTextField(String.valueOf(OVLegend.DEFAULT_FONT_SIZE));
@@ -132,22 +136,33 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 		
 		legendPanel.add(new JLabel("Title:"), c);
 		legendPanel.add(this.title, c.nextCol());
+		legendPanel.add(this.showTitle, c.nextCol());
 		
 		legendPanel.add(new JLabel("Font:"), c.nextRow());
+		c.useNCols(2);
 		legendPanel.add(this.font, c.nextCol());
+		c.useNCols(1);
 		
 		legendPanel.add(new JLabel("Font size:"), c.nextRow());
+		c.useNCols(2);
 		legendPanel.add(this.fontSize, c.nextCol());
+		c.useNCols(1);
 		
 		legendPanel.add(new JLabel("Position:"), c.nextRow());
+		c.useNCols(2);
 		legendPanel.add(this.position, c.nextCol());
+		c.useNCols(1);
 		
 		legendPanel.add(new JLabel("Alignment:"), c.nextRow());
+		c.useNCols(2);
 		legendPanel.add(this.alignmentH, c.nextCol());
 		legendPanel.add(this.alignmentV, c); // we put them at the same place
+		c.useNCols(1);
 		
 		legendPanel.add(new JLabel("Orientation:"), c.nextRow());
+		c.useNCols(2);
 		legendPanel.add(this.orientation, c.nextCol());
+		c.useNCols(1);
 		
 		return legendPanel;
 	}
@@ -180,6 +195,7 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 			this.includeOuterViz.setSelected(this.includeOuterViz.isEnabled() && legend.isDrawOuter());
 			
 			this.title.setText(legend.getTitle());
+			this.showTitle.setSelected(legend.isTitleShown());
 			this.font.setSelectedItem(legend.getFont().getFamily());
 			this.fontSize.setText(String.valueOf(legend.getFontSize()));
 			
@@ -250,6 +266,7 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 			
 			// We put the name of the Network as the default title
 			this.title.setText(ovCon.getBaseNetwork().toString());
+			this.showTitle.setSelected(OVLegend.DEFAULT_SHOW_TITLE);
 			
 			this.includeInnerViz.setSelected(this.includeInnerViz.isEnabled());
 			this.includeOuterViz.setSelected(this.includeOuterViz.isEnabled());
@@ -295,7 +312,8 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 		
 		// Everything (except Close and Hide) should be disabled if there is no Viz
 		boolean enabled = this.ovCon.getInnerVisualization() != null || this.ovCon.getOuterVisualization() != null;
-		this.title.setEnabled(enabled);
+		this.title.setEnabled(enabled && this.showTitle.isSelected());
+		this.showTitle.setEnabled(enabled);
 		this.font.setEnabled(enabled);
 		this.fontSize.setEnabled(enabled);
 		this.position.setEnabled(enabled);
@@ -315,7 +333,9 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == this.closeButton) {
+		if(e.getSource() == this.showTitle) {
+			this.title.setEnabled(this.showTitle.isSelected());
+		} else if(e.getSource() == this.closeButton) {
 			this.setVisible(false);
 		} else if(e.getSource() == this.showButton) {
 			int intFontSize = 0;
@@ -364,6 +384,7 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 			OVLegend legend = new OVLegend(this.includeInnerViz.isSelected() ? this.ovCon.getInnerVisualization() : null,
 					this.includeOuterViz.isSelected() ? this.ovCon.getOuterVisualization() : null,
 					this.title.getText(),
+					this.showTitle.isSelected(),
 					(String) this.font.getSelectedItem(),
 					intFontSize,
 					ovPosition,
