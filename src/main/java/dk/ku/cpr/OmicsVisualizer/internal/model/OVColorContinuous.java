@@ -186,12 +186,9 @@ public class OVColorContinuous implements OVColor, Serializable {
 		}
 		
 		// We look at missing values
-		System.out.println("[OVColorContinuous::toEnhancedGraphics()] initial missingUsed=" + this.missingUsed);
 		for(List<Object> vals : values) {
 			this.missingUsed |= vals.contains(null);
-			System.out.println("[OVColorContinuous::toEnhancedGraphics()] null missingUsed=" + this.missingUsed);
 			this.missingUsed |= vals.contains(Double.NaN);
-			System.out.println("[OVColorContinuous::toEnhancedGraphics()] NaN missingUsed=" + this.missingUsed);
 		}
 
 		return style;

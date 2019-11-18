@@ -233,7 +233,6 @@ public class DrawLegendTask extends AbstractTask {
 		legendGroup.addAnnotation(gradientBox);
 		
 		// We add the missing value only if there is in the network
-		System.out.println("[DrawLegendTask::createContinuousLegend] isMissingUsed=" + ovColor.isMissingUsed());
 		if(ovColor.isMissingUsed()) {
 			OVShapeAnnotation box = createBorder(0, legendGroup.getHeight(), fontSize, fontSize);
 			box.setFillColor(ovColor.getMissing());
