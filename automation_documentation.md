@@ -6,13 +6,16 @@ Last update: 2019-11-13
 
 ## List of commands
 
+- [List filter operators](#filter-list-operators)
+- [List palettes](#palette-list)
 - [Version](#version)
 
 ### Manage tables
 
 - [Connect a table with a network](#connect)
 - [Disconnect](#disconnect)
-- [Filter](#filter)
+- [Apply a filter](#filter)
+- [Delete a filter](#filter-remove)
 - [Load](#load)
 - [Retrieve a STRING network](#retrieve)
 - [Delete a table](#table-delete)
@@ -63,17 +66,23 @@ Connect the current table with the current network
 
 This will link the active OV table with the current network. The OV table must have a column named `name` and the node table from the network must have a column named `gene name`. Those two columns are used to link the two tables.
 
+[List of commands](#list-of-commands) - [List of Manage tables commands](#manage-tables)
+
 ## Connect show
 
 `ov connect show`
 
 Show the connect window of the current table
 
+[List of commands](#list-of-commands) - [List of Access GUI dialogs commands](#access-gui-dialogs)
+
 ## Disconnect
 
 `ov disconnect`
 
 Disconnect the current table and the current network if they are already connected
+
+[List of commands](#list-of-commands) - [List of Manage tables commands](#manage-tables)
 
 ## Filter
 
@@ -107,6 +116,8 @@ Filters the row of an Omics Visualizer table
 
 This will select the rows where the p-value is lower or equals to 0.05 and the ontology is either from the Gene Ontology (contains "GO") or unknown (the value is null).
 
+[List of commands](#list-of-commands) - [List of Manage tables commands](#manage-tables)
+
 ## Filter list operators
 
 `ov filter list operators`
@@ -126,17 +137,23 @@ The list of current available operators is:
 - `NULL` (*String*, *boolean*, *numbers*) the table value should be null
 - `NOT_NULL` (*String*, *boolean*, *numbers*) the table value should not be null
 
+[List of commands](#list-of-commands)
+
 ## Filter remove
 
 `ov filter remove`
 
 Removes the filter of the active table
 
+[List of commands](#list-of-commands) - [List of Manage tables commands](#manage-tables)
+
 ## Filter show
 
 `ov filter show`
 
 Show the filter window of the current table
+
+[List of commands](#list-of-commands) - [List of Access GUI dialogs commands](#access-gui-dialogs)
 
 ## Legend draw
 
@@ -198,17 +215,21 @@ Draw a legend
   The title of the legend.  
   If you don't want any title, you give an empty title.
 
-## Example
+### Example
 
 `ov legend draw orientation="VERTICAL" position="EAST_TOP" title=""`
 
 This will generate a legend containing all the visualizations (inner and/or outer, if any) with no title. The legend will be drawned vertically at the right of the network, aligned with the top of it.
+
+[List of commands](#list-of-commands) - [List of Legends commands](#legends)
 
 ## Legend hide
 
 `ov legend hide`
 
 Hide a legend
+
+[List of commands](#list-of-commands) - [List of Legends commands](#legends)
 
 ## Load
 
@@ -269,11 +290,15 @@ Returns the name of the newly imported OV table.
 
 This loads the file "myfile.csv" into Omics Visualizer and create the corresponding table with the name "myData".
 
+[List of commands](#list-of-commands) - [List of Manage tables commands](#manage-tables)
+
 ## Palette list
 
 `ov palette list`
 
 List available palettes with their provider
+
+[List of commands](#list-of-commands)
 
 ## Retrieve
 
@@ -315,11 +340,15 @@ Retrieve a STRING network and connects it to the active OV table.
 
 This retrieves a STRING network for the active OV table. The query is made on UniProt values from the OV table for Human (taxon `9606`).
 
+[List of commands](#list-of-commands) - [List of Manage tables commands](#manage-tables)
+
 ## Retrieve show
 
 `ov retrieve show`
 
 Show the retrieve window of the current table
+
+[List of commands](#list-of-commands) - [List of Access GUI dialogs commands](#access-gui-dialogs)
 
 ## Table delete
 
@@ -327,11 +356,15 @@ Show the retrieve window of the current table
 
 Delete the active Omics Visualizer table
 
+[List of commands](#list-of-commands) - [List of Manage tables commands](#manage-tables)
+
 ## Table list
 
 `ov table list`
 
 Get the list of Omics Visualizer tables
+
+[List of commands](#list-of-commands) - [List of Manage tables commands](#manage-tables)
 
 ## Table set current
 
@@ -351,11 +384,15 @@ Set the current Omics Visualizer table
 
 This sets the OV table named "myData" as the active one.
 
+[List of commands](#list-of-commands) - [List of Manage tables commands](#manage-tables)
+
 ## Version
 
 `ov version`
 
 Returns the current version of the app
+
+[List of commands](#list-of-commands)
 
 ## Viz apply inner continuous
 
@@ -432,6 +469,8 @@ This will create a pie chart visualization from the "log ratio" column, using th
 
 This will create a pie chart visualization from the "log ratio" column, using the specified colors with a range from -5 to 5.
 
+[List of commands](#list-of-commands) - [List of Visualizations commands](#visualizations)
+
 ## Viz apply inner discrete
 
 `ov viz apply inner discrete`
@@ -474,6 +513,8 @@ Apply an inner visualization (pie charts) with a discrete mapping
 `ov viz apply inner discrete attributes="cluster" colorMapping="A:blue,B:orange,C:red"`
 
   This will create a pie chart visualization with the "cluster" column. The value "A" will be blue, "B" orange and "C" red. If there are more values in the "cluster" column, a default color from the default palette will be assigned.
+
+[List of commands](#list-of-commands) - [List of Visualizations commands](#visualizations)
 
 ## Viz apply outer continuous
 
@@ -546,6 +587,8 @@ Apply an outer visualization (donuts charts) with a continuous mapping
 
 This will create a donut chart visualization with three rings: "log1", "log2", and "log3". The colors are automatically assigned according to the default palette with a range from -2 to 2.
 
+[List of commands](#list-of-commands) - [List of Visualizations commands](#visualizations)
+
 ## Viz apply outer discrete
 
 `ov viz apply outer discrete`
@@ -593,11 +636,15 @@ Apply an outer visualization (donuts charts) with a discrete mapping
 
 This will create a donut chart visualization with two rings: the "cluster1" and "cluster2" values. The colors for each value will be automatically generated using the default palette.
 
+[List of commands](#list-of-commands) - [List of Visualizations commands](#visualizations)
+
 ## Viz remove inner
 
 `ov viz remove inner`
 
 Remove the inner Visualization (pie charts) of the current network
+
+[List of commands](#list-of-commands) - [List of Visualizations commands](#visualizations)
 
 ## Viz remove outer
 
@@ -605,14 +652,20 @@ Remove the inner Visualization (pie charts) of the current network
 
 Remove the outer Visualization (donuts charts) of the current network
 
+[List of commands](#list-of-commands) - [List of Visualizations commands](#visualizations)
+
 ## Viz show inner
 
 `ov viz show inner`
 
 Show the inner visualization (pie charts) window of the current table
 
+[List of commands](#list-of-commands) - [List of Access GUI dialogs commands](#access-gui-dialogs)
+
 ## Viz show outer
 
 `ov viz show outer`
 
 Show the outer visualization (donuts charts) window of the current table
+
+[List of commands](#list-of-commands) - [List of Access GUI dialogs commands](#access-gui-dialogs)
