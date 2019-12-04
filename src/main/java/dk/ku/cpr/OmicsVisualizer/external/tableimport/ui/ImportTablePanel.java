@@ -492,7 +492,6 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 		final ChangeListener decimalSeparatorChangeListener = new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent evt) {
-				System.out.println("[ImportTablePanel] stateChanged " + ((JRadioButton)evt.getSource()).getText());
 				otherDecimalSeparatorTextField.setEnabled(otherDecimalSeparatorRadioButton.isSelected());
 				
 				try {
