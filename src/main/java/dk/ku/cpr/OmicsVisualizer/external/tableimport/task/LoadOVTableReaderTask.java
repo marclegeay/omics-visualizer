@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -187,10 +188,6 @@ public class LoadOVTableReaderTask extends AbstractTask implements CyTableReader
 		tm.setProgress(0.0);
 		tm.setStatusMessage("Loading table...");
 		
-		if(decimalSeparator == null) {
-			decimalSeparator = AttributeMappingParameters.DEF_DECIMAL_SEPARATOR;
-		}
-		
 		List<String> attrNameList = new ArrayList<>();
 		int colCount;
 		String[] attributeNames;
@@ -204,6 +201,10 @@ public class LoadOVTableReaderTask extends AbstractTask implements CyTableReader
 					workbook == null) {
 				try {
 					workbook = WorkbookFactory.create(isStart);
+					
+					if(decimalSeparator == null) {
+						decimalSeparator = ((DecimalFormat)DecimalFormat.getInstance()).getDecimalFormatSymbols().getDecimalSeparator();
+					}
 				} catch (InvalidFormatException e) {
 					e.printStackTrace();
 					throw new IllegalArgumentException("Could not read Excel file.  Maybe the file is broken?");
@@ -221,6 +222,10 @@ public class LoadOVTableReaderTask extends AbstractTask implements CyTableReader
 			startLoadRow--;
 		
 		final int startLoadRowTemp = firstRowAsColumnNames ? 0 : startLoadRow;
+		
+		if(decimalSeparator == null) {
+			decimalSeparator = AttributeMappingParameters.DEF_DECIMAL_SEPARATOR;
+		}
 		
 		previewPanel.updatePreviewTable(
 				workbook,
