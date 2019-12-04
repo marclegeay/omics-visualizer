@@ -66,7 +66,7 @@ public class RetrieveStringNetworkTunableTask extends RetrieveStringNetworkTask 
 			this.setSpecies(species);
 		}
 		if(cutoff != null) {
-			this.setCutoff(cutoff.toString());
+			this.setCutoff(cutoff.doubleValue());
 		}
 		
 		super.run(taskMonitor);

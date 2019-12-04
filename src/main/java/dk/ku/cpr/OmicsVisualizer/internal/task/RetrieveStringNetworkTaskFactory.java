@@ -18,7 +18,7 @@ public class RetrieveStringNetworkTaskFactory extends AbstractTaskFactory {
 		return new TaskIterator(new RetrieveStringNetworkTunableTask(this.ovManager));
 	}
 	
-	public TaskIterator createTaskIterator(String queryColumn, boolean selectedOnly, boolean filteredOnly, Integer taxonID, String species, String cutoff) {
+	public TaskIterator createTaskIterator(String queryColumn, boolean selectedOnly, boolean filteredOnly, Integer taxonID, String species, double cutoff) {
 		RetrieveStringNetworkTask task = new RetrieveStringNetworkTask(this.ovManager);
 		
 		task.setQueryColumn(queryColumn);

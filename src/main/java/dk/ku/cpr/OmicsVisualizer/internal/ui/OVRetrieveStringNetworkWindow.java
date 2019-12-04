@@ -12,7 +12,9 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -65,7 +67,7 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 	private JSlider confidenceSlider;
 	private JTextField confidenceValue;
 	private boolean ignore = false;
-	NumberFormat formatter = new DecimalFormat("#0.00");
+	NumberFormat formatter;
 	
 	private JCheckBox filteredOnly;
 	private JCheckBox selectedOnly;
@@ -98,6 +100,11 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 		StringCommandTaskFactory factory = new StringCommandTaskFactory(this.ovManager, OVShared.STRING_CMD_LIST_SPECIES, null, this);
 		TaskIterator ti = factory.createTaskIterator();
 		this.ovManager.executeSynchronousTask(ti);
+		
+		// Init the NumberFormat to be 0.00 (with a dot)
+		DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+		dfs.setDecimalSeparator('.');
+		this.formatter = new DecimalFormat("#0.00", dfs);
 
 //		this.init();
 	}
@@ -148,7 +155,7 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 		{
 			confidenceValue = new JTextField(4);
 			confidenceValue.setHorizontalAlignment(JTextField.RIGHT);
-			confidenceValue.setText(new DecimalFormat("#0.00").format(((double)OVRetrieveStringNetworkWindow.defaultConfidence)/100.0));
+			confidenceValue.setText(this.formatter.format(((double)OVRetrieveStringNetworkWindow.defaultConfidence)/100.0));
 			c.nextCol().noExpand().setAnchor("C");//.setInsets(0,5,0,5);
 			confidencePanel.add(confidenceValue, c);
 
@@ -343,12 +350,17 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 			OVSpecies species = (OVSpecies) selectedSpecies;
 			
 			RetrieveStringNetworkTaskFactory factory = new RetrieveStringNetworkTaskFactory(this.ovManager);
-			this.ovManager.executeTask(factory.createTaskIterator((String)this.selectQuery.getSelectedItem(),
-					this.selectedOnly.isSelected(),
-					this.filteredOnly.isSelected(),
-					species.getTaxonID(),
-					species.getName(),
-					this.confidenceValue.getText()));
+			try {
+				this.ovManager.executeTask(factory.createTaskIterator((String)this.selectQuery.getSelectedItem(),
+						this.selectedOnly.isSelected(),
+						this.filteredOnly.isSelected(),
+						species.getTaxonID(),
+						species.getName(),
+						formatter.parse(this.confidenceValue.getText()).doubleValue()));
+			} catch (ParseException e1) {
+				inputError();
+				return;
+			}
 
 			// The task is executed in background, we don't want the window to be displayed
 			this.setVisible(false);

@@ -28,7 +28,7 @@ public class RetrieveStringNetworkTask extends AbstractTask implements TaskObser
 	protected boolean protected_filteredOnly;
 	protected Integer protected_taxonID;
 	protected String protected_species;
-	protected String protected_cutoff;
+	protected double protected_cutoff;
 
 	public RetrieveStringNetworkTask(OVManager ovManager) {
 		super();
@@ -39,7 +39,7 @@ public class RetrieveStringNetworkTask extends AbstractTask implements TaskObser
 		this.protected_filteredOnly=true;
 		this.protected_taxonID=null;
 		this.protected_species=null;
-		this.protected_cutoff="0.4";
+		this.protected_cutoff=0.4;
 	}
 
 	public void setQueryColumn(String queryColumn) {
@@ -62,7 +62,7 @@ public class RetrieveStringNetworkTask extends AbstractTask implements TaskObser
 		this.protected_species = species;
 	}
 
-	public void setCutoff(String cutoff) {
+	public void setCutoff(double cutoff) {
 		this.protected_cutoff = cutoff;
 	}
 	
@@ -120,7 +120,7 @@ public class RetrieveStringNetworkTask extends AbstractTask implements TaskObser
 		if(this.protected_species != null) {
 			args.put("species", this.protected_species);
 		}
-		args.put("cutoff", this.protected_cutoff);
+		args.put("cutoff", String.valueOf(this.protected_cutoff));
 		args.put("limit", "0");
 		args.put("newNetName", ovTable.getTitle());
 
