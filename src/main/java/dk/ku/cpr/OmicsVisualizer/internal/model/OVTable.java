@@ -530,7 +530,7 @@ public class OVTable {
 	public void save() {
 		Collection<String> visibleCols = this.getVisibleColumns();
 		Collection<String> cols = this.getColNames();
-		Integer index = new Integer(0);
+		Integer index = Integer.valueOf(0);
 		
 		for(String col : cols) {
 			String savedValue = index.toString()+","+visibleCols.contains(col);

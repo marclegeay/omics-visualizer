@@ -113,11 +113,11 @@ public class ApplyVisualizationTask extends AbstractTask {
 						nodeValues.add(val);
 					} else {
 						if(this.ovViz.getValuesType() == Integer.class) {
-							nodeValues.add(new Integer(0));
+							nodeValues.add(Integer.valueOf(0));
 						} else if(this.ovViz.getValuesType() == Long.class) {
-							nodeValues.add(new Long(0));
+							nodeValues.add(Long.valueOf(0));
 						} else if(this.ovViz.getValuesType() == Double.class) {
-							nodeValues.add(new Double(0.0));
+							nodeValues.add(Double.valueOf(0.0));
 						} else {
 							nodeValues.add("");
 						}

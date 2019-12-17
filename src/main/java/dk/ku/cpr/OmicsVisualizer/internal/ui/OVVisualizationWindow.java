@@ -777,11 +777,11 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 							values.add(val);
 						} else {
 							if(valueType == Integer.class) {
-								values.add(new Integer(0));
+								values.add(Integer.valueOf(0));
 							} else if(valueType == Long.class) {
-								values.add(new Long(0));
+								values.add(Long.valueOf(0));
 							} else if(valueType == Double.class) {
-								values.add(new Double(0.0));
+								values.add(Double.valueOf(0.0));
 							} else {
 								values.add("");
 							}
