@@ -23,21 +23,19 @@ import static dk.ku.cpr.OmicsVisualizer.external.tableimport.util.SourceColumnSe
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.swing.table.TableModel;
 
 import org.cytoscape.model.CyNetwork;
+
+import dk.ku.cpr.OmicsVisualizer.external.tableimport.ui.PreviewTablePanel.PreviewTableModel;
 
 /**
  *
@@ -223,6 +221,35 @@ public final class TypeUtil {
 
 		return types;
 	}
+	
+	// ML Excell Types
+	public static AttributeDataType[] guessSheetDataTypes(final PreviewTableModel model, Character decimalSeparator) {
+		if(!model.hasPredefinedTypes()) {
+			return guessDataTypes(model, decimalSeparator);
+		}
+		
+		// TODO LIST?
+
+		final AttributeDataType[] dataTypes = new AttributeDataType[model.getColumnCount()];
+		for (int col = 0; col < model.getColumnCount(); col++) {
+			Class<?> predefinedClass = model.getPredefinedColumnClass(col);
+			
+			if(predefinedClass == Double.class) {
+				dataTypes[col] = TYPE_FLOATING;
+			} else if(predefinedClass == Long.class) {
+				dataTypes[col] = TYPE_LONG;
+			} else if(predefinedClass == Integer.class) {
+				dataTypes[col] = TYPE_INTEGER;
+			} else if(predefinedClass == Boolean.class) {
+				dataTypes[col] = TYPE_BOOLEAN;
+			} else {
+				dataTypes[col] = TYPE_STRING;
+			}
+		}
+		
+		return dataTypes;
+	}
+	// END ML
 	
 	// ML: Custom decimal format
 	public static AttributeDataType[] guessDataTypes(final TableModel model, Character decimalSeparator) {

@@ -28,7 +28,6 @@ package dk.ku.cpr.OmicsVisualizer.external.tableimport.task;
 import java.io.InputStream;
 
 import org.cytoscape.io.CyFileFilter;
-import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.work.TaskIterator;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;

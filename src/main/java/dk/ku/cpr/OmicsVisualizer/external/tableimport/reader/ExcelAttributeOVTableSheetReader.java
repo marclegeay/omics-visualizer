@@ -25,12 +25,14 @@ package dk.ku.cpr.OmicsVisualizer.external.tableimport.reader;
  */
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -39,6 +41,8 @@ import org.cytoscape.model.CyTable;
 import org.cytoscape.service.util.CyServiceRegistrar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.AttributeDataType;
 
 /**
  * Reader for Excel attribute workbook.<br>
@@ -101,6 +105,50 @@ public class ExcelAttributeOVTableSheetReader implements TextTableReader {
 			globalCounter++;
 		}
 	}
+	
+	// ML
+	private String formatCell(Cell cell, AttributeDataType cellDT) {
+		if (cell == null) {
+			return "";
+		}
+		
+		int cellType = cell.getCellType();
+        if (cellType == Cell.CELL_TYPE_FORMULA) {
+            if (evaluator == null) {
+                return cell.getCellFormula();
+            }
+            cellType = evaluator.evaluateFormulaCell(cell);
+        }
+        switch (cellType) {
+            case Cell.CELL_TYPE_NUMERIC :
+            	if (DateUtil.isCellDateFormatted(cell)) {
+                    return formatter.formatCellValue(cell, evaluator);
+                }
+                BigDecimal val = BigDecimal.valueOf(cell.getNumericCellValue());
+
+                if(cellDT == AttributeDataType.TYPE_INTEGER) {
+                	return String.valueOf(val.intValue());
+                }
+                if(cellDT == AttributeDataType.TYPE_LONG) {
+                	return String.valueOf(val.longValue());
+                }
+                if(cellDT == AttributeDataType.TYPE_FLOATING) {
+                	return String.valueOf(val.doubleValue());
+                }
+                return val.toPlainString();
+
+            case Cell.CELL_TYPE_STRING :
+                return cell.getRichStringCellValue().getString();
+
+            case Cell.CELL_TYPE_BOOLEAN :
+                return String.valueOf(cell.getBooleanCellValue());
+            case Cell.CELL_TYPE_BLANK :
+                return "";
+        }
+        
+        return "";
+	}
+	// END ML
 
 	/**
 	 * For a given Excel row, convert the cells into String.
@@ -116,7 +164,10 @@ public class ExcelAttributeOVTableSheetReader implements TextTableReader {
 					(cell.getCellType() == Cell.CELL_TYPE_FORMULA && cell.getCachedFormulaResultType() == Cell.CELL_TYPE_ERROR)) {
 				cells[i] = null;
 			} else {
-				cells[i] = formatter.formatCellValue(cell, evaluator);
+				// ML
+//				cells[i] = formatter.formatCellValue(cell, evaluator);
+				cells[i] = formatCell(cell, mapping.getDataTypes()[i]);
+				// END ML
 			}
 		}
 

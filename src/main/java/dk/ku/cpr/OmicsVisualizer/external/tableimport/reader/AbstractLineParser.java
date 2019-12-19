@@ -106,7 +106,7 @@ public abstract class AbstractLineParser {
 				else if (type == TYPE_FLOATING_LIST) {
 					// Modification ML: Taking into account comma as decimal separator
 					try {
-						Double d = new Double(listItem.trim());
+						Double d = Double.valueOf(listItem.trim());
 						list.add(d);
 					} catch(NumberFormatException nfe) {
 						try {

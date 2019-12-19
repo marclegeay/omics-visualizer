@@ -80,7 +80,7 @@ public class AttributeDoubleIDMappingParametersHandler extends AbstractGUITunabl
 		panel = new JPanel(new BorderLayout());
 
 		try {
-			importTablePanel = new ImportTablePanel(dialogType, amp.is, amp.fileType, null, serviceRegistrar);
+			importTablePanel = new ImportTablePanel(dialogType, amp.is, amp.fileType, serviceRegistrar);
 		} catch (Exception e) {
 			final JLabel errorLabel = new JLabel(
 					"<html><h3>Error: Could not Initialize Preview.</h3>" +

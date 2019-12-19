@@ -49,13 +49,11 @@ import java.awt.Dialog.ModalityType;
 import java.awt.Insets;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
-import java.beans.IndexedPropertyChangeEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -64,7 +62,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -112,7 +109,6 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.CyUserLog;
 import org.cytoscape.application.swing.CySwingApplication;
-import org.cytoscape.io.read.InputStreamTaskFactory;
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
@@ -222,7 +218,6 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 
 	private Workbook workbook;
 
-	private final InputStreamTaskFactory factory;
 	private final CyServiceRegistrar serviceRegistrar;
 	private File tempFile;
 	
@@ -232,10 +227,8 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 			final ImportType importType,
 			final InputStream is,
 			final String fileType,
-			final InputStreamTaskFactory factory,
 			final CyServiceRegistrar serviceRegistrar
 	) throws JAXBException, IOException {
-		this.factory = factory;
 		this.serviceRegistrar = serviceRegistrar;
 		this.fileType = fileType;
 
@@ -316,27 +309,27 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 	 */
 	@Override
 	public void propertyChange(final PropertyChangeEvent evt) {
-		if (evt.getPropertyName().equals(ATTR_TYPE_CHANGED)) {
-			SourceColumnSemantic type = null;
-			int index = -1;
-			
-			if (evt instanceof IndexedPropertyChangeEvent) {
-				type = (SourceColumnSemantic) ((IndexedPropertyChangeEvent)evt).getNewValue();
-				index = ((IndexedPropertyChangeEvent)evt).getIndex();
-			}
-			
-			// Modification ML:
-//			// Update UI based on the primary key selection
-//			if (type == KEY && index >= 0 && importType != NETWORK_IMPORT) {
-//				getPreviewPanel().repaint();
-//	
-//				final JTable table = getPreviewPanel().getPreviewTable();
-//	
-//				// Update table view
-//				ColumnResizer.adjustColumnPreferredWidths(table);
-//				table.repaint();
+//		if (evt.getPropertyName().equals(ATTR_TYPE_CHANGED)) {
+//			SourceColumnSemantic type = null;
+//			int index = -1;
+//			
+//			if (evt instanceof IndexedPropertyChangeEvent) {
+//				type = (SourceColumnSemantic) ((IndexedPropertyChangeEvent)evt).getNewValue();
+//				index = ((IndexedPropertyChangeEvent)evt).getIndex();
 //			}
-		}
+//			
+//			// Modification ML:
+////			// Update UI based on the primary key selection
+////			if (type == KEY && index >= 0 && importType != NETWORK_IMPORT) {
+////				getPreviewPanel().repaint();
+////	
+////				final JTable table = getPreviewPanel().getPreviewTable();
+////	
+////				// Update table view
+////				ColumnResizer.adjustColumnPreferredWidths(table);
+////				table.repaint();
+////			}
+//		}
 	}
 
 	private void initComponents() {
@@ -730,7 +723,9 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 			}
 			
 			// ML: Custom decimal format
-			{
+			if(fileType == null || (!fileType.equalsIgnoreCase(SupportedFileType.EXCEL.getExtension())
+					&& !fileType.equalsIgnoreCase(SupportedFileType.OOXML.getExtension()))) {
+				// If this is an Excel sheet, we do not display the custom decimal separator
 				final JSeparator sep = new JSeparator();
 
 				hGroup
@@ -1078,7 +1073,6 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 	/**
 	 * Actions for selecting start line.
 	 */
-	@SuppressWarnings("unchecked")
 	private void startRowSpinnerMouseWheelMoved(MouseWheelEvent evt) {
 		JSpinner source = (JSpinner) evt.getSource();
 
@@ -1117,24 +1111,9 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 			otherDelimiterTextField.setEnabled(false);
 			
 			// ML: Custom decimal format
-			if(fileType != null && (fileType.equalsIgnoreCase(SupportedFileType.EXCEL.getExtension())
-					|| fileType.equalsIgnoreCase(SupportedFileType.OOXML.getExtension()))) {
-				// If this is an Excel sheet, we use the locale decimal separator
-				char localeDecimalSeparator = ((DecimalFormat)DecimalFormat.getInstance()).getDecimalFormatSymbols().getDecimalSeparator();
-				
-				if(localeDecimalSeparator == '.') {
-					dotDecimalSeparatorRadioButton.setSelected(true);
-				} else if (localeDecimalSeparator == ',') {
-					commaDecimalSeparatorRadioButton.setSelected(true);
-				} else {
-					otherDecimalSeparatorRadioButton.setSelected(true);
-					otherDecimalSeparatorTextField.setText(localeDecimalSeparator+"");
-				}
-			} else {
-				// Else we use the dot as default
-				dotDecimalSeparatorRadioButton.setSelected(true);
-				otherDecimalSeparatorTextField.setEnabled(false);
-			}
+			// We use the dot as default
+			dotDecimalSeparatorRadioButton.setSelected(true);
+			otherDecimalSeparatorTextField.setEnabled(false);
 			
 			if (importType != NETWORK_IMPORT)
 				updateMappingAttributeComboBox();
@@ -1211,8 +1190,6 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 			 * If this is not an Excel file, enable delimiter checkboxes.
 			 */
 			if (fileType != null) {
-				final FileType type = checkFileType();
-				
 				if (!isSpreadsheetFile()) {
 					nodeRadioButton.setEnabled(true);
 					edgeRadioButton.setEnabled(true);
@@ -1262,16 +1239,6 @@ public class ImportTablePanel extends JPanel implements PropertyChangeListener, 
 		otherDecimalSeparatorTextField.setEnabled(false);
 
 		getImportAllCheckBox().setEnabled(false);
-	}
-
-	private FileType checkFileType() {
-		if (importType == ONTOLOGY_IMPORT)
-			return FileType.CUSTOM_ANNOTATION_FILE;
-		
-		if (importType == NETWORK_IMPORT)
-			return FileType.NETWORK_FILE;
-
-		return FileType.ATTRIBUTE_FILE;
 	}
 
 	/**

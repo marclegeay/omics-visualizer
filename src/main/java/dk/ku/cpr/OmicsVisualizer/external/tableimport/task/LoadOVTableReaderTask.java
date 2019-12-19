@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,8 +17,6 @@ import org.cytoscape.io.read.CyTableReader;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.util.swing.IconManager;
-import org.cytoscape.view.model.CyNetworkView;
-import org.cytoscape.view.vizmap.VisualStyle;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.ContainsTunables;
 import org.cytoscape.work.TaskMonitor;
@@ -71,8 +68,6 @@ public class LoadOVTableReaderTask extends AbstractTask implements CyTableReader
 	private InputStream isStart;
 	private InputStream isEnd;
 	private String fileType;
-	protected CyNetworkView[] cyNetworkViews;
-	protected VisualStyle[] visualstyles;
 	private String inputName;
 	private PreviewTablePanel previewPanel;
 
@@ -111,8 +106,8 @@ public class LoadOVTableReaderTask extends AbstractTask implements CyTableReader
 	public String dataTypeList;
 	
 	// ML: Custom decimal format
-	@Tunable(description="Decimal character used in the decimal format",
-			longDescription="Character that separates the integer-part (characteristic) and the fractional-part (mantissa) of a decimal number. The default value is the dot \".\"",
+	@Tunable(description="Decimal character used in the decimal format in text files",
+			longDescription="Character that separates the integer-part (characteristic) and the fractional-part (mantissa) of a decimal number. This can only be used with text files. The default value is the dot \".\"",
 			exampleStringValue=".",
 			context="nogui")
 	public Character decimalSeparator;
@@ -202,9 +197,12 @@ public class LoadOVTableReaderTask extends AbstractTask implements CyTableReader
 				try {
 					workbook = WorkbookFactory.create(isStart);
 					
-					if(decimalSeparator == null) {
-						decimalSeparator = ((DecimalFormat)DecimalFormat.getInstance()).getDecimalFormatSymbols().getDecimalSeparator();
-					}
+					// ML
+					// In case of an Excel sheet, the reader will use String.valueOf() to format numbers
+					// In this case, the decimal separator does not depend on the Locale
+					// It is the dot
+					decimalSeparator = '.';
+					// END ML
 				} catch (InvalidFormatException e) {
 					e.printStackTrace();
 					throw new IllegalArgumentException("Could not read Excel file.  Maybe the file is broken?");
@@ -267,8 +265,7 @@ public class LoadOVTableReaderTask extends AbstractTask implements CyTableReader
 				}
 
 				if (!TypeUtil.allowsDuplicateName(ImportType.TABLE_IMPORT, types[i], types[dupIndex])) {
-//TODO add message to user
-					return;
+					throw new Exception("Duplicate column name \""+curName+"\".");
 				}
 			}
 

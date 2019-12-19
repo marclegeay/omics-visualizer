@@ -36,7 +36,7 @@ import org.cytoscape.work.Tunable;
 import org.cytoscape.work.swing.GUITunableHandler;
 import org.cytoscape.work.swing.GUITunableHandlerFactory;
 
-public class AttributeDoubleIDMappingParametersHandlerFactory implements GUITunableHandlerFactory {
+public class AttributeDoubleIDMappingParametersHandlerFactory implements GUITunableHandlerFactory<GUITunableHandler> {
 	
 	private final ImportType dialogType;
     private final CyServiceRegistrar serviceRegistrar;
