@@ -42,6 +42,24 @@ public class ApplyVisualizationTask extends AbstractTask {
 			cyTable.createListColumn(OVShared.OV_COLUMN_NAMESPACE, colName, valueType, false);
 		}
 	}
+	
+	private String escapeComma(String str) {
+		StringBuilder sb = new StringBuilder();
+		
+		for(int i=0; i<str.length(); ++i) {
+			char curChar = str.charAt(i);
+			
+			// If the current char is the escape character or the comma, we escape it
+			if(curChar == '\\' || curChar == ',') {
+				sb.append('\\');
+				sb.append('\\');
+				sb.append('\\');
+			}
+			sb.append(curChar);
+		}
+		
+		return sb.toString();
+	}
 
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
@@ -125,7 +143,7 @@ public class ApplyVisualizationTask extends AbstractTask {
 					
 				}
 				if(this.ovViz.getLabel() != null) {
-					nodeLabels += tableRow.get(this.ovViz.getLabel(), this.ovCon.getOVTable().getColType(this.ovViz.getLabel()));
+					nodeLabels +=  escapeComma(tableRow.get(this.ovViz.getLabel(), this.ovCon.getOVTable().getColType(this.ovViz.getLabel())).toString());
 					nodeLabels += ",";
 				}
 			}

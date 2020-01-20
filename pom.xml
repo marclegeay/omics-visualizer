@@ -75,7 +75,7 @@
 						<Embed-Dependency>poi|poi-ooxml|poi-ooxml-schemas|ooxml-schemas;groupId=org.apache.poi;inline=false</Embed-Dependency>
 						<Import-Package>junit.*|org.apache.poi.hdgf.*|org.apache.poi.hpbf.*|org.apache.poi.hslf.*|org.apache.poi.hsmf|org.apache.poi.hsmf.*|org.apache.poi.hwpf.*;resolution:=optional,*</Import-Package>
 						<DynamicImport-Package>*</DynamicImport-Package>
-						<Cytoscape-App-Dependencies>enhancedGraphics;1.5.0</Cytoscape-App-Dependencies>
+						<Cytoscape-App-Dependencies>enhancedGraphics;1.5.1</Cytoscape-App-Dependencies>
 					</instructions>
 				</configuration>
 			</plugin>
