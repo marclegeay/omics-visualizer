@@ -26,7 +26,7 @@ public class FilterTunableTask extends FilterTask {
 					+ "filter_list = filter,filter_list | filter<br>"
 					+ "criteria = (colName,operator,value)<br>"
 					+ "where 'colName' is the name of the column (commas in colName should be escaped by being preceeded a backslash)<br>"
-					+ "'operator' is the name of the operation applied, the list of operators is available with the command \"" + OVShared.OV_COMMAND_NAMESPACE + " operators\"<br>"
+					+ "'operator' is the name of the operation applied, the list of operators is available with the command \"" + OVShared.OV_COMMAND_NAMESPACE + " filter list operators\"<br>"
 					+ "'value' if necessary, is the value to compare with. Careful with the regex and escaped characters.",
 			tooltip="Define the filter that should be applied",
 			required=true,
