@@ -1,5 +1,6 @@
 package dk.ku.cpr.OmicsVisualizer.internal.task;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,12 +16,13 @@ import org.cytoscape.work.ProvidesTitle;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.TaskObserver;
+import org.cytoscape.work.json.JSONResult;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 
-public class RetrieveStringNetworkTask extends AbstractTask implements TaskObserver {
+public class RetrieveStringNetworkTask extends AbstractTask implements TaskObserver,ObservableTask {
 	protected OVManager ovManager;
 	
 	protected String protected_queryColumn;
@@ -29,6 +31,8 @@ public class RetrieveStringNetworkTask extends AbstractTask implements TaskObser
 	protected Integer protected_taxonID;
 	protected String protected_species;
 	protected double protected_cutoff;
+	
+	protected CyNetwork retrievedNetwork;
 
 	public RetrieveStringNetworkTask(OVManager ovManager) {
 		super();
@@ -127,20 +131,20 @@ public class RetrieveStringNetworkTask extends AbstractTask implements TaskObser
 		// We call the STRING command
 		StringCommandTaskFactory factory = new StringCommandTaskFactory(this.ovManager, OVShared.STRING_CMD_PROTEIN_QUERY, args, this);
 		TaskIterator ti = factory.createTaskIterator();
-		this.ovManager.executeTask(ti, this);
+		this.ovManager.executeSynchronousTask(ti, this);
 	}
 
 	@Override
 	public void taskFinished(ObservableTask task) {
 		if(task.getClass().getSimpleName().equals("ProteinQueryTask")) {
-			CyNetwork retrievedNetwork = task.getResults(CyNetwork.class);
+			this.retrievedNetwork = task.getResults(CyNetwork.class);
 			OVTable ovTable = this.ovManager.getActiveOVTable();
 			
 			if(ovTable == null) {
 				return;
 			}
 			
-			ovTable.connect(retrievedNetwork, "query term", this.protected_queryColumn);
+			ovTable.connect(this.retrievedNetwork, "query term", this.protected_queryColumn);
 			
 			if(this.ovManager.getOVCytoPanel() != null) {
 				this.ovManager.getOVCytoPanel().update();
@@ -151,5 +155,29 @@ public class RetrieveStringNetworkTask extends AbstractTask implements TaskObser
 	@Override
 	public void allFinished(FinishStatus finishStatus) {
 		//Do nothing
+	}
+
+	@SuppressWarnings("unchecked")
+	public <R> R getResults(Class<? extends R> clzz) {
+		if (clzz.equals(CyNetwork.class)) {
+			return (R) this.retrievedNetwork;
+		} else if (clzz.equals(Long.class)) {
+			if (this.retrievedNetwork == null)
+				return null;
+			return (R) this.retrievedNetwork.getSUID();
+		// We need to use the actual class rather than the interface so that
+		// CyREST can inspect it to find the annotations
+		} else if (clzz.equals(JSONResult.class)) {
+			return (R) ("{\"SUID\":"+this.retrievedNetwork.getSUID()+"}");
+		} else if (clzz.equals(String.class)) {
+			if (this.retrievedNetwork == null)
+				return (R) "No network was loaded";
+			return (R) this.retrievedNetwork.getSUID().toString();
+		}
+		return null;
+	}
+
+	public List<Class<?>> getResultClasses() {
+		return Arrays.asList(JSONResult.class, String.class, Long.class, CyNetwork.class);
 	}
 }

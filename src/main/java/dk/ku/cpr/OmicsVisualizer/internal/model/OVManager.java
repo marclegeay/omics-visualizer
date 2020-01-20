@@ -367,10 +367,19 @@ NetworkAddedListener {
 	/**
 	 * Executes a list of tasks in a synchronous way.
 	 * @param ti The list of tasks to execute.
+	 * @param to The class that listens to the result of the tasks.
+	 */
+	public void executeSynchronousTask(TaskIterator ti, TaskObserver to) {
+		SynchronousTaskManager<?> taskM = this.serviceRegistrar.getService(SynchronousTaskManager.class);
+		taskM.execute(ti, to);
+	}
+
+	/**
+	 * Executes a list of tasks in a synchronous way.
+	 * @param ti The list of tasks to execute.
 	 */
 	public void executeSynchronousTask(TaskIterator ti) {
-		SynchronousTaskManager<?> taskM = this.serviceRegistrar.getService(SynchronousTaskManager.class);
-		taskM.execute(ti);
+		this.executeSynchronousTask(ti, null);
 	}
 
 	/**
