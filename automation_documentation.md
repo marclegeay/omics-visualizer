@@ -2,7 +2,7 @@
 
 Omics Visualizer version 1.2
 
-Last update: 2019-11-13
+Last update: 2020-01-21
 
 ## List of commands
 
@@ -336,7 +336,7 @@ Retrieve a STRING network and connects it to the active OV table.
 
 ### Example
 
-`ov retrieve queryColumn="UniProt" taxonID="9606"`
+`ov retrieve queryColumn="UniProt" taxonID=9606`
 
 This retrieves a STRING network for the active OV table. The query is made on UniProt values from the OV table for Human (taxon `9606`).
 
