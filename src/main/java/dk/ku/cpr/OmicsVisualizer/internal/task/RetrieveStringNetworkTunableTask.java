@@ -25,16 +25,16 @@ public class RetrieveStringNetworkTunableTask extends RetrieveStringNetworkTask 
 			gravity=1.0)
 	public Boolean filteredOnly;
 
-	@Tunable(description="Identifier of the species to query.",
+	@Tunable(description="Identifier of the species to query. REQUIRED if 'species' is not used.",
 			required=false,
-			tooltip="You can put here the taxon identifier of the species you want to query. REQUIRED if 'species' is not used.",
+			tooltip="You can put here the taxon identifier of the species you want to query.",
 			exampleStringValue="9606",
 			gravity=1.0)
 	public Integer taxonID;
 
-	@Tunable(description="Name of the species to query.",
+	@Tunable(description="Name of the species to query. REQUIRED if 'taxonID' is not used.",
 			required=false,
-			tooltip="You can put here the name of the species you want to query. REQUIRED if 'taxonID' is not used.",
+			tooltip="You can put here the name of the species you want to query.",
 			exampleStringValue="Homo sapiens",
 			gravity=1.0)
 	public String species;
