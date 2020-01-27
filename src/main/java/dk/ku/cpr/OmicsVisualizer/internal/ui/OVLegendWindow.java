@@ -149,15 +149,11 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 		c.useNCols(1);
 		
 		legendPanel.add(new JLabel("Position:"), c.nextRow());
-		c.useNCols(2);
 		legendPanel.add(this.position, c.nextCol());
-		c.useNCols(1);
-		
-		legendPanel.add(new JLabel("Alignment:"), c.nextRow());
-		c.useNCols(2);
 		legendPanel.add(this.alignmentH, c.nextCol());
 		legendPanel.add(this.alignmentV, c); // we put them at the same place
-		c.useNCols(1);
+		// We make sure that both alignments have the same size
+		this.alignmentV.setPreferredSize(this.alignmentH.getPreferredSize());
 		
 		legendPanel.add(new JLabel("Color legend:"), c.nextRow());
 		c.useNCols(2);
