@@ -241,9 +241,9 @@ public class OVLegend implements Serializable {
 	 * The orientation of the legend elements.
 	 */
 	public enum OVLegendOrientation implements Serializable {
-		/** The legend elements are drawn vertically. */
-		VERTICAL,
 		/** The legend elements are drawn horizontally. */
-		HORIZONTAL
+		HORIZONTAL,
+		/** The legend elements are drawn vertically. */
+		VERTICAL
 	}
 }
