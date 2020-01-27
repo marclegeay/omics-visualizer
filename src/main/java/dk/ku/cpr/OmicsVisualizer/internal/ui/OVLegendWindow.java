@@ -14,8 +14,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.util.swing.LookAndFeelUtil;
+import org.cytoscape.view.model.CyNetworkView;
+import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVLegend;
@@ -85,13 +88,24 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 	}
 	
 	private void initForm() {
+		// We initialize the default size with the node label font size
+		int initFontSize = OVLegend.DEFAULT_FONT_SIZE;
+		CyApplicationManager appManager = this.ovManager.getService(CyApplicationManager.class);
+		if(appManager != null) {
+			CyNetworkView netView = appManager.getCurrentNetworkView();
+			if (netView != null && netView.getVisualProperty(BasicVisualLexicon.NODE_LABEL_FONT_SIZE) != null) {
+				initFontSize = netView.getVisualProperty(BasicVisualLexicon.NODE_LABEL_FONT_SIZE);
+			}
+		}
+		
 		this.title = new JTextField(OVLegend.DEFAULT_TITLE);
 		this.showTitle = new JCheckBox("Show title");
 		this.showTitle.addActionListener(this);
 		this.showTitle.setSelected(OVLegend.DEFAULT_SHOW_TITLE);
 		this.font = new JComboBox<>(OVShared.getAvailableFontNames());
 		this.font.setSelectedItem(OVLegend.DEFAULT_FONT.getFamily());
-		this.fontSize = new JTextField(String.valueOf(OVLegend.DEFAULT_FONT_SIZE));
+		this.fontSize = new JTextField(String.valueOf(initFontSize));
+		this.fontSize.setToolTipText("Font size");
 		this.position = new JComboBox<>(LegendPosition.values());
 		this.position.addActionListener(this);
 		this.alignmentH = new JComboBox<>(LegendHAlignment.values());
@@ -139,14 +153,14 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 		legendPanel.add(this.showTitle, c.nextCol());
 		
 		legendPanel.add(new JLabel("Font:"), c.nextRow());
-		c.useNCols(2);
+//		c.useNCols(2);
 		legendPanel.add(this.font, c.nextCol());
-		c.useNCols(1);
-		
-		legendPanel.add(new JLabel("Font size:"), c.nextRow());
-		c.useNCols(2);
+//		c.useNCols(1);
+//		
+//		legendPanel.add(new JLabel("Font size:"), c.nextRow());
+//		c.useNCols(2);
 		legendPanel.add(this.fontSize, c.nextCol());
-		c.useNCols(1);
+//		c.useNCols(1);
 		
 		legendPanel.add(new JLabel("Position:"), c.nextRow());
 		legendPanel.add(this.position, c.nextCol());
