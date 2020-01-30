@@ -51,6 +51,7 @@ public class ApplyVisualizationTask extends AbstractTask {
 			
 			// If the current char is the escape character or the comma, we escape it
 			if(curChar == '\\' || curChar == ',') {
+				// The character must be escaped twice
 				sb.append('\\');
 				sb.append('\\');
 				sb.append('\\');

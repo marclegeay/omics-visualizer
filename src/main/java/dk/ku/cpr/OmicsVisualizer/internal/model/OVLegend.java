@@ -244,6 +244,10 @@ public class OVLegend implements Serializable {
 		/** The legend elements are drawn horizontally. */
 		HORIZONTAL,
 		/** The legend elements are drawn vertically. */
-		VERTICAL
+		VERTICAL;
+		
+		public String toString() {
+			return this.name().substring(0,1) + this.name().substring(1).toLowerCase();
+		}
 	}
 }

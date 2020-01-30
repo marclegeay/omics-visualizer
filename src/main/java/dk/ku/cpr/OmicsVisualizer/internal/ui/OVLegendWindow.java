@@ -433,18 +433,30 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 		NORTH,
 		EAST,
 		SOUTH,
-		WEST
+		WEST;
+		
+		public String toString() {
+			return this.name().substring(0,1) + this.name().substring(1).toLowerCase();
+		}
 	}
 	
 	private enum LegendHAlignment {
 		LEFT,
 		CENTER,
-		RIGHT
+		RIGHT;
+		
+		public String toString() {
+			return this.name().substring(0,1) + this.name().substring(1).toLowerCase();
+		}
 	}
 	
 	private enum LegendVAlignment {
 		TOP,
 		MIDDLE,
-		BOTTOM
+		BOTTOM;
+		
+		public String toString() {
+			return this.name().substring(0,1) + this.name().substring(1).toLowerCase();
+		}
 	}
 }
