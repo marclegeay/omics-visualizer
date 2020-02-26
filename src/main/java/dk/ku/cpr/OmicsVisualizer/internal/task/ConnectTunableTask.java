@@ -7,10 +7,11 @@ import org.cytoscape.work.ProvidesTitle;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.Tunable;
 
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 
-public class ConnectTask extends AbstractTask {
+public class ConnectTunableTask extends AbstractTask {
 	private OVManager ovManager;
 	
 	@Tunable(description="Key column from the Network node table used to map the network with the table.",
@@ -25,7 +26,7 @@ public class ConnectTask extends AbstractTask {
 			gravity=1.0)
 	public String mappingColTable;
 
-	public ConnectTask(OVManager ovManager) {
+	public ConnectTunableTask(OVManager ovManager) {
 		super();
 		this.ovManager = ovManager;
 	}
@@ -55,11 +56,13 @@ public class ConnectTask extends AbstractTask {
 		taskMonitor.setStatusMessage("Network key column: " + mappingColNet);
 		taskMonitor.setStatusMessage("Table key column: " + mappingColTable);
 		
-		ovTable.connect(network, mappingColNet, mappingColTable);
+		OVConnection ovCon = ovTable.connect(network, mappingColNet, mappingColTable);
 		
 		if(this.ovManager.getOVCytoPanel() != null) {
 			this.ovManager.getOVCytoPanel().update();
 		}
+		
+		taskMonitor.setStatusMessage(ovCon.getNbConnectedTableRows()+" rows from the table are connected.");
 	}
 
 }

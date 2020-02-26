@@ -16,7 +16,7 @@ public class ConnectTaskFactory extends AbstractTaskFactory {
 
 	@Override
 	public TaskIterator createTaskIterator() {
-		return new TaskIterator(new ConnectTask(ovManager));
+		return new TaskIterator(new ConnectTunableTask(ovManager));
 	}
 
 }
