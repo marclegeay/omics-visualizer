@@ -54,7 +54,6 @@ import dk.ku.cpr.OmicsVisualizer.external.tableimport.reader.SupportedFileType;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.reader.TextTableReader;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
-import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 
 
 public class ImportAttributeOVTableReaderTask extends AbstractTask implements CyTableReader, TunableValidator {
@@ -66,7 +65,6 @@ public class ImportAttributeOVTableReaderTask extends AbstractTask implements Cy
 //	private final String inputName;
 
 	private CyTable[] cyTables;
-	private static int numImports=0;
 	
 	@Tunable(description="Attribute Mapping Parameters:")
 	public AttributeMappingParameters amp;
