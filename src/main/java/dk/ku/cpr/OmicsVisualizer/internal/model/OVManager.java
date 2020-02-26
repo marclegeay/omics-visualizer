@@ -60,6 +60,7 @@ NetworkAddedListener {
 
 	private List<OVTable> ovTables;
 	private List<OVConnection> ovCons;
+	private int numTableImported;
 
 	private ShowOVPanelTaskFactory showPanelFactory;
 	private OVCytoPanel ovCytoPanel;
@@ -96,8 +97,9 @@ NetworkAddedListener {
 		this.serviceRegistrar=serviceRegistrar;
 		this.showPanelFactory=new ShowOVPanelTaskFactory(this);
 		this.ovCytoPanel=null;
-		this.ovTables=new ArrayList<OVTable>();
+		this.ovTables=new ArrayList<>();
 		this.ovCons=new ArrayList<>();
+		this.numTableImported=0;
 
 		this.netManager = this.getService(CyNetworkManager.class);
 		this.tableManager = this.getService(CyTableManager.class);
@@ -330,6 +332,16 @@ NetworkAddedListener {
 	 */
 	public void addOVTable(OVTable table) {
 		this.ovTables.add(table);
+		
+		this.numTableImported++;
+		
+		// Now we check the name
+		if(table.getTitle().startsWith(OVShared.OVTABLE_DEFAULT_NAME)) {
+			int nb = Integer.parseInt(table.getTitle().substring(OVShared.OVTABLE_DEFAULT_NAME.length()));
+			if(nb > this.numTableImported) {
+				this.numTableImported = nb;
+			}
+		}
 	}
 	/**
 	 * Adds an Cytoscape table to the list of Omics Visualier tables.
@@ -343,6 +355,7 @@ NetworkAddedListener {
 	}
 	/**
 	 * Removes an Omics Visualizer table from the list of tables.
+	 * @see OVTable
 	 * @param table The table to remove.
 	 */
 	public void removeOVTable(OVTable table) {
@@ -351,7 +364,8 @@ NetworkAddedListener {
 	}
 	/**
 	 * Returns the list of all Omics Visualizer tables.
-	 * @return
+	 * @see OVTable
+	 * @return the list of all Omics Visualizer tables.
 	 */
 	public List<OVTable> getOVTables() {
 		return this.ovTables;
@@ -359,6 +373,7 @@ NetworkAddedListener {
 
 	/**
 	 * Get the active OVTable, i.e. the table displayed in the OVCytoPanel.
+	 * @see OVTable
 	 * @return the active OVTable, <code>null</code> if there is no active OVTable.
 	 */
 	public OVTable getActiveOVTable() {
@@ -367,6 +382,17 @@ NetworkAddedListener {
 		}
 
 		return null;
+	}
+	
+	/**
+	 * Give the name of an unnamed OVTable.
+	 * It is the {@link OVShared#OVTABLE_DEFAULT_NAME} followed by the number of imported tables.
+	 * @see OVTable
+	 * @return the name of the OVTable.
+	 */
+	public String getNextTableName() {
+		// We use numTableImported+1 because this method is called before the table is added to the manager
+		return OVShared.OVTABLE_DEFAULT_NAME+Integer.toString(this.numTableImported+1);
 	}
 
 	/**
@@ -422,7 +448,9 @@ NetworkAddedListener {
 	@Override
 	public void handleEvent(SessionLoadedEvent e) {
 		// First we forget about previous state:
-		this.ovTables=new ArrayList<OVTable>();
+		this.ovTables=new ArrayList<>();
+		this.ovCons=new ArrayList<>();
+		this.numTableImported=0;
 		this.unregisterOVCytoPanel();
 
 		// Then we init the OVTables

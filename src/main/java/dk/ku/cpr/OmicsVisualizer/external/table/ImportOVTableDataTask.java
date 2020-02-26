@@ -91,6 +91,10 @@ public class ImportOVTableDataTask extends AbstractTask implements TunableValida
 			newTableName = globalTable.getTitle();
 		}
 		
+		if(newTableName == null) {
+			newTableName = this.ovManager.getNextTableName();
+		}
+		
 		// We check if the tableName is unique
 		checkName();
 	}

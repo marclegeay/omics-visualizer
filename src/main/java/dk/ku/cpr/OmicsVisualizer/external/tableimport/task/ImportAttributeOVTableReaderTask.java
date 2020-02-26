@@ -86,19 +86,6 @@ public class ImportAttributeOVTableReaderTask extends AbstractTask implements Cy
 		this.is = is;
 		this.serviceRegistrar = ovManager.getServiceRegistrar();
 		
-		// ML: We try to see if tables were imported before, to initialize the numImports
-		for(OVTable table : ovManager.getOVTables()) {
-			if(table.getTitle().startsWith(OVShared.OVTABLE_DEFAULT_NAME)) {
-				int nb = Integer.parseInt(table.getTitle().substring(OVShared.OVTABLE_DEFAULT_NAME.length()));
-				if(nb > numImports) {
-					numImports = nb;
-				}
-			}
-		}
-		if(numImports < ovManager.getOVTables().size()) {
-			numImports = ovManager.getOVTables().size();
-		}
-		
 		try {
 			File tempFile = File.createTempFile("temp", this.fileType);
 			tempFile.deleteOnExit();
@@ -206,7 +193,7 @@ public class ImportAttributeOVTableReaderTask extends AbstractTask implements Cy
 
 		final CyTable table =
 				serviceRegistrar.getService(CyTableFactory.class).createTable(
-						OVShared.OVTABLE_DEFAULT_NAME + Integer.toString(++numImports),
+						OVManager.getInstance().getNextTableName(),
 			             primaryKey, keyType, false, true);
 		
 		cyTables = new CyTable[] { table };
