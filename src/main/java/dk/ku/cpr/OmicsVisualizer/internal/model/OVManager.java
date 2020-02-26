@@ -54,6 +54,7 @@ SessionAboutToBeSavedListener,
 NetworkAboutToBeDestroyedListener,
 NetworkDestroyedListener,
 NetworkAddedListener {
+	private static OVManager instance=null;
 
 	private CyServiceRegistrar serviceRegistrar;
 
@@ -67,12 +68,31 @@ NetworkAddedListener {
 	private CyTableManager tableManager;
 	
 	private GenericReaderManager<InputStreamTaskFactory, CyTableReader> readerManager;
+	
+	/**
+	 * Create the Omics Visualizer Manager instance.
+	 * @param serviceRegistrar The Cytoscape service registrar
+	 * @return the created instance.
+	 */
+	public static OVManager createInstance(CyServiceRegistrar serviceRegistrar) {
+		instance = new OVManager(serviceRegistrar);
+		
+		return instance;
+	}
+	
+	/**
+	 * Gets the current Omics Visualizer Manager instance.
+	 * @return the instance. Can be <code>null</code>.
+	 */
+	public static OVManager getInstance() {
+		return instance;
+	}
 
 	/**
 	 * Creates a Manager.
 	 * @param serviceRegistrar The Cytoscape service registrar
 	 */
-	public OVManager(CyServiceRegistrar serviceRegistrar) {
+	private OVManager(CyServiceRegistrar serviceRegistrar) {
 		this.serviceRegistrar=serviceRegistrar;
 		this.showPanelFactory=new ShowOVPanelTaskFactory(this);
 		this.ovCytoPanel=null;

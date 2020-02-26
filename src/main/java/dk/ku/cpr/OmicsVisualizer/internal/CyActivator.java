@@ -56,7 +56,7 @@ public class CyActivator extends AbstractCyActivator {
 		final CyServiceRegistrar serviceRegistrar = getService(context, CyServiceRegistrar.class);
 		final StreamUtil streamUtil = getService(context, StreamUtil.class);
 
-		OVManager ovManager = new OVManager(serviceRegistrar);
+		OVManager ovManager = OVManager.createInstance(serviceRegistrar);
 		registerService(context, ovManager, SessionLoadedListener.class);
 		registerService(context, ovManager, SessionAboutToBeSavedListener.class);
 		registerService(context, ovManager, NetworkAboutToBeDestroyedListener.class);
