@@ -26,13 +26,17 @@ import org.cytoscape.model.SavePolicy;
 import org.cytoscape.model.subnetwork.CyRootNetwork;
 import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.util.swing.LookAndFeelUtil;
+import org.cytoscape.work.FinishStatus;
+import org.cytoscape.work.ObservableTask;
+import org.cytoscape.work.TaskObserver;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
+import dk.ku.cpr.OmicsVisualizer.internal.task.ConnectTaskFactory;
 
-public class OVConnectWindow extends OVWindow implements ActionListener {
+public class OVConnectWindow extends OVWindow implements ActionListener, TaskObserver {
 	private static final long serialVersionUID = -5328093228061621675L;
 
 	private static CyNetwork CHOOSE = null;
@@ -277,29 +281,44 @@ public class OVConnectWindow extends OVWindow implements ActionListener {
 				return;
 			}
 			
-			ovCon = this.ovTable.connect(
+			ConnectTaskFactory factory = new ConnectTaskFactory(this.ovManager,
+					this.ovTable,
 					selectedNetwork,
 					(String) this.selectColNetwork.getSelectedItem(),
 					(String) this.selectColTable.getSelectedItem()
 					);
-
-			if(ovCon.getNbConnectedTableRows() == 0) {
-				JOptionPane.showMessageDialog(null, "Error: No table row is connected to the network.", "Error", JOptionPane.ERROR_MESSAGE);
-				ovCon.disconnect();
-				return;
-			}
-			//				else {
-			//					int totalNbRows = this.ovTable.getAllRows(true).size();
-			//					
-			//					if((((double) ovCon.getNbConnectedTableRows())/totalNbRows) < OVConnection.MINIMUM_CONNECTED_ROWS) {
-			//						JOptionPane.showMessageDialog(null, "Warning: Less than " + (int)(OVConnection.MINIMUM_CONNECTED_ROWS*100) + "% of the table rows are connected to the network.", "Warning", JOptionPane.WARNING_MESSAGE);
-			//					}
-			//				}
-			
-			this.update(this.ovTable);
-			this.cytoPanel.update();
+			this.ovManager.executeSynchronousTask(factory.createTaskIterator(), this);
 		} else if(e.getSource() == this.closeButton) {
 			this.setVisible(false);
 		}
+	}
+
+	@Override
+	public void taskFinished(ObservableTask task) {
+		// end of ConnectTask
+		
+		OVConnection ovCon = task.getResults(OVConnection.class);
+
+		if(ovCon.getNbConnectedTableRows() == 0) {
+			JOptionPane.showMessageDialog(null, "Error: No table row is connected to the network.", "Error", JOptionPane.ERROR_MESSAGE);
+			ovCon.disconnect();
+			return;
+		}
+		//				else {
+		//					int totalNbRows = this.ovTable.getAllRows(true).size();
+		//					
+		//					if((((double) ovCon.getNbConnectedTableRows())/totalNbRows) < OVConnection.MINIMUM_CONNECTED_ROWS) {
+		//						JOptionPane.showMessageDialog(null, "Warning: Less than " + (int)(OVConnection.MINIMUM_CONNECTED_ROWS*100) + "% of the table rows are connected to the network.", "Warning", JOptionPane.WARNING_MESSAGE);
+		//					}
+		//				}
+		
+		this.update(this.ovTable);
+		this.cytoPanel.update();
+	}
+
+	@Override
+	public void allFinished(FinishStatus finishStatus) {
+		// TODO Auto-generated method stub
+		
 	}
 }
