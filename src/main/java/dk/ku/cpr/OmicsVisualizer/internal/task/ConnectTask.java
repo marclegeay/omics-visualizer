@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.subnetwork.CyRootNetworkManager;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.ProvidesTitle;
@@ -53,6 +54,13 @@ public class ConnectTask extends AbstractTask implements ObservableTask {
 		if(network == null) {
 			taskMonitor.setStatusMessage("No current network. The task stops here.");
 			return;
+		}
+		
+		// We check if the network is already connected
+		OVConnection oldCon = this.ovManager.getConnection(this.ovManager.getService(CyRootNetworkManager.class).getRootNetwork(network));
+		if(oldCon != null) {
+			taskMonitor.setStatusMessage("Disconnecting the network " + network.toString() + " and the table " + oldCon.getOVTable().getTitle());
+			oldCon.disconnectNetwork(network);
 		}
 
 		taskMonitor.setStatusMessage("Connecting " + ovTable.getTitle() + " table with " + network.toString() + ".");
