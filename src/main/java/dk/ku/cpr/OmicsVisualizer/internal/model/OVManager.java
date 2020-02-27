@@ -123,6 +123,16 @@ NetworkAddedListener {
 			}
 		}
 		
+		// Now we check the next number of imported table
+		for(OVTable table : this.ovTables) {
+			if(table.getTitle().startsWith(OVShared.OVTABLE_DEFAULT_NAME)) {
+				int nb = Integer.parseInt(table.getTitle().substring(OVShared.OVTABLE_DEFAULT_NAME.length()));
+				if(nb > this.numTableImported) {
+					this.numTableImported = nb;
+				}
+			}
+		}
+		
 		if(this.ovTables.size() > 0) {
 			this.showPanel();
 		}
@@ -334,14 +344,6 @@ NetworkAddedListener {
 		this.ovTables.add(table);
 		
 		this.numTableImported++;
-		
-		// Now we check the name
-		if(table.getTitle().startsWith(OVShared.OVTABLE_DEFAULT_NAME)) {
-			int nb = Integer.parseInt(table.getTitle().substring(OVShared.OVTABLE_DEFAULT_NAME.length()));
-			if(nb > this.numTableImported) {
-				this.numTableImported = nb;
-			}
-		}
 	}
 	/**
 	 * Adds an Cytoscape table to the list of Omics Visualier tables.
