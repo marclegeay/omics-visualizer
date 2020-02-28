@@ -27,6 +27,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ConnectTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.CreateOVTableFromNetworkTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.DisconnectTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.DrawLegendTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.FilterTaskFactory;
@@ -37,6 +38,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveFilterTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveVisualizationTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RetrieveStringNetworkTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowConnectWindowTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.ShowCopyNodeTableTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowFilterWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowLegendWindowTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowRetrieveWindowTaskFactory;
@@ -441,6 +443,29 @@ public class CyActivator extends AbstractCyActivator {
 				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(ServiceProperties.COMMAND, "legend hide");
 				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Hide a legend");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+			
+			// Copy node table
+			{
+				ShowCopyNodeTableTaskFactory factory = new ShowCopyNodeTableTaskFactory(ovManager);
+				Properties props = new Properties();
+				props.setProperty(ServiceProperties.PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
+				props.setProperty(ServiceProperties.TITLE, "Create from a node table");
+				props.setProperty(ServiceProperties.INSERT_SEPARATOR_BEFORE, "true");
+				props.setProperty(ServiceProperties.MENU_GRAVITY, (++menuGravity).toString());
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+			
+			// Copy node table (Command-only)
+			{
+				CreateOVTableFromNetworkTaskFactory factory = new CreateOVTableFromNetworkTaskFactory(ovManager);
+				Properties props = new Properties();
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "copy node table");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Transform the node table into an Omics Visualizer table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}

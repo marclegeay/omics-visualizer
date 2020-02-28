@@ -301,7 +301,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 		// This JLabel must be displayed in the top-left corner
 		// We add the default margin on top and left because otherwise the JLabel is not aligned with the center of the first JComboBox
-		chartPanel.add(new JLabel("Values:"), c2.nextRow().setAnchor("NW").setInsets(MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, 0, 0));
+		chartPanel.add(new JLabel("Values:"), c2.nextRow().setAnchor("NW").setInsets(2*MyGridBagConstraints.DEFAULT_INSET, 2*MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET));
 		// reset constraint
 		c2.setAnchor("C").setInsets(MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET);
 		chartPanel.add(this.selectValues, c2.nextCol());

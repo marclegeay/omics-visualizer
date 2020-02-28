@@ -48,6 +48,11 @@ public class OVShared {
 	/** Prefix of the properties specific to Omics Visualizer. */
 	public static final String OVPROPERTY_NAME = "OmicsVisualizer";
 	
+	/** Default column name of the 'values' column while copying a node table. */
+	public static final String OV_DEFAULT_VALUES_COLNAME = "value";
+	/** Default column name of the 'values source' column while copying a node table. */
+	public static final String OV_DEFAULT_VALUES_SOURCE_COLNAME = "source";
+	
 	/** Name of the property storing the filter of a table */
 	public static final String PROPERTY_FILTER = OV_PREFIX+"filter";
 
