@@ -60,7 +60,7 @@ public class ConnectTask extends AbstractTask implements ObservableTask {
 		OVConnection oldCon = this.ovManager.getConnection(this.ovManager.getService(CyRootNetworkManager.class).getRootNetwork(network));
 		if(oldCon != null) {
 			taskMonitor.setStatusMessage("Disconnecting the network " + network.toString() + " and the table " + oldCon.getOVTable().getTitle());
-			oldCon.disconnectNetwork(network);
+			oldCon.disconnect();
 		}
 
 		taskMonitor.setStatusMessage("Connecting " + ovTable.getTitle() + " table with " + network.toString() + ".");

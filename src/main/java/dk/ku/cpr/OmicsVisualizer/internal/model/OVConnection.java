@@ -393,9 +393,13 @@ public class OVConnection {
 		for(CyNetwork net : this.rootNetwork.getSubNetworkList()) {
 			CyTable netTable = net.getDefaultNetworkTable();
 			if(netTable != null
-					&& netTable.getColumn(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_OVCOL) != null
-					&& !netTable.getRow(net.getSUID()).get(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_OVCOL, String.class).isEmpty()) {
-				connectedNetwork.add(net);
+					&& netTable.getColumn(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_OVCOL) != null) {
+				String link = netTable.getRow(net.getSUID()).get(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_OVCOL, String.class);
+				
+				String linkParts[] = DataUtils.getCSV(link);
+				if(linkParts.length == 3 && linkParts[0].equals(this.ovTable.getTitle())) {
+					connectedNetwork.add(net);
+				}
 			}
 		}
 		
