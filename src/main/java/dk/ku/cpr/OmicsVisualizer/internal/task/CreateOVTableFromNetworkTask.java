@@ -134,9 +134,6 @@ public class CreateOVTableFromNetworkTask extends AbstractTask implements Observ
 			
 			for(String colName : this.cyTableColNames) {
 				Object newValue = srcRow.get(colName, valuesType);
-				if(newValue == null) {
-					continue;
-				}
 				
 				CyRow newRow = newCyTable.getRow(key);
 				
