@@ -77,7 +77,7 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 		this.srcName = new JTextField(OVShared.OV_DEFAULT_VALUES_SOURCE_COLNAME);
 		this.srcName.setToolTipText(SRC_NAME_TOOLTIP);
 		
-		this.includeNamespaces = new JCheckBox("Include namespaces in the source");
+		this.includeNamespaces = new JCheckBox("Include namespaces in the source", true);
 		this.includeNamespaces.setToolTipText("Should the namespaces be included in the name of the imported source columns?");
 		
 		this.createButton = new JButton("Create");
