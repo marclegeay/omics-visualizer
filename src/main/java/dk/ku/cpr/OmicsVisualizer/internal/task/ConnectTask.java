@@ -44,8 +44,10 @@ public class ConnectTask extends AbstractTask implements ObservableTask {
 	public void run(TaskMonitor taskMonitor) throws Exception {
 		taskMonitor.setTitle(this.getName());
 		
-		OVTable ovTable = this.ovManager.getActiveOVTable();
-		if(ovTable == null) {
+		if(this.ovTable == null) {
+			this.ovTable = this.ovManager.getActiveOVTable();	
+		}
+		if(this.ovTable == null) {
 			taskMonitor.setStatusMessage("No active Omics Visualizer table. The task stops here.");
 			return;
 		}
@@ -63,11 +65,11 @@ public class ConnectTask extends AbstractTask implements ObservableTask {
 			oldCon.disconnect();
 		}
 
-		taskMonitor.setStatusMessage("Connecting " + ovTable.getTitle() + " table with " + network.toString() + ".");
+		taskMonitor.setStatusMessage("Connecting " + this.ovTable.getTitle() + " table with " + network.toString() + ".");
 		taskMonitor.setStatusMessage("Network key column: " + keyColNet);
 		taskMonitor.setStatusMessage("Table key column: " + keyColTable);
 		
-		this.resultCon = ovTable.connect(network, keyColNet, keyColTable);
+		this.resultCon = this.ovTable.connect(network, keyColNet, keyColTable);
 		
 		if(this.ovManager.getOVCytoPanel() != null) {
 			this.ovManager.getOVCytoPanel().update();
