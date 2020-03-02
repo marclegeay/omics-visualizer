@@ -149,6 +149,30 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 		this.pack();
 		this.setLocationRelativeTo(this.ovManager.getService(CySwingApplication.class).getJFrame());
 	}
+	
+	private void guessTableName(String original) {
+		String name = original;
+		
+		int n=1;
+		boolean found=false;
+		CyTableManager tableManager = this.ovManager.getTableManager();
+		for(CyTable table : tableManager.getAllTables(true)) {
+			if(table.getTitle().equals(name)) {
+				found = true;
+			}
+		}
+		while(found) {
+			name = original + " (" + (n++) + ")";
+			found = false;
+			for(CyTable table : tableManager.getAllTables(true)) {
+				if(table.getTitle().equals(name)) {
+					found = true;
+				}
+			}
+		}
+		
+		this.tableName.setText(name);
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -174,7 +198,11 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 			
 			this.columnsSelector.update(nodeColumns, null);
 			
-			this.tableName.setText(selectedNetwork.toString()+" node table");
+			guessTableName(selectedNetwork.toString()+" node table");
+			
+			// After updating the columns selector, we pack and center the window again
+			this.pack();
+			this.setLocationRelativeTo(this.ovManager.getService(CySwingApplication.class).getJFrame());
 		} else if(e.getSource() == this.createButton) {
 			CyNetwork selectedNetwork = (CyNetwork) this.selectNetwork.getSelectedItem();
 			CyTable nodeTable = selectedNetwork.getDefaultNodeTable();
