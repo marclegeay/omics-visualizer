@@ -21,6 +21,7 @@ import org.cytoscape.work.json.JSONResult;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
+import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 
 public class RetrieveStringNetworkTask extends AbstractTask implements TaskObserver,ObservableTask {
 	protected OVManager ovManager;
@@ -111,7 +112,7 @@ public class RetrieveStringNetworkTask extends AbstractTask implements TaskObser
 			tableRows = ovTable.getAllRows(this.protected_filteredOnly);
 		}
 		for(CyRow row : tableRows) {
-			queryTerms.add(row.get(this.protected_queryColumn, colType).toString());
+			queryTerms.add(DataUtils.escapeComma(row.get(this.protected_queryColumn, colType).toString()));
 		}
 
 		// We set the arguments for the STRING command
