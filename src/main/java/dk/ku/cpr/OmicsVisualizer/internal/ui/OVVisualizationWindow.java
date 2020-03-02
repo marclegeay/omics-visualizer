@@ -962,7 +962,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 	private void checkValueTypes() {
 		if(!this.selectValues.allSameType()) {
-			JOptionPane.showMessageDialog(null,
+			JOptionPane.showMessageDialog(this,
 					"All the values should have the same type.",
 					"Error: Bad value types",
 					JOptionPane.ERROR_MESSAGE);
@@ -1183,7 +1183,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			}
 		} else if(e.getSource() == this.nextButton) {
 			if(!this.selectValues.allSameType()) {
-				JOptionPane.showMessageDialog(null,
+				JOptionPane.showMessageDialog(this,
 						"All the values should have the same type.",
 						"Error: Bad value types",
 						JOptionPane.ERROR_MESSAGE);
@@ -1191,7 +1191,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			}
 			
 			if(this.selectValues.getValueType() == SelectValuesPanel.BlankChartValues.class) {
-				JOptionPane.showMessageDialog(null,
+				JOptionPane.showMessageDialog(this,
 						"You should at least select one value.",
 						"Error: Bad values",
 						JOptionPane.ERROR_MESSAGE);

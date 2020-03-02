@@ -539,7 +539,7 @@ SelectedNodesAndEdgesListener {
 			retrieveNetworkButton.addActionListener(e -> {
 				AvailableCommands availableCommands = (AvailableCommands) this.ovManager.getService(AvailableCommands.class);
 				if (!availableCommands.getNamespaces().contains("string")) {
-					JOptionPane.showMessageDialog(null,
+					JOptionPane.showMessageDialog(this.ovManager.getService(CySwingApplication.class).getJFrame(),
 							"You need to install stringApp from the App Manager or Cytoscape App Store.",
 							"Dependency error", JOptionPane.ERROR_MESSAGE);
 					return;
@@ -577,7 +577,7 @@ SelectedNodesAndEdgesListener {
 
 					AvailableCommands availableCommands = (AvailableCommands) this.ovManager.getService(AvailableCommands.class);
 					if (!availableCommands.getNamespaces().contains("enhancedGraphics")) {
-						JOptionPane.showMessageDialog(null,
+						JOptionPane.showMessageDialog(this.ovManager.getService(CySwingApplication.class).getJFrame(),
 								"You need to install enhancedGraphics from the App Manager or Cytoscape App Store.",
 								"Dependency error", JOptionPane.ERROR_MESSAGE);
 						return;
@@ -621,7 +621,7 @@ SelectedNodesAndEdgesListener {
 
 					AvailableCommands availableCommands = (AvailableCommands) this.ovManager.getService(AvailableCommands.class);
 					if (!availableCommands.getNamespaces().contains("enhancedGraphics")) {
-						JOptionPane.showMessageDialog(null,
+						JOptionPane.showMessageDialog(this.ovManager.getService(CySwingApplication.class).getJFrame(),
 								"You need to install enhancedGraphics from the App Manager or Cytoscape App Store.",
 								"Dependency error", JOptionPane.ERROR_MESSAGE);
 						return;

@@ -2,6 +2,7 @@ package dk.ku.cpr.OmicsVisualizer.internal.task;
 
 import javax.swing.JOptionPane;
 
+import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.command.AvailableCommands;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.TaskMonitor;
@@ -24,7 +25,7 @@ public class ShowRetrieveWindowTask extends AbstractTask {
 		// First we make sure that enhancedGraphics is installed and enabled
 		AvailableCommands availableCommands = (AvailableCommands) this.ovManager.getService(AvailableCommands.class);
 		if (!availableCommands.getNamespaces().contains("string")) {
-			JOptionPane.showMessageDialog(null,
+			JOptionPane.showMessageDialog(this.ovManager.getService(CySwingApplication.class).getJFrame(),
 					"You need to install stringApp from the App Manager or Cytoscape App Store.",
 					"Dependency error", JOptionPane.ERROR_MESSAGE);
 			return;

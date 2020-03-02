@@ -121,14 +121,14 @@ public class OVFilterWindow extends OVWindow implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == this.okButton) {
 			if(!this.rootFilterPanel.isFilterValid()) {
-				JOptionPane.showMessageDialog(null, "Error: The filter is not well formatted.", "Filter Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Error: The filter is not well formatted.", "Filter Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			
 			OVFilter filter = this.rootFilterPanel.getFilter();
 			if(filter == null) {
 				// The filter should not be null, but we never know...
-				JOptionPane.showMessageDialog(null, "Error: The filter is not well formatted.", "Filter Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Error: The filter is not well formatted.", "Filter Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			

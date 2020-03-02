@@ -128,7 +128,7 @@ public class OVConnectPanel extends JPanel implements ActionListener {
 			);
 			
 			if(nbLinks == 0) {
-				JOptionPane.showMessageDialog(null, "No row from the table is connected to the network.\nThe previous connection will be restored.",  "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this.connectWindow, "No row from the table is connected to the network.\nThe previous connection will be restored.",  "Error", JOptionPane.ERROR_MESSAGE);
 				this.ovCon.update(oldColNetwork, oldColTable);
 				this.selectColNetwork.setSelectedItem(oldColNetwork);
 				this.selectColTable.setSelectedItem(oldColTable);
@@ -141,7 +141,7 @@ public class OVConnectPanel extends JPanel implements ActionListener {
 //				}
 //			}
 		} else if(e.getSource() == this.disconnectButton) {
-			int response = JOptionPane.showConfirmDialog(null,
+			int response = JOptionPane.showConfirmDialog(this.connectWindow,
 					"Disconnect \""+this.ovCon.getOVTable().getTitle()+"\" and \""+this.ovCon.getCollectionNetworkName()+"\"?",
 					"Confirmation",
 					JOptionPane.YES_NO_OPTION);

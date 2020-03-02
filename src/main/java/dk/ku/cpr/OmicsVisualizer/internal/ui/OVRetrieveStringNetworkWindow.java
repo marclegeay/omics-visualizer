@@ -204,7 +204,7 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 
 	private double inputError() {
 		confidenceValue.setBackground(Color.RED);
-		JOptionPane.showMessageDialog(null, 
+		JOptionPane.showMessageDialog(this, 
 				                          "Please enter a confidence cutoff between 0.0 and 1.0", 
 											            "Alert", JOptionPane.ERROR_MESSAGE);
 		confidenceValue.setBackground(UIManager.getColor("TextField.background"));

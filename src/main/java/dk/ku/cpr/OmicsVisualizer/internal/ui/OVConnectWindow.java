@@ -227,7 +227,7 @@ public class OVConnectWindow extends OVWindow implements ActionListener, TaskObs
 	
 				OVConnection ovCon = this.ovManager.getConnection(rootNet);
 				if(ovCon != null) {
-					JOptionPane.showMessageDialog(null,
+					JOptionPane.showMessageDialog(this,
 							"This network collection is already connected to \""+ovCon.getOVTable().getTitle()+"\".",
 							"Warning",
 							JOptionPane.WARNING_MESSAGE);
@@ -267,7 +267,7 @@ public class OVConnectWindow extends OVWindow implements ActionListener, TaskObs
 			int response = JOptionPane.OK_OPTION;
 			OVConnection ovCon = this.ovManager.getConnection(rootNet);
 			if(ovCon != null) {
-				response = JOptionPane.showConfirmDialog(null,
+				response = JOptionPane.showConfirmDialog(this,
 						"This network collection is already connected to \""+ovCon.getOVTable().getTitle()+"\". You will disconnect \""+ovCon.getOVTable().getTitle()+"\" if you continue.",
 						"Disconnection warning",
 						JOptionPane.OK_CANCEL_OPTION);
@@ -300,7 +300,7 @@ public class OVConnectWindow extends OVWindow implements ActionListener, TaskObs
 		OVConnection ovCon = task.getResults(OVConnection.class);
 
 		if(ovCon.getNbConnectedTableRows() == 0) {
-			JOptionPane.showMessageDialog(null, "Error: No table row is connected to the network.", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Error: No table row is connected to the network.", "Error", JOptionPane.ERROR_MESSAGE);
 			ovCon.disconnect();
 			return;
 		}

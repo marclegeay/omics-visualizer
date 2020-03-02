@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.view.model.CyNetworkView;
@@ -42,12 +43,12 @@ public class RemoveVisualizationTask extends AbstractTask {
 		List<String> availableTypes = Arrays.asList("inner", "outer", "all");
 		if(!availableTypes.contains(this.type)) {
 			taskMonitor.setStatusMessage("Error: The type \"" + this.type + "\" is unknown.\nAvailable types are: " + OVShared.join(availableTypes, ", "));
-			JOptionPane.showMessageDialog(null, "Error: The type of Visualization is unknown.", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this.ovManager.getService(CySwingApplication.class).getJFrame(), "Error: The type of Visualization is unknown.", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		if(this.ovCon == null) {
 			taskMonitor.setStatusMessage("Error: Impossible to identify the Network.");
-			JOptionPane.showMessageDialog(null, "Error: Impossible to identify the Network.", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this.ovManager.getService(CySwingApplication.class).getJFrame(), "Error: Impossible to identify the Network.", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		
