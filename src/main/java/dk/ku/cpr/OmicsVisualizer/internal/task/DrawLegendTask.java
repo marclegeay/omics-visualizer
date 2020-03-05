@@ -284,6 +284,22 @@ public class DrawLegendTask extends AbstractTask {
 			}
 		}
 		
+		// We add the missing value only if there is in the network
+		if(ovColor.isMissingUsed()) {
+			OVShapeAnnotation box = createBorder(0, legend.getHeight(), boxWidth, boxHeight);
+			box.setFillColor(ovColor.getMissingColor());
+			box.setName("missing color box");
+			
+			OVTextAnnotation boxLegend = new OVTextAnnotation(textFactory, networkView);
+			boxLegend.setFont(this.ovLegend.getFont());
+			boxLegend.setText("Missing value");
+			boxLegend.setName("Missing value");
+			boxLegend.setPosition(box.getWidth() + getMargin(), legend.getHeight());
+
+			legend.addAnnotation(box);
+			legend.addAnnotation(boxLegend);
+		}
+		
 		return legend;
 	}
 	

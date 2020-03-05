@@ -1,8 +1,8 @@
 # Omics Visualizer Automation Documentation
 
-Omics Visualizer version 1.2
+Omics Visualizer version 1.3.0
 
-Last update: 2020-01-21
+Last update: 2020-03-05
 
 ## List of commands
 
@@ -491,6 +491,10 @@ Apply an inner visualization (pie charts) with a discrete mapping
 - `colorMapping` (optional) *String*
 
   Comma separated values of mappings value:color. Special characters in values must be escaped.
+  
+- `colorMissing` (optional) *String*
+
+  Color used for missing values.
 
 - `filteredOnly` (optional) *boolean* Default: `true`
 
@@ -609,6 +613,10 @@ Apply an outer visualization (donuts charts) with a discrete mapping
 - `colorMapping` (optional) *String*
 
   Comma separated values of mappings value:color. Special characters in values must be escaped.
+  
+- `colorMissing` (optional) *String*
+
+  Color used for missing values.
 
 - `filteredOnly` (optional) *boolean* Default: `true`
 

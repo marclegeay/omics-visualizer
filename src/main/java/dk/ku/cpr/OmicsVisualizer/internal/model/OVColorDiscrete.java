@@ -16,13 +16,16 @@ public class OVColorDiscrete implements OVColor, Serializable {
 	private static final long serialVersionUID = 482988419184312110L;
 	
 	private Map<Object, Color> colors;
+	private Color missingColor;
 	
 	/**
 	 * Creates a Discrete mapping.
 	 * @param colors Mapping of the Color used for each value
+	 * @param missingColor Color of the missing values. <code>null</code> if there is no missing values.
 	 */
-	public OVColorDiscrete(Map<Object, Color> colors) {
+	public OVColorDiscrete(Map<Object, Color> colors, Color missingColor) {
 		this.colors = colors;
+		this.missingColor = missingColor;
 	}
 	
 	/**
@@ -49,6 +52,19 @@ public class OVColorDiscrete implements OVColor, Serializable {
 	public Map<Object, Color> getMapping() {
 		return this.colors;
 	}
+	
+	/**
+	 * Returns the color of missing values.
+	 * @return The missing value color
+	 */
+	public Color getMissingColor() {
+		return this.missingColor;
+	}
+
+	@Override
+	public boolean isMissingUsed() {
+		return this.missingColor != null;
+	}
 
 	@Override
 	public String toEnhancedGraphics(List<List<Object>> values, ChartType chartType) {
@@ -64,7 +80,11 @@ public class OVColorDiscrete implements OVColor, Serializable {
 			valuelist += ",[";
 			String colorsublist = "";
 			for(Object val : vals) {
-				colorsublist += "," + OVShared.color2String(this.colors.get(val));
+				if(val == null || this.colors.get(val) == null) {
+					colorsublist += "," + OVShared.color2String(this.missingColor);
+				} else {
+					colorsublist += "," + OVShared.color2String(this.colors.get(val));
+				}
 			}
 			colorlist += colorsublist.substring(1) + "]";
 			valuelist += String.join(",", Collections.nCopies(vals.size(), "1")) + "]";

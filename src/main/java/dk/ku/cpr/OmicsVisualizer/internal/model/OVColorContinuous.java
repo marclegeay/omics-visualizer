@@ -156,10 +156,7 @@ public class OVColorContinuous implements OVColor, Serializable {
 		this.rangeMax = rangeMax;
 	}
 	
-	/**
-	 * Is there missing values in the values?
-	 * @return if missing values are in the values
-	 */
+	@Override
 	public boolean isMissingUsed() {
 		return this.missingUsed;
 	}

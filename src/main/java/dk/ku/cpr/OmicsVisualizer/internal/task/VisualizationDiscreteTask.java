@@ -67,7 +67,13 @@ public class VisualizationDiscreteTask extends VisualizationTask {
 			i++;
 		}
 
-		this.colors = new OVColorDiscrete(mapping);
+		// We check if there are missing values
+		if(!this.missingValues) {
+			// if we don't, we put the colorMissing as null
+			// the parseColor will return null if colorMissing is null
+			this.colorMissing = null;
+		}
+		this.colors = new OVColorDiscrete(mapping, parseColor(this.colorMissing));
 	}
 
 }

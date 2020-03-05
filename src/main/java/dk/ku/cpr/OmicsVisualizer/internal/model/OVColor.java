@@ -18,4 +18,10 @@ public interface OVColor {
 	 * @see ChartType
 	 */
 	public String toEnhancedGraphics(List<List<Object>> values, ChartType chartType);
+	
+	/**
+	 * Is there missing values in the values?
+	 * @return if missing values are in the values
+	 */
+	public boolean isMissingUsed();
 }

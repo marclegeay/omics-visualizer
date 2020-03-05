@@ -7,9 +7,7 @@ import org.cytoscape.work.Tunable;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVColorContinuous;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
-import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
-import dk.ku.cpr.OmicsVisualizer.internal.ui.OVVisualizationWindow;
 
 public class VisualizationContinuousTask extends VisualizationTask {
 
@@ -48,11 +46,6 @@ public class VisualizationContinuousTask extends VisualizationTask {
 			exampleStringValue="BLUE",
 			gravity=1.0)
 	public String colorMax = null;
-	
-	@Tunable(description="Color used for missing values.",
-			exampleStringValue="#bebebe",
-			gravity=1.0)
-	public String colorMissing = OVShared.color2String(OVVisualizationWindow.DEFAULT_MISSING_COLOR);
 
 	public VisualizationContinuousTask(OVManager ovManager, ChartType chartType) {
 		super(ovManager, chartType);

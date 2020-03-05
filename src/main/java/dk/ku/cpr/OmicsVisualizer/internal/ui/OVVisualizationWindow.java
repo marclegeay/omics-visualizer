@@ -749,12 +749,16 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			this.paletteType = BrewerType.QUALITATIVE;
 			
 			SortedSet<Object> values = new TreeSet<>();
+			boolean missingValues = false;
+			Color missingColor = DEFAULT_MISSING_COLOR;
 
 			if(!reset && ovViz != null && ovViz.getColors() instanceof OVColorDiscrete) {
 				// There is already a visualization applied for this, we simply load the information from it
 				OVColorDiscrete colorViz = (OVColorDiscrete) ovViz.getColors();
-
-				values = new TreeSet<>(colorViz.getValues());
+				missingColor = colorViz.getMissingColor();
+				if(missingColor == null) {
+					missingColor = DEFAULT_MISSING_COLOR;
+				}
 
 				if(ovViz.isTranspose()) {
 					this.selectRing.setSelectedItem(OVVisualizationWindow.ROW);
@@ -764,28 +768,29 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				
 				this.palette = this.getPalette(ovViz.getPaletteName());
 				this.paletteType = this.palette.getType();
-			} else {
-				// We look for the values in the data
-				for(CyRow row : valueRows) {
-					if(this.filteredCheck.isSelected() && !this.ovTable.isFiltered(row)) {
-						continue;
-					}
+			}
+			
+			// We look for the values in the data
+			for(CyRow row : valueRows) {
+				if(this.filteredCheck.isSelected() && !this.ovTable.isFiltered(row)) {
+					continue;
+				}
 
-					for(String colName : colNames) {
-						Object val = row.get(colName, valueType);
-						if(val != null ) {
-							values.add(val);
-						} else {
-							if(valueType == Integer.class) {
-								values.add(Integer.valueOf(0));
-							} else if(valueType == Long.class) {
-								values.add(Long.valueOf(0));
-							} else if(valueType == Double.class) {
-								values.add(Double.valueOf(0.0));
-							} else {
-								values.add("");
-							}
-						}
+				for(String colName : colNames) {
+					Object val = row.get(colName, valueType);
+					if(val != null ) {
+						values.add(val);
+					} else {
+						//							if(valueType == Integer.class) {
+						//								values.add(Integer.valueOf(0));
+						//							} else if(valueType == Long.class) {
+						//								values.add(Long.valueOf(0));
+						//							} else if(valueType == Double.class) {
+						//								values.add(Double.valueOf(0.0));
+						//							} else {
+						//								values.add("");
+						//							}
+						missingValues = true;
 					}
 				}
 			}
@@ -813,6 +818,17 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				valuesList.setLayout(new GridBagLayout());
 				MyGridBagConstraints clist = new MyGridBagConstraints();
 				clist.expandHorizontal();
+				
+				// If the data contain missing values, we put it first
+				if(missingValues) {
+					this.missingValuesColorPanels = new ColorPanel(missingColor, this, this.colorChooser, this.ovManager, this.palette);
+					
+					valuesList.add(new JLabel("Missing value:"), clist.expandHorizontal().nextRow());
+					valuesList.add(this.missingValuesColorPanels, clist.nextCol().noExpand());
+				} else {
+					this.missingValuesColorPanels = null;
+				}
+				
 				int i=0;
 				int nb_values = values.size();
 				for(Object val : values) {
@@ -853,6 +869,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 				mappingPanel.add(valuesScroll, c.expandBoth());
 				c.expandHorizontal();
+				
 				if(this.chartType.equals(ChartType.CIRCOS)) {
 					// Only CIRCOS can have several layers
 					JPanel ringPanel = new JPanel();
@@ -1304,7 +1321,11 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 					mapping.put(this.discreteValues[i], this.colorPanels[i].getColor());
 				}
 
-				colors = new OVColorDiscrete(mapping);
+				Color missingColor = null;
+				if(this.missingValuesColorPanels != null) {
+					missingColor = this.missingValuesColorPanels.getColor();
+				}
+				colors = new OVColorDiscrete(mapping, missingColor);
 			}
 
 			String label = null;

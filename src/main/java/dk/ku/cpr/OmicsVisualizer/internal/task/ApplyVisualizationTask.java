@@ -131,15 +131,16 @@ public class ApplyVisualizationTask extends AbstractTask {
 					if(val != null ) {
 						nodeValues.add(val);
 					} else {
-						if(this.ovViz.getValuesType() == Integer.class) {
-							nodeValues.add(Integer.valueOf(0));
-						} else if(this.ovViz.getValuesType() == Long.class) {
-							nodeValues.add(Long.valueOf(0));
-						} else if(this.ovViz.getValuesType() == Double.class) {
-							nodeValues.add(Double.valueOf(0.0));
-						} else {
-							nodeValues.add("");
-						}
+//						if(this.ovViz.getValuesType() == Integer.class) {
+//							nodeValues.add(Integer.valueOf(0));
+//						} else if(this.ovViz.getValuesType() == Long.class) {
+//							nodeValues.add(Long.valueOf(0));
+//						} else if(this.ovViz.getValuesType() == Double.class) {
+//							nodeValues.add(Double.valueOf(0.0));
+//						} else {
+//							nodeValues.add("");
+//						}
+						nodeValues.add(null);
 					}
 					
 				}
@@ -163,16 +164,6 @@ public class ApplyVisualizationTask extends AbstractTask {
 			int ncolValues = (this.ovViz.isTranspose() ? nrow : ncol);
 			int nrowValues = (this.ovViz.isTranspose() ? ncol : nrow);
 			for(int c=0; c<ncolValues; ++c) {
-				String colName;
-				if(this.ovViz.getType().equals(ChartType.CIRCOS)) {
-					colName = OVShared.CYNODETABLE_OUTERVIZCOL_VALUES+(c+1);
-				} else {
-					colName = OVShared.CYNODETABLE_INNERVIZCOL_VALUES+(c+1);
-				}
-				attributeList.add(OVShared.OV_COLUMN_NAMESPACE+"::"+colName);
-				// We create the column if this one does not exist yet
-				createOVListColumn(nodeTable, colName, outputValuesType);
-
 				List<Object> colValues = new ArrayList<>();
 				for(int r=0; r<nrowValues; ++r) {
 					int index = 0;
@@ -185,8 +176,21 @@ public class ApplyVisualizationTask extends AbstractTask {
 
 					colValues.add(nodeValues.get(index));
 				}
-				nodeTable.getRow(node.getSUID()).set(OVShared.OV_COLUMN_NAMESPACE, colName, colValues);
 				styleValues.add(colValues);
+				
+				if(this.ovViz.isContinuous()) {
+					String colName;
+					if(this.ovViz.getType().equals(ChartType.CIRCOS)) {
+						colName = OVShared.CYNODETABLE_OUTERVIZCOL_VALUES+(c+1);
+					} else {
+						colName = OVShared.CYNODETABLE_INNERVIZCOL_VALUES+(c+1);
+					}
+					attributeList.add(OVShared.OV_COLUMN_NAMESPACE+"::"+colName);
+					// We create the column if this one does not exist yet
+					createOVListColumn(nodeTable, colName, outputValuesType);
+
+					nodeTable.getRow(node.getSUID()).set(OVShared.OV_COLUMN_NAMESPACE, colName, colValues);
+				}
 			}
 
 			String nodeStyle = this.ovViz.toEnhancedGraphics(styleValues);

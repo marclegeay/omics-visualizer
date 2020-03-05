@@ -21,9 +21,11 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.EGSettings;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVColor;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
+import dk.ku.cpr.OmicsVisualizer.internal.ui.OVVisualizationWindow;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
 
 public class VisualizationTask extends AbstractTask {
@@ -37,6 +39,8 @@ public class VisualizationTask extends AbstractTask {
 	protected String defaultPaletteName;
 	protected Palette palette;
 	protected OVColor colors=null;
+	
+	protected boolean missingValues;
 	
 	protected SortedSet<Object> values;
 	
@@ -79,11 +83,18 @@ public class VisualizationTask extends AbstractTask {
 			gravity=1.0)
 	public String chartSettings="";
 	
+	@Tunable(description="Color used for missing values.",
+			exampleStringValue="#bebebe",
+			gravity=1.0)
+	public String colorMissing = OVShared.color2String(OVVisualizationWindow.DEFAULT_MISSING_COLOR);
+	
 	public VisualizationTask(OVManager ovManager, ChartType chartType) {
 		this.ovManager=ovManager;
 		this.chartType=chartType;
 		
 		this.ovCon = null;
+		
+		this.missingValues = false;
 	}
 	
 	protected Color parseColor(String colorString)  {
@@ -187,15 +198,16 @@ public class VisualizationTask extends AbstractTask {
 				if(val != null ) {
 					values.add(val);
 				} else {
-					if(this.attributesType == Integer.class) {
-						values.add(Integer.valueOf(0));
-					} else if(this.attributesType == Long.class) {
-						values.add(Long.valueOf(0));
-					} else if(this.attributesType == Double.class) {
-						values.add(Double.valueOf(0.0));
-					} else {
-						values.add("");
-					}
+//					if(this.attributesType == Integer.class) {
+//						values.add(Integer.valueOf(0));
+//					} else if(this.attributesType == Long.class) {
+//						values.add(Long.valueOf(0));
+//					} else if(this.attributesType == Double.class) {
+//						values.add(Double.valueOf(0.0));
+//					} else {
+//						values.add("");
+//					}
+					this.missingValues = true;
 				}
 			}
 		}
@@ -206,6 +218,7 @@ public class VisualizationTask extends AbstractTask {
 		}
 		
 		this.egSettings = new EGSettings();
+		if(this.chartSettings != null && !this.chartSettings.isEmpty())
 		for(String setting : this.chartSettings.split(",")) {
 			String key_value[] = setting.split(":");
 			if(key_value.length != 2) {
