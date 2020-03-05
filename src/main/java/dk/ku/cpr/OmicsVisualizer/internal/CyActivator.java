@@ -452,7 +452,7 @@ public class CyActivator extends AbstractCyActivator {
 				ShowCopyNodeTableTaskFactory factory = new ShowCopyNodeTableTaskFactory(ovManager);
 				Properties props = new Properties();
 				props.setProperty(ServiceProperties.PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
-				props.setProperty(ServiceProperties.TITLE, "Create from a node table");
+				props.setProperty(ServiceProperties.TITLE, "Import from node table");
 				props.setProperty(ServiceProperties.INSERT_SEPARATOR_BEFORE, "true");
 				props.setProperty(ServiceProperties.MENU_GRAVITY, (++menuGravity).toString());
 

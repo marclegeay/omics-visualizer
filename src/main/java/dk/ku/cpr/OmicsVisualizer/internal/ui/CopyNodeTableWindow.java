@@ -51,7 +51,7 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 	private JButton cancelButton;
 
 	public CopyNodeTableWindow(OVManager ovManager) {
-		super(ovManager, "Create from a node table");
+		super(ovManager, "Import from node table");
 		this.setResizable(true);
 		
 		init();
