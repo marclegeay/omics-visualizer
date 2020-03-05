@@ -28,14 +28,14 @@ public class CreateOVTableFromNetworkTunableTask extends CreateOVTableFromNetwor
 			+ " Commas in the column names should be escaped.",
 			required=false,
 			gravity=1.0)
-	public String copiedColNames=null;
+	public String importedColNames=null;
 
 	@Tunable(description="Comma-separated list of column namespaces to import into the new Omics Visualizer table."
 			+ " All the columns from those namespaces will be imported."
 			+ " Commas in the column namespaces should be escaped.",
 			required=false,
 			gravity=1.0)
-	public String copiedNamespaces=null;
+	public String importedNamespaces=null;
 
 	@Tunable(description="The name of the new Omics Visualizer table."
 			+ " A default generated name will be given if omitted.",
@@ -52,14 +52,9 @@ public class CreateOVTableFromNetworkTunableTask extends CreateOVTableFromNetwor
 			required=false,
 			gravity=1.0)
 	public String srcName;
-	
-	@Tunable(description="Should the namespace of the columns be included in the source column? Default: true.",
-			required=false,
-			gravity=1.0)
-	public Boolean includeNamespaces = Boolean.TRUE;
 
 	public CreateOVTableFromNetworkTunableTask(OVManager ovManager) {
-		super(ovManager, null, null, null, null, null, null, true);
+		super(ovManager, null, null, null, null, null, null);
 	}
 
 	@Override
@@ -70,29 +65,28 @@ public class CreateOVTableFromNetworkTunableTask extends CreateOVTableFromNetwor
 		this.tableName = this.newTableName;
 		this.valuesColName = this.valuesName;
 		this.srcColName = this.srcName;
-		this.displayNamespaces = this.includeNamespaces;
 		
-		if(this.copiedColNames == null && this.copiedNamespaces == null) {
+		if(this.importedColNames == null && this.importedNamespaces == null) {
 			taskMonitor.showMessage(Level.ERROR, "ERROR: You should at least give a list of columns (copiedColNames) or a list of namespaces (copiedNamespaces).");
 			return;
 		}
 		
 		// We add the colnames:
-		if(this.copiedColNames != null) {
-			String colNames[] = DataUtils.getCSV(this.copiedColNames);
+		if(this.importedColNames != null) {
+			String colNames[] = DataUtils.getCSV(this.importedColNames);
 			for(String colName : colNames) {
 				this.cyTableColNames.add(colName);
 			}
 		}
 		
 		// We add the columns from the namespace
-		if(this.copiedNamespaces != null) {
+		if(this.importedNamespaces != null) {
 			if(this.cyNetwork == null) {
 				taskMonitor.showMessage(Level.ERROR, "ERROR: The node table cannot be found.");
 				return;
 			}
 			
-			String namespaces[] = DataUtils.getCSV(this.copiedNamespaces);
+			String namespaces[] = DataUtils.getCSV(this.importedNamespaces);
 			for(String namespace : namespaces) {
 				for(CyColumn col : this.cyNetwork.getDefaultNodeTable().getColumns(namespace)) {
 					this.cyTableColNames.add(col.getName());

@@ -464,8 +464,8 @@ public class CyActivator extends AbstractCyActivator {
 				CreateOVTableFromNetworkTaskFactory factory = new CreateOVTableFromNetworkTaskFactory(ovManager);
 				Properties props = new Properties();
 				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(ServiceProperties.COMMAND, "copy node table");
-				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Transform the node table into an Omics Visualizer table");
+				props.setProperty(ServiceProperties.COMMAND, "import node table");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Transform node table into an Omics Visualizer table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}

@@ -17,11 +17,9 @@ public class CreateOVTableFromNetworkTaskFactory extends AbstractTaskFactory {
 	private String tableName;
 	private String valuesColName;
 	private String srcColName;
-	private boolean includeNamespaces;
 	
 	public CreateOVTableFromNetworkTaskFactory(OVManager ovManager, CyNetwork cyNetwork, String keyCyTableColName,
-			List<String> cyTableColNames, String tableName, String valuesColName, String srcColName,
-			boolean includeNamespaces) {
+			List<String> cyTableColNames, String tableName, String valuesColName, String srcColName) {
 		super();
 		this.ovManager = ovManager;
 		this.cyNetwork = cyNetwork;
@@ -30,11 +28,10 @@ public class CreateOVTableFromNetworkTaskFactory extends AbstractTaskFactory {
 		this.tableName = tableName;
 		this.valuesColName = valuesColName;
 		this.srcColName = srcColName;
-		this.includeNamespaces = includeNamespaces;
 	}
 
 	public CreateOVTableFromNetworkTaskFactory(OVManager ovManager) {
-		this(ovManager, null, null, null, null, null, null, true);
+		this(ovManager, null, null, null, null, null, null);
 	}
 
 	@Override
@@ -42,7 +39,7 @@ public class CreateOVTableFromNetworkTaskFactory extends AbstractTaskFactory {
 		if(this.cyNetwork == null) {
 			return new TaskIterator(new CreateOVTableFromNetworkTunableTask(ovManager));
 		}
-		return new TaskIterator(new CreateOVTableFromNetworkTask(ovManager, cyNetwork, keyCyTableColName, cyTableColNames, tableName, valuesColName, srcColName, includeNamespaces));
+		return new TaskIterator(new CreateOVTableFromNetworkTask(ovManager, cyNetwork, keyCyTableColName, cyTableColNames, tableName, valuesColName, srcColName));
 	}
 
 }

@@ -25,12 +25,11 @@ public class CreateOVTableFromNetworkTask extends AbstractTask implements Observ
 	protected String tableName;
 	protected String valuesColName;
 	protected String srcColName;
-	protected boolean displayNamespaces;
 	
 	private CyTable newCyTable;
 
 	public CreateOVTableFromNetworkTask(OVManager ovManager, CyNetwork cyNetwork, String keyCyTableColName, List<String> cyTableColNames, String tableName,
-			String valuesColName, String srcColName, boolean displayNamespaces) {
+			String valuesColName, String srcColName) {
 		super();
 		this.ovManager = ovManager;
 		this.cyNetwork = cyNetwork;
@@ -39,7 +38,14 @@ public class CreateOVTableFromNetworkTask extends AbstractTask implements Observ
 		this.tableName = tableName;
 		this.valuesColName = valuesColName;
 		this.srcColName = srcColName;
-		this.displayNamespaces = displayNamespaces;
+	}
+	
+	private String getNamespace(String colname) {
+		if(colname == null || !colname.contains("::")) {
+			return "";
+		}
+		
+		return colname.split("::", 2)[1];
 	}
 
 	@Override
@@ -78,12 +84,19 @@ public class CreateOVTableFromNetworkTask extends AbstractTask implements Observ
 		
 		boolean error=false;
 		boolean sameType=true;
+		boolean displayNamespaces=false;
+		String firstNamespace = getNamespace(this.cyTableColNames.get(0));
 		for(String col : this.cyTableColNames) {
 			if(cyTable.getColumn(col) == null) {
 				error=true;
 				taskMonitor.showMessage(Level.ERROR, "ERROR: The column \"" + col + "\" is not in the table \"" + cyTable.getTitle() + "\".");
-			} else if(valuesType != cyTable.getColumn(col).getType()) {
-				sameType=false;
+			} else {
+				if(valuesType != cyTable.getColumn(col).getType()) {
+					sameType=false;
+				}
+				// We check if we display the namespace
+				// We display the namespace if there are columns from different namespaces
+				displayNamespaces |= !firstNamespace.equals(getNamespace(col));
 			}
 		}
 		if(error) {

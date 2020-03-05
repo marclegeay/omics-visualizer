@@ -45,7 +45,6 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 	private JTextField tableName;
 	private JTextField valuesName;
 	private JTextField srcName;
-	private JCheckBox includeNamespaces;
 	
 	private JButton createButton;
 	private JButton cancelButton;
@@ -76,9 +75,6 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 		
 		this.srcName = new JTextField(OVShared.OV_DEFAULT_VALUES_SOURCE_COLNAME);
 		this.srcName.setToolTipText(SRC_NAME_TOOLTIP);
-		
-		this.includeNamespaces = new JCheckBox("Include namespaces in the source", true);
-		this.includeNamespaces.setToolTipText("Should the namespaces be included in the name of the imported source columns?");
 		
 		this.createButton = new JButton("Create");
 		this.createButton.addActionListener(this);
@@ -134,8 +130,6 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 		srcLabel.setToolTipText(SRC_NAME_TOOLTIP);
 		configPanel.add(srcLabel, c.nextRow());
 		configPanel.add(this.srcName, c.nextCol());
-		
-		configPanel.add(this.includeNamespaces, c.nextRow().nextCol());
 		
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
@@ -258,8 +252,7 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 					selectedColumns,
 					tableName.getText(),
 					valuesName.getText(),
-					srcName.getText(),
-					this.includeNamespaces.isSelected());
+					srcName.getText());
 			this.ovManager.executeTask(factory.createTaskIterator());
 			this.setVisible(false);
 		} else if(e.getSource() == this.cancelButton) {
