@@ -1,6 +1,7 @@
 package dk.ku.cpr.OmicsVisualizer.internal.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -11,40 +12,28 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
-import org.cytoscape.application.swing.CyColumnPresentationManager;
-import org.cytoscape.application.swing.CyColumnSelector;
 import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableManager;
-import org.cytoscape.util.swing.IconManager;
 import org.cytoscape.util.swing.LookAndFeelUtil;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
-import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
-import dk.ku.cpr.OmicsVisualizer.internal.task.CreateOVTableFromNetworkTaskFactory;
 
 public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 	private static final long serialVersionUID = -8874802023098233849L;
 	private static final String KEY_COL_TOOLTIP = "Column used from the node table to identify rows in the new table. This column will be used to link the new table with the network.";
-	private static final String VALUES_NAME_TOOLTIP = "Name of the column of the new table containing the values of the imported columns.";
-	private static final String SRC_NAME_TOOLTIP = "Name of the column of the new table containing the name of the imported columns where the values come from.";
 	
 	private JComboBox<CyNetwork> selectNetwork;
 	private JComboBox<String> selectKeyCol;
-	private CyColumnSelector columnsSelector;
-	private JTextField tableName;
-	private JTextField valuesName;
-	private JTextField srcName;
+	private SelectAndOrderColumnPanel columnsSelector;
 	
 	private JButton createButton;
 	private JButton cancelButton;
@@ -64,17 +53,7 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 		this.selectKeyCol = new JComboBox<>();
 		this.selectKeyCol.setToolTipText(KEY_COL_TOOLTIP);
 		
-		IconManager iconManager = this.ovManager.getService(IconManager.class);
-		CyColumnPresentationManager presentationManager = this.ovManager.getService(CyColumnPresentationManager.class);
-		this.columnsSelector = new CyColumnSelector(iconManager, presentationManager);
-		
-		this.tableName = new JTextField();
-		
-		this.valuesName = new JTextField(OVShared.OV_DEFAULT_VALUES_COLNAME);
-		this.valuesName.setToolTipText(VALUES_NAME_TOOLTIP);
-		
-		this.srcName = new JTextField(OVShared.OV_DEFAULT_VALUES_SOURCE_COLNAME);
-		this.srcName.setToolTipText(SRC_NAME_TOOLTIP);
+		this.columnsSelector = new SelectAndOrderColumnPanel(this);
 		
 		this.createButton = new JButton("Create");
 		this.createButton.addActionListener(this);
@@ -91,7 +70,10 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 		}
 	}
 	
-	private void draw() {
+	public void draw() {
+		// If we re-draw the window, it should not be smaller than before
+		this.setMinimumSize(new Dimension(this.getWidth(), this.getHeight()));
+		
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -112,24 +94,9 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 		configPanel.add(keyColLabel, c.nextRow());
 		configPanel.add(this.selectKeyCol, c.nextCol());
 
-		// This JLabel must be displayed in the top-left corner
-		configPanel.add(new JLabel("Columns to import:"), c.nextRow().setAnchor("NW"));
-		// reset constraint
-		c.setAnchor("C");
-		configPanel.add(this.columnsSelector, c.nextCol());
-		
-		configPanel.add(new JLabel("New table name:"), c.nextRow());
-		configPanel.add(this.tableName, c.nextCol());
-		
-		JLabel valuesLabel = new JLabel("Values column name:");
-		valuesLabel.setToolTipText(VALUES_NAME_TOOLTIP);
-		configPanel.add(valuesLabel, c.nextRow());
-		configPanel.add(this.valuesName, c.nextCol());
-
-		JLabel srcLabel = new JLabel("Sources column name:");
-		srcLabel.setToolTipText(SRC_NAME_TOOLTIP);
-		configPanel.add(srcLabel, c.nextRow());
-		configPanel.add(this.srcName, c.nextCol());
+//		configPanel.add(new JLabel("Columns to import:"), c.nextRow());
+		configPanel.add(this.columnsSelector, c.nextRow().useNCols(2).expandBoth().setInsets(0, 0, 0, 0));
+		c.useNCols(1).expandHorizontal().setInsets(MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET);
 		
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
@@ -164,8 +131,6 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 				}
 			}
 		}
-		
-		this.tableName.setText(name);
 	}
 
 	@Override
@@ -190,7 +155,7 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 				nodeColumns.remove(colSUID);
 			}
 			
-			this.columnsSelector.update(nodeColumns, null);
+			this.columnsSelector.update(nodeColumns);
 			
 			guessTableName(selectedNetwork.toString()+" node table");
 			
@@ -233,27 +198,11 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 				return;
 			}
 			
-			// We check the table name
-			final CyTableManager tableMgr = this.ovManager.getService(CyTableManager.class);
-
-			for (CyTable table : tableMgr.getGlobalTables()) {
-					if (table.getTitle().equals(tableName.getText())) {
-						JOptionPane.showMessageDialog(this,
-								"The table name already exists. Please select another name.",
-								"Error",
-								JOptionPane.ERROR_MESSAGE);
-						return;
-					}
-			}
-			
-			CreateOVTableFromNetworkTaskFactory factory = new CreateOVTableFromNetworkTaskFactory(ovManager,
-					selectedNetwork,
-					(String) selectKeyCol.getSelectedItem(),
-					selectedColumns,
-					tableName.getText(),
-					valuesName.getText(),
-					srcName.getText());
-			this.ovManager.executeTask(factory.createTaskIterator());
+//			CreateOVTableFromNetworkTaskFactory factory = new CreateOVTableFromNetworkTaskFactory(ovManager,
+//					selectedNetwork,
+//					(String) selectKeyCol.getSelectedItem(),
+//					selectedColumns);
+//			this.ovManager.executeTask(factory.createTaskIterator());
 			this.setVisible(false);
 		} else if(e.getSource() == this.cancelButton) {
 			this.setVisible(false);
