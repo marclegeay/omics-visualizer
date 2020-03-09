@@ -17,6 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyNetwork;
@@ -131,6 +132,16 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 				}
 			}
 		}
+	}
+	
+	@Override
+	public void setVisible(boolean b) {
+		if(b) {
+			// We pre-select the active network
+			this.selectNetwork.setSelectedItem(this.ovManager.getService(CyApplicationManager.class).getCurrentNetwork());
+		}
+		
+		super.setVisible(b);
 	}
 
 	@Override

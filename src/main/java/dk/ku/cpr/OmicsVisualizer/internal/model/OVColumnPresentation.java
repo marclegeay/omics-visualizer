@@ -20,7 +20,7 @@ public class OVColumnPresentation implements CyColumnPresentation {
 	
 	@Override
 	public Icon getNamespaceIcon() {
-		char chart = 'e';
+		char chart = 'e'; // pie
 		
 		String texts[] = {
 				Character.toString((char) (chart+1)),
