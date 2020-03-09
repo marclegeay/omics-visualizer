@@ -20,7 +20,7 @@ public class OVColumnPresentation implements CyColumnPresentation {
 	
 	@Override
 	public Icon getNamespaceIcon() {
-		char chart = 'a';
+		char chart = 'e';
 		
 		String texts[] = {
 				Character.toString((char) (chart+1)),
@@ -28,9 +28,14 @@ public class OVColumnPresentation implements CyColumnPresentation {
 				Character.toString((char) (chart+3))
 		};
 		Color colors[] = {
-				new Color(33,102,172),
-				new Color(247,247,247),
-				new Color(178,24,43)
+//				// blue - white - red
+//				new Color(33,102,172),
+//				new Color(247,247,247),
+//				new Color(178,24,43)
+				// Viridis colors
+				new Color(68,1,84),
+				new Color(33,145,140),
+				new Color(253,231,37)
 		};
 		
 		return new TextIcon(texts, this.ovManager.getIconFont().deriveFont(15.0f), colors, ICON_SIZE, ICON_SIZE);
