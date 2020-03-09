@@ -61,8 +61,9 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 	private JList<String> availableNamespaces;
 	private JList<CyColumn> unselectedCols;
 	private JList<CyColumn> selectedCols;
-	
+
 	private JScrollPane unselectedSP;
+	private JScrollPane selectedSP;
 
 	private JButton allButton;
 	private JButton upButton;
@@ -92,6 +93,7 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 		this.availableNamespaces.addListSelectionListener(this);
 		this.availableNamespaces.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
+		// The prototype Column is used to give a minimum size to lists
 		CyNetwork protoNet = ovManager.getService(CyNetworkFactory.class).createNetworkWithPrivateTables();
 		protoNet.getDefaultNodeTable().createColumn("very long column name prototype", String.class, true);
 		CyColumn protoCol = protoNet.getDefaultNodeTable().getColumn("very long column name prototype");
@@ -108,6 +110,8 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 		this.selectedCols.setCellRenderer(new ColumnCellRenderer());
 		this.selectedCols.addListSelectionListener(this);
 		this.selectedCols.setPrototypeCellValue(protoCol);
+		
+		this.selectedSP = new JScrollPane(this.selectedCols);
 		
 		this.allButton = new JButton("Select all");
 		this.allButton.addActionListener(this);
@@ -181,7 +185,7 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 		// the previous was on 2 cells, so we have to use nextCol at least once
 		c.useNCols(1).nextCol();
 		mainPanel.add(buttonLeftRightPanel, c.nextCol().noExpand());
-		mainPanel.add(new JScrollPane(this.selectedCols), c.nextCol().expandBoth().useNCols(2));
+		mainPanel.add(this.selectedSP, c.nextCol().expandBoth().useNCols(2));
 		c.useNCols(1).nextCol().setInsets(MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET);
 		
 		this.setLayout(new BorderLayout());
@@ -284,11 +288,17 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 			int nbInserted=0;
 			// we will modify selectedIndices, so that the new array will contain the indices of the added elements in the new list
 			int selectedIndices[] = this.unselectedCols.getSelectedIndices();
+			// We store the lower index to put the ScrollBar at the level of the item
+			int lowerIndex = -1;
 			for(int i=0; i<selectedIndices.length; ++i) {
 				int trueIndice = selectedIndices[i] - nbInserted;
 				if(trueIndice < this.unselectedModel.getSize()) {
 					selectedIndices[i] = this.selectedModel.add(this.unselectedModel.removeElement(trueIndice));
 					nbInserted++;
+					
+					if((lowerIndex == -1) || (selectedIndices[i] < lowerIndex)) {
+						lowerIndex = selectedIndices[i];
+					}
 				} else {
 					selectedIndices[i] = -1;
 				}
@@ -296,6 +306,24 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 			
 			// We select the added elements
 			this.selectedCols.setSelectedIndices(selectedIndices);
+			// We put the ScrollBar at the level of the first selected item
+			if(lowerIndex != -1) {
+				// We force the ScrollPane to resize
+				this.selectedSP.setViewportView(this.selectedCols);
+				int nbUnselected = this.selectedModel.getSize();
+				int scrollBarMax = this.selectedSP.getVerticalScrollBar().getMaximum();
+
+				int itemHeight = scrollBarMax / nbUnselected;
+				int newPosition = itemHeight * lowerIndex;
+				
+				int currentPosition = this.selectedSP.getVerticalScrollBar().getValue();
+				int viewSize = this.selectedSP.getVerticalScrollBar().getVisibleAmount();
+
+				// We move only if the newPosition is not already shown
+				if((newPosition < currentPosition) || (newPosition+itemHeight > currentPosition+viewSize)) {
+					this.selectedSP.getVerticalScrollBar().setValue(newPosition);
+				}
+			}
 
 			// We change the selection (of the reduced list) to be sure that at least one item is selected
 			int newSelectedIndex = this.unselectedCols.getSelectedIndex();
@@ -318,11 +346,17 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 			int nbInserted=0;
 			// we will modify selectedIndices, so that the new array will contain the indices of the added elements in the new list
 			int selectedIndices[] = this.selectedCols.getSelectedIndices();
+			// We store the lower index to put the ScrollBar at the level of the item
+			int lowerIndex = -1;
 			for(int i=0; i<selectedIndices.length; ++i) {
 				int trueIndice = selectedIndices[i] - nbInserted;
 				if(trueIndice < this.selectedModel.getSize()) {
 					selectedIndices[i] = this.unselectedModel.add(this.selectedModel.removeElement(trueIndice));
 					nbInserted++;
+					
+					if((lowerIndex == -1) || (selectedIndices[i] < lowerIndex)) {
+						lowerIndex = selectedIndices[i];
+					}
 				} else {
 					selectedIndices[i] = -1;
 				}
@@ -330,6 +364,24 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 			
 			// We select the added elements
 			this.unselectedCols.setSelectedIndices(selectedIndices);
+			// We put the ScrollBar at the level of the first selected item
+			if(lowerIndex != -1) {
+				// We force the ScrollPane to resize
+				this.unselectedSP.setViewportView(this.unselectedCols);
+				int nbUnselected = this.unselectedModel.getSize();
+				int scrollBarMax = this.unselectedSP.getVerticalScrollBar().getMaximum();
+
+				int itemHeight = scrollBarMax / nbUnselected;
+				int newPosition = itemHeight * lowerIndex;
+				
+				int currentPosition = this.unselectedSP.getVerticalScrollBar().getValue();
+				int viewSize = this.unselectedSP.getVerticalScrollBar().getVisibleAmount();
+
+				// We move only if the newPosition is not already shown
+				if((newPosition < currentPosition) || (newPosition+itemHeight > currentPosition+viewSize)) {
+					this.unselectedSP.getVerticalScrollBar().setValue(newPosition);
+				}
+			}
 
 			// We change the selection (of the reduced list) to be sure that at least one item is selected
 			int newSelectedIndex = this.selectedCols.getSelectedIndex();
