@@ -1,5 +1,8 @@
 package dk.ku.cpr.OmicsVisualizer.internal.model;
 
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -108,6 +111,19 @@ NetworkAddedListener {
 		this.readerManager = new GenericReaderManager<>(DataCategory.TABLE, streamUtil);
 
 		initOVTables();
+	}
+	
+	/**
+	 * Get the font for OV icons.
+	 * @return the font
+	 */
+	public Font getIconFont() {
+		try {
+			return Font.createFont(Font.TRUETYPE_FONT, OVManager.class.getResourceAsStream("/fonts/charts.ttf"));
+		} catch (FontFormatException e) {
+		} catch (IOException e) {
+		}
+		return null;
 	}
 
 	/**

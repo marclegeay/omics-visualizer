@@ -4,6 +4,7 @@ import static org.cytoscape.io.DataCategory.TABLE;
 
 import java.util.Properties;
 
+import org.cytoscape.application.swing.CyColumnPresentation;
 import org.cytoscape.io.util.StreamUtil;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
 import org.cytoscape.model.events.NetworkAddedListener;
@@ -23,6 +24,7 @@ import dk.ku.cpr.OmicsVisualizer.external.tableimport.task.ImportNoGuiOVTableRea
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.task.LoadOVTableFileTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.tunable.AttributeDoubleIDMappingParametersHandlerFactory;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.ImportType;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVColumnPresentation;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
@@ -64,6 +66,13 @@ public class CyActivator extends AbstractCyActivator {
 		registerService(context, ovManager, NetworkAboutToBeDestroyedListener.class);
 		registerService(context, ovManager, NetworkDestroyedListener.class);
 		registerService(context, ovManager, NetworkAddedListener.class);
+		
+		// Set the default column representation of OV columns
+		{
+			Properties props = new Properties();
+			props.put(CyColumnPresentation.NAMESPACE, OVShared.OV_COLUMN_NAMESPACE);
+			registerService(context, new OVColumnPresentation(ovManager), CyColumnPresentation.class, props);
+		}
 		
 		// Version (Command only)
 		{

@@ -159,13 +159,9 @@ SelectedNodesAndEdgesListener {
 			this.iconStringFont=null;
 		}
 		
-		try {
-			this.iconChartsFont = Font.createFont(Font.TRUETYPE_FONT, OVCytoPanel.class.getResourceAsStream("/fonts/charts.ttf"));
+		this.iconChartsFont = this.ovManager.getIconFont();
+		if(this.iconChartsFont != null) {
 			this.iconChartsFont = this.iconChartsFont.deriveFont(ICON_FONT_SIZE);
-		} catch (FontFormatException e) {
-			this.iconChartsFont=null;
-		} catch (IOException e) {
-			this.iconChartsFont=null;
 		}
 
 		iconActive = new Color(0,153,0); // Green

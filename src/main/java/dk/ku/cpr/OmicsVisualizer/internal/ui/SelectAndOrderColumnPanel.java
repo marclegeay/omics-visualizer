@@ -502,6 +502,7 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 				return 0;
 			}
 			
+			// We put the default namespace first
 			if(o1.equals(SelectAndOrderColumnPanel.DefaultNamespace)) {
 				return -1;
 			}
@@ -510,7 +511,8 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 				return 1;
 			}
 			
-			return o1.compareTo(o2);
+			// We sort namespaces case-insensitive
+			return o1.toLowerCase().compareTo(o2.toLowerCase());
 		}
 		
 	}

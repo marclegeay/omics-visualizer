@@ -18,5 +18,10 @@ public class ShowCopyNodeTableTaskFactory extends AbstractTaskFactory {
 	public TaskIterator createTaskIterator() {
 		return new TaskIterator(new ShowCopyNodeTableTask(this.ovManager));
 	}
+	
+	@Override
+	public boolean isReady() {
+		return !this.ovManager.getNetworkManager().getNetworkSet().isEmpty();
+	}
 
 }
