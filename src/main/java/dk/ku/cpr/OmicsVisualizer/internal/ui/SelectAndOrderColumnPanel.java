@@ -102,14 +102,14 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 		this.unselectedCols.setCellRenderer(new ColumnCellRenderer());
 		this.unselectedCols.setPrototypeCellValue(protoCol);
 		
-		this.unselectedSP = new JScrollPane(this.unselectedCols);
-		// We always show the bar, so that the GUI does not "jump" when switching to a namespace with few and a lot of columns
-		this.unselectedSP.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		
 		this.selectedCols = new JList<>(this.selectedModel);
 		this.selectedCols.setCellRenderer(new ColumnCellRenderer());
 		this.selectedCols.addListSelectionListener(this);
 		this.selectedCols.setPrototypeCellValue(protoCol);
+		
+		this.unselectedSP = new JScrollPane(this.unselectedCols);
+		// We always show the bar, so that the GUI does not "jump" when switching to a namespace with few and a lot of columns
+		this.unselectedSP.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		
 		this.selectedSP = new JScrollPane(this.selectedCols);
 		
@@ -213,7 +213,13 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 		}
 		
 		// We select the first namespace
-		this.availableNamespaces.setSelectedIndex(0);
+		if(this.availableNamespaces.getSelectedIndex() == 0) {
+			// first one already selected, but we force the reload of namespace columns
+			// this happens if we change the network
+			namespaceChanged();
+		} else {
+			this.availableNamespaces.setSelectedIndex(0);
+		}
 	}
 	
 	public List<String> getSelectedColumnNames() {
@@ -225,32 +231,36 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 		
 		return colNames;
 	}
+	
+	private void namespaceChanged() {
+		this.unselectedModel.removeAllElements();
+		// We put the scroll back to top
+		this.unselectedSP.getVerticalScrollBar().setValue(0);
+		// We deselect everything in the column list
+		this.unselectedCols.clearSelection();
+
+		String selectedNamespace = this.namespaceModel.getElementAt(this.availableNamespaces.getSelectedIndex());
+		this.unselectedModel.setNamespace(selectedNamespace);
+
+		for(CyColumn col : this.availableColumns) {
+			// the Model will only add columns from the selected Namespace
+			this.unselectedModel.add(col);
+		}
+
+		if(this.unselectedModel.getSize()>0) {
+			this.rightButton.setEnabled(true);
+			this.unselectedCols.setSelectedIndex(0);
+		} else {
+			this.rightButton.setEnabled(false);
+		}
+
+		this.parent.draw();
+	}
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
 		if(e.getSource() == this.availableNamespaces) {
-			this.unselectedModel.removeAllElements();
-			// We put the scroll back to top
-			this.unselectedSP.getVerticalScrollBar().setValue(0);
-			// We deselect everything in the column list
-			this.unselectedCols.clearSelection();
-			
-			String selectedNamespace = this.namespaceModel.getElementAt(this.availableNamespaces.getSelectedIndex());
-			this.unselectedModel.setNamespace(selectedNamespace);
-			
-			for(CyColumn col : this.availableColumns) {
-				// the Model will only add columns from the selected Namespace
-				this.unselectedModel.add(col);
-			}
-			
-			if(this.unselectedModel.getSize()>0) {
-				this.rightButton.setEnabled(true);
-				this.unselectedCols.setSelectedIndex(0);
-			} else {
-				this.rightButton.setEnabled(false);
-			}
-			
-			this.parent.draw();
+			namespaceChanged();
 		} else if(e.getSource() == this.selectedCols) {
 			// selectedIndices is sorted ascending
 			int selectedIndices[] = this.selectedCols.getSelectedIndices();

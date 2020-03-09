@@ -138,7 +138,10 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 	public void setVisible(boolean b) {
 		if(b) {
 			// We pre-select the active network
-			this.selectNetwork.setSelectedItem(this.ovManager.getService(CyApplicationManager.class).getCurrentNetwork());
+			CyNetwork currentNetwork = this.ovManager.getService(CyApplicationManager.class).getCurrentNetwork();
+			if(currentNetwork != null) {
+				this.selectNetwork.setSelectedItem(currentNetwork);
+			}
 		}
 		
 		super.setVisible(b);
