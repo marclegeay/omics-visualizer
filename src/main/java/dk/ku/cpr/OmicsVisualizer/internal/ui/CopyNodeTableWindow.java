@@ -33,7 +33,7 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 	private static final String KEY_COL_TOOLTIP = "Column used from the node table to identify rows in the new table. This column will be used to link the new table with the network.";
 	
 	private JComboBox<CyNetwork> selectNetwork;
-	private JComboBox<String> selectKeyCol;
+	private JComboBox<CyColumn> selectKeyCol;
 	private SelectAndOrderColumnPanel columnsSelector;
 	
 	private JButton createButton;
@@ -53,6 +53,7 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 		
 		this.selectKeyCol = new JComboBox<>();
 		this.selectKeyCol.setToolTipText(KEY_COL_TOOLTIP);
+		this.selectKeyCol.setRenderer(new ColumnCellRenderer(this.ovManager));
 		
 		this.columnsSelector = new SelectAndOrderColumnPanel(this);
 		
@@ -151,25 +152,18 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == this.selectNetwork) {
 			CyNetwork selectedNetwork = (CyNetwork) this.selectNetwork.getSelectedItem();
-			Collection<CyColumn> nodeColumns = selectedNetwork.getDefaultNodeTable().getColumns();
+			Collection<CyColumn> availableColumns = new ArrayList<>();
 			
 			this.selectKeyCol.removeAllItems();
-			CyColumn colSUID = null;
-			for(CyColumn col : nodeColumns) {
-				// We don't want to use SUID
-				if(!col.getName().equals(CyNetwork.SUID)) {
-					this.selectKeyCol.addItem(col.getName());
-				} else {
-					colSUID = col;
+			for(CyColumn col : selectedNetwork.getDefaultNodeTable().getColumns()) {
+				// We don't want to use SUID nor List columns
+				if(!col.getName().equals(CyNetwork.SUID) && col.getType() != List.class) {
+					this.selectKeyCol.addItem(col);
+					availableColumns.add(col);
 				}
 			}
 			
-			// We get rid of the SUID column
-			if(colSUID != null) {
-				nodeColumns.remove(colSUID);
-			}
-			
-			this.columnsSelector.update(nodeColumns);
+			this.columnsSelector.update(availableColumns);
 			
 			guessTableName(selectedNetwork.toString()+" node table");
 			

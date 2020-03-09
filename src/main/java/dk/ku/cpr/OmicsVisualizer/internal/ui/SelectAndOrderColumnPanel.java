@@ -2,7 +2,6 @@ package dk.ku.cpr.OmicsVisualizer.internal.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,7 +22,6 @@ import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -65,11 +63,12 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 	private JScrollPane unselectedSP;
 	private JScrollPane selectedSP;
 
-	private JButton allButton;
 	private JButton upButton;
 	private JButton downButton;
 	private JButton leftButton;
 	private JButton rightButton;
+	private JButton allLeftButton;
+	private JButton allRightButton;
 	
 	public SelectAndOrderColumnPanel(CopyNodeTableWindow parent) {
 		super();
@@ -99,11 +98,11 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 		CyColumn protoCol = protoNet.getDefaultNodeTable().getColumn("very long column name prototype");
 		
 		this.unselectedCols = new JList<>(this.unselectedModel);
-		this.unselectedCols.setCellRenderer(new ColumnCellRenderer());
+		this.unselectedCols.setCellRenderer(new ColumnCellRenderer(ovManager));
 		this.unselectedCols.setPrototypeCellValue(protoCol);
 		
 		this.selectedCols = new JList<>(this.selectedModel);
-		this.selectedCols.setCellRenderer(new ColumnCellRenderer());
+		this.selectedCols.setCellRenderer(new ColumnCellRenderer(ovManager));
 		this.selectedCols.addListSelectionListener(this);
 		this.selectedCols.setPrototypeCellValue(protoCol);
 		
@@ -113,24 +112,35 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 		
 		this.selectedSP = new JScrollPane(this.selectedCols);
 		
-		this.allButton = new JButton("Select all");
-		this.allButton.addActionListener(this);
-		
 		this.upButton = new JButton(IconManager.ICON_ANGLE_UP);
 		this.upButton.setFont(this.iconManager.getIconFont(ICON_FONT_SIZE));
+		this.upButton.setToolTipText("Move the selected column up");
 		this.upButton.addActionListener(this);
 		
 		this.downButton = new JButton(IconManager.ICON_ANGLE_DOWN);
 		this.downButton.setFont(this.iconManager.getIconFont(ICON_FONT_SIZE));
+		this.downButton.setToolTipText("Move the selected column down");
 		this.downButton.addActionListener(this);
 		
 		this.leftButton = new JButton(IconManager.ICON_ANGLE_LEFT);
 		this.leftButton.setFont(this.iconManager.getIconFont(ICON_FONT_SIZE));
+		this.leftButton.setToolTipText("Deselect the highlited columns");
 		this.leftButton.addActionListener(this);
 		
 		this.rightButton = new JButton(IconManager.ICON_ANGLE_RIGHT);
 		this.rightButton.setFont(this.iconManager.getIconFont(ICON_FONT_SIZE));
+		this.rightButton.setToolTipText("Select the highligted columns");
 		this.rightButton.addActionListener(this);
+		
+		this.allLeftButton = new JButton(IconManager.ICON_ANGLE_LEFT + IconManager.ICON_ANGLE_LEFT);
+		this.allLeftButton.setFont(this.iconManager.getIconFont(ICON_FONT_SIZE));
+		this.allLeftButton.setToolTipText("Deselect all columns");
+		this.allLeftButton.addActionListener(this);
+		
+		this.allRightButton = new JButton(IconManager.ICON_ANGLE_RIGHT + IconManager.ICON_ANGLE_RIGHT);
+		this.allRightButton.setFont(this.iconManager.getIconFont(ICON_FONT_SIZE));
+		this.allRightButton.setToolTipText("Select all the namespace columns");
+		this.allRightButton.addActionListener(this);
 		
 		this.draw();
 	}
@@ -148,8 +158,10 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 		cButtonLR.setInsets(0, 0, 0, 0);
 		cButtonLR.expandHorizontal();
 		
-		buttonLeftRightPanel.add(this.rightButton, cButtonLR);
+		buttonLeftRightPanel.add(this.allRightButton, cButtonLR);
+		buttonLeftRightPanel.add(this.rightButton, cButtonLR.nextRow());
 		buttonLeftRightPanel.add(this.leftButton, cButtonLR.nextRow());
+		buttonLeftRightPanel.add(this.allLeftButton, cButtonLR.nextRow());
 		
 		JPanel buttonUpDownPanel = new JPanel();
 		buttonUpDownPanel.setOpaque(!LookAndFeelUtil.isAquaLAF());
@@ -172,8 +184,6 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 		c.setInsets(MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, 0, MyGridBagConstraints.DEFAULT_INSET);
 		mainPanel.add(new JLabel("Namespaces:"), c);
 		mainPanel.add(new JLabel("Available columns:"), c.nextCol());
-		mainPanel.add(this.allButton, c.nextCol().noExpand());
-		c.expandBoth();
 		mainPanel.add(new JLabel("Selected columns:"), c.nextCol().nextCol());
 		mainPanel.add(buttonUpDownPanel, c.nextCol().noExpand());
 		c.expandBoth();
@@ -181,9 +191,7 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 		// We get rid of the top padding
 		c.setInsets(0, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET);
 		mainPanel.add(new JScrollPane(this.availableNamespaces), c.nextRow());
-		mainPanel.add(this.unselectedSP, c.nextCol().useNCols(2));
-		// the previous was on 2 cells, so we have to use nextCol at least once
-		c.useNCols(1).nextCol();
+		mainPanel.add(this.unselectedSP, c.nextCol());
 		mainPanel.add(buttonLeftRightPanel, c.nextCol().noExpand());
 		mainPanel.add(this.selectedSP, c.nextCol().expandBoth().useNCols(2));
 		c.useNCols(1).nextCol().setInsets(MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET);
@@ -193,7 +201,7 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 	}
 	
 	public void update(Collection<CyColumn> cyCols) {
-		this.availableColumns = cyCols;
+		this.availableColumns = new ArrayList<>();
 		
 		// We clear the JLists
 		this.namespaceModel.removeAllElements();
@@ -202,14 +210,19 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 		
 		// selected list is empty
 		this.leftButton.setEnabled(false);
+		this.allLeftButton.setEnabled(false);
 		this.upButton.setEnabled(false);
 		this.downButton.setEnabled(false);
 		
 		// We identify the namespaces
-		for(CyColumn col : this.availableColumns) {
-			String namespace = presentationManager.getColumnPresentation(col.getNamespace()).getNamespaceDescription();
-			
-			this.namespaceModel.add(namespace);
+		for(CyColumn col : cyCols) {
+			// We only add non-list columns
+			if(col.getType() != List.class) {
+				this.availableColumns.add(col);
+				
+				String namespace = presentationManager.getColumnPresentation(col.getNamespace()).getNamespaceDescription();
+				this.namespaceModel.add(namespace);
+			}
 		}
 		
 		// We select the first namespace
@@ -249,12 +262,138 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 
 		if(this.unselectedModel.getSize()>0) {
 			this.rightButton.setEnabled(true);
+			this.allRightButton.setEnabled(true);
 			this.unselectedCols.setSelectedIndex(0);
 		} else {
 			this.rightButton.setEnabled(false);
+			this.allRightButton.setEnabled(false);
 		}
 
 		this.parent.draw();
+	}
+	
+	// selectedIndices: indices of selected rows in 'unselectedCols'
+	// -> The indices should be sort ascending
+	private void selectColumns(int selectedIndices[]) {
+		// We take the columns from the unselected and we put them in the selected
+
+		// getSelectedIndices gives the indices sorting ascending
+		// remove will change the indices
+		// so if indices 0,2,3 are selected
+		// we want to remove 0, then 1, then 1.
+		int nbInserted=0;
+		// We store the lower index to put the ScrollBar at the level of the item
+		int lowerIndex = -1;
+		for(int i=0; i<selectedIndices.length; ++i) {
+			int trueIndice = selectedIndices[i] - nbInserted;
+			if(trueIndice < this.unselectedModel.getSize()) {
+				selectedIndices[i] = this.selectedModel.add(this.unselectedModel.removeElement(trueIndice));
+				nbInserted++;
+				
+				if((lowerIndex == -1) || (selectedIndices[i] < lowerIndex)) {
+					lowerIndex = selectedIndices[i];
+				}
+			} else {
+				selectedIndices[i] = -1;
+			}
+		}
+		
+		// We select the added elements
+		this.selectedCols.setSelectedIndices(selectedIndices);
+		// We put the ScrollBar at the level of the first selected item
+		if(lowerIndex != -1) {
+			// We force the ScrollPane to resize
+			this.selectedSP.setViewportView(this.selectedCols);
+			int nbUnselected = this.selectedModel.getSize();
+			int scrollBarMax = this.selectedSP.getVerticalScrollBar().getMaximum();
+
+			int itemHeight = scrollBarMax / nbUnselected;
+			int newPosition = itemHeight * lowerIndex;
+			
+			int currentPosition = this.selectedSP.getVerticalScrollBar().getValue();
+			int viewSize = this.selectedSP.getVerticalScrollBar().getVisibleAmount();
+
+			// We move only if the newPosition is not already shown
+			if((newPosition < currentPosition) || (newPosition+itemHeight > currentPosition+viewSize)) {
+				this.selectedSP.getVerticalScrollBar().setValue(newPosition);
+			}
+		}
+
+		// We change the selection (of the reduced list) to be sure that at least one item is selected
+		int newSelectedIndex = this.unselectedCols.getSelectedIndex();
+		if(newSelectedIndex < 0) {
+			newSelectedIndex = 0;
+		} else if(newSelectedIndex >= this.unselectedModel.getSize()) {
+			newSelectedIndex = this.unselectedModel.getSize()-1;
+		}
+		this.unselectedCols.setSelectedIndex(newSelectedIndex);
+
+		this.leftButton.setEnabled(this.selectedModel.getSize()>0);
+		this.allLeftButton.setEnabled(this.selectedModel.getSize()>0);
+		this.rightButton.setEnabled(this.unselectedModel.getSize()>0);
+		this.allRightButton.setEnabled(this.unselectedModel.getSize()>0);
+	}
+
+	// selectedIndices: indices of selected rows in 'selectedCols'
+	// -> The indices should be sort ascending
+	private void deselectColumns(int selectedIndices[]) {
+		// We take the columns from the selected and we put them back in the unselected
+
+		// getSelectedIndices gives the indices sorting ascending
+		// remove will change the indices
+		// so if indices 0,2,3 are selected
+		// we want to remove 0, then 1, then 1.
+		int nbInserted=0;
+		// We store the lower index to put the ScrollBar at the level of the item
+		int lowerIndex = -1;
+		for(int i=0; i<selectedIndices.length; ++i) {
+			int trueIndice = selectedIndices[i] - nbInserted;
+			if(trueIndice < this.selectedModel.getSize()) {
+				selectedIndices[i] = this.unselectedModel.add(this.selectedModel.removeElement(trueIndice));
+				nbInserted++;
+				
+				if((lowerIndex == -1) || (selectedIndices[i] < lowerIndex)) {
+					lowerIndex = selectedIndices[i];
+				}
+			} else {
+				selectedIndices[i] = -1;
+			}
+		}
+		
+		// We select the added elements
+		this.unselectedCols.setSelectedIndices(selectedIndices);
+		// We put the ScrollBar at the level of the first selected item
+		if(lowerIndex != -1) {
+			// We force the ScrollPane to resize
+			this.unselectedSP.setViewportView(this.unselectedCols);
+			int nbUnselected = this.unselectedModel.getSize();
+			int scrollBarMax = this.unselectedSP.getVerticalScrollBar().getMaximum();
+
+			int itemHeight = scrollBarMax / nbUnselected;
+			int newPosition = itemHeight * lowerIndex;
+			
+			int currentPosition = this.unselectedSP.getVerticalScrollBar().getValue();
+			int viewSize = this.unselectedSP.getVerticalScrollBar().getVisibleAmount();
+
+			// We move only if the newPosition is not already shown
+			if((newPosition < currentPosition) || (newPosition+itemHeight > currentPosition+viewSize)) {
+				this.unselectedSP.getVerticalScrollBar().setValue(newPosition);
+			}
+		}
+
+		// We change the selection (of the reduced list) to be sure that at least one item is selected
+		int newSelectedIndex = this.selectedCols.getSelectedIndex();
+		if(newSelectedIndex < 0) {
+			newSelectedIndex = 0;
+		} else if(newSelectedIndex >= this.selectedModel.getSize()) {
+			newSelectedIndex = this.selectedModel.getSize()-1;
+		}
+		this.selectedCols.setSelectedIndex(newSelectedIndex);
+
+		this.leftButton.setEnabled(this.selectedModel.getSize()>0);
+		this.allLeftButton.setEnabled(this.selectedModel.getSize()>0);
+		this.rightButton.setEnabled(this.unselectedModel.getSize()>0);
+		this.allRightButton.setEnabled(this.unselectedModel.getSize()>0);
 	}
 
 	@Override
@@ -282,40 +421,41 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == this.allButton) {
-			int selectedIndices[] = new int[this.unselectedModel.getSize()];
-			for(int i=0; i<selectedIndices.length; ++i) {
-				selectedIndices[i] = i;
+		if(e.getSource() == this.allLeftButton) {
+			int allIndices[] = new int[this.selectedModel.getSize()];
+			for(int i=0; i<allIndices.length; ++i) {
+				allIndices[i] = i;
 			}
-			this.unselectedCols.setSelectedIndices(selectedIndices);
+			deselectColumns(allIndices);
+		} else if(e.getSource() == this.allRightButton) {
+			int allIndices[] = new int[this.unselectedModel.getSize()];
+			for(int i=0; i<allIndices.length; ++i) {
+				allIndices[i] = i;
+			}
+			selectColumns(allIndices);
 		} else if(e.getSource() == this.rightButton) {
-			// We take the columns from the unselected and we put them in the selected
-
-			// getSelectedIndices gives the indices sorting ascending
-			// remove will change the indices
-			// so if indices 0,2,3 are selected
-			// we want to remove 0, then 1, then 1.
-			int nbInserted=0;
-			// we will modify selectedIndices, so that the new array will contain the indices of the added elements in the new list
-			int selectedIndices[] = this.unselectedCols.getSelectedIndices();
+			selectColumns(this.unselectedCols.getSelectedIndices());
+		} else if(e.getSource() == this.leftButton) {
+			deselectColumns(this.selectedCols.getSelectedIndices());
+		} else if(e.getSource() == this.upButton) {
+			// the button should be disabled if the first item is selected
+			// we assume here it is not in the list
+			
+			// We will try to keep the selection after the move
+			int selectedIndices[] = this.selectedCols.getSelectedIndices();
 			// We store the lower index to put the ScrollBar at the level of the item
 			int lowerIndex = -1;
 			for(int i=0; i<selectedIndices.length; ++i) {
-				int trueIndice = selectedIndices[i] - nbInserted;
-				if(trueIndice < this.unselectedModel.getSize()) {
-					selectedIndices[i] = this.selectedModel.add(this.unselectedModel.removeElement(trueIndice));
-					nbInserted++;
-					
-					if((lowerIndex == -1) || (selectedIndices[i] < lowerIndex)) {
-						lowerIndex = selectedIndices[i];
-					}
-				} else {
-					selectedIndices[i] = -1;
+				this.selectedModel.swap(selectedIndices[i]-1, selectedIndices[i]);
+				selectedIndices[i]--;
+				
+				if((lowerIndex == -1) || (selectedIndices[i] < lowerIndex)) {
+					lowerIndex = selectedIndices[i];
 				}
 			}
 			
-			// We select the added elements
 			this.selectedCols.setSelectedIndices(selectedIndices);
+			
 			// We put the ScrollBar at the level of the first selected item
 			if(lowerIndex != -1) {
 				// We force the ScrollPane to resize
@@ -334,100 +474,43 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 					this.selectedSP.getVerticalScrollBar().setValue(newPosition);
 				}
 			}
-
-			// We change the selection (of the reduced list) to be sure that at least one item is selected
-			int newSelectedIndex = this.unselectedCols.getSelectedIndex();
-			if(newSelectedIndex < 0) {
-				newSelectedIndex = 0;
-			} else if(newSelectedIndex >= this.unselectedModel.getSize()) {
-				newSelectedIndex = this.unselectedModel.getSize()-1;
-			}
-			this.unselectedCols.setSelectedIndex(newSelectedIndex);
-			
-			this.leftButton.setEnabled(this.selectedModel.getSize()>0);
-			this.rightButton.setEnabled(this.unselectedModel.getSize()>0);
-		} else if(e.getSource() == this.leftButton) {
-			// We take the columns from the selected and we put them back in the unselected
-
-			// getSelectedIndices gives the indices sorting ascending
-			// remove will change the indices
-			// so if indices 0,2,3 are selected
-			// we want to remove 0, then 1, then 1.
-			int nbInserted=0;
-			// we will modify selectedIndices, so that the new array will contain the indices of the added elements in the new list
-			int selectedIndices[] = this.selectedCols.getSelectedIndices();
-			// We store the lower index to put the ScrollBar at the level of the item
-			int lowerIndex = -1;
-			for(int i=0; i<selectedIndices.length; ++i) {
-				int trueIndice = selectedIndices[i] - nbInserted;
-				if(trueIndice < this.selectedModel.getSize()) {
-					selectedIndices[i] = this.unselectedModel.add(this.selectedModel.removeElement(trueIndice));
-					nbInserted++;
-					
-					if((lowerIndex == -1) || (selectedIndices[i] < lowerIndex)) {
-						lowerIndex = selectedIndices[i];
-					}
-				} else {
-					selectedIndices[i] = -1;
-				}
-			}
-			
-			// We select the added elements
-			this.unselectedCols.setSelectedIndices(selectedIndices);
-			// We put the ScrollBar at the level of the first selected item
-			if(lowerIndex != -1) {
-				// We force the ScrollPane to resize
-				this.unselectedSP.setViewportView(this.unselectedCols);
-				int nbUnselected = this.unselectedModel.getSize();
-				int scrollBarMax = this.unselectedSP.getVerticalScrollBar().getMaximum();
-
-				int itemHeight = scrollBarMax / nbUnselected;
-				int newPosition = itemHeight * lowerIndex;
-				
-				int currentPosition = this.unselectedSP.getVerticalScrollBar().getValue();
-				int viewSize = this.unselectedSP.getVerticalScrollBar().getVisibleAmount();
-
-				// We move only if the newPosition is not already shown
-				if((newPosition < currentPosition) || (newPosition+itemHeight > currentPosition+viewSize)) {
-					this.unselectedSP.getVerticalScrollBar().setValue(newPosition);
-				}
-			}
-
-			// We change the selection (of the reduced list) to be sure that at least one item is selected
-			int newSelectedIndex = this.selectedCols.getSelectedIndex();
-			if(newSelectedIndex < 0) {
-				newSelectedIndex = 0;
-			} else if(newSelectedIndex >= this.selectedModel.getSize()) {
-				newSelectedIndex = this.selectedModel.getSize()-1;
-			}
-			this.selectedCols.setSelectedIndex(newSelectedIndex);
-			
-			this.leftButton.setEnabled(this.selectedModel.getSize()>0);
-			this.rightButton.setEnabled(this.unselectedModel.getSize()>0);
-		} else if(e.getSource() == this.upButton) {
-			// the button should be disabled if the first item is selected
-			// we assume here it is not in the list
-			
-			// We will try to keep the selection after the move
-			int selectedIndices[] = this.selectedCols.getSelectedIndices();
-			for(int i=0; i<selectedIndices.length; ++i) {
-				this.selectedModel.swap(selectedIndices[i]-1, selectedIndices[i]);
-				selectedIndices[i]--;
-			}
-			
-			this.selectedCols.setSelectedIndices(selectedIndices);
 		} else if(e.getSource() == this.downButton) {
 			// the button should be disabled if the last item is selected
 			// we assume here it is not in the list
 			
 			// selectedIndices is sorted ascending, so we have to swap from the last to the first selected index
 			int selectedIndices[] = this.selectedCols.getSelectedIndices();
+			// We store the lower index to put the ScrollBar at the level of the item
+			int lowerIndex = -1;
 			for(int i = selectedIndices.length-1; i>=0; --i) {
 				this.selectedModel.swap(selectedIndices[i], selectedIndices[i]+1);
 				selectedIndices[i]++;
+				
+				if((lowerIndex == -1) || (selectedIndices[i] < lowerIndex)) {
+					lowerIndex = selectedIndices[i];
+				}
 			}
 			
 			this.selectedCols.setSelectedIndices(selectedIndices);
+			
+			// We put the ScrollBar at the level of the first selected item
+			if(lowerIndex != -1) {
+				// We force the ScrollPane to resize
+				this.selectedSP.setViewportView(this.selectedCols);
+				int nbUnselected = this.selectedModel.getSize();
+				int scrollBarMax = this.selectedSP.getVerticalScrollBar().getMaximum();
+
+				int itemHeight = scrollBarMax / nbUnselected;
+				int newPosition = itemHeight * lowerIndex;
+				
+				int currentPosition = this.selectedSP.getVerticalScrollBar().getValue();
+				int viewSize = this.selectedSP.getVerticalScrollBar().getVisibleAmount();
+
+				// We move only if the newPosition is not already shown
+				if((newPosition < currentPosition) || (newPosition+itemHeight > currentPosition+viewSize)) {
+					this.selectedSP.getVerticalScrollBar().setValue(newPosition);
+				}
+			}
 		}
 	}
 
@@ -462,6 +545,7 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 		
 		public void removeAllElements() {
 			model.clear();
+			fireContentsChanged(this, 0, 0);
 		}
 	}
 	
@@ -582,6 +666,7 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 		
 		public void removeAllElements() {
 			model.clear();
+			fireContentsChanged(this, 0, 0);
 		}
 	}
 
@@ -633,94 +718,5 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 		public List<CyColumn> getColumnList() {
 			return model;
 		}
-	}
-	
-	private class ColumnCellRenderer implements ListCellRenderer<CyColumn> {
-
-		@Override
-		public Component getListCellRendererComponent(JList<? extends CyColumn> list, CyColumn value, int index,
-				boolean isSelected, boolean cellHasFocus) {
-			
-			JLabel label = new JLabel(value.getNameOnly());
-			label.setIcon(presentationManager.getColumnPresentation(value.getNamespace()).getNamespaceIcon());
-			
-			JPanel mainPanel = new JPanel();
-			// we add a padding right
-			mainPanel.setBorder(new EmptyBorder(0,0,0,5));
-			mainPanel.setLayout(new GridBagLayout());
-			MyGridBagConstraints c = new MyGridBagConstraints();
-			c.setInsets(0, 0, 0, 0);
-
-			mainPanel.add(label, c.expandHorizontal());
-
-			// We try do display the same as Cytoscape display types
-			String type = value.getType().getSimpleName(); // If there is a new type at least we display the class name
-			if(value.getType() == Integer.class) {
-				type = "1";
-			} else if(value.getType() == Long.class) {
-				type = "123";
-			} else if(value.getType() == Double.class) {
-				type = "1.0";
-			} else if(value.getType() == String.class) {
-				type = "ab";
-			} else if(value.getType() == Boolean.class) {
-				type = "y/n";
-			} else if(value.getType() == List.class) {
-				if(value.getListElementType() == Integer.class) {
-					type = "[ 1 ]";
-				} else if(value.getListElementType() == Long.class) {
-					type = "[ 123 ]";
-				} else if(value.getListElementType() == Double.class) {
-					type = "[ 1.0 ]";
-				} else if(value.getListElementType() == String.class) {
-					type = "[ ab ]";
-				} else if(value.getListElementType() == Boolean.class) {
-					type = "[ y/n ]";
-				}
-			}
-			JLabel labelType = new JLabel(type);
-			labelType.setFont(new Font("Serif", Font.BOLD, 11)); // See dk.ku.cpr.OmicsVisualizer.internal.tableimport.ui.AttributeEditor :: createDataTypeButton(AttributeDataType)
-			labelType.setVerticalAlignment(SwingConstants.BOTTOM);
-			// we put a left padding to separate the name from its type
-			labelType.setBorder(new EmptyBorder(0,10,0,0));
-
-
-			mainPanel.add(labelType, c.nextCol().noExpand());
-			
-			if(isSelected) {
-				mainPanel.setBackground(list.getSelectionBackground());
-				mainPanel.setForeground(list.getSelectionForeground());
-
-				label.setBackground(list.getSelectionBackground());
-				label.setForeground(list.getSelectionForeground());
-
-				labelType.setBackground(list.getSelectionBackground());
-				labelType.setForeground(list.getSelectionForeground());
-			} else {
-				mainPanel.setBackground(list.getBackground());
-				mainPanel.setForeground(list.getForeground());
-
-				label.setBackground(list.getBackground());
-				label.setForeground(list.getForeground());
-
-				labelType.setBackground(list.getBackground());
-				labelType.setForeground(list.getForeground());
-			}
-			
-			mainPanel.setEnabled(list.isEnabled());
-			mainPanel.setFont(list.getFont());
-			mainPanel.setOpaque(list.isOpaque());
-			
-			label.setEnabled(list.isEnabled());
-			label.setFont(list.getFont());
-			label.setOpaque(list.isOpaque());
-			
-			labelType.setEnabled(list.isEnabled());
-			labelType.setOpaque(list.isOpaque());
-			
-
-			return mainPanel;
-		}
-		
 	}
 }
