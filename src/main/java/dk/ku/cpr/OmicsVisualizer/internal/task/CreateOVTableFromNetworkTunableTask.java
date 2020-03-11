@@ -67,7 +67,7 @@ public class CreateOVTableFromNetworkTunableTask extends CreateOVTableFromNetwor
 		this.srcColName = this.srcName;
 		
 		if(this.importedColNames == null && this.importedNamespaces == null) {
-			taskMonitor.showMessage(Level.ERROR, "ERROR: You should at least give a list of columns (copiedColNames) or a list of namespaces (copiedNamespaces).");
+			taskMonitor.showMessage(Level.ERROR, "ERROR: You should at least give a list of columns (importedColNames) or a list of namespaces (importedNamespaces).");
 			return;
 		}
 		

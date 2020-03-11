@@ -181,7 +181,7 @@ Transform node table into an Omics Visualizer table
 
   The name of the new Omics Visualizer table. A default generated name will be given if omitted.
 
-- `srcName` (optional) *String*  Default: `source`
+- `srcName` (optional) *String*  Default: `source`, or the namespace if all the selected columns are from the same namespace.
   
   The name of the column containing the values source.
 
