@@ -7,7 +7,7 @@ import org.cytoscape.work.Tunable;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 
 public class ConnectTunableTask extends ConnectTask {
-	@Tunable(description="Key column from the Network node table used to map the network with the table.",
+	@Tunable(description="Key column from the Network node table used to map the network with the table. The column should be a shared column.",
 			required=true,
 			exampleStringValue="query term",
 			gravity=1.0)

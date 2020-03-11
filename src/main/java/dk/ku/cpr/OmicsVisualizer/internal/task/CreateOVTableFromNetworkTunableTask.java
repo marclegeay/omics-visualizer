@@ -19,7 +19,7 @@ public class CreateOVTableFromNetworkTunableTask extends CreateOVTableFromNetwor
 			gravity=1.0)
 	public CyNetwork srcNetwork=null;
 
-	@Tunable(description="Name of the column that identifies the row in the node table.",
+	@Tunable(description="Name of the shared column that identifies the row in the node table.",
 			required=true,
 			gravity=1.0)
 	public String keyColName=null;

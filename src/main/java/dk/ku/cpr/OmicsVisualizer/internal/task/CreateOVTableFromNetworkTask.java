@@ -53,8 +53,8 @@ public class CreateOVTableFromNetworkTask extends AbstractTask implements Observ
 		}
 		
 		// First we check if everything is OK
-		if(cyTable.getColumn(keyCyTableColName) == null) {
-			taskMonitor.showMessage(Level.ERROR, "ERROR: The key column \"" + keyCyTableColName + "\" is not in the table \"" + cyTable.getTitle() + "\".");
+		if(cyTable.getColumn(keyCyTableColName) == null || !cyTable.getColumn(keyCyTableColName).getVirtualColumnInfo().isVirtual()) {
+			taskMonitor.showMessage(Level.ERROR, "ERROR: The key column \"" + keyCyTableColName + "\" is not a shared column of the table \"" + cyTable.getTitle() + "\".");
 			return;
 		}
 		

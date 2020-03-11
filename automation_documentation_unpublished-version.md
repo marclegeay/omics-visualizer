@@ -55,11 +55,12 @@ Connect the current table with the current network
 
 - `mappingColNet` **(required)** *String*
 
-   Key column from the Network node table used to map the network with the table
+   Key column from the Network node table used to map the network with the table.
+   The column should be a shared column.
 
 - `mappingColTable` **(required)** *String*
 
-   Key column from the Omics Visualizer table used to map the table with the network
+   Key column from the Omics Visualizer table used to map the table with the network.
 
 ### Example
 
@@ -174,7 +175,7 @@ Transform node table into an Omics Visualizer table
 
 - `keyColName` **(required)** *String*
 
-  Name of the column that identifies the row in the node table.
+  Name of the shared column that identifies the row in the node table.
 
 - `newTableName` (optional) *String*
 
