@@ -1423,7 +1423,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 
 		private ComboBoxItemListener comboBoxItemListener;
 		
-		public final ChartValues BLANK = new ChartValues("", BlankChartValues.class);
+		public final ChartValues BLANK = new ChartValues(" ", BlankChartValues.class);
 
 		public SelectValuesPanel(OVVisualizationWindow ovVisualizationWindow) {
 			this.ovVisualizationWindow = ovVisualizationWindow;
