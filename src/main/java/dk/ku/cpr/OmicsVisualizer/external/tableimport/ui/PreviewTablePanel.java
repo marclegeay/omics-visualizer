@@ -112,6 +112,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.cytoscape.application.CyUserLog;
+import org.cytoscape.model.CyColumn;
+import org.cytoscape.model.CyRow;
+import org.cytoscape.model.CyTable;
 import org.cytoscape.util.swing.ColumnResizer;
 import org.cytoscape.util.swing.IconManager;
 import org.cytoscape.util.swing.LookAndFeelUtil;
@@ -126,6 +129,7 @@ import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.FileType;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.ImportType;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.SourceColumnSemantic;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.TypeUtil;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 
 /**
  * General purpose preview table panel.
@@ -213,7 +217,13 @@ public class PreviewTablePanel extends JPanel {
 		sheetLabel = new JLabel("Sheet:");
 		sheetLabel.setVisible(false);
 		
-		final JLabel instructionLabel = new JLabel("Click on a column to edit it.");
+		final JLabel instructionLabel;
+		
+		if(this.importType == ImportType.OV_IMPORT_NODE_TABLE) {
+			instructionLabel = new JLabel("Click on a column to edit its name.");
+		} else {
+			instructionLabel = new JLabel("Click on a column to edit it.");
+		}
 		instructionLabel.setFont(instructionLabel.getFont().deriveFont(LookAndFeelUtil.getSmallFontSize()));
 		
 		LookAndFeelUtil.equalizeSize(getSelectAllButton(), getSelectNoneButton());
@@ -223,32 +233,56 @@ public class PreviewTablePanel extends JPanel {
 		layout.setAutoCreateContainerGaps(true);
 		layout.setAutoCreateGaps(false);
 		
-		layout.setHorizontalGroup(layout.createParallelGroup(LEADING, true)
-				.addGroup(layout.createSequentialGroup()
-						.addComponent(sheetLabel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
-						.addPreferredGap(RELATED)
-						.addComponent(getSheetComboBox(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
-						.addPreferredGap(UNRELATED)
-						.addComponent(instructionLabel)
-						.addGap(20, 20, Short.MAX_VALUE)
-						.addComponent(getSelectAllButton(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
-						.addPreferredGap(RELATED)
-						.addComponent(getSelectNoneButton(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
-				)
-				.addComponent(getTableScrollPane(), DEFAULT_SIZE, 320, Short.MAX_VALUE)
-		);
-		layout.setVerticalGroup(layout.createSequentialGroup()
-				.addGroup(layout.createParallelGroup(CENTER, false)
-						.addComponent(sheetLabel)
-						.addComponent(getSheetComboBox(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
-						.addComponent(instructionLabel)
-						.addComponent(getSelectAllButton())
-						.addComponent(getSelectNoneButton())
-				)
-				.addPreferredGap(RELATED)
-				.addComponent(getTableScrollPane(), 120, 160, Short.MAX_VALUE)
-				.addPreferredGap(RELATED)
-		);
+		if(this.importType == ImportType.OV_IMPORT_NODE_TABLE) {
+			layout.setHorizontalGroup(layout.createParallelGroup(LEADING, true)
+					.addGroup(layout.createSequentialGroup()
+							.addComponent(sheetLabel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+							.addPreferredGap(RELATED)
+							.addComponent(getSheetComboBox(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+							.addPreferredGap(UNRELATED)
+							.addComponent(instructionLabel)
+					)
+					.addComponent(getTableScrollPane(), DEFAULT_SIZE, 320, Short.MAX_VALUE)
+			);
+			layout.setVerticalGroup(layout.createSequentialGroup()
+					.addGroup(layout.createParallelGroup(CENTER, false)
+							.addComponent(sheetLabel)
+							.addComponent(getSheetComboBox(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+							.addComponent(instructionLabel)
+					)
+					.addPreferredGap(RELATED)
+					.addComponent(getTableScrollPane(), 120, 160, Short.MAX_VALUE)
+					.addPreferredGap(RELATED)
+			);
+		} else {
+			layout.setHorizontalGroup(layout.createParallelGroup(LEADING, true)
+					.addGroup(layout.createSequentialGroup()
+							.addComponent(sheetLabel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+							.addPreferredGap(RELATED)
+							.addComponent(getSheetComboBox(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+							.addPreferredGap(UNRELATED)
+							.addComponent(instructionLabel)
+							.addGap(20, 20, Short.MAX_VALUE)
+							.addComponent(getSelectAllButton(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+							.addPreferredGap(RELATED)
+							.addComponent(getSelectNoneButton(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+					)
+					.addComponent(getTableScrollPane(), DEFAULT_SIZE, 320, Short.MAX_VALUE)
+			);
+			layout.setVerticalGroup(layout.createSequentialGroup()
+					.addGroup(layout.createParallelGroup(CENTER, false)
+							.addComponent(sheetLabel)
+							.addComponent(getSheetComboBox(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+							.addComponent(instructionLabel)
+							.addComponent(getSelectAllButton())
+							.addComponent(getSelectNoneButton())
+					)
+					.addPreferredGap(RELATED)
+					.addComponent(getTableScrollPane(), 120, 160, Short.MAX_VALUE)
+					.addPreferredGap(RELATED)
+			);
+			
+		}
 		
 		ColumnResizer.adjustColumnPreferredWidths(getPreviewTable());
 		updatePreviewTable();
@@ -428,6 +462,71 @@ public class PreviewTablePanel extends JPanel {
 
 	public String getSourceName() {
 		return getPreviewTable().getName();
+	}
+	
+	public void updatePreviewTable(CyTable cyTable) {
+		// Only for OV Import node table 
+		if(this.importType != ImportType.OV_IMPORT_NODE_TABLE) {
+			return;
+		}
+		
+		updating = true;
+
+		try {
+			// The cyTable should have 4 columns: ID,key,value,source
+			// we want to get rid of the ID
+			int i=0;
+			dataTypes = new AttributeDataType[3];
+			Vector<String> colnames = new Vector<>();
+			for(CyColumn col : cyTable.getColumns()) {
+				if(!col.getName().equals(OVShared.OVTABLE_COLID_NAME)) {
+					colnames.add(col.getName());
+					Class<?> colType = col.getType();
+					if(colType == Integer.class) {
+						dataTypes[i] = AttributeDataType.TYPE_INTEGER;
+					} else if(colType == Long.class) {
+						dataTypes[i] = AttributeDataType.TYPE_LONG;
+					} else if(colType == Double.class) {
+						dataTypes[i] = AttributeDataType.TYPE_FLOATING;
+					} else if(colType == Boolean.class) {
+						dataTypes[i] = AttributeDataType.TYPE_BOOLEAN;
+					} else {
+						dataTypes[i] = AttributeDataType.TYPE_STRING;
+					}
+					i++;
+				}
+			}
+			// get rid of the ID col
+			colnames.remove(OVShared.OVTABLE_COLID_NAME);
+
+
+			Vector< Vector<String> > data = new Vector<>();
+			for(CyRow row : cyTable.getAllRows()) {
+				Vector<String> dataRow = new Vector<>();
+				for(String colname : colnames) {
+					Object val = row.getRaw(colname);
+					if(val == null) {
+						dataRow.add(null);
+					} else {
+						dataRow.add(val.toString());
+					}
+				}
+
+				data.add(dataRow);
+			}
+		
+			types = new SourceColumnSemantic[3];
+			Arrays.fill(types, SourceColumnSemantic.ATTR);
+			
+			listDelimiters = new String[colnames.size()];
+			
+			namespaces = TypeUtil.getPreferredNamespaces(types);
+			
+			final PreviewTableModel newModel = new PreviewTableModel(data, colnames, false);
+			updatePreviewTable(newModel, cyTable.getTitle());
+		} finally {
+			updating = false;
+		}
 	}
 	
 	/**
@@ -1016,6 +1115,11 @@ public class PreviewTablePanel extends JPanel {
 		if (colIdx == lastDialogIndex && System.currentTimeMillis() - lastDialogTime < 100)
 			return;
 		
+		// We don't want to edit the first column (key column)
+		if(colIdx == 0 && importType == ImportType.OV_IMPORT_NODE_TABLE) {
+			return;
+		}
+		
 		lastDialogIndex = -1;
 		lastDialogTime = 0;
 		
@@ -1035,7 +1139,8 @@ public class PreviewTablePanel extends JPanel {
 				namespaces[colIdx],
 				dataTypes[colIdx],
 				listDelimiters[colIdx],
-				iconManager
+				iconManager,
+				importType
 		);
 		
 		if (LookAndFeelUtil.isWinLAF()) {

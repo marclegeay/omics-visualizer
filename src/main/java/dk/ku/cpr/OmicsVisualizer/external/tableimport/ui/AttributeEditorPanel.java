@@ -23,6 +23,7 @@ import static dk.ku.cpr.OmicsVisualizer.external.tableimport.util.AttributeDataT
 import static dk.ku.cpr.OmicsVisualizer.external.tableimport.util.SourceColumnSemantic.NONE;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -56,6 +57,7 @@ import org.cytoscape.model.CyNetwork;
 
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.reader.TextDelimiter;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.AttributeDataType;
+import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.ImportType;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.SourceColumnSemantic;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.TypeUtil;
 
@@ -103,6 +105,8 @@ public class AttributeEditorPanel extends JPanel {
 	private AttributeDataType attributeDataType;
 	private String listDelimiter;
 	
+	private final ImportType importType;
+	
 	private final IconManager iconManager;
 
 	public AttributeEditorPanel(
@@ -114,7 +118,8 @@ public class AttributeEditorPanel extends JPanel {
 			final String namespace,
 			final AttributeDataType attrDataType,
 			final String listDelimiter,
-			final IconManager iconManager
+			final IconManager iconManager,
+			final ImportType importType
 	) {
 		this.attrName = attrName;
 		this.availableTypes = availableTypes;
@@ -124,6 +129,7 @@ public class AttributeEditorPanel extends JPanel {
 		this.attributeDataType = attrDataType;
 		this.listDelimiter = listDelimiter;
 		this.iconManager = iconManager;
+		this.importType = importType;
 		
 		if (!availableTypes.contains(NONE))
 			availableTypes.add(0, NONE);
@@ -226,96 +232,113 @@ public class AttributeEditorPanel extends JPanel {
 		this.setLayout(layout);
 		layout.setAutoCreateContainerGaps(true);
 		layout.setAutoCreateGaps(false);
-		
-		final SequentialGroup namespaceHGroup = layout.createSequentialGroup();
-		final ParallelGroup namespaceVGroup = layout.createParallelGroup(CENTER, false);
-		
-		if (availableNamespaces.size() > 1) {
-			for (String ns : availableNamespaces) {
-				final JToggleButton btn = createNamespaceButton(ns);
-				namespaceHGroup.addComponent(btn, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE);
-				namespaceVGroup.addComponent(btn);
+
+		if(importType == ImportType.OV_IMPORT_NODE_TABLE) {
+			// Only the name !
+			layout.setHorizontalGroup(layout.createParallelGroup(CENTER, true)
+					.addComponent(getAttributeNameTextField(), DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+					);
+			layout.setVerticalGroup(layout.createSequentialGroup()
+					.addComponent(getAttributeNameTextField(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+					);
+			
+			// put a minimum width
+			Dimension preferredSize = this.getPreferredSize();
+			if(preferredSize.width < 100) {
+				preferredSize = new Dimension(100, preferredSize.height);
 			}
+			this.setPreferredSize(preferredSize);
+		} else {
+			final SequentialGroup namespaceHGroup = layout.createSequentialGroup();
+			final ParallelGroup namespaceVGroup = layout.createParallelGroup(CENTER, false);
+
+			if (availableNamespaces.size() > 1) {
+				for (String ns : availableNamespaces) {
+					final JToggleButton btn = createNamespaceButton(ns);
+					namespaceHGroup.addComponent(btn, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE);
+					namespaceVGroup.addComponent(btn);
+				}
+			}
+
+			final SequentialGroup typeHGroup = layout.createSequentialGroup();
+			final ParallelGroup typeVGroup = layout.createParallelGroup(CENTER, false);
+
+			for (SourceColumnSemantic type : availableTypes) {
+				final JToggleButton btn = createTypeButton(type);
+				typeHGroup.addComponent(btn, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE);
+				typeVGroup.addComponent(btn);
+			}
+
+			setStyles(typeButtons.values().toArray(new JToggleButton[typeButtons.size()]));
+
+			final JLabel typeLabel = new JLabel("Meaning:");
+			typeLabel.putClientProperty("JComponent.sizeVariant", "small");
+
+			final JLabel dataTypeLabel = new JLabel("Data Type:");
+			dataTypeLabel.putClientProperty("JComponent.sizeVariant", "small");
+		
+			layout.setHorizontalGroup(layout.createParallelGroup(CENTER, true)
+					.addComponent(getAttributeNameTextField(), DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+					.addComponent(typeLabel, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+					.addGroup(typeHGroup)
+					.addGroup(namespaceHGroup)
+					.addComponent(dataTypeLabel, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+					.addGroup(layout.createSequentialGroup()
+							.addComponent(stringButton, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+							.addComponent(integerButton, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+							.addComponent(longButton, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+							.addComponent(floatingPointButton, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+							.addComponent(booleanButton, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+							)
+					.addGroup(layout.createSequentialGroup()
+							.addComponent(stringListButton, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+							.addComponent(integerListButton, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+							.addComponent(longListButton, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+							.addComponent(floatingPointListButton, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+							.addComponent(booleanListButton, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+							)
+					.addGroup(layout.createSequentialGroup()
+							.addComponent(listDelimiterLabel)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(getListDelimiterComboBox(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+							.addComponent(getOtherTextField(), 12, 36, Short.MAX_VALUE)
+							)
+					);
+			layout.setVerticalGroup(layout.createSequentialGroup()
+					.addComponent(getAttributeNameTextField(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(typeLabel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(typeVGroup)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(namespaceVGroup)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(dataTypeLabel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(layout.createParallelGroup(CENTER)
+							.addComponent(stringButton)
+							.addComponent(integerButton)
+							.addComponent(longButton)
+							.addComponent(floatingPointButton)
+							.addComponent(booleanButton)
+							)
+					.addGroup(layout.createParallelGroup(CENTER)
+							.addComponent(stringListButton)
+							.addComponent(integerListButton)
+							.addComponent(longListButton)
+							.addComponent(floatingPointListButton)
+							.addComponent(booleanListButton)
+							)
+					.addGroup(layout.createSequentialGroup()
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addGroup(layout.createParallelGroup(CENTER)
+									.addComponent(listDelimiterLabel)
+									.addComponent(getListDelimiterComboBox(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+									.addComponent(getOtherTextField(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+									)
+							)
+					);
 		}
-		
-		final SequentialGroup typeHGroup = layout.createSequentialGroup();
-		final ParallelGroup typeVGroup = layout.createParallelGroup(CENTER, false);
-		
-		for (SourceColumnSemantic type : availableTypes) {
-			final JToggleButton btn = createTypeButton(type);
-			typeHGroup.addComponent(btn, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE);
-			typeVGroup.addComponent(btn);
-		}
-		
-		setStyles(typeButtons.values().toArray(new JToggleButton[typeButtons.size()]));
-		
-		final JLabel typeLabel = new JLabel("Meaning:");
-		typeLabel.putClientProperty("JComponent.sizeVariant", "small");
-		
-		final JLabel dataTypeLabel = new JLabel("Data Type:");
-		dataTypeLabel.putClientProperty("JComponent.sizeVariant", "small");
-		
-		layout.setHorizontalGroup(layout.createParallelGroup(CENTER, true)
-				.addComponent(getAttributeNameTextField(), DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
-				.addComponent(typeLabel, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
-				.addGroup(typeHGroup)
-				.addGroup(namespaceHGroup)
-				.addComponent(dataTypeLabel, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
-				.addGroup(layout.createSequentialGroup()
-						.addComponent(stringButton, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(integerButton, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(longButton, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(floatingPointButton, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(booleanButton, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
-				)
-				.addGroup(layout.createSequentialGroup()
-						.addComponent(stringListButton, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(integerListButton, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(longListButton, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(floatingPointListButton, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(booleanListButton, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
-				)
-				.addGroup(layout.createSequentialGroup()
-						.addComponent(listDelimiterLabel)
-						.addPreferredGap(ComponentPlacement.RELATED)
-						.addComponent(getListDelimiterComboBox(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
-						.addComponent(getOtherTextField(), 12, 36, Short.MAX_VALUE)
-				)
-		);
-		layout.setVerticalGroup(layout.createSequentialGroup()
-				.addComponent(getAttributeNameTextField(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
-				.addPreferredGap(ComponentPlacement.UNRELATED)
-				.addComponent(typeLabel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
-				.addPreferredGap(ComponentPlacement.RELATED)
-				.addGroup(typeVGroup)
-				.addPreferredGap(ComponentPlacement.RELATED)
-				.addGroup(namespaceVGroup)
-				.addPreferredGap(ComponentPlacement.UNRELATED)
-				.addComponent(dataTypeLabel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
-				.addPreferredGap(ComponentPlacement.RELATED)
-				.addGroup(layout.createParallelGroup(CENTER)
-						.addComponent(stringButton)
-						.addComponent(integerButton)
-						.addComponent(longButton)
-						.addComponent(floatingPointButton)
-						.addComponent(booleanButton)
-				)
-				.addGroup(layout.createParallelGroup(CENTER)
-						.addComponent(stringListButton)
-						.addComponent(integerListButton)
-						.addComponent(longListButton)
-						.addComponent(floatingPointListButton)
-						.addComponent(booleanListButton)
-						)
-				.addGroup(layout.createSequentialGroup()
-						.addPreferredGap(ComponentPlacement.RELATED)
-						.addGroup(layout.createParallelGroup(CENTER)
-								.addComponent(listDelimiterLabel)
-								.addComponent(getListDelimiterComboBox(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
-								.addComponent(getOtherTextField(), PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
-						)
-				)
-		);
 	}
 	
 	protected JTextField getAttributeNameTextField() {

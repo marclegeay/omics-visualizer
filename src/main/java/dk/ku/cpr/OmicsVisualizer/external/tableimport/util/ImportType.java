@@ -26,6 +26,7 @@ package dk.ku.cpr.OmicsVisualizer.external.tableimport.util;
 
 public enum ImportType {
 
+	OV_IMPORT_NODE_TABLE("Import node table"),
 	TABLE_IMPORT("Import Columns From Table"),
 	NETWORK_IMPORT("Import Network From Table"),
 	ONTOLOGY_IMPORT("Import Ontology and Annotation");

@@ -17,7 +17,9 @@ import org.cytoscape.io.read.InputStreamTaskFactory;
 import org.cytoscape.io.util.StreamUtil;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkManager;
+import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
+import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedEvent;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
@@ -152,6 +154,155 @@ NetworkAddedListener {
 		if(this.ovTables.size() > 0) {
 			this.showPanel();
 		}
+	}
+	
+	/**
+	 * Get the namespace of a column from its full name.
+	 * @param colname Full name ("namespace::name") of a column.
+	 * @return The corresponding namespace, or an empty string if there is no namespace.
+	 */
+	private String getNamespace(String colname) {
+		if(colname == null || !colname.contains("::")) {
+			return "";
+		}
+		
+		return colname.split("::", 2)[0];
+	}
+	
+	/**
+	 * TODO
+	 * All checks should be done before!
+	 * @param cyNetwork
+	 * @param keyCyTableColName
+	 * @param cyTableColNames
+	 * @param tableName
+	 * @param valuesColName
+	 * @param srcColName
+	 * @param limit Number of rows read from the source table. Lower or equal to zero means no limit.
+	 * @return The corresponding CyTable. <code>null</code> if an error occurs.
+	 */
+	public CyTable createCyTableFromNetwork(CyNetwork cyNetwork, String keyCyTableColName, List<String> cyTableColNames,
+			String tableName, String valuesColName, String srcColName, int limit) {
+		CyTable newCyTable=null;
+		
+		CyTable cyTable = cyNetwork.getDefaultNodeTable();
+		if(cyTable == null) {
+			return null;
+		}
+		
+		Class<?> keyCyTableType = cyTable.getColumn(keyCyTableColName).getType();
+		if(keyCyTableType == List.class) {
+			return null;
+		}
+		
+		if(cyTableColNames.size() < 1) {
+			return null;
+		}
+		
+		Class<?> valuesType = cyTable.getColumn(cyTableColNames.get(0)).getType(); 
+		
+		boolean error=false;
+		boolean sameType=true;
+		boolean displayNamespaces=false;
+		String firstNamespace = getNamespace(cyTableColNames.get(0));
+		for(String col : cyTableColNames) {
+			if(cyTable.getColumn(col) == null) {
+				error=true;
+			} else {
+				if(valuesType != cyTable.getColumn(col).getType()) {
+					sameType=false;
+				}
+				// We check if we display the namespace
+				// We display the namespace if there are columns from different namespaces
+				displayNamespaces |= !firstNamespace.equals(getNamespace(col));
+			}
+		}
+		if(error) {
+			return null;
+		}
+		if(!sameType) {
+			return null;
+		}
+		
+		if(valuesType == List.class) {
+			return null;
+		}
+		
+		// We check the table name
+		if(tableName == null || tableName.trim().isEmpty()) {
+			tableName = this.getNextTableName();
+		}
+		for(CyTable existingTable : this.getService(CyTableManager.class).getAllTables(true)) {
+			if(existingTable.getTitle().equals(tableName)) {
+				return null;
+			}
+		}
+		
+		// We check for the colnames
+		if(valuesColName == null) {
+			valuesColName = OVShared.OV_DEFAULT_VALUES_COLNAME;
+		}
+		if(srcColName == null) {
+			if(displayNamespaces || (firstNamespace == null) || firstNamespace.trim().isEmpty()) {
+				// If namespaces are displayed, it means there are several namespaces
+				// so we put the default name
+				srcColName = OVShared.OV_DEFAULT_VALUES_SOURCE_COLNAME;
+			} else {
+				// otherwise, we have only one namespace, we use it as default column name
+				srcColName = firstNamespace;
+			}
+		}
+		
+		newCyTable = this.getService(CyTableFactory.class).createTable(tableName, OVShared.OVTABLE_COLID_NAME, OVShared.OVTABLE_COLID_TYPE, false, true);
+		
+		// We create the "key" column
+		newCyTable.createColumn(keyCyTableColName, cyTable.getColumn(keyCyTableColName).getType(), false);
+		
+		// We create the "value" and "value source" column
+		newCyTable.createColumn(valuesColName, valuesType, false);
+		newCyTable.createColumn(srcColName, String.class, false);
+		
+		// Now we create the rows
+		Integer key = 0;
+		List<CyRow> workingRows = cyTable.getAllRows();
+		if(limit > 0) {
+			// we make sure the limit is not out of bounds
+			limit = (limit > workingRows.size() ? workingRows.size() : limit);
+			workingRows = workingRows.subList(0, limit);
+		}
+		for(CyRow srcRow : workingRows) {
+			Object keyCyTableValue = srcRow.get(keyCyTableColName, keyCyTableType);
+			
+			if(keyCyTableValue == null) {
+				continue;
+			}
+			
+			for(String colName : cyTableColNames) {
+				Object newValue = srcRow.get(colName, valuesType);
+				
+				CyRow newRow = newCyTable.getRow(key);
+				
+				// First we copy the key value from the source CyTable
+				newRow.set(keyCyTableColName, keyCyTableValue);
+				
+				// Then we copy the specific column
+				newRow.set(valuesColName, newValue);
+				
+				// Finally we set the source
+				if(!displayNamespaces) {
+					// We don't display the namespaces, so we ask Cytoscape for the "name only" of the column
+					newRow.set(srcColName, cyTable.getColumn(colName).getNameOnly());
+				} else {
+					// We display the namespaces, so it's the fullname of the column, the one we already use
+					newRow.set(srcColName, colName);
+				}
+				
+				// Each column is now a row
+				key++;
+			}
+		}
+		
+		return newCyTable;
 	}
 
 	/**

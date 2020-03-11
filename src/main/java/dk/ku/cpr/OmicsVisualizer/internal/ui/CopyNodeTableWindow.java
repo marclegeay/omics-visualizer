@@ -22,8 +22,6 @@ import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkManager;
-import org.cytoscape.model.CyTable;
-import org.cytoscape.model.CyTableManager;
 import org.cytoscape.util.swing.LookAndFeelUtil;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
@@ -32,16 +30,20 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 	private static final long serialVersionUID = -8874802023098233849L;
 	private static final String KEY_COL_TOOLTIP = "Column used from the node table to identify rows in the new table. This column will be used to link the new table with the network.";
 	
+	private boolean ok;
+	
 	private JComboBox<CyNetwork> selectNetwork;
 	private JComboBox<CyColumn> selectKeyCol;
 	private SelectAndOrderColumnPanel columnsSelector;
 	
-	private JButton createButton;
+	private JButton nextButton;
 	private JButton cancelButton;
 
 	public CopyNodeTableWindow(OVManager ovManager) {
 		super(ovManager, "Import from node table");
 		this.setResizable(true);
+		
+		this.ok = false;
 		
 		init();
 		draw();
@@ -57,13 +59,13 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 		
 		this.columnsSelector = new SelectAndOrderColumnPanel(this);
 		
-		this.createButton = new JButton("Create");
-		this.createButton.addActionListener(this);
+		this.nextButton = new JButton("Next");
+		this.nextButton.addActionListener(this);
 		
 		this.cancelButton = new JButton("Cancel");
 		this.cancelButton.addActionListener(this);
 		
-		LookAndFeelUtil.equalizeSize(this.createButton, this.cancelButton);
+		LookAndFeelUtil.equalizeSize(this.nextButton, this.cancelButton);
 		
 		// Now we put the network list so that it will init all the other combo boxes
 		CyNetworkManager netManager = this.ovManager.getService(CyNetworkManager.class);
@@ -103,7 +105,7 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
 		buttonPanel.add(this.cancelButton);
-		buttonPanel.add(this.createButton);
+		buttonPanel.add(this.nextButton);
 		
 		mainPanel.add(configPanel, BorderLayout.CENTER);
 		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
@@ -113,39 +115,28 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 		this.setLocationRelativeTo(this.ovManager.getService(CySwingApplication.class).getJFrame());
 	}
 	
-	private void guessTableName(String original) {
-		String name = original;
-		
-		int n=1;
-		boolean found=false;
-		CyTableManager tableManager = this.ovManager.getTableManager();
-		for(CyTable table : tableManager.getAllTables(true)) {
-			if(table.getTitle().equals(name)) {
-				found = true;
-			}
-		}
-		while(found) {
-			name = original + " (" + (n++) + ")";
-			found = false;
-			for(CyTable table : tableManager.getAllTables(true)) {
-				if(table.getTitle().equals(name)) {
-					found = true;
-				}
-			}
-		}
+	public boolean isOK() {
+		return this.ok;
 	}
 	
-	@Override
-	public void setVisible(boolean b) {
-		if(b) {
-			// We pre-select the active network
-			CyNetwork currentNetwork = this.ovManager.getService(CyApplicationManager.class).getCurrentNetwork();
-			if(currentNetwork != null) {
-				this.selectNetwork.setSelectedItem(currentNetwork);
-			}
+	public CyNetwork getNetwork() {
+		return (CyNetwork) this.selectNetwork.getSelectedItem();
+	}
+	
+	public CyColumn getKeyColumn() {
+		return (CyColumn) this.selectKeyCol.getSelectedItem();
+	}
+	
+	public List<CyColumn> getColumnList() {
+		return this.columnsSelector.getSelectedColumns();
+	}
+	
+	public void selectCurrentNetwork() {
+		// We pre-select the active network
+		CyNetwork currentNetwork = this.ovManager.getService(CyApplicationManager.class).getCurrentNetwork();
+		if(currentNetwork != null) {
+			this.selectNetwork.setSelectedItem(currentNetwork);
 		}
-		
-		super.setVisible(b);
 	}
 
 	@Override
@@ -158,29 +149,26 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 			for(CyColumn col : selectedNetwork.getDefaultNodeTable().getColumns()) {
 				// We don't want to use SUID nor List columns
 				if(!col.getName().equals(CyNetwork.SUID) && col.getType() != List.class) {
-					this.selectKeyCol.addItem(col);
 					availableColumns.add(col);
+					// We can only connect to a virtual column
+					if(col.getVirtualColumnInfo().isVirtual()) {
+						this.selectKeyCol.addItem(col);
+					}
 				}
 			}
 			
 			this.columnsSelector.update(availableColumns);
 			
-			guessTableName(selectedNetwork.toString()+" node table");
-			
 			// After updating the columns selector, we pack and center the window again
 			this.pack();
 			this.setLocationRelativeTo(this.ovManager.getService(CySwingApplication.class).getJFrame());
-		} else if(e.getSource() == this.createButton) {
-			CyNetwork selectedNetwork = (CyNetwork) this.selectNetwork.getSelectedItem();
-			CyTable nodeTable = selectedNetwork.getDefaultNodeTable();
-			
+		} else if(e.getSource() == this.nextButton) {
 			// We check that the columns have the same type
-			List<String> selectedColumns = new ArrayList<>();
+			List<CyColumn> selectedColumns = new ArrayList<>();
 			Class<?> colsType = null;
 			boolean sameType = true;
-			for(String colName : this.columnsSelector.getSelectedColumnNames()) {
-				CyColumn col = nodeTable.getColumn(colName);
-				selectedColumns.add(colName);
+			for(CyColumn col : this.columnsSelector.getSelectedColumns()) {
+				selectedColumns.add(col);
 				
 				if(colsType == null) {
 					colsType = col.getType();
@@ -206,13 +194,10 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 				return;
 			}
 			
-//			CreateOVTableFromNetworkTaskFactory factory = new CreateOVTableFromNetworkTaskFactory(ovManager,
-//					selectedNetwork,
-//					(String) selectKeyCol.getSelectedItem(),
-//					selectedColumns);
-//			this.ovManager.executeTask(factory.createTaskIterator());
+			this.ok = true;
 			this.setVisible(false);
 		} else if(e.getSource() == this.cancelButton) {
+			this.ok = false;
 			this.setVisible(false);
 		}
 	}

@@ -235,14 +235,8 @@ public class SelectAndOrderColumnPanel extends JPanel implements ListSelectionLi
 		}
 	}
 	
-	public List<String> getSelectedColumnNames() {
-		List<String> colNames = new ArrayList<>();
-		
-		for(CyColumn col : this.selectedModel.getColumnList()) {
-			colNames.add(col.getName());
-		}
-		
-		return colNames;
+	public List<CyColumn> getSelectedColumns() {
+		return this.selectedModel.getColumnList();
 	}
 	
 	private void namespaceChanged() {

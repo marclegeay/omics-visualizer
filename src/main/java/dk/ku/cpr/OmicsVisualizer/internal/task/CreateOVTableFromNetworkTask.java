@@ -4,9 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.cytoscape.model.CyNetwork;
-import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
-import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.model.CyTableManager;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.ObservableTask;
@@ -14,7 +12,6 @@ import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.TaskMonitor.Level;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
-import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 
 public class CreateOVTableFromNetworkTask extends AbstractTask implements ObservableTask {
@@ -38,14 +35,6 @@ public class CreateOVTableFromNetworkTask extends AbstractTask implements Observ
 		this.tableName = tableName;
 		this.valuesColName = valuesColName;
 		this.srcColName = srcColName;
-	}
-	
-	private String getNamespace(String colname) {
-		if(colname == null || !colname.contains("::")) {
-			return "";
-		}
-		
-		return colname.split("::", 2)[1];
 	}
 
 	@Override
@@ -84,8 +73,6 @@ public class CreateOVTableFromNetworkTask extends AbstractTask implements Observ
 		
 		boolean error=false;
 		boolean sameType=true;
-		boolean displayNamespaces=false;
-		String firstNamespace = getNamespace(this.cyTableColNames.get(0));
 		for(String col : this.cyTableColNames) {
 			if(cyTable.getColumn(col) == null) {
 				error=true;
@@ -94,9 +81,6 @@ public class CreateOVTableFromNetworkTask extends AbstractTask implements Observ
 				if(valuesType != cyTable.getColumn(col).getType()) {
 					sameType=false;
 				}
-				// We check if we display the namespace
-				// We display the namespace if there are columns from different namespaces
-				displayNamespaces |= !firstNamespace.equals(getNamespace(col));
 			}
 		}
 		if(error) {
@@ -107,11 +91,15 @@ public class CreateOVTableFromNetworkTask extends AbstractTask implements Observ
 			return;
 		}
 		
-		// We must create the CyTable that will be wrapped into the OVTable
+		if(valuesType == List.class) {
+			taskMonitor.showMessage(Level.ERROR, "ERROR: The 'value' columns can not be List.");
+			return;
+		}
+		
+		// We check for the name
 		if(this.tableName == null || this.tableName.trim().isEmpty()) {
 			this.tableName = this.ovManager.getNextTableName();
 		}
-		
 		for(CyTable existingTable : this.ovManager.getService(CyTableManager.class).getAllTables(true)) {
 			if(existingTable.getTitle().equals(this.tableName)) {
 				taskMonitor.showMessage(Level.ERROR, "ERROR: The table named \"" + this.tableName + "\" already exist.");
@@ -119,56 +107,15 @@ public class CreateOVTableFromNetworkTask extends AbstractTask implements Observ
 			}
 		}
 		
-		// We check for the colnames
-		if(this.valuesColName == null) {
-			this.valuesColName = OVShared.OV_DEFAULT_VALUES_COLNAME;
-		}
-		if(this.srcColName == null) {
-			this.srcColName = OVShared.OV_DEFAULT_VALUES_SOURCE_COLNAME;
-		}
-		
-		newCyTable = this.ovManager.getService(CyTableFactory.class).createTable(this.tableName, OVShared.OVTABLE_COLID_NAME, OVShared.OVTABLE_COLID_TYPE, false, true);
-		
-		// We create the "key" column
-		newCyTable.createColumn(keyCyTableColName, cyTable.getColumn(keyCyTableColName).getType(), false);
-		
-		// We create the "value" and "value source" column
-		newCyTable.createColumn(this.valuesColName, valuesType, false);
-		newCyTable.createColumn(this.srcColName, String.class, false);
-		
-		// Now we create the rows
-		Integer key = 0;
-		for(CyRow srcRow : cyTable.getAllRows()) {
-			Object keyCyTableValue = srcRow.get(this.keyCyTableColName, keyCyTableType);
-			
-			if(keyCyTableValue == null) {
-				continue;
-			}
-			
-			for(String colName : this.cyTableColNames) {
-				Object newValue = srcRow.get(colName, valuesType);
-				
-				CyRow newRow = newCyTable.getRow(key);
-				
-				// First we copy the key value from the source CyTable
-				newRow.set(this.keyCyTableColName, keyCyTableValue);
-				
-				// Then we copy the specific column
-				newRow.set(this.valuesColName, newValue);
-				
-				// Finally we set the source
-				if(!displayNamespaces) {
-					// We don't display the namespaces, so we ask Cytoscape for the "name only" of the column
-					newRow.set(this.srcColName, cyTable.getColumn(colName).getNameOnly());
-				} else {
-					// We display the namespaces, so it's the fullname of the column, the one we already use
-					newRow.set(this.srcColName, colName);
-				}
-				
-				// Each column is now a row
-				key++;
-			}
-		}
+		newCyTable = this.ovManager.createCyTableFromNetwork(
+				cyNetwork,
+				keyCyTableColName,
+				cyTableColNames,
+				tableName,
+				valuesColName,
+				srcColName,
+				0
+		);
 		
 		// At the end, we create the OVTable
 		this.ovManager.getService(CyTableManager.class).addTable(newCyTable);

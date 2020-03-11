@@ -5,6 +5,7 @@ import org.cytoscape.work.TaskMonitor;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.CopyNodeTableWindow;
+import dk.ku.cpr.OmicsVisualizer.internal.ui.PreviewImportNodeTableWindow;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.ViewUtil;
 
 public class ShowCopyNodeTableTask extends AbstractTask {
@@ -18,14 +19,27 @@ public class ShowCopyNodeTableTask extends AbstractTask {
 
 	@Override
 	public void run(TaskMonitor taskMonitor) throws Exception {
-		CopyNodeTableWindow window = new CopyNodeTableWindow(this.ovManager);
+		CopyNodeTableWindow firstWindow = new CopyNodeTableWindow(this.ovManager);
+		PreviewImportNodeTableWindow previewWindow = new PreviewImportNodeTableWindow(ovManager);
+		
+		firstWindow.selectCurrentNetwork();
 		
 		// JFrame.setVisible blocks the current thread
 		// So we invoke this in an other thread
 		ViewUtil.invokeOnEDT(new Runnable() {
 			@Override
 			public void run() {
-				window.setVisible(true);
+				firstWindow.setVisible(true);
+				
+				if(firstWindow.isOK()) {
+					previewWindow.init(firstWindow);
+					previewWindow.setVisible(true);
+					
+					// If we want to go back to the first window, we just re-run
+					if(previewWindow.goBack()) {
+						this.run();
+					}
+				}
 			}
 		});
 	}

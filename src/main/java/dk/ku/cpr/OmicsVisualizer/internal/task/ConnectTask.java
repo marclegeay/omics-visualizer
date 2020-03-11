@@ -10,6 +10,7 @@ import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.ProvidesTitle;
 import org.cytoscape.work.TaskMonitor;
+import org.cytoscape.work.TaskMonitor.Level;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
@@ -75,7 +76,12 @@ public class ConnectTask extends AbstractTask implements ObservableTask {
 			this.ovManager.getOVCytoPanel().update();
 		}
 		
-		taskMonitor.setStatusMessage(this.resultCon.getNbConnectedTableRows()+" rows from the table are connected.");
+		if(this.resultCon.getNbConnectedTableRows() == 0) {
+			this.resultCon.disconnectNetwork(network);
+			taskMonitor.showMessage(Level.WARN, "No rows were connected, the connection has failed.");
+		} else {
+			taskMonitor.setStatusMessage(this.resultCon.getNbConnectedTableRows()+" rows from the table are connected.");
+		}
 	}
 
 	@SuppressWarnings("unchecked")
