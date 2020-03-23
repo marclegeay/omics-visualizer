@@ -21,6 +21,8 @@ import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.model.CyTableManager;
+import org.cytoscape.model.events.ColumnNameChangedEvent;
+import org.cytoscape.model.events.ColumnNameChangedListener;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedEvent;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
 import org.cytoscape.model.events.NetworkAddedEvent;
@@ -58,7 +60,9 @@ implements SessionLoadedListener,
 SessionAboutToBeSavedListener,
 NetworkAboutToBeDestroyedListener,
 NetworkDestroyedListener,
-NetworkAddedListener {
+NetworkAddedListener,
+ColumnNameChangedListener
+{
 	private static OVManager instance=null;
 
 	private CyServiceRegistrar serviceRegistrar;
@@ -720,6 +724,37 @@ NetworkAddedListener {
 			this.ovCytoPanel.update();
 		}
 	}
-	
+
+	@Override
+	public void handleEvent(ColumnNameChangedEvent e) {
+		CyTable source = e.getSource();
+		OVTable ovTableSrc = null;
+		
+		for(OVTable ovTable : this.ovTables) {
+			if(ovTable.getCyTable().equals(source)) {
+				ovTableSrc = ovTable;
+			}
+		}
+		
+		if(ovTableSrc != null) {
+			ovTableSrc.renameColumn(e.getOldColumnName(), e.getNewColumnName());
+
+			if(this.getOVCytoPanel() != null && this.getActiveOVTable().equals(ovTableSrc)) {
+				this.getOVCytoPanel().update();
+			}
+		} else {
+			// We haven't found an OVTable, but it can be a key column
+			// So we check the connections
+			
+			for(OVConnection ovCon : this.ovCons) {
+				if((ovCon.getBaseNetwork().getDefaultNodeTable().equals(source))
+					&&
+					(ovCon.getMappingColCyto().equals(e.getOldColumnName()))
+				) {
+					ovCon.renameNetworkColumn(e.getOldColumnName(), e.getNewColumnName());
+				}
+			}
+		}
+	}
 
 }

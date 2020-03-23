@@ -136,6 +136,28 @@ public class OVVisualization implements Serializable {
 	}
 	
 	/**
+	 * Rename a column.
+	 * @param oldName Name of the column.
+	 * @param newName New name.
+	 */
+	public void renameColumn(String oldName, String newName) {
+		int index = this.values.indexOf(oldName);
+		
+		// Maybe (?) a column can be used several times
+		while(index >= 0) {
+			this.values.remove(index);
+			this.values.add(index, newName);
+			
+			// we search for other occurrence of oldName
+			index = this.values.indexOf(oldName);
+		}
+		
+		if(oldName.equals(this.label)) {
+			this.label = newName;
+		}
+	}
+	
+	/**
 	 * Returns the enhancedGrahpics String to visualize the data.
 	 * @param values The matrix of values.
 	 * @return The enhancedGraphics String.

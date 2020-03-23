@@ -61,6 +61,17 @@ public class OVBrowserTable extends JTable implements MouseListener {
 		setAutoCreateRowSorter(true);
 		setCellSelectionEnabled(true);
 		setShowGrid(false);
+		
+		this.getTableHeader().addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(final MouseEvent e) {
+				maybeShowHeaderPopup(e);
+			}
+			@Override
+			public void mouseReleased(final MouseEvent e) {
+				maybeShowHeaderPopup(e);
+			}
+		});
 	}
 
 	// ==[ PUBLIC METHODS ]=============================================================================================
@@ -129,6 +140,22 @@ public class OVBrowserTable extends JTable implements MouseListener {
 	}
 
 	// ==[ PRIVATE METHODS ]============================================================================================
+
+	
+	private void maybeShowHeaderPopup(final MouseEvent e) {
+		if (e.isPopupTrigger()) {
+			final int column = getColumnModel().getColumnIndexAtX(e.getX());
+			final OVTableModel tableModel = (OVTableModel) getModel();
+
+			// Make sure the column we're clicking on actually exists!
+			if (column >= tableModel.getColumnCount() || column < 0)
+				return;
+
+			final CyColumn cyColumn = tableModel.getColumn(convertColumnIndexToModel(column));
+			popupMenuHelper.createColumnHeaderMenu(cyColumn, this,
+					e.getX(), e.getY());
+		}
+	}
 	
 	private void maybeShowPopup(final MouseEvent e) {
 		if (e.isPopupTrigger()) {

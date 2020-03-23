@@ -65,6 +65,29 @@ public class OVTable {
 	}
 	
 	/**
+	 * Rename the column.
+	 * @param oldName Name of the column to rename
+	 * @param newName New name of the column
+	 */
+	public void renameColumn(String oldName, String newName) {
+		// First the jTable
+		this.tableModel.renameCol(oldName, newName);
+		this.tableColumnModel.renameColumn(oldName, newName);
+		
+		// The the Filter
+		if(this.filter != null) {
+			this.filter.renameColumn(oldName, newName);
+		}
+		
+		// Then the Connections
+		for(OVConnection ovCon : this.getConnections()) {
+			ovCon.renameOVColumn(oldName, newName);
+		}
+		
+		this.save();
+	}
+	
+	/**
 	 * Returns the data table, i.e. the Cytoscape table.
 	 * @return The Cytoscape table.
 	 */

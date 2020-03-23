@@ -27,6 +27,8 @@ package dk.ku.cpr.OmicsVisualizer.internal.ui.table;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -41,8 +43,12 @@ import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
+import org.cytoscape.task.TableColumnTaskFactory;
 import org.cytoscape.util.swing.OpenBrowser;
 import org.cytoscape.view.model.CyNetworkView;
+import org.cytoscape.work.TaskFactory;
+import org.cytoscape.work.TaskIterator;
+import org.cytoscape.work.TaskManager;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVConnection;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
@@ -57,6 +63,39 @@ public class PopupMenuHelper {
 
 	public PopupMenuHelper(final OVManager ovManager) {
 		this.ovManager = ovManager;
+	}
+	
+	private TaskFactory createFor(final TableColumnTaskFactory factory, final CyColumn column) {
+		final Reference<CyColumn> columnReference = new WeakReference<CyColumn>(column);
+		
+		return new TaskFactory() {
+			@Override
+			public TaskIterator createTaskIterator() {
+				return factory.createTaskIterator(columnReference.get());
+			}
+			@Override
+			public boolean isReady() {
+				return factory.isReady(columnReference.get());
+			}
+		};
+	}
+
+	public void createColumnHeaderMenu(CyColumn column, Component invoker,
+			int x, int y) {
+		TableColumnTaskFactory renameFactory;
+		
+		try {
+			renameFactory = ovManager.getService(TableColumnTaskFactory.class, "(title=Rename Column...)");
+		} catch(RuntimeException e) {
+			return;
+		}
+
+		JPopupMenu menu = new JPopupMenu();
+		
+		menu.add(new JMenuItem(new PopupAction(createFor(renameFactory, column), "Rename Column...")));
+
+		if (menu.getSubElements().length > 0)
+			menu.show(invoker, x, y);
 	}
 
 	@SuppressWarnings("serial")
@@ -155,5 +194,27 @@ public class PopupMenuHelper {
 			}
 		};
 		t.start();
+	}
+	
+	/**
+	 * A simple action that executes the specified TaskFactory
+	 */
+	private class PopupAction extends AbstractAction {
+
+		private static final long serialVersionUID = -2841342029789163004L;
+
+		private final TaskFactory tf;
+
+		PopupAction(final TaskFactory tf, final String menuLabel) {
+			super(menuLabel);
+			this.tf = tf;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent ae) {
+			final TaskManager<?, ?> taskManager = ovManager.getService(TaskManager.class);
+			if (taskManager != null && tf != null)
+				taskManager.execute(tf.createTaskIterator());
+		}
 	}
 }

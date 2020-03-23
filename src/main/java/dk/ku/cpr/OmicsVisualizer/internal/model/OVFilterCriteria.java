@@ -85,6 +85,13 @@ public class OVFilterCriteria extends OVFilter {
 				+ DataUtils.escapeComma(DataUtils.escapeBackslash(this.reference))
 				+ ")";
 	}
+
+	@Override
+	public void renameColumn(String oldName, String newName) {
+		if(this.colName.equals(oldName)) {
+			this.colName = newName;
+		}
+	}
 	
 	/**
 	 * Returns the filter represented by the String.

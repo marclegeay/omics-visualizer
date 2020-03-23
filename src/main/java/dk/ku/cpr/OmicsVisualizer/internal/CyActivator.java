@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import org.cytoscape.application.swing.CyColumnPresentation;
 import org.cytoscape.io.util.StreamUtil;
+import org.cytoscape.model.events.ColumnNameChangedListener;
 import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
 import org.cytoscape.model.events.NetworkAddedListener;
 import org.cytoscape.model.events.NetworkDestroyedListener;
@@ -61,11 +62,13 @@ public class CyActivator extends AbstractCyActivator {
 		final StreamUtil streamUtil = getService(context, StreamUtil.class);
 
 		OVManager ovManager = OVManager.createInstance(serviceRegistrar);
-		registerService(context, ovManager, SessionLoadedListener.class);
-		registerService(context, ovManager, SessionAboutToBeSavedListener.class);
-		registerService(context, ovManager, NetworkAboutToBeDestroyedListener.class);
-		registerService(context, ovManager, NetworkDestroyedListener.class);
-		registerService(context, ovManager, NetworkAddedListener.class);
+//		registerService(context, ovManager, SessionLoadedListener.class);
+//		registerService(context, ovManager, SessionAboutToBeSavedListener.class);
+//		registerService(context, ovManager, NetworkAboutToBeDestroyedListener.class);
+//		registerService(context, ovManager, NetworkDestroyedListener.class);
+//		registerService(context, ovManager, NetworkAddedListener.class);
+//		registerService(context, ovManager, ColumnNameChangedListener.class);
+		registerAllServices(context, ovManager);
 		
 		// Set the default column representation of OV columns
 		{

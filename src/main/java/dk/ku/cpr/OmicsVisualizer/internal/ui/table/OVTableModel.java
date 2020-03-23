@@ -50,6 +50,14 @@ public class OVTableModel extends AbstractTableModel {
 	public void addColumnName(String colName) {
 		this.displayedColumnNames.add(colName);
 	}
+	
+	public void renameCol(String oldName, String newName) {
+		int index = this.displayedColumnNames.indexOf(oldName);
+		if(index >= 0) {
+			this.displayedColumnNames.remove(index);
+			this.displayedColumnNames.add(index, newName);
+		}
+	}
 
 	@Override
 	public int getRowCount() {

@@ -72,6 +72,13 @@ public abstract class OVFilter implements Serializable {
 	public abstract String toString();
 	
 	/**
+	 * Rename a column.
+	 * @param oldName Name of the column to rename
+	 * @param newName New name of the column
+	 */
+	public abstract void renameColumn(String oldName, String newName);
+	
+	/**
 	 * Returns the filter represented by the String.
 	 * The String must respect the specific format of a filter.
 	 * @param str The filter to parse

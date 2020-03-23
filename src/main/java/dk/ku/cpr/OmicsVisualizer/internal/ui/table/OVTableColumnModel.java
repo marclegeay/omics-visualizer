@@ -75,6 +75,21 @@ public class OVTableColumnModel extends DefaultTableColumnModel {
 			}
 		}
 	}
+	
+	/**
+	 * Rename a column.
+	 * @param oldName Name of the column to rename
+	 * @param newName New name of the column
+	 */
+	public void renameColumn(String oldName, String newName) {
+		this.columnFormatMap.put(newName, this.columnFormatMap.remove(oldName));
+		
+		for(TableColumn col : this.allTableColumns) {
+			if(col.getHeaderValue().equals(oldName)) {
+				col.setHeaderValue(newName);
+			}
+		}
+	}
 
 	public boolean setColumnFormat(String column, String format) {
 		if (format == null){

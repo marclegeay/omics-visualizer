@@ -77,6 +77,14 @@ public class OVFilterSet extends OVFilter {
 		
 		return str;
 	}
+
+	@Override
+	public void renameColumn(String oldName, String newName) {
+		// We propagate the information
+		for(OVFilter filter : this.filters) {
+			filter.renameColumn(oldName, newName);
+		}
+	}
 	
 	/**
 	 * Returns the filter represented by the String.

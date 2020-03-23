@@ -451,12 +451,25 @@ SelectedNodesAndEdgesListener {
 
 		this.removeAll();
 
+		// We close all windows
 		if(!ovTable.equals(this.displayedTable)) {
+			if(this.filterWindow != null) {
+				this.filterWindow.setVisible(false);
+			}
+			if(this.retrieveWindow != null) {
+				this.retrieveWindow.setVisible(false);
+			}
 			if(this.connectWindow != null) {
 				this.connectWindow.setVisible(false);
 			}
 			if(this.vizInnerWindow != null) {
 				this.vizInnerWindow.setVisible(false);
+			}
+			if(this.vizOuterWindow != null) {
+				this.vizOuterWindow.setVisible(false);
+			}
+			if(this.legendWindow != null) {
+				this.legendWindow.setVisible(false);
 			}
 		}
 

@@ -516,6 +516,51 @@ public class OVConnection {
 		}
 	}
 
+	/**
+	 * Rename a column.
+	 * @param oldName Name of the column to rename
+	 * @param newName New name of the column
+	 */
+	public void renameOVColumn(String oldName, String newName) {
+		if(this.mappingColOVTable.equals(oldName)) {
+			this.mappingColOVTable = newName;
+		}
+		
+		if(this.ovInnerViz != null) {
+			this.ovInnerViz.renameColumn(oldName, newName);
+		}
+		if(this.ovOuterViz != null) {
+			this.ovOuterViz.renameColumn(oldName, newName);
+		}
+		
+		for(CyNetwork net : this.rootNetwork.getSubNetworkList()) {
+			CyTable networkTable = net.getDefaultNetworkTable();
+			if(networkTable.getColumn(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_OVCOL) == null) {
+				networkTable.createColumn(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_OVCOL, String.class, false);
+			}
+			networkTable.getRow(net.getSUID()).set(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_OVCOL, this.getSavedConnection());
+		}
+	}
+
+	/**
+	 * Rename a column.
+	 * @param oldName Name of the column to rename
+	 * @param newName New name of the column
+	 */
+	public void renameNetworkColumn(String oldName, String newName) {
+		if(this.mappingColCyto.equals(oldName)) {
+			this.mappingColCyto = newName;
+		}
+		
+		for(CyNetwork net : this.rootNetwork.getSubNetworkList()) {
+			CyTable networkTable = net.getDefaultNetworkTable();
+			if(networkTable.getColumn(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_OVCOL) == null) {
+				networkTable.createColumn(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_OVCOL, String.class, false);
+			}
+			networkTable.getRow(net.getSUID()).set(OVShared.OV_COLUMN_NAMESPACE, OVShared.CYNETWORKTABLE_OVCOL, this.getSavedConnection());
+		}
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if(o == null) {
