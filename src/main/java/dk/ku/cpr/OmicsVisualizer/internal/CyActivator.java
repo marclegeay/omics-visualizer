@@ -6,14 +6,8 @@ import java.util.Properties;
 
 import org.cytoscape.application.swing.CyColumnPresentation;
 import org.cytoscape.io.util.StreamUtil;
-import org.cytoscape.model.events.ColumnNameChangedListener;
-import org.cytoscape.model.events.NetworkAboutToBeDestroyedListener;
-import org.cytoscape.model.events.NetworkAddedListener;
-import org.cytoscape.model.events.NetworkDestroyedListener;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.service.util.CyServiceRegistrar;
-import org.cytoscape.session.events.SessionAboutToBeSavedListener;
-import org.cytoscape.session.events.SessionLoadedListener;
 import org.cytoscape.work.ServiceProperties;
 import org.cytoscape.work.TaskFactory;
 import org.cytoscape.work.swing.GUITunableHandlerFactory;
@@ -31,10 +25,10 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVVisualization.ChartType;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ConnectTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.CreateOVTableFromNetworkTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.task.DeleteLegendTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.DisconnectTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.DrawLegendTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.FilterTaskFactory;
-import dk.ku.cpr.OmicsVisualizer.internal.task.DeleteLegendTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ListPaletteTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.OperatorListTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RemoveFilterTaskFactory;
@@ -62,12 +56,6 @@ public class CyActivator extends AbstractCyActivator {
 		final StreamUtil streamUtil = getService(context, StreamUtil.class);
 
 		OVManager ovManager = OVManager.createInstance(serviceRegistrar);
-//		registerService(context, ovManager, SessionLoadedListener.class);
-//		registerService(context, ovManager, SessionAboutToBeSavedListener.class);
-//		registerService(context, ovManager, NetworkAboutToBeDestroyedListener.class);
-//		registerService(context, ovManager, NetworkDestroyedListener.class);
-//		registerService(context, ovManager, NetworkAddedListener.class);
-//		registerService(context, ovManager, ColumnNameChangedListener.class);
 		registerAllServices(context, ovManager);
 		
 		// Set the default column representation of OV columns

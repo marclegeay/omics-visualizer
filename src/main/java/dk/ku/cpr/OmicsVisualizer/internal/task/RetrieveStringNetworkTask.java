@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JOptionPane;
+
+import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.work.AbstractTask;
@@ -15,6 +18,7 @@ import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.ProvidesTitle;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
+import org.cytoscape.work.TaskMonitor.Level;
 import org.cytoscape.work.TaskObserver;
 import org.cytoscape.work.json.JSONResult;
 
@@ -22,6 +26,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
+import dk.ku.cpr.OmicsVisualizer.internal.utils.ViewUtil;
 
 public class RetrieveStringNetworkTask extends AbstractTask implements TaskObserver,ObservableTask {
 	protected OVManager ovManager;
@@ -35,6 +40,8 @@ public class RetrieveStringNetworkTask extends AbstractTask implements TaskObser
 	
 	protected CyNetwork retrievedNetwork;
 
+	private boolean isGUI;
+
 	public RetrieveStringNetworkTask(OVManager ovManager) {
 		super();
 		this.ovManager = ovManager;
@@ -45,6 +52,8 @@ public class RetrieveStringNetworkTask extends AbstractTask implements TaskObser
 		this.protected_taxonID=null;
 		this.protected_species=null;
 		this.protected_cutoff=0.4;
+		
+		this.isGUI = false;
 	}
 
 	public void setQueryColumn(String queryColumn) {
@@ -69,6 +78,10 @@ public class RetrieveStringNetworkTask extends AbstractTask implements TaskObser
 
 	public void setCutoff(double cutoff) {
 		this.protected_cutoff = cutoff;
+	}
+	
+	public void setIsGUI(boolean isGUI) {
+		this.isGUI = isGUI;
 	}
 	
 	@ProvidesTitle
@@ -133,6 +146,25 @@ public class RetrieveStringNetworkTask extends AbstractTask implements TaskObser
 		StringCommandTaskFactory factory = new StringCommandTaskFactory(this.ovManager, OVShared.STRING_CMD_PROTEIN_QUERY, args, this);
 		TaskIterator ti = factory.createTaskIterator();
 		this.ovManager.executeSynchronousTask(ti, this);
+		
+		// the STRING command is executed synchronously, so we can check the result
+		if(this.getResults(CyNetwork.class) == null) {
+			// If there is not result: we display an error message.
+			taskMonitor.showMessage(Level.ERROR, "No network was retrieved.");
+			
+			if(this.isGUI) {
+				// We have to invoke it on another thread because showMessageDialog blocks the main process
+				ViewUtil.invokeOnEDT(new Runnable() {
+					@Override
+					public void run() {
+						JOptionPane.showMessageDialog(ovManager.getService(CySwingApplication.class).getJFrame(),
+								"No network wa retrieved.\nThe stringApp could not retrieve the queried network.",
+								"Error while retrieving STRING network",
+								JOptionPane.ERROR_MESSAGE);
+					}
+				});
+			}
+		}
 	}
 
 	@Override
@@ -171,8 +203,9 @@ public class RetrieveStringNetworkTask extends AbstractTask implements TaskObser
 		} else if (clzz.equals(JSONResult.class)) {
 			return (R) ("{\"SUID\":"+this.retrievedNetwork.getSUID()+"}");
 		} else if (clzz.equals(String.class)) {
-			if (this.retrievedNetwork == null)
+			if (this.retrievedNetwork == null) {
 				return (R) "No network was loaded";
+			}
 			return (R) this.retrievedNetwork.getSUID().toString();
 		}
 		return null;

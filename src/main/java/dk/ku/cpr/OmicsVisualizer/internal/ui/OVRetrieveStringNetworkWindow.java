@@ -356,7 +356,8 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 						this.filteredOnly.isSelected(),
 						species.getTaxonID(),
 						species.getName(),
-						formatter.parse(this.confidenceValue.getText()).doubleValue()));
+						formatter.parse(this.confidenceValue.getText()).doubleValue(),
+						true));
 			} catch (ParseException e1) {
 				inputError();
 				return;
