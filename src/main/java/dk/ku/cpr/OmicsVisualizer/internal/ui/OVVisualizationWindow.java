@@ -1407,6 +1407,20 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		public String toString() {
 			return this.getColName() + " [" + this.colType.getSimpleName() + "]";
 		}
+		
+		public boolean equals(Object o) {
+			if(this == o) {
+				return true;
+			}
+			
+			if(o instanceof ChartValues) {
+				ChartValues cv = (ChartValues)o;
+				
+				return this.colName.equals(cv.colName) && this.colType.equals(cv.colType);
+			}
+			
+			return false;
+		}
 	}
 
 	private class SelectValuesPanel extends JPanel implements ActionListener {
@@ -1420,6 +1434,9 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		private List<JComboBox<ChartValues>> selects;
 		private List<JButton> buttons;
 		private JButton addButton;
+		
+		// use for the 'import from node table' column
+		private ChartValues defaultValue;
 
 		private ComboBoxItemListener comboBoxItemListener;
 		
@@ -1438,12 +1455,18 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			Font buttonFont = this.addButton.getFont();
 			this.addButton.setFont(iconManager.getIconFont(buttonFont.getSize()));
 			this.addButton.addActionListener(this);
+			
+			this.defaultValue = null;
 
 			this.comboBoxItemListener = new ComboBoxItemListener(this.ovVisualizationWindow);
 		}
 
 		public void setTable(OVTable ovTable) {
 			if(ovTable != null) {
+				if(ovTable.getImportedValueColname() == null) {
+					this.defaultValue = null;
+				}
+				
 				this.selectItemStringValues = new ArrayList<>();
 				List<ChartValues> selectItems = new ArrayList<>();
 				selectItems.add(BLANK);
@@ -1453,6 +1476,12 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 					if(!OVShared.isOVCol(colName) && colType != List.class) {
 						selectItems.add(new ChartValues(colName, colType));
 						this.selectItemStringValues.add(colName);
+					}
+					
+					// We store the name of the column that store values
+					// if 'Imported from node table'
+					if(colName.equals(ovTable.getImportedValueColname())) {
+						this.defaultValue = new ChartValues(colName, colType);
 					}
 				}
 				this.selectItemChartValues = new ChartValues[selectItems.size()];
@@ -1477,6 +1506,12 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				del.setFont(iconManager.getIconFont(buttonFont.getSize()));
 				del.addActionListener(this);
 				this.buttons.add(del);
+				
+				// If the table is 'Imported from node table'
+				// We select the 'value' column by default
+				if(this.defaultValue != null) {
+					this.selects.get(0).setSelectedItem(this.defaultValue);
+				}
 			} else {
 				for(String val : ovViz.getValues()) {
 					// We create the JComboBox and select the visualization value

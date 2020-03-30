@@ -119,7 +119,7 @@ public class CreateOVTableFromNetworkTask extends AbstractTask implements Observ
 		
 		// At the end, we create the OVTable
 		this.ovManager.getService(CyTableManager.class).addTable(newCyTable);
-		OVTable newOVTable = new OVTable(this.ovManager, newCyTable);
+		OVTable newOVTable = new OVTable(this.ovManager, newCyTable, valuesColName);
 		this.ovManager.addOVTable(newOVTable);
 		this.ovManager.showPanel();
 		

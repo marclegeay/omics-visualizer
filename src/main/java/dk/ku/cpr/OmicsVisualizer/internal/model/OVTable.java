@@ -44,12 +44,25 @@ public class OVTable {
 
 	private OVProperties ovProps;
 	
+	// Use if the table is "Imported from node table"
+	private String valueColumnName;
+	
 	/**
 	 * Creates an Omics Visualizer table from a Cytoscape table.
 	 * @param ovManager The Omics Visualizer manager.
 	 * @param cyTable The Cytoscape table.
 	 */
 	public OVTable(OVManager ovManager, CyTable cyTable) {
+		this(ovManager, cyTable, null);
+	}
+	
+	/**
+	 * Creates an Omics Visualizer table from a Cytoscape table.
+	 * @param ovManager The Omics Visualizer manager.
+	 * @param cyTable The Cytoscape table.
+	 * @param valueColumnName The name of the 'value' column used when imported from node table. Can be <code>null</code>.
+	 */
+	public OVTable(OVManager ovManager, CyTable cyTable, String valueColumnName) {
 		this.ovManager=ovManager;
 		this.cyTable=cyTable;
 		this.jTable=null;
@@ -60,7 +73,14 @@ public class OVTable {
 		
 		this.ovProps = new OVProperties(this.ovManager, OVShared.OVPROPERTY_NAME+"-"+this.cyTable.getTitle());
 
+		// We first load the table so that it can load the filter
 		this.load();
+		
+		// We put the column after, because the load would have erase it
+		if(valueColumnName != null) {
+			this.valueColumnName = valueColumnName;
+		}
+		
 		this.save();
 	}
 	
@@ -84,6 +104,11 @@ public class OVTable {
 			ovCon.renameOVColumn(oldName, newName);
 		}
 		
+		// If any, the imported from node table
+		if(oldName.equals(this.valueColumnName)) {
+			this.valueColumnName = newName;
+		}
+		
 		this.save();
 	}
 	
@@ -105,6 +130,15 @@ public class OVTable {
 		}
 		
 		return this.jTable;
+	}
+	
+	/**
+	 * Returns the name of the column storing values if imported from node table.
+	 * Is <code>null</code> if it was not imported from node table.
+	 * @return the name of the column or <code>null</code>.
+	 */
+	public String getImportedValueColname() {
+		return this.valueColumnName;
 	}
 	
 	/**
@@ -566,6 +600,12 @@ public class OVTable {
 		} else {
 			this.setTableProperty(OVShared.PROPERTY_FILTER, "");
 		}
+		
+		if(this.valueColumnName != null) {
+			this.setTableProperty(OVShared.PROPERTY_IMPORTED_COLNAME, this.valueColumnName);
+		} else {
+			this.setTableProperty(OVShared.PROPERTY_IMPORTED_COLNAME, "");
+		}
 	}
 	
 	/**
@@ -577,6 +617,13 @@ public class OVTable {
 		String filterStr = this.getTableProperty(OVShared.PROPERTY_FILTER, "");
 		if(!filterStr.isEmpty()) {
 			this.filter = OVFilter.load(filterStr);
+		}
+		
+		// We load the value column (if it was imported from node table)
+		this.valueColumnName = this.getTableProperty(OVShared.PROPERTY_IMPORTED_COLNAME);
+		// If the name is empty, it does not exist so we put it to null
+		if("".equals(this.valueColumnName)) {
+			this.valueColumnName = null;
 		}
 		
 		this.createJTable();

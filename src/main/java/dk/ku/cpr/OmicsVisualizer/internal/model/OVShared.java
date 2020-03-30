@@ -55,6 +55,7 @@ public class OVShared {
 	
 	/** Name of the property storing the filter of a table */
 	public static final String PROPERTY_FILTER = OV_PREFIX+"filter";
+	public static final String PROPERTY_IMPORTED_COLNAME = OV_PREFIX+"imported_colname";
 
 	/** Name of the visual property where to store the inner visualization. */
 	public static final String MAPPING_INNERVIZ_IDENTIFIER="NODE_CUSTOMGRAPHICS_7";
