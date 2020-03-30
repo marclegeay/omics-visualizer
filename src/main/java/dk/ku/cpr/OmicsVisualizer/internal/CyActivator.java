@@ -155,6 +155,28 @@ public class CyActivator extends AbstractCyActivator {
 				registerService(context, factory, TaskFactory.class, importProps);
 			}
 			
+			// Copy node table
+			{
+				ShowCopyNodeTableTaskFactory factory = new ShowCopyNodeTableTaskFactory(ovManager);
+				Properties props = new Properties();
+				props.setProperty(ServiceProperties.PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
+				props.setProperty(ServiceProperties.TITLE, "Import from node table");
+				props.setProperty(ServiceProperties.MENU_GRAVITY, (++menuGravity).toString());
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+			
+			// Copy node table (Command-only)
+			{
+				CreateOVTableFromNetworkTaskFactory factory = new CreateOVTableFromNetworkTaskFactory(ovManager);
+				Properties props = new Properties();
+				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
+				props.setProperty(ServiceProperties.COMMAND, "import node table");
+				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Transform node table into an Omics Visualizer table");
+
+				registerService(context, factory, TaskFactory.class, props);
+			}
+			
 			// Loading a table (Command only)
 			{
 				ImportNoGuiOVTableReaderFactory factory = new ImportNoGuiOVTableReaderFactory(ovManager);
@@ -443,29 +465,6 @@ public class CyActivator extends AbstractCyActivator {
 				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
 				props.setProperty(ServiceProperties.COMMAND, "legend hide");
 				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Hide a legend");
-
-				registerService(context, factory, TaskFactory.class, props);
-			}
-			
-			// Copy node table
-			{
-				ShowCopyNodeTableTaskFactory factory = new ShowCopyNodeTableTaskFactory(ovManager);
-				Properties props = new Properties();
-				props.setProperty(ServiceProperties.PREFERRED_MENU, OVShared.OV_PREFERRED_MENU);
-				props.setProperty(ServiceProperties.TITLE, "Import from node table");
-				props.setProperty(ServiceProperties.INSERT_SEPARATOR_BEFORE, "true");
-				props.setProperty(ServiceProperties.MENU_GRAVITY, (++menuGravity).toString());
-
-				registerService(context, factory, TaskFactory.class, props);
-			}
-			
-			// Copy node table (Command-only)
-			{
-				CreateOVTableFromNetworkTaskFactory factory = new CreateOVTableFromNetworkTaskFactory(ovManager);
-				Properties props = new Properties();
-				props.setProperty(ServiceProperties.COMMAND_NAMESPACE, OVShared.OV_COMMAND_NAMESPACE);
-				props.setProperty(ServiceProperties.COMMAND, "import node table");
-				props.setProperty(ServiceProperties.COMMAND_DESCRIPTION, "Transform node table into an Omics Visualizer table");
 
 				registerService(context, factory, TaskFactory.class, props);
 			}
