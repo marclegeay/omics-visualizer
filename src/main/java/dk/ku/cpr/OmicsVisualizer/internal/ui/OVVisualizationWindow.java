@@ -182,7 +182,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		this.cancelButton.addActionListener(this);
 
 		// Panel 1 - chart properties
-		this.deleteButton = new JButton("Delete Visualization");
+		this.deleteButton = new JButton("Delete");
 		this.deleteButton.addActionListener(this);
 
 		this.selectValues = new SelectValuesPanel(this);
@@ -259,7 +259,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		this.selectRing.addItem(OVVisualizationWindow.COL);
 		this.selectRing.addItem(OVVisualizationWindow.ROW);
 
-		LookAndFeelUtil.equalizeSize(this.cancelButton, this.nextButton, this.backButton, this.drawButton);
+		LookAndFeelUtil.equalizeSize(this.cancelButton, this.nextButton, this.backButton, this.drawButton, this.deleteButton);
 	}
 	
 	private void initSelectDiscreteContinuous(boolean includeContinuous) {

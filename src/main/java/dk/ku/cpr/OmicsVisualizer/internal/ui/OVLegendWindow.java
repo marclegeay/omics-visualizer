@@ -53,8 +53,8 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 	private JButton showButton;
 	private JButton hideButton;
 	
-	private static final String CREATE_TEXT = "Create legend";
-	private static final String RELOAD_TEXT = "Reload legend";
+	private static final String CREATE_TEXT = "Create";
+	private static final String RELOAD_TEXT = "Reload";
 
 	public OVLegendWindow(OVManager ovManager) {
 		super(ovManager, "Legend");
@@ -79,7 +79,7 @@ public class OVLegendWindow extends OVWindow implements ActionListener {
 		this.showButton = new JButton(CREATE_TEXT);
 		this.showButton.addActionListener(this);
 		
-		this.hideButton = new JButton("Delete legend");
+		this.hideButton = new JButton("Delete");
 		this.hideButton.addActionListener(this);
 
 		LookAndFeelUtil.equalizeSize(this.closeButton, this.showButton, this.hideButton);

@@ -83,6 +83,8 @@ public class OVConnectWindow extends OVWindow implements ActionListener, TaskObs
 
 		this.closeButton = new JButton("Close");
 		this.closeButton.addActionListener(this);
+		
+		LookAndFeelUtil.equalizeSize(this.connectButton, this.closeButton);
 	}
 
 	public void update(OVTable ovTable) {

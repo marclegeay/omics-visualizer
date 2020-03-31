@@ -112,12 +112,12 @@ public class PreviewImportNodeTableWindow extends OVWindow {
 		tableNamePanel.add(new JLabel("New table name: "), c);
 		tableNamePanel.add(this.newTableName, c.nextCol());
 		
-		JButton cancelButton = new JButton("Cancel");
+		JButton cancelButton = new JButton("Close");
 		cancelButton.addActionListener(e -> {
 			this.goBack = false;
 			this.setVisible(false);
 		});
-		JButton backButton = new JButton("Back");
+		JButton backButton = new JButton("< Back");
 		backButton.addActionListener(e -> {
 			this.goBack = true;
 			this.setVisible(false);
@@ -152,8 +152,8 @@ public class PreviewImportNodeTableWindow extends OVWindow {
 
 		JPanel buttonPanel = new JPanel();
 		MyGridBagConstraints cButton = new MyGridBagConstraints();
-		buttonPanel.add(cancelButton, cButton);
-		buttonPanel.add(backButton, cButton.nextCol());
+		buttonPanel.add(backButton, cButton);
+		buttonPanel.add(cancelButton, cButton.nextCol());
 		buttonPanel.add(importButton, cButton.nextCol());
 		
 		mainPanel.add(tableNamePanel, BorderLayout.NORTH);

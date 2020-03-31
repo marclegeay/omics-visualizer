@@ -71,6 +71,8 @@ public class OVConnectPanel extends JPanel implements ActionListener {
 		this.disconnectButton = new JButton("Disconnect");
 		this.disconnectButton.addActionListener(this);
 		
+		LookAndFeelUtil.equalizeSize(this.updateButton, this.disconnectButton);
+		
 		buttonPanel.add(this.updateButton);
 		buttonPanel.add(this.disconnectButton);
 		

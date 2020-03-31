@@ -73,10 +73,9 @@ public class OVTable {
 		
 		this.ovProps = new OVProperties(this.ovManager, OVShared.OVPROPERTY_NAME+"-"+this.cyTable.getTitle());
 
-		// We first load the table so that it can load the filter
 		this.load();
 		
-		// We put the column after, because the load would have erase it
+		// If valueColumnName is not null, we don't want to use the one loaded but the one specified here
 		if(valueColumnName != null) {
 			this.valueColumnName = valueColumnName;
 		}

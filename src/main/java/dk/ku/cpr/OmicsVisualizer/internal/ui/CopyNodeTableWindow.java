@@ -59,10 +59,10 @@ public class CopyNodeTableWindow extends OVWindow implements ActionListener {
 		
 		this.columnsSelector = new SelectAndOrderColumnPanel(this);
 		
-		this.nextButton = new JButton("Next");
+		this.nextButton = new JButton("Next >");
 		this.nextButton.addActionListener(this);
 		
-		this.cancelButton = new JButton("Cancel");
+		this.cancelButton = new JButton("Close");
 		this.cancelButton.addActionListener(this);
 		
 		LookAndFeelUtil.equalizeSize(this.nextButton, this.cancelButton);

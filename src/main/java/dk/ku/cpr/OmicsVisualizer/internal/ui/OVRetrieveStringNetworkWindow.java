@@ -106,6 +106,8 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 		dfs.setDecimalSeparator('.');
 		this.formatter = new DecimalFormat("#0.00", dfs);
 
+		LookAndFeelUtil.equalizeSize(this.closeButton, this.retrieveButton);
+
 //		this.init();
 	}
 	

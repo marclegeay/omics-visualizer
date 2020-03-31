@@ -43,10 +43,10 @@ public class OVFilterWindow extends OVWindow implements ActionListener {
 		this.cancelButton = new JButton("Close");
 		this.cancelButton.addActionListener(this);
 
-		this.removeButton = new JButton("Remove Filter");
+		this.removeButton = new JButton("Delete");
 		this.removeButton.addActionListener(this);
 		
-		LookAndFeelUtil.equalizeSize(this.okButton, this.cancelButton);
+		LookAndFeelUtil.equalizeSize(this.okButton, this.cancelButton, this.removeButton);
 	}
 
 	public void update(boolean center) {
@@ -59,9 +59,9 @@ public class OVFilterWindow extends OVWindow implements ActionListener {
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setOpaque(!LookAndFeelUtil.isAquaLAF());
 		buttonPanel.setLayout(new FlowLayout());
-		buttonPanel.add(this.okButton);
-		buttonPanel.add(this.removeButton);
 		buttonPanel.add(this.cancelButton);
+		buttonPanel.add(this.removeButton);
+		buttonPanel.add(this.okButton);
 		
 		JScrollPane scrollFilter = new JScrollPane(this.rootFilterPanel);
 		scrollFilter.setBorder(null);
