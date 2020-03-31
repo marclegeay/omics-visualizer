@@ -1,8 +1,8 @@
 # Omics Visualizer Automation Documentation
 
-Omics Visualizer version 1.2.0
+Omics Visualizer version 1.3.0
 
-Last update: 2020-01-21
+Last update: 2020-03-31
 
 ## List of commands
 
@@ -16,6 +16,7 @@ Last update: 2020-01-21
 - [Disconnect](#disconnect)
 - [Apply a filter](#filter)
 - [Delete a filter](#filter-remove)
+- [Import node table](#import-node-table)
 - [Load](#load)
 - [Retrieve a STRING network](#retrieve)
 - [Delete a table](#table-delete)
@@ -54,11 +55,12 @@ Connect the current table with the current network
 
 - `mappingColNet` **(required)** *String*
 
-   Key column from the Network node table used to map the network with the table
+   Key column from the Network node table used to map the network with the table.
+   The column should be a shared column.
 
 - `mappingColTable` **(required)** *String*
 
-   Key column from the Omics Visualizer table used to map the table with the network
+   Key column from the Omics Visualizer table used to map the table with the network.
 
 ### Example
 
@@ -154,6 +156,54 @@ Removes the filter of the active table
 Show the filter window of the current table
 
 [List of commands](#list-of-commands) - [List of Access GUI dialogs commands](#access-gui-dialogs)
+
+## Import node table
+
+`ov import node table`
+
+Transform node table into an Omics Visualizer table
+
+### Arguments
+
+- `importedColNames` (optional) *String*
+  
+  Comma-separated list of column names to import into the new Omics Visualizer table. Commas in the column names should be escaped.
+  
+- `importedNamespaces` (optional) *String*
+  
+  Comma-separated list of column namespaces to import into the new Omics Visualizer table. All the columns from those namespaces will be imported. Commas in the column namespaces should be escaped.
+
+- `keyColName` **(required)** *String*
+
+  Name of the shared column that identifies the row in the node table.
+
+- `newTableName` (optional) *String*
+
+  The name of the new Omics Visualizer table. A default generated name will be given if omitted.
+
+- `srcName` (optional) *String*  Default: `source`, or the namespace if all the selected columns are from the same namespace.
+  
+  The name of the column containing the values source.
+
+- `srcNetwork` **(required)** *CyNetwork*
+
+  The network containing the node table.
+
+- `valuesName` (optional) *String* Default: `value`
+
+  The name of the column containing the values.
+
+***Nota Bene:*** `importedColNames` and `importedNamespaces` are optional, but at least one of them should be filled.
+
+### Example
+
+`ov import node table srcNetwork="String Network" keyColName="display name" importedNamespaces="tissue" srcName="tissue" newTableName="String tissues"`
+
+This will import the columns from the "tissue" namespace of "String Network".
+The new Omics Visualizer table named "String tissues" will be connected with "String Network" with the column "display name".
+The column of "String tissues" that contains the name of the node table column is named "tissue".
+
+[List of commands](#list-of-commands) - [List of Manage tables commands](#manage-tables)
 
 ## Legend draw
 
@@ -491,6 +541,10 @@ Apply an inner visualization (pie charts) with a discrete mapping
 - `colorMapping` (optional) *String*
 
   Comma separated values of mappings value:color. Special characters in values must be escaped.
+  
+- `colorMissing` (optional) *String*
+
+  Color used for missing values.
 
 - `filteredOnly` (optional) *boolean* Default: `true`
 
@@ -609,6 +663,10 @@ Apply an outer visualization (donuts charts) with a discrete mapping
 - `colorMapping` (optional) *String*
 
   Comma separated values of mappings value:color. Special characters in values must be escaped.
+  
+- `colorMissing` (optional) *String*
+
+  Color used for missing values.
 
 - `filteredOnly` (optional) *boolean* Default: `true`
 
