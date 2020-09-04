@@ -43,6 +43,14 @@ public class ApplyVisualizationTask extends AbstractTask {
 		}
 	}
 	
+	private String escapeComma(Object str) {
+		if(str == null) {
+			return "";
+		}
+		
+		return escapeComma(str.toString());
+	}
+	
 	private String escapeComma(String str) {
 		StringBuilder sb = new StringBuilder();
 		
@@ -145,7 +153,7 @@ public class ApplyVisualizationTask extends AbstractTask {
 					
 				}
 				if(this.ovViz.getLabel() != null) {
-					nodeLabels +=  escapeComma(tableRow.get(this.ovViz.getLabel(), this.ovCon.getOVTable().getColType(this.ovViz.getLabel())).toString());
+					nodeLabels +=  escapeComma(tableRow.get(this.ovViz.getLabel(), this.ovCon.getOVTable().getColType(this.ovViz.getLabel())));
 					nodeLabels += ",";
 				}
 			}

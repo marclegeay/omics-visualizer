@@ -218,7 +218,13 @@ SelectedNodesAndEdgesListener {
 	}
 
 	public Icon getIcon() {
+		//*
+		return this.ovManager.getLogoIcon(16);
+		//*/
+		
+		/*
 		return null;
+		//*/
 	}
 
 	public OVTable getDisplayedTable() {

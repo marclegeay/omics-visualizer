@@ -1,5 +1,6 @@
 package dk.ku.cpr.OmicsVisualizer.internal.model;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.io.IOException;
@@ -8,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+
+import javax.swing.Icon;
 
 import org.cytoscape.application.events.SetCurrentNetworkListener;
 import org.cytoscape.application.swing.CytoPanelComponent;
@@ -47,6 +50,7 @@ import dk.ku.cpr.OmicsVisualizer.external.io.read.GenericReaderManager;
 import dk.ku.cpr.OmicsVisualizer.internal.task.ShowOVPanelTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.ui.OVCytoPanel;
 import dk.ku.cpr.OmicsVisualizer.internal.utils.DataUtils;
+import dk.ku.cpr.OmicsVisualizer.internal.utils.TextIcon;
 
 /**
  * Omics Visualizer Manager.
@@ -616,6 +620,35 @@ ColumnNameChangedListener
 	 */
 	public void executeTask(TaskIterator ti) {
 		this.executeTask(ti, null);
+	}
+	
+	/**
+	 * Create an icon-simplified version of the logo
+	 * @param size The size of the icon
+	 * @return The icon.
+	 */
+	public Icon getLogoIcon(int size) {
+		char chart = 'A'; // logo
+
+		String texts[] = {
+				Character.toString((char) (chart+1)),
+				Character.toString((char) (chart+2)),
+				Character.toString((char) (chart+3)),
+				Character.toString((char) (chart+4))
+		};
+		Color colors[] = {
+				// red - white - blue
+				new Color(178,24,43),
+				new Color(230,230,230), // I darkened the white so that we can see it
+				new Color(33,102,172),
+				new Color(200,200,200) // gray
+				//				// Viridis colors
+				//				new Color(68,1,84),
+				//				new Color(33,145,140),
+				//				new Color(253,231,37)
+		};
+
+		return new TextIcon(texts, this.getIconFont().deriveFont(15.0f), colors, size, size);
 	}
 
 	@Override
