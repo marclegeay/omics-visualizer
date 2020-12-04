@@ -24,6 +24,7 @@ public class OVVisualization implements Serializable {
 	private OVColor colors;
 	private String label;
 	private boolean transpose;
+	private boolean skipOverflaw;
 	
 	/**
 	 * Creates a visualization.
@@ -36,8 +37,9 @@ public class OVVisualization implements Serializable {
 	 * @param paletteName The name of the palette used for the color mapping.
 	 * @param label Name of the table column that should be used to label data. <code>null</code> if no label should be used.
 	 * @param transpose Should the data matrix be transposed before visualization?
+	 * @param skipOverflaw Should the nodes that are connected to more than {@link OVShared#MAXIMUM_ROWS_CONNECTED_TO_NODE} be skipped (not drawn)?
 	 */
-	public OVVisualization(ChartType type, EGSettings egSettings, List<String> values, Class<?> valuesType, boolean onlyFiltered, OVColor colors, String paletteName, String label, boolean transpose) {
+	public OVVisualization(ChartType type, EGSettings egSettings, List<String> values, Class<?> valuesType, boolean onlyFiltered, OVColor colors, String paletteName, String label, boolean transpose, boolean skipOverflaw) {
 		super();
 		this.type=type;
 		this.egSettings=egSettings;
@@ -53,6 +55,7 @@ public class OVVisualization implements Serializable {
 		} else {
 			this.transpose=false;
 		}
+		this.skipOverflaw=skipOverflaw;
 	}
 
 	/**
@@ -133,6 +136,14 @@ public class OVVisualization implements Serializable {
 	 */
 	public boolean isTranspose() {
 		return transpose;
+	}
+	
+	/**
+	 * Should the nodes that are connected to more than {@link OVShared#MAXIMUM_ROWS_CONNECTED_TO_NODE} be skipped (not drawn)?
+	 * @return <code>true</code> if such nodes should <b>not</b> be visualized, <code>false</code> otherwise.
+	 */
+	public boolean skipOverflaw() {
+		return skipOverflaw;
 	}
 	
 	/**

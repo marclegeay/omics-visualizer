@@ -91,6 +91,10 @@ public class OVShared {
 	public static final String STRING_CMD_PROTEIN_QUERY = "protein query";
 	/** Name of the stringApp command to list species. */
 	public static final String STRING_CMD_LIST_SPECIES = "list species";
+
+	
+	/** Number of rows from which a warning should be raised because too many rows are connected to a node */
+	public static final int MAXIMUM_ROWS_CONNECTED_TO_NODE = 100;
 	
 	// We forbid the class to have instances
 	private OVShared() {

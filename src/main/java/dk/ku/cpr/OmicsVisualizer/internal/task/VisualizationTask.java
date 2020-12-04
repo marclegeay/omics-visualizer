@@ -76,6 +76,11 @@ public class VisualizationTask extends AbstractTask {
 			exampleStringValue="false",
 			gravity=1.0)
 	public boolean transpose=false;
+
+	@Tunable(description="Should the nodes that are connected to too many rows be skipped (not having visualization)? Default: false.",
+			exampleStringValue="false",
+			gravity=1.0)
+	public boolean skipOverflaw=false;
 	
 	@Tunable(description="Comma separated list of enhancedGraphics settings. Here is how the string should be formatted: \"setting1:value1,setting2:value2\"",
 			exampleStringValue="bordercolor:white,arcstart:0",
@@ -281,7 +286,8 @@ public class VisualizationTask extends AbstractTask {
 					this.colors,
 					this.paletteName,
 					this.labels,
-					this.transpose);
+					this.transpose,
+					this.skipOverflaw);
 
 			if(this.chartType.equals(ChartType.CIRCOS)) {
 				this.ovCon.setOuterVisualization(ovViz);

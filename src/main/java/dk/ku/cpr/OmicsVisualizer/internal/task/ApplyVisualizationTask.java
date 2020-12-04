@@ -161,6 +161,11 @@ public class ApplyVisualizationTask extends AbstractTask {
 			if(nodeValues.isEmpty()) { // If the node is not connected to a row, we display nothing
 				continue;
 			}
+			
+			// If we want to skip "overflawing" nodes, we check if this node is overflawing and skip if needed
+			if(this.ovViz.skipOverflaw() && nodeValues.size() > OVShared.MAXIMUM_ROWS_CONNECTED_TO_NODE) {
+				continue;
+			}
 
 			int ncol = this.ovViz.getValues().size();
 			int nrow = nodeValues.size() / ncol;

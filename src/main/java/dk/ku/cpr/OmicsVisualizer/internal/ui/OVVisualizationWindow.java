@@ -111,6 +111,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 	private OVTable ovTable;
 	private OVConnection ovCon;
 	
+	private boolean skipOverflaw;
+	
 	private ChartType chartType;
 	
 	private PaletteProviderManager paletteProviderManager;
@@ -1018,6 +1020,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 		// We only update the Panel1 information, the information of Panel2 always check for ovViz
 		this.selectValues.setVisualization(ovViz);
 		if(ovViz != null) {
+			this.skipOverflaw = ovViz.skipOverflaw();
 			
 			this.filteredCheck.setSelected(ovViz.isOnlyFiltered());
 			if(ovViz.getLabel() == null) {
@@ -1055,6 +1058,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 			
 			this.deleteButton.setEnabled(true);
 		} else {
+			this.skipOverflaw = false; // by default we draw everything
+			
 			this.selectChartLabels.setSelectedIndex(0);
 //			this.selectDiscreteContinuous.setSelectedIndex(0);
 			this.initSelectDiscreteContinuous(true);
@@ -1155,6 +1160,41 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				this.updateVisualization(this.getVisualization());
 
 				this.displayPanel1();
+				
+				// We look for nodes that are connected to too many rows
+				boolean warn=false;
+				for(CyNode node : this.ovCon.getBaseNetwork().getNodeList()) {
+					int nbLinkedRows=0;
+					for(CyRow row : this.ovCon.getLinkedRows(node)) {
+						// Here we count only filtered rows (rows that pass the filter)
+						// Even if the user can uncheck "filtered rows only", we expect most usages to visualize only filtered rows
+						if(this.ovTable.isFiltered(row)) {
+							nbLinkedRows++;
+						}
+					}
+					if(nbLinkedRows > OVShared.MAXIMUM_ROWS_CONNECTED_TO_NODE) {
+						warn=true;
+					}
+				}
+				
+				if(warn) {
+					Object options[] = {"Continue anyway", "Do not draw visualization for those nodes", "Cancel"};
+					int choice = JOptionPane.showOptionDialog(this, "Carefull, there is at least one node in the network that is connected to more than "+OVShared.MAXIMUM_ROWS_CONNECTED_TO_NODE+" rows from the table.\n"
+							+ "It can lead to a hard to read thus pointless visualization.", "Warning", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[2]);
+					
+					switch(choice) {
+					case JOptionPane.CLOSED_OPTION:
+					case 0: // dialog closed or "continue" option
+						this.skipOverflaw=false;
+						break;
+					case 1: // "skip" option
+						this.skipOverflaw=true;
+						break;
+					case 2: // "stop" option
+						this.setVisible(false);
+						return;
+					}
+				}
 			}
 		}
 
@@ -1351,7 +1391,8 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 					colors,
 					this.palette.getIdentifier().toString(),
 					label,
-					this.selectRing.getSelectedItem().equals(OVVisualizationWindow.ROW));
+					this.selectRing.getSelectedItem().equals(OVVisualizationWindow.ROW),
+					this.skipOverflaw);
 
 			if(this.chartType.equals(ChartType.CIRCOS)) {
 				this.ovCon.setOuterVisualization(ovViz);
