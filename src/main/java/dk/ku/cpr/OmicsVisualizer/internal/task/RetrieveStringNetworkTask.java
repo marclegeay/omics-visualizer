@@ -158,7 +158,7 @@ public class RetrieveStringNetworkTask extends AbstractTask implements TaskObser
 					@Override
 					public void run() {
 						JOptionPane.showMessageDialog(ovManager.getService(CySwingApplication.class).getJFrame(),
-								"No network wa retrieved.\nThe stringApp could not retrieve the queried network.",
+								"No network was retrieved.\nThe stringApp could not retrieve the queried network.",
 								"Error while retrieving STRING network",
 								JOptionPane.ERROR_MESSAGE);
 					}
