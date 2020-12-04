@@ -139,7 +139,7 @@ public class OVConnection {
 	
 	/**
 	 * Returns the table rows that are mapped to a given network's node table row.
-	 * @param netRow The row from the network's node table
+	 * @param netNode The row from the network's node table
 	 * @return The table rows mapped to the network node
 	 */
 	public List<CyRow> getLinkedRows(CyNode netNode) {
