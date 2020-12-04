@@ -34,6 +34,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import org.cytoscape.application.CyApplicationManager;
+import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
@@ -1179,7 +1180,7 @@ public class OVVisualizationWindow extends OVWindow implements ActionListener {
 				
 				if(warn) {
 					Object options[] = {"Continue anyway", "Do not draw visualization for those nodes", "Cancel"};
-					int choice = JOptionPane.showOptionDialog(this, "Carefull, there is at least one node in the network that is connected to more than "+OVShared.MAXIMUM_ROWS_CONNECTED_TO_NODE+" rows from the table.\n"
+					int choice = JOptionPane.showOptionDialog(this.ovManager.getService(CySwingApplication.class).getJFrame(), "Carefull, there is at least one node in the network that is connected to more than "+OVShared.MAXIMUM_ROWS_CONNECTED_TO_NODE+" rows from the table.\n"
 							+ "It can lead to a hard to read thus pointless visualization.", "Warning", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[2]);
 					
 					switch(choice) {
