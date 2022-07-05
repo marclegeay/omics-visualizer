@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
@@ -112,15 +113,15 @@ public class ExcelAttributeOVTableSheetReader implements TextTableReader {
 			return "";
 		}
 		
-		int cellType = cell.getCellType();
-        if (cellType == Cell.CELL_TYPE_FORMULA) {
+		CellType cellType = cell.getCellType();
+        if (cellType == CellType.FORMULA) {
             if (evaluator == null) {
                 return cell.getCellFormula();
             }
             cellType = evaluator.evaluateFormulaCell(cell);
         }
         switch (cellType) {
-            case Cell.CELL_TYPE_NUMERIC :
+            case NUMERIC :
             	if (DateUtil.isCellDateFormatted(cell)) {
                     return formatter.formatCellValue(cell, evaluator);
                 }
@@ -137,12 +138,12 @@ public class ExcelAttributeOVTableSheetReader implements TextTableReader {
                 }
                 return val.toPlainString();
 
-            case Cell.CELL_TYPE_STRING :
+            case STRING :
                 return cell.getRichStringCellValue().getString();
 
-            case Cell.CELL_TYPE_BOOLEAN :
+            case BOOLEAN :
                 return String.valueOf(cell.getBooleanCellValue());
-            case Cell.CELL_TYPE_BLANK :
+            case BLANK :
                 return "";
         }
         
@@ -160,8 +161,8 @@ public class ExcelAttributeOVTableSheetReader implements TextTableReader {
 		for (short i = 0; i < mapping.getColumnCount(); i++) {
 			cell = row.getCell(i);
 
-			if (cell == null || cell.getCellType() == Cell.CELL_TYPE_ERROR || 
-					(cell.getCellType() == Cell.CELL_TYPE_FORMULA && cell.getCachedFormulaResultType() == Cell.CELL_TYPE_ERROR)) {
+			if (cell == null || cell.getCellType() == CellType.ERROR || 
+					(cell.getCellType() == CellType.FORMULA && cell.getCachedFormulaResultType() == CellType.ERROR)) {
 				cells[i] = null;
 			} else {
 				// ML

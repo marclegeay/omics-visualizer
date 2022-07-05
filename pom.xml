@@ -7,14 +7,15 @@
   <packaging>bundle</packaging>
   
   <properties>
-  	<bundle.symbolicName>dk.ku.cpr.OmicsVisualizer</bundle.symbolicName>
-	<bundle.namespace>dk.ku.cpr.OmicsVisualizer.internal</bundle.namespace>
-	
-  	<cytoscape.api.version>3.7.0</cytoscape.api.version>
-  	
-  	<osgi.api.version>6.0.0</osgi.api.version>
-	
-	<maven-bundle-plugin.version>3.0.0</maven-bundle-plugin.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <cytoscape.api.version>3.9.0</cytoscape.api.version>
+        <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M3</maven-surefire-plugin.version>
+        <maven-bundle-plugin.version>4.1.0</maven-bundle-plugin.version>
+        <osgi.api.version>6.0.0</osgi.api.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  			<bundle.symbolicName>dk.ku.cpr.OmicsVisualizer</bundle.symbolicName>
+				<bundle.namespace>dk.ku.cpr.OmicsVisualizer.internal</bundle.namespace>
   </properties>
   
   <repositories>
@@ -55,8 +56,8 @@
 		            should be Java 1.7-compatible.
 		          -->
 		          <encoding>UTF-8</encoding>
-		          <source>1.8</source>
-		          <target>1.8</target>
+		          <source>11</source>
+		          <target>11</target>
 		        </configuration>
 		      </plugin>
 			<plugin>
@@ -71,10 +72,9 @@
 						<Export-Package>!${bundle.namespace}.*</Export-Package>
 						<Private-Package>${bundle.namespace}.*,${bundle.symbolicName}.external.*</Private-Package>
 						<Bundle-Activator>${bundle.namespace}.CyActivator</Bundle-Activator>
-						<Embed-Dependency>gson</Embed-Dependency>
-						<Embed-Dependency>poi|poi-ooxml|poi-ooxml-schemas|ooxml-schemas;groupId=org.apache.poi;inline=false</Embed-Dependency>
-						<Import-Package>junit.*|org.apache.poi.hdgf.*|org.apache.poi.hpbf.*|org.apache.poi.hslf.*|org.apache.poi.hsmf|org.apache.poi.hsmf.*|org.apache.poi.hwpf.*;resolution:=optional,*</Import-Package>
-						<DynamicImport-Package>*</DynamicImport-Package>
+						<Embed-Dependency>*;scope=!provided</Embed-Dependency>
+						<Embed-Transitive>true</Embed-Transitive>
+						<Import-Package>*;resolution:=optional</Import-Package>
 						<Cytoscape-App-Dependencies>enhancedGraphics;1.5.3</Cytoscape-App-Dependencies>
 					</instructions>
 				</configuration>
@@ -88,165 +88,194 @@
 				<groupId>org.cytoscape</groupId>
 				<artifactId>application-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>core-task-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>equations-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>event-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>io-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>layout-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>group-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>model-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>app-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>swing-app-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>presentation-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>property-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>session-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>swing-application-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>swing-util-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>viewmodel-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>vizmap-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>vizmap-gui-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>webservice-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>webservice-swing-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>work-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>work-swing-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>datasource-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>command-executor-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>service-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>ci-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.cytoscape</groupId>
 				<artifactId>util-api</artifactId>
 				<version>${cytoscape.api.version}</version>
+				<scope>provided</scope>
 			</dependency>
 
 		<!-- 3rd party library -->
-		<dependency>
+		<!--dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.7</version>
-			<scope>provided</scope>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>2.3</version>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-api</artifactId>
 			<version>1.5.2</version>
-			<scope>provided</scope>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>
 			<version>${osgi.api.version}</version>
+			<scope>provided</scope>
 		</dependency>
 	    <dependency>
 	    	<groupId>org.slf4j</groupId>
 	    	<artifactId>slf4j-simple</artifactId>
 	    	<version>1.8.0-beta2</version>
+			<optional>true</optional>
 	    </dependency>
 	    
 	    <!-- Apache poi -->
@@ -254,6 +283,7 @@
 			<groupId>org.apache.xmlbeans</groupId> 
 			<artifactId>xmlbeans</artifactId> 
 			<version>2.4.0</version> 
+			<optional>true</optional>
 		</dependency>
 
 		<!-- 
@@ -264,29 +294,33 @@
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
-            <version>3.17</version>
+            <version>5.2.2</version>
+					  <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>3.8</version>
+            <version>5.2.2</version>
+					  <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml-schemas</artifactId>
-            <version>3.8</version>
+            <artifactId>poi-ooxml-full</artifactId>
+            <version>5.2.2</version>
+					  <optional>true</optional>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>ooxml-schemas</artifactId>
-            <version>1.1</version>
-        </dependency>
+            <version>5.2.2</version>
+        </dependency-->
         
         <!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
 		<dependency>
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>jaxb-api</artifactId>
 			<version>2.1</version>
+			<optional>true</optional>
 		</dependency>
         
         
@@ -294,6 +328,7 @@
             <groupId>net.sf.opencsv</groupId>
             <artifactId>opencsv</artifactId>
             <version>2.1</version>
+						<optional>true</optional>
         </dependency>
 	</dependencies>
 </project>
