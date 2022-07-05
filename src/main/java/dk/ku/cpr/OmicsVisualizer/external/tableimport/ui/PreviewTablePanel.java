@@ -105,6 +105,7 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
@@ -759,15 +760,15 @@ public class PreviewTablePanel extends JPanel {
 			return "";
 		}
 		
-		int cellType = cell.getCellType();
-        if (cellType == Cell.CELL_TYPE_FORMULA) {
+		CellType cellType = cell.getCellType();
+        if (cellType == CellType.FORMULA) {
             if (evaluator == null) {
                 return cell.getCellFormula();
             }
             cellType = evaluator.evaluateFormulaCell(cell);
         }
         switch (cellType) {
-            case Cell.CELL_TYPE_NUMERIC :
+            case NUMERIC :
             	if (DateUtil.isCellDateFormatted(cell)) {
                     return formatter.formatCellValue(cell, evaluator);
                 }
@@ -784,12 +785,12 @@ public class PreviewTablePanel extends JPanel {
                 }
                 return val.toPlainString();
 
-            case Cell.CELL_TYPE_STRING :
+            case STRING :
                 return cell.getRichStringCellValue().getString();
 
-            case Cell.CELL_TYPE_BOOLEAN :
+            case BOOLEAN :
                 return String.valueOf(cell.getBooleanCellValue());
-            case Cell.CELL_TYPE_BLANK :
+            case BLANK :
                 return "";
         }
         
@@ -842,13 +843,13 @@ public class PreviewTablePanel extends JPanel {
 				for (short j = 0; j < maxCol; j++) {
 					Cell cell = row.getCell(j);
 					// ML
-//					if (cell == null || cell.getCellType() == Cell.CELL_TYPE_ERROR || 
-//							(cell.getCellType() == Cell.CELL_TYPE_FORMULA && cell.getCachedFormulaResultType() == Cell.CELL_TYPE_ERROR)) {
+//					if (cell == null || cell.getCellType() == CellType.ERROR || 
+//							(cell.getCellType() == CellType.FORMULA && cell.getCachedFormulaResultType() == CellType.ERROR)) {
 //						rowVector.add(null);
 //					} else {
 //						rowVector.add(formatter.formatCellValue(cell, evaluator));
-					if (cell != null && cell.getCellType() != Cell.CELL_TYPE_ERROR && 
-							(cell.getCellType() != Cell.CELL_TYPE_FORMULA || cell.getCachedFormulaResultType() != Cell.CELL_TYPE_ERROR)) {
+					if (cell != null && cell.getCellType() != CellType.ERROR && 
+							(cell.getCellType() != CellType.FORMULA || cell.getCachedFormulaResultType() != CellType.ERROR)) {
 					// END ML
 						
 						// ML
@@ -856,8 +857,8 @@ public class PreviewTablePanel extends JPanel {
 						if(!firstRowNames || validRowCount > 0) {
 							Class<?> colType = colTypes.get(j);
 							
-							int cellType = cell.getCellType();
-							if (cellType == Cell.CELL_TYPE_FORMULA) {
+							CellType cellType = cell.getCellType();
+							if (cellType == CellType.FORMULA) {
 								if (evaluator != null) {
 									cellType = evaluator.evaluateFormulaCell(cell);
 								}
@@ -865,21 +866,21 @@ public class PreviewTablePanel extends JPanel {
 							
 							if(colType == null) {
 								switch (cellType) {
-								case Cell.CELL_TYPE_NUMERIC :
+								case NUMERIC :
 									if (DateUtil.isCellDateFormatted(cell)) {
 										colType = String.class;
 									} else {
 										colType = getNumericClass(cell.getNumericCellValue());
 									}
 									break;
-								case Cell.CELL_TYPE_STRING :
+								case STRING :
 									colType = String.class;
 									break;
-								case Cell.CELL_TYPE_BOOLEAN :
+								case BOOLEAN :
 									colType = Boolean.class;
 									break;
-								case Cell.CELL_TYPE_FORMULA :
-								case Cell.CELL_TYPE_BLANK :
+								case FORMULA :
+								case BLANK :
 									colType = null; // don't know yet
 									break;
 								}
@@ -890,13 +891,13 @@ public class PreviewTablePanel extends JPanel {
 								// Previously detected as boolean?
 								if (colType == Boolean.class) {
 									// Just make sure the other rows are also compatible with boolean values...
-									if (cellType != Cell.CELL_TYPE_BOOLEAN) {
+									if (cellType != CellType.BOOLEAN) {
 										// This row does not contain a boolean, so the column has to be a String
 										colType = String.class;
 									}
 								} else if (colType == Integer.class) {
 									// Make sure the other rows are also integers...
-									if (cellType == Cell.CELL_TYPE_NUMERIC) {
+									if (cellType == CellType.NUMERIC) {
 										Class<?> cellNumericType = getNumericClass(cell.getNumericCellValue());
 										if (cellNumericType == Long.class)
 											colType = Long.class;
@@ -909,7 +910,7 @@ public class PreviewTablePanel extends JPanel {
 									}
 								} else if (colType == Long.class) {
 									// Make sure the other rows are also longs (no need to check for integers anymore)...
-									if (cellType == Cell.CELL_TYPE_NUMERIC) {
+									if (cellType == CellType.NUMERIC) {
 										Class<?> cellNumericType = getNumericClass(cell.getNumericCellValue());
 										if (cellNumericType == Double.class)
 											colType = Double.class;
@@ -919,7 +920,7 @@ public class PreviewTablePanel extends JPanel {
 									}
 								} else if (colType == Double.class) {
 									// Make sure the other rows are also doubles (no need to check for other numeric types)...
-									if (cellType != Cell.CELL_TYPE_NUMERIC) {
+									if (cellType != CellType.NUMERIC) {
 										colType = String.class;
 									}
 								}
@@ -948,8 +949,8 @@ public class PreviewTablePanel extends JPanel {
 			for (short col = 0; col < maxCol; col++) {
 				Cell cell = r.getCell(col);
 
-				if (cell == null || cell.getCellType() == Cell.CELL_TYPE_ERROR || 
-						(cell.getCellType() == Cell.CELL_TYPE_FORMULA && cell.getCachedFormulaResultType() == Cell.CELL_TYPE_ERROR)) {
+				if (cell == null || cell.getCellType() == CellType.ERROR || 
+						(cell.getCellType() == CellType.FORMULA && cell.getCachedFormulaResultType() == CellType.ERROR)) {
 					rowVector.add(null);
 				} else {
 					rowVector.add(formatCell(cell, colTypes.get(col), formatter, evaluator));

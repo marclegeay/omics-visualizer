@@ -203,7 +203,7 @@ public class LoadOVTableReaderTask extends AbstractTask implements CyTableReader
 					// It is the dot
 					decimalSeparator = '.';
 					// END ML
-				} catch (InvalidFormatException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 					throw new IllegalArgumentException("Could not read Excel file.  Maybe the file is broken?");
 				} finally {

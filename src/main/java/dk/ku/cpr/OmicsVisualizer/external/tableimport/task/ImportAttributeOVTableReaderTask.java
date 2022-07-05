@@ -125,7 +125,7 @@ public class ImportAttributeOVTableReaderTask extends AbstractTask implements Cy
 				workbook == null) {
 			try {
 				workbook = WorkbookFactory.create(is);
-			} catch (InvalidFormatException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 				throw new IllegalArgumentException("Could not read Excel file.  Maybe the file is broken?");
 			} finally {
