@@ -18,6 +18,7 @@ import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +98,9 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 		this.retrieveButton = new JButton("Retrieve network");
 		this.retrieveButton.addActionListener(this);
 
-		StringCommandTaskFactory factory = new StringCommandTaskFactory(this.ovManager, OVShared.STRING_CMD_LIST_SPECIES, null, this);
+		Map<String, Object> args = new HashMap<>();
+		args.put("category", "core");
+		StringCommandTaskFactory factory = new StringCommandTaskFactory(this.ovManager, OVShared.STRING_CMD_LIST_SPECIES, args, this);
 		TaskIterator ti = factory.createTaskIterator();
 		this.ovManager.executeSynchronousTask(ti);
 		

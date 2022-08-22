@@ -2,6 +2,7 @@ package dk.ku.cpr.OmicsVisualizer.internal.task;
 
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.Tunable;
+import org.cytoscape.work.util.ListSingleSelection;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 
@@ -46,6 +47,13 @@ public class RetrieveStringNetworkTunableTask extends RetrieveStringNetworkTask 
 			gravity=1.0)
 	public Double cutoff;
 
+	@Tunable(description="Network type.",
+			required=false,
+			tooltip="Choose one of the two network types (full STRING network or physical subnetwork) the STRING network should have. Default: full STRING network.",
+			exampleStringValue="full STRING network",
+			gravity=1.0)
+	public ListSingleSelection<String> netType;
+
 	public RetrieveStringNetworkTunableTask(OVManager ovManager) {
 		super(ovManager);
 	}
@@ -67,6 +75,9 @@ public class RetrieveStringNetworkTunableTask extends RetrieveStringNetworkTask 
 		}
 		if(cutoff != null) {
 			this.setCutoff(cutoff.doubleValue());
+		}
+		if(netType != null) {
+			this.setNetType(netType.getSelectedValue());
 		}
 		
 		super.run(taskMonitor);

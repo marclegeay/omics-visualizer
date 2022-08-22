@@ -21,6 +21,7 @@ import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.TaskMonitor.Level;
 import org.cytoscape.work.TaskObserver;
 import org.cytoscape.work.json.JSONResult;
+import org.cytoscape.work.util.ListSingleSelection;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
@@ -37,6 +38,7 @@ public class RetrieveStringNetworkTask extends AbstractTask implements TaskObser
 	protected Integer protected_taxonID;
 	protected String protected_species;
 	protected double protected_cutoff;
+	protected ListSingleSelection<String> protected_netType;
 	
 	protected CyNetwork retrievedNetwork;
 
@@ -52,6 +54,9 @@ public class RetrieveStringNetworkTask extends AbstractTask implements TaskObser
 		this.protected_taxonID=null;
 		this.protected_species=null;
 		this.protected_cutoff=0.4;
+		this.protected_netType = new ListSingleSelection<String>(
+				Arrays.asList("full STRING network", "physical subnetwork"));
+		this.protected_netType.setSelectedValue("full STRING network");
 		
 		this.isGUI = false;
 	}
@@ -78,6 +83,10 @@ public class RetrieveStringNetworkTask extends AbstractTask implements TaskObser
 
 	public void setCutoff(double cutoff) {
 		this.protected_cutoff = cutoff;
+	}
+	
+	public void setNetType(String netType) {
+		this.protected_netType.setSelectedValue(netType);;
 	}
 	
 	public void setIsGUI(boolean isGUI) {
@@ -107,6 +116,7 @@ public class RetrieveStringNetworkTask extends AbstractTask implements TaskObser
 		taskMonitor.setStatusMessage("Taxon ID: " + this.protected_taxonID);
 		taskMonitor.setStatusMessage("Species: " + this.protected_species);
 		taskMonitor.setStatusMessage("Cut-off: " + this.protected_cutoff);
+		taskMonitor.setStatusMessage("Network type: " + this.protected_netType.getSelectedValue());
 		
 		if((this.protected_taxonID == null) && (this.protected_species == null)) {
 			taskMonitor.setStatusMessage("You have to give either the Taxon ID or the Species name.");
@@ -139,6 +149,7 @@ public class RetrieveStringNetworkTask extends AbstractTask implements TaskObser
 			args.put("species", this.protected_species);
 		}
 		args.put("cutoff", String.valueOf(this.protected_cutoff));
+		args.put("networkType", protected_netType.getSelectedValue());
 		args.put("limit", "0");
 		args.put("newNetName", ovTable.getTitle());
 
