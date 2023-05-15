@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.AbstractAction;
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -31,6 +32,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -52,6 +54,7 @@ import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RetrieveStringNetworkTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.StringCommandTaskFactory;
+import dk.ku.cpr.OmicsVisualizer.internal.model.NetworkType;
 
 public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObserver, ActionListener {
 	private static final long serialVersionUID = 8015437684470645491L;
@@ -64,6 +67,11 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 
 	private JComboBox<OVSpecies> selectSpecies;
 	private JComboBox<String> selectQuery;
+
+	//private JComboBox<String> selectNetType;
+	private JRadioButton physicalNetwork;
+	private JRadioButton functionalNetwork;
+	private NetworkType networkType = null;
 	
 	private JSlider confidenceSlider;
 	private JTextField confidenceValue;
@@ -85,6 +93,11 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 
 		this.selectQuery = new JComboBox<>();
 		
+		// this.selectNetType = new JComboBox<>();
+		this.functionalNetwork = new JRadioButton(NetworkType.FUNCTIONAL.toString(), true);
+		this.physicalNetwork = new JRadioButton(NetworkType.PHYSICAL.toString(), false);
+		this.networkType = NetworkType.FUNCTIONAL;
+		
 		this.confidenceSlider = new JSlider();
 		this.confidenceValue = new JTextField();
 
@@ -98,9 +111,10 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 		this.retrieveButton = new JButton("Retrieve network");
 		this.retrieveButton.addActionListener(this);
 
-		Map<String, Object> args = new HashMap<>();
-		args.put("category", "core");
-		StringCommandTaskFactory factory = new StringCommandTaskFactory(this.ovManager, OVShared.STRING_CMD_LIST_SPECIES, args, this);
+		// After fixing stringApp bug, this is not needed anymore
+		//Map<String, Object> args = new HashMap<>();
+		// args.put("category", "core");
+		StringCommandTaskFactory factory = new StringCommandTaskFactory(this.ovManager, OVShared.STRING_CMD_LIST_SPECIES, null, this);
 		TaskIterator ti = factory.createTaskIterator();
 		this.ovManager.executeSynchronousTask(ti);
 		
@@ -114,6 +128,30 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 //		this.init();
 	}
 	
+	private JPanel createNetTypeRadioButtons() {
+		JPanel netTypePanel = new JPanel(new GridBagLayout());
+		netTypePanel.setOpaque(!LookAndFeelUtil.isAquaLAF());
+		MyGridBagConstraints c = new MyGridBagConstraints();
+		netTypePanel.add(functionalNetwork, c);
+		netTypePanel.add(physicalNetwork, c.nextCol());
+				
+		ButtonGroup group = new ButtonGroup();
+		group.add(physicalNetwork);
+		group.add(functionalNetwork);
+				
+		if (networkType.equals(NetworkType.PHYSICAL)) 
+			physicalNetwork.setSelected(true);
+
+		return netTypePanel;
+	}
+	
+	public NetworkType getNetworkType() {
+		if (physicalNetwork.isSelected())
+			return NetworkType.PHYSICAL;
+		else 
+			return NetworkType.FUNCTIONAL;
+	}
+
 	private JPanel createConfidenceSlider() {
 		JPanel confidencePanel = new JPanel(new GridBagLayout());
 		confidencePanel.setOpaque(!LookAndFeelUtil.isAquaLAF());
@@ -274,6 +312,12 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 		selectPanel.add(new JLabel("Protein identifier column:"), c.nextRow());
 		selectPanel.add(this.selectQuery, c.nextCol());
 		
+		//selectPanel.add(new JLabel("Network type:"), c.nextRow());		
+		//selectPanel.add(this.selectNetType, c.nextCol());
+		
+		selectPanel.add(new JLabel("Network type:"), c.nextRow());
+		selectPanel.add(this.createNetTypeRadioButtons(), c.nextCol());
+
 		selectPanel.add(this.createConfidenceSlider(), c.nextRow().useNCols(2).setInsets(MyGridBagConstraints.DEFAULT_INSET, 0, MyGridBagConstraints.DEFAULT_INSET, 0));
 		c.useNCols(1).setInsets(MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET, MyGridBagConstraints.DEFAULT_INSET);
 
@@ -362,6 +406,7 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 						species.getTaxonID(),
 						species.getName(),
 						formatter.parse(this.confidenceValue.getText()).doubleValue(),
+						this.getNetworkType().toString(),
 						true));
 			} catch (ParseException e1) {
 				inputError();
