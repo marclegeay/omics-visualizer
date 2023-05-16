@@ -83,7 +83,8 @@ public class CyActivator extends AbstractCyActivator {
 				// ".xls"
 				WildCardCyFileFilter filter = new WildCardCyFileFilter(
 						new String[] { "xls", "xlsx" },
-						new String[] { "application/excel" },
+						new String[] { "application/excel", "application/vnd.ms-excel", 
+								"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
 						"Excel",
 						TABLE,
 						streamUtil
