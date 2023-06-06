@@ -248,11 +248,6 @@
 			</dependency>
 
 		<!-- 3rd party library -->
-		<!--dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.7</version>
-		</dependency-->
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
@@ -279,41 +274,17 @@
 	    </dependency>
 	    
 	    <!-- Apache poi -->
-		<dependency>
-			<groupId>org.apache.xmlbeans</groupId> 
-			<artifactId>xmlbeans</artifactId> 
-			<version>3.0.0</version> 
-			<optional>true</optional>
-		</dependency>
-
-		<!-- 
-		     org.apache.poi-all (below) consists of the 4 jars listed
-			 in this comment. We need to combine them because of a package 
-			 split between org.apache.poi and org.apache.poi-ooxml.
-        -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
             <version>5.2.2</version>
-					  <optional>true</optional>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
             <version>5.2.2</version>
-					  <optional>true</optional>
         </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml-full</artifactId>
-            <version>5.2.2</version>
-					  <optional>true</optional>
-        </dependency>
-        <!--dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>ooxml-schemas</artifactId>
-            <version>5.2.2</version>
-        </dependency-->
         
         <!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
 		<dependency>
