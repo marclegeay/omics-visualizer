@@ -37,14 +37,13 @@ import org.cytoscape.work.ProvidesTitle;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.Tunable;
 import org.cytoscape.work.TunableValidator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 
 public class ImportOVTableDataTask extends AbstractTask implements TunableValidator {
 
-	private static final Logger logger = LoggerFactory.getLogger(CyUserLog.NAME);
+	private static final Logger logger = Logger.getLogger(CyUserLog.NAME);
 	
 	private CyTableReader reader;
 	private final OVManager ovManager;

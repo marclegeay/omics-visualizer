@@ -40,8 +40,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.cytoscape.application.CyUserLog;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.service.util.CyServiceRegistrar;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.AttributeDataType;
 
@@ -63,7 +62,7 @@ public class ExcelAttributeOVTableSheetReader implements TextTableReader {
 	private final int startLineNumber;
 	private int globalCounter = 0;
 
-	private static final Logger logger = LoggerFactory.getLogger(CyUserLog.NAME);
+	private static final Logger logger = Logger.getLogger(CyUserLog.NAME);
 	
 	
 	public ExcelAttributeOVTableSheetReader(

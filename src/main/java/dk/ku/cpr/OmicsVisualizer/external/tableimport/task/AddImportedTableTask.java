@@ -32,14 +32,13 @@ import org.cytoscape.model.CyTableManager;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.TaskMonitor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 
 class AddImportedTableTask extends AbstractTask implements ObservableTask {
 
-	private static Logger logger = LoggerFactory.getLogger(CyUserLog.NAME);
+	private static Logger logger = Logger.getLogger(CyUserLog.NAME);
 
 	private final CyTableReader reader;
 	private final OVManager ovManager;

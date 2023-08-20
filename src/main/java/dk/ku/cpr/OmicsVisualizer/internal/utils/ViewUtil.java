@@ -2,7 +2,7 @@ package dk.ku.cpr.OmicsVisualizer.internal.utils;
 
 import javax.swing.SwingUtilities;
 
-import org.slf4j.Logger;
+import org.apache.log4j.Logger;
 
 /*
  * #%L

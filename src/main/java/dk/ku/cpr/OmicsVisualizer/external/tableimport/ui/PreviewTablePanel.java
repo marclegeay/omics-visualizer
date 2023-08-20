@@ -119,8 +119,7 @@ import org.cytoscape.model.CyTable;
 import org.cytoscape.util.swing.ColumnResizer;
 import org.cytoscape.util.swing.IconManager;
 import org.cytoscape.util.swing.LookAndFeelUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import au.com.bytecode.opencsv.CSVReader;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.reader.SupportedFileType;
@@ -176,7 +175,7 @@ public class PreviewTablePanel extends JPanel {
 	
 	private final Object lock = new Object();
 
-	private static final Logger logger = LoggerFactory.getLogger(CyUserLog.NAME);
+	private static final Logger logger = Logger.getLogger(CyUserLog.NAME);
 
 	/**
 	 * Creates a new PreviewTablePanel object.

@@ -118,8 +118,7 @@ import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.util.swing.ColumnResizer;
 import org.cytoscape.util.swing.IconManager;
 import org.cytoscape.util.swing.LookAndFeelUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.reader.AttributeMappingParameters;
 import dk.ku.cpr.OmicsVisualizer.external.tableimport.reader.SupportedFileType;
@@ -138,7 +137,7 @@ import dk.ku.cpr.OmicsVisualizer.external.tableimport.util.TypeUtil;
 @SuppressWarnings("serial")
 public class ImportTablePanel extends JPanel implements PropertyChangeListener, DataEvents {
 	
-	private static final Logger logger = LoggerFactory.getLogger(CyUserLog.NAME);
+	private static final Logger logger = Logger.getLogger(CyUserLog.NAME);
 
 	private static final String ID = CyNetwork.NAME;
 

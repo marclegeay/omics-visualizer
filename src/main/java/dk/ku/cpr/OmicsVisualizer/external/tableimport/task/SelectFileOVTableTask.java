@@ -11,8 +11,7 @@ import org.cytoscape.service.util.CyServiceRegistrar;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.Tunable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 /*
  * #%L
@@ -52,7 +51,7 @@ public class SelectFileOVTableTask extends AbstractTask {
 	private InputStream stream;
 	private final CyServiceRegistrar serviceRegistrar;
 	
-	private static final Logger logger = LoggerFactory.getLogger(CyUserLog.NAME); 
+	private static final Logger logger = Logger.getLogger(CyUserLog.NAME); 
 
 	public SelectFileOVTableTask(final LoadOVTableReaderTask readerTask, final CyServiceRegistrar serviceRegistrar) {
 		tableReader = readerTask;
