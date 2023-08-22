@@ -51,6 +51,7 @@ import org.cytoscape.work.TaskObserver;
 
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVManager;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVShared;
+import dk.ku.cpr.OmicsVisualizer.internal.model.OVSpecies;
 import dk.ku.cpr.OmicsVisualizer.internal.model.OVTable;
 import dk.ku.cpr.OmicsVisualizer.internal.task.RetrieveStringNetworkTaskFactory;
 import dk.ku.cpr.OmicsVisualizer.internal.task.StringCommandTaskFactory;
@@ -88,8 +89,8 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 		super(ovManager, "Retrieve a STRING Network");
 		this.ovTable=null;
 
-		this.speciesList = new ArrayList<>();
-		this.selectSpecies = new JComboBox<>();
+		this.speciesList = new ArrayList<OVSpecies>();
+		this.selectSpecies = new JComboBox<OVSpecies>(speciesList.toArray(new OVSpecies[1]));
 
 		this.selectQuery = new JComboBox<>();
 		
@@ -349,7 +350,7 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 		this.pack();
 		this.setLocationRelativeTo(this.ovManager.getOVCytoPanel().getTopLevelAncestor());
 		
-		JComboBoxDecorator.originalDimension = this.selectSpecies.getPreferredSize();
+		// JComboBoxDecorator.originalDimension = this.selectSpecies.getPreferredSize();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -358,18 +359,20 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 		if(task.getClass().getSimpleName().equals("GetSpeciesTask")) {
 			List<Map<String,String>> res = task.getResults(List.class);
 
-			for(Map<String,String> r : res) {
-				OVSpecies species = new OVSpecies(r);
-				this.selectSpecies.addItem(species);
-				this.speciesList.add(species);
-
-				//We select Human as default
-				if(species.abbreviatedName.equals("Homo sapiens")) {
-					this.selectSpecies.setSelectedItem(species);
-				}
+			try {
+				OVSpecies.readSpecies(res);
+				this.speciesList = OVSpecies.getModelSpecies();
+			} catch (Exception e) {
+				throw new RuntimeException("Can't read species information");
 			}
 
-			JComboBoxDecorator.decorate(this.selectSpecies);
+			this.selectSpecies = new JComboBox<OVSpecies>(speciesList.toArray(new OVSpecies[1]));
+			//We select Human as default
+			this.selectSpecies.setSelectedItem(OVSpecies.getHumanSpecies());
+			
+			// JComboBoxDecorator.decorate(this.selectSpecies);
+			JComboBoxDecorator decorator = new JComboBoxDecorator(this.selectSpecies, true, true, speciesList);
+			decorator.decorate(speciesList);
 		}
 	}
 
@@ -420,157 +423,4 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 		}
 	}
 
-	private class OVSpecies {
-		private Integer taxonID;
-		private String abbreviatedName;
-		private String scientificName;
-
-		public OVSpecies(Map<String,String> data) {
-			super();
-			this.taxonID = Integer.valueOf(data.get("taxonomyId"));
-			this.abbreviatedName = data.get("scientificName"); // TODO: Bug ? The scientificName is the shortest one
-			this.scientificName =  data.get("abbreviatedName"); // TODO: Bug ? The abbreviatedName looks like a scientific Name
-		}
-
-		public Integer getTaxonID() {
-			return this.taxonID;
-		}
-		
-		public String getName() {
-			return this.scientificName; // TODO: it should return the "abbreviatedName" from stringApp
-		}
-
-		public String getQueryString() {
-			return (this.abbreviatedName + " " + this.scientificName).toLowerCase();
-		}
-
-		public String toString() {
-			return this.scientificName;
-		}
-	}
-
-	/**
-	 * Makes the species combo box searchable.
-	 */
-	private static class JComboBoxDecorator {
-
-		public static List<OVSpecies> previousEntries = new ArrayList<>();
-		public static String previousText = "";
-		public static Dimension originalDimension;
-
-		public static void decorate(final JComboBox<OVSpecies> jcb) {
-			List<OVSpecies> entries = new ArrayList<>();
-			for (int i = 0; i < jcb.getItemCount(); i++) {
-				entries.add(jcb.getItemAt(i));
-			}
-			decorate(jcb, true, entries);
-			previousText = jcb.getSelectedItem().toString();
-		}
-
-		public static void decorate(final JComboBox<OVSpecies> jcb, boolean editable,
-				final List<OVSpecies> entries) {
-			
-			OVSpecies selectedSpecies = (OVSpecies)jcb.getSelectedItem();
-			// System.out.println("JComboBoxDecorator: selectedItem = "+selectedSpecies);
-			jcb.setEditable(editable);
-
-			final JTextComponent textComponent = (JTextComponent)jcb.getEditor().getEditorComponent();
-			// textField.setText(selectedSpecies.getName());
-			jcb.setSelectedItem(selectedSpecies);
-			
-			originalDimension = jcb.getPreferredSize();
-
-			textComponent.addCaretListener(new CaretListener() {
-				@Override
-				public void caretUpdate(CaretEvent e) {
-					if(e.getMark() == e.getDot()) { // It means that it is not a selection
-						SwingUtilities.invokeLater(new Runnable() {
-							public void run() {
-								int currentCaretPosition=textComponent.getCaretPosition();
-								comboFilter(textComponent.getText(), jcb, entries);
-								textComponent.setCaretPosition(currentCaretPosition);
-								jcb.setPreferredSize(originalDimension);
-							}
-						});
-					}
-				}
-			});
-			//			textField.addKeyListener(new KeyAdapter() {
-			//				public void keyReleased(KeyEvent e) {
-			//					SwingUtilities.invokeLater(new Runnable() {
-			//					 	public void run() {
-			//							int currentCaretPosition=textField.getCaretPosition();
-			//							comboFilter(textField.getText(), jcb, entries);
-			//							textField.setCaretPosition(currentCaretPosition);
-			//					 	}
-			//					});
-			//				}
-			//			});
-
-			textComponent.addFocusListener(new FocusListener() {
-				@Override
-				public void focusLost(FocusEvent e) {
-					if(!previousEntries.isEmpty()) {
-						jcb.setSelectedItem(previousEntries.get(0));
-					}
-				}
-				@Override
-				public void focusGained(FocusEvent e) {
-					// Do nothing
-				}
-			});
-		}
-
-		/**
-		 * Create a list of entries that match the user's entered text.
-		 */
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		private static void comboFilter(String enteredText, JComboBox<OVSpecies> jcb, List<OVSpecies> entries) {
-			List<OVSpecies> entriesFiltered = new ArrayList<>();
-			boolean changed = true;
-
-			if (enteredText == null) {
-				return;
-			}
-
-			if(previousText.equals(enteredText)) {
-				return;
-			}
-			previousText = enteredText;
-
-			for (OVSpecies entry : entries) {
-				if (entry.getQueryString().toLowerCase().contains(enteredText.toLowerCase())) {
-					entriesFiltered.add(entry);
-					// System.out.println(jcbModel.getIndexOf(entry));
-				}
-			}
-
-			if (previousEntries.size() == entriesFiltered.size()
-					&& previousEntries.containsAll(entriesFiltered)) {
-				changed = false;
-			}
-
-			if (changed && entriesFiltered.size() > 1) {
-				previousEntries = entriesFiltered;
-				jcb.setModel(new DefaultComboBoxModel(entriesFiltered.toArray()));
-				jcb.setSelectedItem(enteredText);
-				jcb.showPopup();
-			} else if (entriesFiltered.size() == 1) {
-				if (entriesFiltered.get(0).toString().equalsIgnoreCase(enteredText)) {
-					previousEntries = new ArrayList<>();
-					jcb.setSelectedItem(entriesFiltered.get(0));
-					jcb.hidePopup();
-				} else {
-					previousEntries = entriesFiltered;
-					jcb.setModel(new DefaultComboBoxModel(entriesFiltered.toArray()));
-					jcb.setSelectedItem(enteredText);
-					jcb.showPopup();
-				}
-			} else if (entriesFiltered.size() == 0) {
-				previousEntries = new ArrayList<>();
-				jcb.hidePopup();
-			}
-		}
-
-	}
 }
