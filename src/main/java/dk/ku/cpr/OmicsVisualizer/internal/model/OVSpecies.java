@@ -48,9 +48,16 @@ public class OVSpecies implements Comparable<OVSpecies> {
 			allSpecies.add(species);
 			nameSpecies.put(species.toString(), species);
 
+			// TODO: Fix the way we set the model species
 			if (species.getAbbrevName().equals("Homo sapiens")) {
 				modelSpecies.add(species);
 				humanSpecies = species;
+			} else if (species.getAbbrevName().equals("Mus musculus")
+					|| species.getAbbrevName().equals("Rattus norvegicus")
+					|| species.getAbbrevName().equals("Saccharomyces cerevisiae")
+					|| species.getAbbrevName().equals("Caenorhabditis elegans")
+					|| species.getAbbrevName().equals("Escherichia coli str. K-12 substr. MG1655")) {
+				modelSpecies.add(species);
 			}
 		}
 
