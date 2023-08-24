@@ -394,12 +394,16 @@ public class OVRetrieveStringNetworkWindow extends OVWindow implements TaskObser
 		} else if(e.getSource() == this.retrieveButton) {
 			// We check if the species is OK
 			Object selectedSpecies = this.selectSpecies.getSelectedItem();
-			if(!(selectedSpecies instanceof OVSpecies)) {
-				JOptionPane.showMessageDialog(this, "Error: Unknown species \""+selectedSpecies+"\".", "Error", JOptionPane.ERROR_MESSAGE);
+			OVSpecies species = null;
+			if (selectedSpecies instanceof OVSpecies) {
+				species = (OVSpecies) selectedSpecies;
+			} else if (selectedSpecies instanceof String && selectedSpecies.equals("Homo sapiens")) {
+				species = OVSpecies.getHumanSpecies();
+			} else {
+				JOptionPane.showMessageDialog(this, "Error: Unknown species \"" + selectedSpecies + "\".", "Error",
+						JOptionPane.ERROR_MESSAGE);
 				return;
-			}
-			
-			OVSpecies species = (OVSpecies) selectedSpecies;
+			}			
 			
 			RetrieveStringNetworkTaskFactory factory = new RetrieveStringNetworkTaskFactory(this.ovManager);
 			try {
