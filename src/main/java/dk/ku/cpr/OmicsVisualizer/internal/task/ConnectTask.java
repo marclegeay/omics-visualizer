@@ -53,31 +53,33 @@ public class ConnectTask extends AbstractTask implements ObservableTask {
 			return;
 		}
 		
-		CyNetwork network = this.ovManager.getService(CyApplicationManager.class).getCurrentNetwork();
-		if(network == null) {
-			taskMonitor.setStatusMessage("No current network. The task stops here.");
-			return;
+		if (this.cyNetwork == null) {
+			CyNetwork cyNetwork = this.ovManager.getService(CyApplicationManager.class).getCurrentNetwork();
+			if(cyNetwork == null) {
+				taskMonitor.setStatusMessage("No current network. The task stops here.");
+				return;
+			}
 		}
 		
 		// We check if the network is already connected
-		OVConnection oldCon = this.ovManager.getConnection(this.ovManager.getService(CyRootNetworkManager.class).getRootNetwork(network));
+		OVConnection oldCon = this.ovManager.getConnection(this.ovManager.getService(CyRootNetworkManager.class).getRootNetwork(cyNetwork));
 		if(oldCon != null) {
-			taskMonitor.setStatusMessage("Disconnecting the network " + network.toString() + " and the table " + oldCon.getOVTable().getTitle());
+			taskMonitor.setStatusMessage("Disconnecting the network " + cyNetwork.toString() + " and the table " + oldCon.getOVTable().getTitle());
 			oldCon.disconnect();
 		}
 
-		taskMonitor.setStatusMessage("Connecting " + this.ovTable.getTitle() + " table with " + network.toString() + ".");
+		taskMonitor.setStatusMessage("Connecting " + this.ovTable.getTitle() + " table with " + cyNetwork.toString() + ".");
 		taskMonitor.setStatusMessage("Network key column: " + keyColNet);
 		taskMonitor.setStatusMessage("Table key column: " + keyColTable);
 		
-		this.resultCon = this.ovTable.connect(network, keyColNet, keyColTable);
+		this.resultCon = this.ovTable.connect(cyNetwork, keyColNet, keyColTable);
 		
 		if(this.ovManager.getOVCytoPanel() != null) {
 			this.ovManager.getOVCytoPanel().update();
 		}
 		
 		if(this.resultCon.getNbConnectedTableRows() == 0) {
-			this.resultCon.disconnectNetwork(network);
+			this.resultCon.disconnectNetwork(cyNetwork);
 			taskMonitor.showMessage(Level.WARN, "No rows were connected, the connection has failed.");
 		} else {
 			taskMonitor.setStatusMessage(this.resultCon.getNbConnectedTableRows()+" rows from the table are connected.");
