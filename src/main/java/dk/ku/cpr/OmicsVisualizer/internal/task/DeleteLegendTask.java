@@ -34,7 +34,7 @@ public class DeleteLegendTask extends AbstractTask {
 		
 		CyNetworkView networkView = this.ovManager.getService(CyApplicationManager.class).getCurrentNetworkView();
 		if(networkView == null) {
-			taskMonitor.showMessage(Level.ERROR, "networkView is null");
+			// taskMonitor.showMessage(Level.ERROR, "networkView is null");
 			return;
 		}
 		
